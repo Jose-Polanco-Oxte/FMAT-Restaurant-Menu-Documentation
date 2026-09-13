@@ -1,0 +1,74 @@
+{
+  "projectId": "15034143433341050287",
+  "title": "Tablet UI Wireframing",
+  "screens": [
+    {
+      "screenId": "10282905075011684033",
+      "title": "MisMesasView.png",
+      "deviceType": "TABLET"
+    },
+    {
+      "screenId": "10282905075011683205",
+      "title": "ItemTypeSelector.png",
+      "deviceType": "TABLET"
+    },
+    {
+      "screenId": "97491a7309f44b6eba5937a978176981",
+      "title": "V03-AO · OrderMenuView (Agregar a orden)",
+      "deviceType": "TABLET"
+    },
+    {
+      "screenId": "eef37a886bef453199d3206e69b5d4c7",
+      "title": "O01-C · OrderItemCustomizationModal (Combo con Reglas Canónicas y Notas)",
+      "deviceType": "TABLET"
+    },
+    {
+      "screenId": "04cecfb976a4494e8a4d2106a3875730",
+      "title": "O01-C · OrderItemCustomizationModal (Personalizar Combo)",
+      "deviceType": "TABLET"
+    },
+    {
+      "screenId": "7b3746f46d3c4d9a9a30a282d73d49a5",
+      "title": "V03-CO · OrderMenuView (Crear orden)",
+      "deviceType": "TABLET"
+    },
+    {
+      "screenId": "10282905075011685667",
+      "title": "MenuOrdenView.png",
+      "deviceType": "TABLET"
+    },
+    {
+      "screenId": "57edf42a334e4b58bdfbcd8a852b9e9d",
+      "title": "V01 · AssignedTablesView (Mis mesas)",
+      "deviceType": "TABLET"
+    },
+    {
+      "screenId": "1100e6a01ac143498ee3d96170019a19",
+      "title": "V02 · ActiveOrderView (Orden actual)",
+      "deviceType": "TABLET"
+    },
+    {
+      "screenId": "621f60b7910d4eba8072d6e56da2df7e",
+      "title": "O01 · OrderItemCustomizationModal (Personalizar Platillo)",
+      "deviceType": "TABLET"
+    },
+    {
+      "screenId": "93a300034a2249faad82b6ab6853de97",
+      "title": "V02 · ActiveOrderView (Orden actual)",
+      "deviceType": "TABLET"
+    },
+    {
+      "screenId": "23358c69a5a144b4a9b333d93270f194",
+      "title": "O01-C · OrderItemCustomizationModal (Personalizar Combo con Intercambio)",
+      "deviceType": "TABLET"
+    }
+  ],
+  "designSystem": {
+    "assetId": "4921283958737766649",
+    "displayName": "POS Monochromatic Wireframe",
+    "primaryColor": "#111111",
+    "secondaryColor": "#444444",
+    "backgroundColor": "#FFFFFF",
+    "fontFamily": "INTER"
+  }
+}

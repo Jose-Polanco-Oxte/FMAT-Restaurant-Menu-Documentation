@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "amount": {
+      "type": "string",
+      "description": "Importe no negativo. Precisión de la moneda del restaurante; exceso rechazado sin redondeo.",
+      "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+    },
+    "currency": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Moneda del importe. MXN en ejemplos no impone una moneda a todos los restaurantes."
+    }
+  },
+  "required": [
+    "amount",
+    "currency"
+  ],
+  "additionalProperties": false
+}

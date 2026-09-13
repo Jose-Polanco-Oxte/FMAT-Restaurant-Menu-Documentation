@@ -1,0 +1,23 @@
+{
+  "skill_name": "requirements-spec",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Analiza las fuentes y documentos de arquitectura y diseño provistos en el espacio de trabajo y genera la especificación de requisitos formal (ERS / SRS) en /output/ers con su index.md y todos los archivos modulares correspondientes siguiendo las normas de calidad ISO/IEC/IEEE 29148:2018.",
+      "expected_output": "Estructuración completa en /output/ers/ con index.md y los archivos modulares (01-scope-and-actors.md a 10-traceability-matrix.md), conteniendo requisitos confirmados redactados con 'shall', sin suposiciones no justificadas en las fuentes, con citas explícitas de origen y matriz de trazabilidad.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Revisa las transcripciones y notas de decisiones de diseño donde se modificaron acuerdos previos. Actualiza la especificación en /output/ers registrando las decisiones reemplazadas bajo SUPERSEDED-NNN, los puntos ambiguos o faltantes bajo OPEN-NNN, y garantizando que no se invente ninguna métrica no sustentada.",
+      "expected_output": "Actualización consistente de los archivos modulares en /output/ers/, manteniendo estricta fidelidad a las fuentes, registrando las decisiones superadas en 08-superseded-decisions.md y los puntos pendientes en 09-conflicts-and-open-items.md, sin fabricar SLAs ni códigos técnicos arbitrarios.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "A partir de las discusiones técnicas y diagramas adjuntos, extrae las reglas de negocio (BR-*), requisitos de interfaz (INT-*), y restricciones de arquitectura (CON-*) y documenta la salida de forma modular en /output/ers.",
+      "expected_output": "Identificación y separación rigurosa entre necesidad de negocio, regla de dominio, contrato de interfaz y restricción arquitectónica, generados en sus respectivos archivos modulares y vinculados en index.md.",
+      "files": []
+    }
+  ]
+}

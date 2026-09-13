@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "STOCKED",
+          "description": "Nombre del mensaje, incluido su versionado. En fulfillment indica si se suministra desde stock, receta o combo."
+        },
+        "inventoryItemId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identidad externa de un insumo propiedad de Inventory. Menu solo conserva una referencia lógica."
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^(?=[0-9.]*[1-9])(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+          "description": "Cantidad física estrictamente positiva; precisión y magnitud técnicas pendientes en OPEN-010."
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unidad física de la cantidad, por ejemplo g. Impide sumar medidas incompatibles."
+        }
+      },
+      "required": [
+        "type",
+        "inventoryItemId",
+        "quantity",
+        "unit"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "PREPARED",
+          "description": "Nombre del mensaje, incluido su versionado. En fulfillment indica si se suministra desde stock, receta o combo."
+        },
+        "recipe": {
+          "$ref": "RecipeRef.schema.json",
+          "description": "Receta fijada o definición resuelta según contexto. null en preparación sin receta, como un artículo almacenado."
+        }
+      },
+      "required": [
+        "type",
+        "recipe"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "COMBO",
+          "description": "Nombre del mensaje, incluido su versionado. En fulfillment indica si se suministra desde stock, receta o combo."
+        },
+        "slots": {
+          "type": "array",
+          "items": {
+            "$ref": "CommercialComboSlot.schema.json"
+          },
+          "description": "Espacios de selección configurados para una variante de combo."
+        }
+      },
+      "required": [
+        "type",
+        "slots"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

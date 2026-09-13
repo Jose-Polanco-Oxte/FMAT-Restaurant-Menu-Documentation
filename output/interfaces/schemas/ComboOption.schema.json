@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "optionId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad de una opción dentro de un grupo o slot. La variante referida no sustituye esta identidad."
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Habilita una configuración u opción particular. No reemplaza estado administrativo ni disponibilidad de stock."
+    },
+    "component": {
+      "$ref": "MenuItemRef.schema.json",
+      "description": "Referencia fija a la variante y revisión del MenuItem que una opción de combo suministra."
+    },
+    "suppliedQuantity": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Número de unidades físicas entregadas por una opción. Una opción de seis unidades sigue contando una selección del slot."
+    }
+  },
+  "required": [
+    "optionId",
+    "enabled",
+    "component",
+    "suppliedQuantity"
+  ],
+  "additionalProperties": false
+}

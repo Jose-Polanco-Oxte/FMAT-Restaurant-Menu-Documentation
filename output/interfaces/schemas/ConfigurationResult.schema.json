@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "applied": {
+      "type": "boolean",
+      "description": "Indica si la operación administrativa fue guardada; false en simulación."
+    },
+    "menuItemVersion": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Revisión comercial exacta generada por Menu. Conserva qué definición eligió el consumidor."
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Identidad de origen de una entrada del resultado de copia."
+          },
+          "targetId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Identidad destino de esa copia, para localizar la configuración resultante."
+          },
+          "variantId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Identidad de la presentación vendible, incluso DEFAULT cuando no hay dimensiones."
+          }
+        },
+        "required": [
+          "sourceId",
+          "targetId",
+          "variantId"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Correspondencia entre identidades origen y destino creadas o conservadas al copiar."
+    },
+    "violations": {
+      "type": "array",
+      "items": {
+        "$ref": "Violation.schema.json"
+      },
+      "description": "Reglas incumplidas, con ubicación y motivo; permiten corregir la configuración."
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "Violation.schema.json"
+      },
+      "description": "Advertencias compatibles con guardar, como capacidad incompleta en INACTIVE."
+    }
+  },
+  "required": [
+    "applied",
+    "menuItemVersion",
+    "mappings",
+    "violations",
+    "warnings"
+  ],
+  "additionalProperties": false
+}

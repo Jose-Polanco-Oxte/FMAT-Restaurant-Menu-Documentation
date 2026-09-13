@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "variants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "variantId": {
+            "type": "string",
+            "description": "Variante que se confirma.",
+            "minLength": 1
+          },
+          "reviewToken": {
+            "type": "string",
+            "description": "Token de E-20 que delimita únicamente cambios vistos.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "variantId",
+          "reviewToken"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Una, varias o todas las variantes mostradas; no existe comodín de cambios futuros.",
+      "minItems": 1
+    }
+  },
+  "required": [
+    "variants"
+  ],
+  "additionalProperties": false
+}

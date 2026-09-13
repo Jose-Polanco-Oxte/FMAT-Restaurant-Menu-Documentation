@@ -1,0 +1,30 @@
+{
+  "result": "PASS",
+  "mermaidVersion": "11.15.0",
+  "results": [
+    {
+      "source": "flujos.md",
+      "diagram": 1,
+      "parsed": true,
+      "rendered": true
+    },
+    {
+      "source": "flujos.md",
+      "diagram": 2,
+      "parsed": true,
+      "rendered": true
+    },
+    {
+      "source": "flujos.md",
+      "diagram": 3,
+      "parsed": true,
+      "rendered": true
+    },
+    {
+      "source": "..\\..\\docs\\diagrams\\flujo-ordenar.md",
+      "diagram": 1,
+      "parsed": true,
+      "rendered": true
+    }
+  ]
+}

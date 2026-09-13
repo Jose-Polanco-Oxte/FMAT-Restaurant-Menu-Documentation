@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "menuItemId": {
+            "type": "string",
+            "description": "Identidad del MenuItem.",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Nombre visible, no necesariamente único.",
+            "minLength": 1
+          },
+          "fulfillmentType": {
+            "type": "string",
+            "description": "Tipo inmutable.",
+            "enum": [
+              "STOCKED",
+              "PREPARED",
+              "COMBO"
+            ]
+          },
+          "reviewState": {
+            "anyOf": [
+              {
+                "type": "string",
+                "description": "Estado administrativo de revisión, independiente de disponibilidad y estado de venta.",
+                "enum": [
+                  "UP_TO_DATE",
+                  "REVIEW_REQUIRED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Resumen del combo; null para STOCKED/PREPARED."
+          },
+          "pendingVariantIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Variante pendiente.",
+              "minLength": 1
+            },
+            "description": "Vacío para elementos sin pendientes.",
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "menuItemId",
+          "name",
+          "fulfillmentType",
+          "reviewState",
+          "pendingVariantIds"
+        ],
+        "allOf": [
+          {
+            "if": {"properties": {"fulfillmentType": {"const": "COMBO", "description": "Artículo de combo."}}},
+            "then": {"properties": {"reviewState": {"type": "string", "description": "Todo combo tiene estado de revisión."}}},
+            "else": {"properties": {"reviewState": {"type": "null", "description": "No se revisan STOCKED/PREPARED."}, "pendingVariantIds": {"maxItems": 0, "description": "Sin variantes pendientes fuera de combos."}}}
+          },
+          {
+            "if": {"properties": {"reviewState": {"const": "REVIEW_REQUIRED", "description": "Resumen pendiente."}}},
+            "then": {"properties": {"pendingVariantIds": {"minItems": 1, "description": "Identidades de las variantes afectadas."}}},
+            "else": {"properties": {"pendingVariantIds": {"maxItems": 0, "description": "No hay variantes pendientes."}}}
+          }
+        ],
+        "additionalProperties": false
+      },
+      "description": "Listado administrativo autorizado."
+    },
+    "nextCursor": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Cursor opaco; null al terminar."
+    }
+  },
+  "required": [
+    "items",
+    "nextCursor"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "eligible": {
+      "type": "boolean",
+      "description": "Indica que la variante puede ofrecerse considerando estado, configuración y disponibilidad vigente."
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "AVAILABLE",
+        "INACTIVE",
+        "ARCHIVED",
+        "INVALID_CONFIGURATION",
+        "UNKNOWN",
+        "EXPIRED",
+        "OUT_OF_STOCK",
+        "INVENTORY_UNREACHABLE"
+      ],
+      "description": "Motivo de disponibilidad o bloqueo, para explicar al consumidor por qué puede o no ofrecerse."
+    },
+    "evaluatedAt": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Momento en que Inventory calculó la disponibilidad. Ayuda a entender la antigüedad del resultado."
+    },
+    "validUntil": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Hasta cuándo es válido un resultado de disponibilidad. Su vencimiento impide seguir mostrando disponibilidad positiva."
+    }
+  },
+  "required": [
+    "eligible",
+    "reason",
+    "evaluatedAt",
+    "validUntil"
+  ],
+  "additionalProperties": false
+}

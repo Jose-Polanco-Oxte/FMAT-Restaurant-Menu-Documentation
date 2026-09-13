@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "messageId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad de una publicación, creada por su emisor. Reenviar el mismo mensaje conserva este valor."
+    },
+    "type": {
+      "const": "menu.menu-item.availability-changed.v1",
+      "description": "Nombre del mensaje, incluido su versionado. En fulfillment indica si se suministra desde stock, receta o combo."
+    },
+    "schemaVersion": {
+      "const": 1,
+      "description": "Versión de la forma del mensaje, no de la receta ni de las existencias."
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fecha con zona en que ocurrió el hecho publicado. No sustituye las revisiones para decidir el orden."
+    },
+    "producer": {
+      "const": "Menu",
+      "description": "Servicio que declara emitir el mensaje. Debe coincidir con quien está autorizado a publicarlo."
+    },
+    "restaurantId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Restaurante al que pertenece la información. Lo indica la ruta o el emisor; Menu verifica el acceso."
+    },
+    "correlationId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Referencia para seguir una operación en registros. Opcional en eventos; en un error HTTP Menu entrega una referencia de soporte."
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "menuItemId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identidad estable del artículo comercial, independiente de sus revisiones y variantes."
+        },
+        "menuItemVersion": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Revisión comercial exacta generada por Menu. Conserva qué definición eligió el consumidor."
+        },
+        "availabilityRevision": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Número de cambio de la vista comercial de disponibilidad de un MenuItem. Lo genera Menu, no Inventory."
+        }
+      },
+      "required": [
+        "menuItemId",
+        "menuItemVersion",
+        "availabilityRevision"
+      ],
+      "additionalProperties": false,
+      "description": "Contenido específico del mensaje, separado de los datos comunes de envío."
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "schemaVersion",
+    "occurredAt",
+    "producer",
+    "restaurantId",
+    "data"
+  ],
+  "additionalProperties": false
+}

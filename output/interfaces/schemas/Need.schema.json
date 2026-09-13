@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "availabilityKey": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Clave estable creada por Menu para una necesidad plana. Inventory la devuelve sin conocer su significado comercial."
+    },
+    "definitionRevision": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Número de la composición plana, generado por Menu y copiado por Inventory. Cambia al editar o retirar necesidades."
+    },
+    "withdrawn": {
+      "type": "boolean",
+      "description": "Indica una necesidad retirada. Su registro conservado evita que un mensaje antiguo la reactive."
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "Ingredient.schema.json"
+      },
+      "description": "Elementos de una página; en necesidades planas, lista de insumos. El esquema enlazado precisa cuál de los dos."
+    }
+  },
+  "required": [
+    "availabilityKey",
+    "definitionRevision",
+    "withdrawn",
+    "items"
+  ],
+  "additionalProperties": false
+}

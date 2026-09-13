@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "configId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad de la configuración de una opción en una variante. La selección usa este ID para recuperar sus reglas."
+    },
+    "optionId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad de una opción dentro de un grupo o slot. La variante referida no sustituye esta identidad."
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Habilita una configuración u opción particular. No reemplaza estado administrativo ni disponibilidad de stock."
+    },
+    "priceDelta": {
+      "$ref": "Money.schema.json",
+      "description": "Ajuste relativo configurado. No es el precio base ni un total ya cobrado."
+    },
+    "maxQuantity": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Máxima cantidad seleccionable de una opción de modificador en una variante. Cero impide elegirla."
+    },
+    "effects": {
+      "type": "array",
+      "items": {
+        "$ref": "IngredientEffect.schema.json"
+      },
+      "description": "Consecuencias sobre ingredientes de la personalización, separadas del ajuste de precio."
+    }
+  },
+  "required": [
+    "configId",
+    "optionId",
+    "enabled",
+    "priceDelta",
+    "maxQuantity",
+    "effects"
+  ],
+  "additionalProperties": false
+}

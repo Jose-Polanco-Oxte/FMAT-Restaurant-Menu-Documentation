@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "groupId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad de un grupo de modificadores propio del MenuItem."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nombre visible del recurso o configuración. No se utiliza para adivinar identidad ni correspondencias."
+    },
+    "minSelections": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Mínimo de elecciones: suma de cantidades para modificadores y número de opciones para slots."
+    },
+    "maxSelections": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Máximo de elecciones del grupo o slot, usando el mismo criterio que su mínimo."
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "optionId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Identidad de una opción dentro de un grupo o slot. La variante referida no sustituye esta identidad."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Nombre visible del recurso o configuración. No se utiliza para adivinar identidad ni correspondencias."
+          }
+        },
+        "required": [
+          "optionId",
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Opciones configuradas para el grupo o slot indicado."
+    }
+  },
+  "required": [
+    "groupId",
+    "name",
+    "minSelections",
+    "maxSelections",
+    "options"
+  ],
+  "additionalProperties": false
+}

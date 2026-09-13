@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad de consulta elegida por Orders en E-16 y devuelta por Menu. No crea una orden ni evita recalcular elegibilidad."
+    },
+    "menuItem": {
+      "$ref": "MenuItemRef.schema.json",
+      "description": "Referencia o definición del artículo comercial indicado por el esquema del contexto."
+    },
+    "selection": {
+      "$ref": "Selection.schema.json",
+      "description": "Decisiones del usuario expresadas con IDs de configuración, opciones y cantidades. No incluye recetas inventadas por el cliente."
+    },
+    "recipeRefs": {
+      "type": "array",
+      "items": {
+        "$ref": "RecipeRef.schema.json"
+      },
+      "description": "Recetas y versiones utilizadas al resolver, para saber qué composición produjo el resultado."
+    },
+    "ingredients": {
+      "type": "array",
+      "items": {
+        "$ref": "Ingredient.schema.json"
+      },
+      "description": "Insumos netos resueltos por Menu después de aplicar la selección. No es stock disponible."
+    },
+    "preparationUnits": {
+      "type": "array",
+      "items": {
+        "$ref": "PreparationUnit.schema.json"
+      },
+      "description": "Información de preparación resuelta por unidad: nombres, receta fijada y efectos. No es un trabajo de Cocina ni snapshot de Orders."
+    },
+    "eligibility": {
+      "$ref": "Availability.schema.json",
+      "description": "Conjunto de datos que explica la elegibilidad de la selección al resolverla."
+    },
+    "resolvedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Momento en que Menu produjo la resolución; permite reconocer que es una observación temporal."
+    },
+    "pricing": {
+      "$ref": "PriceSummary.schema.json",
+      "description": "Único resumen monetario de la variante solicitada; nunca precios por componente, slot u opción."
+    }
+  },
+  "required": [
+    "requestId",
+    "menuItem",
+    "selection",
+    "recipeRefs",
+    "ingredients",
+    "preparationUnits",
+    "pricing",
+    "eligibility",
+    "resolvedAt"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "definition": {
+      "$ref": "CommercialMenuItemDefinition.schema.json",
+      "description": "Contenido completo de una definición de MenuItem retornada por Menu."
+    },
+    "availabilityByVariant": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "variantId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Identidad de la presentación vendible, incluso DEFAULT cuando no hay dimensiones."
+          },
+          "availability": {
+            "$ref": "Availability.schema.json",
+            "description": "Resultado de elegibilidad que Menu presenta para una variante."
+          }
+        },
+        "required": [
+          "variantId",
+          "availability"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Resultados separados por variante, para no confundir el estado de una presentación con otra."
+    },
+    "fromPrice": {
+      "anyOf": [
+        {
+          "$ref": "Money.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Menor precio base entre variantes elegibles; null si no hay ninguna. No usar cero como reemplazo."
+    }
+  },
+  "required": [
+    "definition",
+    "availabilityByVariant",
+    "fromPrice"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "slotId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad de un espacio de selección del combo, por ejemplo bebida."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nombre visible del recurso o configuración. No se utiliza para adivinar identidad ni correspondencias."
+    },
+    "minSelections": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Mínimo de elecciones: suma de cantidades para modificadores y número de opciones para slots."
+    },
+    "maxSelections": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Máximo de elecciones del grupo o slot, usando el mismo criterio que su mínimo."
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "$ref": "ComboOption.schema.json"
+      },
+      "description": "Opciones configuradas para el grupo o slot indicado."
+    }
+  },
+  "required": [
+    "slotId",
+    "name",
+    "minSelections",
+    "maxSelections",
+    "options"
+  ],
+  "additionalProperties": false
+}

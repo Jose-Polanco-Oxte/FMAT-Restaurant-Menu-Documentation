@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "configId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad de la configuración de una opción en una variante. La selección usa este ID para recuperar sus reglas."
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Cantidad en el contexto: física con unidad en un insumo, o número entero de elecciones en un modificador."
+    }
+  },
+  "required": [
+    "configId",
+    "quantity"
+  ],
+  "additionalProperties": false
+}

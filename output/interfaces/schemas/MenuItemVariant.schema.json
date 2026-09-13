@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "variantId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad de la presentación vendible, incluso DEFAULT cuando no hay dimensiones."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "INACTIVE",
+        "ACTIVE",
+        "ARCHIVED"
+      ],
+      "description": "Estado administrativo: ACTIVE, INACTIVE y, en variantes, ARCHIVED. No significa que exista stock."
+    },
+    "dimensionValueIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Valores elegidos por la variante, por ejemplo el valor grande de tamaño."
+    },
+    "unitPrice": {
+      "$ref": "Money.schema.json",
+      "description": "Precio base absoluto de la variante, antes de ajustes por personalización."
+    },
+    "fulfillment": {
+      "$ref": "Fulfillment.schema.json",
+      "description": "Definición concreta de suministro de la variante. Debe coincidir con la clasificación del MenuItem."
+    },
+    "modifierConfigs": {
+      "type": "array",
+      "items": {
+        "$ref": "ModifierConfig.schema.json"
+      },
+      "description": "Configuraciones explícitas de opciones para una variante, con precio, capacidad y efectos propios."
+    }
+  },
+  "required": [
+    "variantId",
+    "status",
+    "dimensionValueIds",
+    "unitPrice",
+    "fulfillment",
+    "modifierConfigs"
+  ],
+  "additionalProperties": false
+}

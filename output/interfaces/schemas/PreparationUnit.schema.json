@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Ámbito de una unidad resuelta: root para la raíz, o slotId/optionId/unitIndex para una unidad hija. Evita aplicar efectos a un hermano."
+    },
+    "menuItem": {
+      "$ref": "MenuItemRef.schema.json",
+      "description": "Referencia o definición del artículo comercial indicado por el esquema del contexto."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nombre visible del recurso o configuración. No se utiliza para adivinar identidad ni correspondencias."
+    },
+    "variantLabel": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Texto comprensible de la presentación resuelta. Menu lo entrega para mostrarla sin reconstruirla en otro servicio."
+    },
+    "recipe": {
+      "anyOf": [
+        {
+          "$ref": "RecipeDefinition.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Receta fijada o definición resuelta según contexto. null en preparación sin receta, como un artículo almacenado."
+    },
+    "modifiers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "configId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Identidad de la configuración de una opción en una variante. La selección usa este ID para recuperar sus reglas."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Nombre visible del recurso o configuración. No se utiliza para adivinar identidad ni correspondencias."
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Cantidad en el contexto: física con unidad en un insumo, o número entero de elecciones en un modificador."
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "$ref": "IngredientEffect.schema.json"
+            },
+            "description": "Consecuencias sobre ingredientes de la personalización, separadas del ajuste de precio."
+          }
+        },
+        "required": [
+          "configId",
+          "name",
+          "quantity",
+          "effects"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Modificadores elegidos o resueltos en el ámbito indicado. quantity expresa repetición sin duplicar el ID."
+    }
+  },
+  "required": [
+    "scope",
+    "menuItem",
+    "name",
+    "variantLabel",
+    "recipe",
+    "modifiers"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "menuItemId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad estable del artículo comercial, independiente de sus revisiones y variantes."
+    },
+    "menuItemVersion": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Revisión comercial exacta generada por Menu. Conserva qué definición eligió el consumidor."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nombre visible del recurso o configuración. No se utiliza para adivinar identidad ni correspondencias."
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripción visible del recurso, distinta de los campos operativos."
+    },
+    "imageRef": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Referencia de imagen del artículo, o null si no hay imagen; no contiene los bytes de la imagen."
+    },
+    "categoryId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Referencia de la categoría usada para organizar y filtrar el catálogo."
+    },
+    "eligible": {
+      "type": "boolean",
+      "description": "Indica que la variante puede ofrecerse considerando estado, configuración y disponibilidad vigente."
+    },
+    "fromPrice": {
+      "anyOf": [
+        {
+          "$ref": "Money.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Menor precio base entre variantes elegibles; null si no hay ninguna. No usar cero como reemplazo."
+    }
+  },
+  "required": [
+    "menuItemId",
+    "menuItemVersion",
+    "name",
+    "description",
+    "imageRef",
+    "categoryId",
+    "eligible",
+    "fromPrice"
+  ],
+  "additionalProperties": false
+}

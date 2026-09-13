@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad de consulta elegida por Orders en E-16 y devuelta por Menu. No crea una orden ni evita recalcular elegibilidad."
+    },
+    "menuItemVersion": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Revisión comercial exacta generada por Menu. Conserva qué definición eligió el consumidor."
+    },
+    "variantId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad de la presentación vendible, incluso DEFAULT cuando no hay dimensiones."
+    },
+    "selection": {
+      "$ref": "Selection.schema.json",
+      "description": "Decisiones del usuario expresadas con IDs de configuración, opciones y cantidades. No incluye recetas inventadas por el cliente."
+    }
+  },
+  "required": [
+    "requestId",
+    "menuItemVersion",
+    "variantId",
+    "selection"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "menuItemId": {
+      "type": "string",
+      "description": "Combo revisado.",
+      "minLength": 1
+    },
+    "reviewId": {
+      "type": "string",
+      "description": "Identidad de auditoría asignada por Menu.",
+      "minLength": 1
+    },
+    "actorId": {
+      "type": "string",
+      "description": "Identidad autenticada; no procede del cuerpo de la petición.",
+      "minLength": 1
+    },
+    "reviewedAt": {
+      "type": "string",
+      "description": "Instante de confirmación.",
+      "format": "date-time"
+    },
+    "variants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "variantId": {
+            "type": "string",
+            "description": "Variante revisada.",
+            "minLength": 1
+          },
+          "acknowledgedChangeIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Cambio atendido.",
+              "minLength": 1
+            },
+            "description": "Solo cambios del token."
+          },
+          "state": {
+            "type": "string",
+            "description": "Estado administrativo de revisión, independiente de disponibilidad y estado de venta.",
+            "enum": [
+              "UP_TO_DATE",
+              "REVIEW_REQUIRED"
+            ]
+          }
+        },
+        "required": [
+          "variantId",
+          "acknowledgedChangeIds",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Estado después de confirmar; puede seguir pendiente por cambios posteriores.",
+      "minItems": 1
+    }
+  },
+  "required": [
+    "menuItemId",
+    "reviewId",
+    "actorId",
+    "reviewedAt",
+    "variants"
+  ],
+  "additionalProperties": false
+}

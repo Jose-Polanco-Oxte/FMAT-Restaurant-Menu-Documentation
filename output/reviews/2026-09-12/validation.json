@@ -1,0 +1,27 @@
+{
+  "result": "PASS",
+  "scope": "Document structure and closure propagation only; current correction reviews are docs/reviews/ers-interfaces-alignment/closure-report.md and execution-audit.md. No implementation or performance tests executed.",
+  "editions": 2,
+  "identifiers_per_edition": 193,
+  "confirmed_by_category": {
+    "REQ": 38,
+    "BR": 44,
+    "DATA": 26,
+    "INT": 25,
+    "QA": 17,
+    "CON": 13
+  },
+  "open_statuses": {
+    "OPEN-001": "Closed",
+    "OPEN-002": "Closed",
+    "OPEN-003": "Closed",
+    "OPEN-004": "Closed",
+    "OPEN-005": "Closed",
+    "OPEN-006": "Closed",
+    "OPEN-007": "Closed",
+    "OPEN-008": "Closed",
+    "OPEN-009": "Closed",
+    "OPEN-010": "Partial"
+  },
+  "errors": []
+}

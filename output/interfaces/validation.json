@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "scope": "Schema validity, local references, examples, documentation structure and vocabulary. Mermaid rendering separate. No service tests.",
+  "apiEntries": 20,
+  "outboundHttpApis": 0,
+  "messageContracts": 6,
+  "schemas": 53,
+  "schemaValidatedExamples": 35,
+  "negativeExamples": 4,
+  "formattedJsonExamples": 35,
+  "mermaidBlocks": 3,
+  "localLinks": 260,
+  "errors": []
+}

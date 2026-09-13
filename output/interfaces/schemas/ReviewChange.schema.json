@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "changeId": {
+      "type": "string",
+      "description": "Identidad estable del cambio relevante observado.",
+      "minLength": 1
+    },
+    "slotId": {
+      "type": "string",
+      "description": "Slot afectado.",
+      "minLength": 1
+    },
+    "optionId": {
+      "type": "string",
+      "description": "Opción afectada, incluso deshabilitada.",
+      "minLength": 1
+    },
+    "component": {
+      "$ref": "MenuItemRef.schema.json",
+      "description": "Referencia fijada en el combo."
+    },
+    "observedVersion": {
+      "type": "string",
+      "description": "Versión actual inspeccionada de la identidad componente.",
+      "minLength": 1
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Motivo del cambio.",
+        "enum": [
+          "PRICE",
+          "COMPOSITION",
+          "MODIFIERS",
+          "STATUS"
+        ]
+      },
+      "description": "Motivos relevantes; excluye cosmética, stock y variantes ajenas.",
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "changeId",
+    "slotId",
+    "optionId",
+    "component",
+    "observedVersion",
+    "reasons"
+  ],
+  "additionalProperties": false
+}

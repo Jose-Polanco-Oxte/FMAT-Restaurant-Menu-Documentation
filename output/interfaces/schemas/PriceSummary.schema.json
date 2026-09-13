@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "basePrice": {
+      "type": "string",
+      "description": "Precio fijo de una unidad de la variante vendible solicitada.",
+      "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+    },
+    "extrasTotal": {
+      "type": "string",
+      "description": "Suma de extras de todas las unidades personalizadas, sin desglose.",
+      "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+    },
+    "unitSubtotal": {
+      "type": "string",
+      "description": "basePrice más extrasTotal, antes de cantidades de línea y reglas externas de Orders.",
+      "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+    },
+    "currency": {
+      "type": "string",
+      "description": "Moneda única configurada externamente para el restaurante.",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "basePrice",
+    "extrasTotal",
+    "unitSubtotal",
+    "currency"
+  ],
+  "additionalProperties": false
+}

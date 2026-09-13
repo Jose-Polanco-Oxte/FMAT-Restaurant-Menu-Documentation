@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "definition": {
+      "$ref": "MenuItemDefinition.schema.json",
+      "description": "Contenido completo de una definición de MenuItem retornada por Menu."
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "Violation.schema.json"
+      },
+      "description": "Advertencias compatibles con guardar, como capacidad incompleta en INACTIVE."
+    }
+  },
+  "required": [
+    "definition",
+    "warnings"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Ubicación del campo problemático dentro de la petición; no es un endpoint."
+    },
+    "code": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nombre estable del problema para que el consumidor pueda distinguirlo sin interpretar el texto humano."
+    },
+    "entityId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Identidad del elemento afectado por una validación; null si no corresponde a un elemento específico."
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Explicación legible del problema o advertencia."
+    },
+    "details": {
+      "type": "object",
+      "description": "Datos que explican el problema, como mínimo requerido y capacidad encontrada. No incluye información interna sensible."
+    }
+  },
+  "required": [
+    "path",
+    "code",
+    "entityId",
+    "message",
+    "details"
+  ],
+  "additionalProperties": false
+}

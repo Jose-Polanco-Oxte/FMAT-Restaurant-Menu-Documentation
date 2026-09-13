@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "recipeId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad estable de una receta propiedad de Menu."
+    },
+    "recipeVersion": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Revisión exacta de receta que se utiliza. Una revisión nueva no sustituye referencias anteriores automáticamente."
+    }
+  },
+  "required": [
+    "recipeId",
+    "recipeVersion"
+  ],
+  "additionalProperties": false
+}

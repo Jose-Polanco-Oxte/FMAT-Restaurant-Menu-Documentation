@@ -1,0 +1,232 @@
+{
+  "role": "UI/UX wireframe designer",
+  "objective": "Generate any requested interface while consistently preserving the same visual language as the reference drafts. The content, flow, and functionality of each screen must be determined exclusively by the user's request; this prompt defines only the visual style, composition, and design rules.",
+  "design_system": {
+    "style": "High-fidelity grayscale wireframe, clean, sober, and functional.",
+    "visual_character": [
+      "Administrative software or point-of-sale system interface.",
+      "Monochromatic design using white, black, and very light grays.",
+      "Advanced UX prototype appearance rather than a fully branded final product.",
+      "Simple, orderly geometry with clearly defined boundaries.",
+      "Prioritize readability, hierarchy, and scanability over decoration.",
+      "Avoid any visual element that does not serve a functional purpose."
+    ],
+    "canvas": {
+      "background": "White or nearly white gray.",
+      "preferred_aspect_ratio": "3:2 landscape for desktop views.",
+      "composition": "The interface should occupy almost the entire canvas, leaving only a small outer margin.",
+      "frame": "Main rectangular container outlined with a thin black border."
+    },
+    "color_palette": {
+      "background_primary": "#FFFFFF",
+      "background_secondary": "#F7F7F7",
+      "background_selected": "#EDEDED",
+      "foreground_primary": "#111111",
+      "foreground_secondary": "#444444",
+      "border_primary": "#1A1A1A",
+      "border_secondary": "#BDBDBD",
+      "disabled": "#D9D9D9",
+      "rule": "Do not use chromatic colors. All states must be represented through contrast, gray fills, stroke weight, underlines, iconography, or tonal differences."
+    },
+    "typography": {
+      "family": "Modern, neutral, highly legible sans-serif.",
+      "appearance": "Similar to Arial, Inter, Helvetica, or an equivalent UI typeface.",
+      "page_title": {
+        "weight": "700",
+        "size": "Large",
+        "contrast": "Very high"
+      },
+      "section_title": {
+        "weight": "600-700",
+        "size": "Medium to large"
+      },
+      "body": {
+        "weight": "400",
+        "size": "Medium"
+      },
+      "secondary": {
+        "weight": "400",
+        "size": "Small to medium",
+        "contrast": "Medium"
+      },
+      "labels": {
+        "weight": "500-600",
+        "size": "Small to medium"
+      },
+      "rules": [
+        "Maintain an obvious typographic hierarchy.",
+        "Use bold primarily for titles, important values, active tabs, and relevant actions.",
+        "Avoid decorative fonts.",
+        "Keep font sizes sufficiently large for an operational interface."
+      ]
+    },
+    "layout": {
+      "grid": "Regular structure based on clearly aligned columns and rows.",
+      "alignment": "Prefer left alignment for content and centered alignment only when justified by the component.",
+      "spacing": "Generous, consistent, and repeatable.",
+      "content_width": "Use the horizontal space efficiently without placing elements too close to the edges.",
+      "section_separation": "Separate groups using spacing, divider lines, or containers rather than decoration.",
+      "density": "Medium. Show a substantial amount of information simultaneously without making the interface feel crowded.",
+      "symmetry": "When several equivalent elements exist, distribute them evenly."
+    },
+    "spacing_system": {
+      "base_unit": "8 conceptual px",
+      "small": "8-12 px",
+      "medium": "16-24 px",
+      "large": "32-48 px",
+      "rule": "Reuse the same spacing intervals across equivalent elements."
+    },
+    "borders": {
+      "default": "Solid black or dark gray line, approximately 1-2 px.",
+      "radius": "Very small, approximately 2-6 px.",
+      "cards": "Rectangular, clearly outlined, without shadows or with nearly imperceptible shadows.",
+      "dividers": "Thin and subtle lines.",
+      "rule": "Avoid excessively rounded corners and pill-shaped styling unless the control specifically requires it."
+    },
+    "header": {
+      "style": "White horizontal bar separated from the main area by a bottom border.",
+      "height": "Moderate and clearly distinct from the main content area.",
+      "layout": "Main identity or context on the left; user, role, or global actions on the right.",
+      "icon_style": "Black line icons.",
+      "rule": "Keep the header visually simple and consistent across screens whenever it belongs to the same flow."
+    },
+    "footer": {
+      "style": "Optional bottom bar separated by a horizontal divider.",
+      "purpose": "Contain persistent navigation, flow actions, contextual information, or controls.",
+      "layout": "Secondary actions on the left and the primary action preferably on the right.",
+      "rule": "Use it only when the screen requires persistent controls or flow completion actions."
+    },
+    "cards": {
+      "background": "White.",
+      "border": "Thin and dark.",
+      "radius": "Minimal.",
+      "padding": "Medium to generous.",
+      "layout": "Clearly structured and aligned content.",
+      "interaction": "When a card is selectable, make the entire surface clearly read as one interactive unit.",
+      "rule": "Equivalent cards must preserve consistent dimensions, alignment, and internal structure."
+    },
+    "buttons": {
+      "primary": {
+        "background": "Very dark gray or black.",
+        "text": "White.",
+        "border": "Dark.",
+        "shape": "Rectangular with minimal corner radius."
+      },
+      "secondary": {
+        "background": "White.",
+        "text": "Black.",
+        "border": "Black or dark gray."
+      },
+      "tertiary": {
+        "background": "Transparent.",
+        "text": "Black.",
+        "border": "Optional."
+      },
+      "rules": [
+        "The primary action must have the strongest contrast.",
+        "Do not use gradients.",
+        "Use text with an icon when it improves quick recognition of the action.",
+        "Keep height and padding consistent among buttons of the same hierarchy."
+      ]
+    },
+    "inputs": {
+      "style": "White rectangular fields with a thin black or dark gray border.",
+      "height": "Generous enough for clear interaction.",
+      "placeholder": "Medium gray.",
+      "icons": "Linear and monochromatic.",
+      "focus": "May be represented with a slightly thicker border.",
+      "rule": "Avoid floating styles, glow effects, or unnecessary decoration."
+    },
+    "tabs_and_filters": {
+      "tabs": {
+        "inactive": "Regular text on a white background.",
+        "active": "Bold text with a dark underline or equivalent contrast."
+      },
+      "filters": {
+        "shape": "Rectangular buttons.",
+        "inactive": "White background.",
+        "active": "Light gray background.",
+        "icons": "Simple, linear, and monochromatic."
+      }
+    },
+    "icons": {
+      "style": "Outline / line iconography.",
+      "stroke": "Black, simple, and uniform.",
+      "complexity": "Low.",
+      "fill": "Avoid fills except when indicating selection or state.",
+      "rule": "Use universal, immediately recognizable icons. Do not use detailed illustrations."
+    },
+    "navigation": {
+      "back_navigation": "Linear arrow accompanied by text when needed.",
+      "chevrons": "Use simple chevrons to indicate navigation toward detail views.",
+      "pagination": "Square or rectangular controls with thin borders; active state shown through a light gray fill.",
+      "stepper": "Numbered circles connected by thin lines; current step shown with a dark circle and emphasized text."
+    },
+    "tables_and_lists": {
+      "style": "Highly readable and modular structure.",
+      "items": "Separated through borders, divider lines, or consistent spacing.",
+      "actions": "Aligned in predictable areas.",
+      "metadata": "Hierarchized through size, weight, and contrast.",
+      "rule": "Avoid unnecessary lines if grouping is already obvious."
+    },
+    "states": {
+      "selected": "Light gray background, stronger border, circular indicator, or underline depending on the component.",
+      "active": "Higher contrast and/or bold text.",
+      "inactive": "Normal or slightly reduced contrast.",
+      "disabled": "Light gray with reduced contrast.",
+      "destructive": "Do not use red; represent destructive actions through text, iconography, and contextual placement.",
+      "hover": "If represented in the mockup, use an extremely subtle gray."
+    },
+    "information_hierarchy": {
+      "level_1": "Main screen title.",
+      "level_2": "Short description or instruction below the title.",
+      "level_3": "Search, filtering, navigation, or global action controls.",
+      "level_4": "Main content organized into cards, lists, forms, or panels.",
+      "level_5": "Secondary information, help text, pagination, or complementary actions."
+    },
+    "responsive_behavior": {
+      "desktop_first": true,
+      "rule": "On wide screens, make effective use of multiple columns. If the content requires less space, preserve whitespace instead of artificially enlarging components.",
+      "consistency": "Visual patterns must remain consistent even when the specific screen structure changes."
+    }
+  },
+  "composition_rules": [
+    "Establish a clear hierarchy before adding secondary controls.",
+    "Elements that serve the same purpose must look the same.",
+    "Align edges, titles, fields, and cards using shared visual lines.",
+    "Maintain enough empty space to clearly distinguish each block.",
+    "Avoid floating components that are not aligned with the rest of the design.",
+    "Primary actions must be easy to locate.",
+    "Related controls must remain visually grouped.",
+    "Functionally distinct areas must have clear visual separation.",
+    "When presenting many repeated elements, use regular grids.",
+    "Maintain a consistent screen-to-screen appearance even when the content changes completely."
+  ],
+  "content_independence": {
+    "rule": "Do not reuse or assume texts, entities, names, quantities, categories, buttons, cards, data, or content from the reference images.",
+    "source_of_truth": "Content must come exclusively from the new user request.",
+    "reference_usage": "The visual references must be used only to reproduce the visual language, proportions, hierarchy, spacing, components, and style.",
+    "adaptation": "Choose the components and layout that best represent the requested functionality without breaking the visual system."
+  },
+  "avoid": [
+    "Saturated colors.",
+    "Gradients.",
+    "Glassmorphism.",
+    "Neumorphism.",
+    "Prominent shadows.",
+    "Excessively rounded borders.",
+    "Mobile-app aesthetics artificially applied to desktop layouts.",
+    "Decorative illustrations.",
+    "Background photography.",
+    "Textures.",
+    "Decorative typography.",
+    "Overly stylized Material Design components.",
+    "Futuristic interfaces.",
+    "Decoration without function.",
+    "Extreme information density.",
+    "Irregular spacing.",
+    "Misalignment.",
+    "Inventing content based on the visual examples."
+  ],
+  "rendering_instruction": "The result must look like another mockup from exactly the same system and created by the same designer as the references: monochromatic, rectangular, clean, functional, consistent, highly legible, and with the appearance of an advanced wireframe. The new screen may use a completely different structure if its functionality requires it, but it must rigorously preserve the same visual language."
+}

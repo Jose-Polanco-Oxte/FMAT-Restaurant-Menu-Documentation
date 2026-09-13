@@ -2,7 +2,7 @@
 
 # Estado de decisiones
 
-Nueve asuntos cerrados; OPEN-010 parcial únicamente por límites técnicos pendientes.
+Los asuntos originales de cierre de Menu permanecen documentados; OPEN-010 es parcial únicamente por límites de Inventory pendientes. Esta revisión agrega OPEN-011 a OPEN-019 para las proyecciones externas requeridas por las UI consumidoras confirmadas. Ninguna decisión de UI permanece abierta en esos registros.
 
 ---
 
@@ -150,8 +150,147 @@ Nueve asuntos cerrados; OPEN-010 parcial únicamente por límites técnicos pend
 
 **Estado:** Parcial
 
-**Decisión:** Resuelto: moneda externa única, precisión monetaria sin redondeo, precios no negativos, físicos positivos, nombres repetibles y tipo inmutable. Inventory proporciona catálogo de ingredientes/STOCKED con al menos ID, nombre y unidad de medida, y búsqueda (INT-MENU-024/025). Magnitud/precisión de cantidades permanece abierta hasta conocer sus especificaciones. La propiedad de unidades está resuelta; rutas, conversiones y cambios de unidad esperan su contrato. Retención de tokens/idempotencia de siete días (B) e integración monetaria aprobadas. Solo quedan abiertos acuerdos con Inventory; capacidad es dimensionamiento operativo, no una cuota comercial pendiente. Ver [decisión aprobada](../../docs/reviews/ers-interfaces-alignment/open-010-proposals.md). No se inventan umbrales.
+**Decisión:** Resuelto: moneda externa única, precisión monetaria sin redondeo, precios no negativos, físicos positivos, nombres repetibles y tipo inmutable. Inventory proporciona catálogo de ingredientes/STOCKED con al menos ID, nombre y unidad de medida, y búsqueda (INT-MENU-024/025). Magnitud/precisión de cantidades permanece abierta hasta conocer sus especificaciones. La propiedad de unidades está resuelta; rutas, conversiones y cambios de unidad esperan su contrato. Retención de tokens/idempotencia de siete días (B) e integración monetaria aprobadas. Dentro del alcance original de Menu, solo quedan abiertos acuerdos con Inventory; los contratos externos de UI se rastrean por separado abajo. La capacidad es dimensionamiento operativo, no una cuota comercial pendiente. Ver [decisión aprobada](../../docs/reviews/ers-interfaces-alignment/open-010-proposals.md). No se inventan umbrales.
 
 **Fuente de cierre:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
 **Documentación afectada:** BR-MENU-041, BR-MENU-042, BR-MENU-043, BR-MENU-044
+
+---
+
+## Contratos externos requeridos por las UI consumidoras confirmadas
+
+Los siguientes asuntos están abiertos únicamente porque el servicio o proveedor propietario no está especificado en este repositorio. No vuelven provisional la decisión de UI correspondiente.
+
+<a id="open-011"></a>
+### OPEN-011 — Proyección de mesas asignadas
+
+**Evidencia:** Decisión explícita de UI de mesero en la solicitud del 2026-09-13; V-MES-01 en `output/ui-spec/ui-data-spec.md`.
+
+**Información conocida:** Sala proporciona al mesero un conjunto limitado de mesas asignadas. La UI distingue mesas con y sin orden.
+
+**Información faltante:** Identificador exacto de mesa, etiqueta visible, representación de asignación, estado de mesa, referencia de orden activa y contrato de consulta/actualización.
+
+**Pregunta por resolver:** ¿Qué proyección y contrato proporcionará Sala a la UI de orden para las mesas asignadas y su relación con la orden?
+
+**Estado:** Abierto — contrato externo
+
+---
+
+<a id="open-012"></a>
+### OPEN-012 — Proyección de orden activa y agregado
+
+**Evidencia:** Decisión explícita de UI de mesero en la solicitud del 2026-09-13; V-MES-02/V-MES-03 en `output/ui-spec/ui-data-spec.md`.
+
+**Información conocida:** Orders posee las órdenes existentes, líneas confirmadas, cantidades de línea y totales de orden. La UI prepara líneas locales de borrador y puede agregarlas a una orden existente.
+
+**Información faltante:** Lectura de orden activa, creación de orden, operación de agregado, estados de línea, política de duplicados, permisos del mesero y respuesta autoritativa posterior al agregado.
+
+**Pregunta por resolver:** ¿Qué contrato de Orders soportará leer, crear y agregar a la orden conservando el borrador local si falla una operación?
+
+**Estado:** Abierto — contrato externo
+
+---
+
+<a id="open-013"></a>
+### OPEN-013 — Fuente de categorías y mapeo de clasificación visual
+
+**Evidencia:** Aclaración explícita de UI en la solicitud del 2026-09-13; UI-OPEN-003 y sección 3.6 de `output/ui-spec/ui-data-spec.md`.
+
+**Información conocida:** Los valores y etiquetas de clasificación de UI están confirmados: DISH/Platillo, BEVERAGE/Bebida, COMBO/Combo, DESSERT/Postre y COMPLEMENT/Complemento. `categoryId` y el tipo de suministro permanecen separados.
+
+**Información faltante:** Propietario del catálogo de categorías, etiquetas de categorías, mapeo de `categoryId` a clasificación y versionado de cambios.
+
+**Pregunta por resolver:** ¿Qué catálogo externo proporciona las categorías y cómo relaciona cada identidad de categoría con la clasificación visual confirmada?
+
+**Estado:** Abierto — contrato externo
+
+---
+
+<a id="open-014"></a>
+### OPEN-014 — Proyección administrativa del catálogo
+
+**Evidencia:** Decisión explícita de UI administrativa en la solicitud del 2026-09-13; V-ADM-01 en `output/ui-spec/ui-data-spec.md`.
+
+**Información conocida:** La UI administrativa usa la misma intención de búsqueda y filtros que el catálogo de venta y muestra datos de gestión en tarjetas.
+
+**Información faltante:** Endpoint o proyección de listado administrativo, filtros admitidos, paginación, campos de tarjeta y propietario de clasificación y ciclo de vida.
+
+**Pregunta por resolver:** ¿Qué contrato proporcionará a la UI la proyección administrativa con los filtros y campos requeridos?
+
+**Estado:** Abierto — contrato externo
+
+---
+
+<a id="open-015"></a>
+### OPEN-015 — Archivado de item raíz y retiro suave
+
+**Evidencia:** Decisión explícita de UI administrativa en la solicitud del 2026-09-13; UI-REQ-009/UI-REQ-010 en `output/ui-spec/ui-data-spec.md`.
+
+**Información conocida:** La UI separa ACTIVE, INACTIVE, REVIEW_REQUIRED y ARCHIVED y ofrece retiro de un item, items seleccionados o todos los resultados del apartado archivado. “Retiro” es suave y no borra físicamente la historia. Los contratos actuales de Menu definen ARCHIVED para variantes, no para MenuItems raíz ni retiro suave masivo.
+
+**Información faltante:** Estado de ciclo de vida del item raíz, operación de archivado, operaciones de retiro suave, estado de respuesta, política de restauración y comportamiento de referencias históricas.
+
+**Pregunta por resolver:** ¿Qué contrato externo de Menu o administrativo persistirá el archivado del item raíz y los tres alcances de retiro suave?
+
+**Estado:** Abierto — contrato externo
+
+---
+
+<a id="open-016"></a>
+### OPEN-016 — Resultado coordinado de guardado de Recipe y MenuItem
+
+**Evidencia:** Decisión explícita de UI de alta/edición en la solicitud del 2026-09-13; V-ADM-02 en `output/ui-spec/ui-data-spec.md`.
+
+**Información conocida:** Las revisiones de Recipe y MenuItem son conceptos separados. El editor debe mostrar por separado sus identidades resultantes.
+
+**Información faltante:** Atomicidad, compensación y semántica de respuesta cuando una operación de persistencia tiene éxito y la otra falla.
+
+**Pregunta por resolver:** ¿La UI administrativa coordinará operaciones separadas o existirá un contrato externo con resultado combinado atómico?
+
+**Estado:** Abierto — contrato externo
+
+---
+
+<a id="open-017"></a>
+### OPEN-017 — Proyección del selector de Inventory
+
+**Evidencia:** Decisión explícita de UI administrativa en la solicitud del 2026-09-13; V-ADM-02 e INT-MENU-024/025.
+
+**Información conocida:** Inventory proporciona referencias seleccionables de ingredientes y STOCKED con al menos identificador, nombre, unidad y búsqueda.
+
+**Información faltante:** Rutas, paginación, límites y precisión de cantidad, conversiones y semántica de cambio de unidad. La política de cantidades complementa el estado parcial de OPEN-010.
+
+**Pregunta por resolver:** ¿Qué contrato de Inventory soportará los selectores del editor y sus controles de cantidad/unidad?
+
+**Estado:** Abierto — contrato externo
+
+---
+
+<a id="open-018"></a>
+### OPEN-018 — Proveedor de carga y previsualización de imágenes
+
+**Evidencia:** Decisión explícita de UI de gestión de catálogo en la solicitud del 2026-09-13; manejo de `imageRef` en `output/ui-spec/ui-data-spec.md`.
+
+**Información conocida:** Menu conserva una referencia de imagen string o null; la UI necesita selección de imagen, estado de carga y previsualización.
+
+**Información faltante:** Proveedor, operaciones de carga y eliminación, validación, autorización y vigencia de la referencia de previsualización.
+
+**Pregunta por resolver:** ¿Qué contrato externo proporciona y resuelve la referencia de imagen utilizada por la UI?
+
+**Estado:** Abierto — contrato externo
+
+---
+
+<a id="open-019"></a>
+### OPEN-019 — Ajustes finales de Billing
+
+**Evidencia:** Aclaración explícita de precio en la solicitud del 2026-09-13; BR-UI-001 y DATA-UI-006.
+
+**Información conocida:** La UI muestra el costo acumulado de preorden como `Σ(quantity × resolvedUnitSubtotal)`. Billing puede ajustar después el importe final; esos ajustes no forman parte del acumulado de preorden.
+
+**Información faltante:** Contrato de Billing para descuentos, impuestos, cargos, redondeo, recálculo final y exposición del importe definitivo.
+
+**Pregunta por resolver:** ¿Qué respuesta de Billing proporcionará el importe final y sus ajustes después de confirmar la preorden?
+
+**Estado:** Abierto — contrato externo

@@ -471,3 +471,115 @@ El servicio Menu deberá conservar una selección única de IDs de opciones prop
 **Verificación:** Base incompleta INACTIVE advierte; ACTIVE exige base válida; no es selección de cliente por defecto.
 
 **Estado:** Confirmado
+
+---
+
+## Requisitos confirmados de datos de las UI consumidoras
+
+Estos requisitos de datos formalizan la información que deben representar las superficies confirmadas de mesero y administrador. La propiedad de los campos externos permanece en sus respectivos servicios.
+
+<a id="data-ui-001"></a>
+### DATA-UI-001 — Contexto de mesa asignada
+
+**Requisito:**
+La UI de orden deberá representar un contexto de mesa asignada con identificador de mesa, etiqueta visible, alcance de asignación al mesero, estado de presencia de orden y referencia de la orden activa cuando exista una orden.
+
+**Tipo:** Datos — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada en `output/ui-spec/ui-data-spec.md`, V-MES-01 y V-MES-02.
+
+**Justificación:** Estos campos son necesarios para seleccionar únicamente mesas asignadas y distinguir la creación de una orden de la adición a una orden existente.
+
+**Verificación:** Inspección: comparar el contexto de mesa renderizado con la proyección suministrada de mesas asignadas y orden activa.
+
+**Estado:** Confirmado
+
+---
+
+<a id="data-ui-002"></a>
+### DATA-UI-002 — Distinción entre orden existente y borrador local
+
+**Requisito:**
+La UI de orden deberá representar las líneas confirmadas de la orden separadas de las líneas del borrador local, incluyendo sus identidades distintas, cantidades, configuración seleccionada y costo de línea.
+
+**Tipo:** Datos — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada en `output/ui-spec/ui-data-spec.md`, V-MES-02 y V-MES-03.
+
+**Justificación:** El mesero debe poder agregar, editar o quitar selecciones nuevas sin representar incorrectamente datos de una orden ya confirmada.
+
+**Verificación:** Demostración: mostrar una orden existente con un borrador local y comprobar que sus identidades y valores confirmados y de borrador permanecen distinguibles.
+
+**Estado:** Confirmado
+
+---
+
+<a id="data-ui-003"></a>
+### DATA-UI-003 — Vocabulario de clasificación visual comercial
+
+**Requisito:**
+Las UI de orden y administrativa deberán representar los valores de clasificación visual comercial DISH, BEVERAGE, COMBO, DESSERT y COMPLEMENT con las etiquetas Platillo, Bebida, Combo, Postre y Complemento, respectivamente.
+
+**Tipo:** Datos — UI consumidora
+
+**Fuente:** Aclaración explícita de UI en la solicitud del 2026-09-13; consolidada en `output/ui-spec/ui-data-spec.md`, sección 3.6.
+
+**Justificación:** Las cinco etiquetas son datos confirmados de UI y no un supuesto pendiente.
+
+**Verificación:** Inspección: verificar los cinco valores estables y sus etiquetas en filtros, badges y editor de creación del catálogo.
+
+**Estado:** Confirmado
+
+---
+
+<a id="data-ui-004"></a>
+### DATA-UI-004 — Proyección del ciclo de vida administrativo
+
+**Requisito:**
+La UI administrativa deberá representar cada item del catálogo con su identidad, nombre, categoría, clasificación comercial, tipo de suministro, estado administrativo, estado de revisión cuando aplique, referencias de variantes afectadas cuando esté pendiente y estado local de selección.
+
+**Tipo:** Datos — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada en `output/ui-spec/ui-data-spec.md`, V-ADM-01.
+
+**Justificación:** Estos campos soportan las tarjetas de gestión, los apartados separados de activos/inactivos/pendientes de revisión/archivados y la selección para retiro suave.
+
+**Verificación:** Demostración: representar items en cada apartado administrativo y comprobar que los campos de tarjeta y selección soportan las acciones indicadas.
+
+**Estado:** Confirmado
+
+---
+
+<a id="data-ui-005"></a>
+### DATA-UI-005 — Elemento de trabajo de revisión pendiente
+
+**Requisito:**
+La UI administrativa deberá representar la revisión pendiente de un combo con la identidad del combo, identidad de variante afectada, token y caducidad de revisión, identidad del cambio, ubicación de slot y opción, referencia del componente, versión observada, motivos y estado local de verificación.
+
+**Tipo:** Datos — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13 y E-19/E-20/E-21; consolidada en `output/ui-spec/ui-data-spec.md`, V-ADM-03.
+
+**Justificación:** El administrador necesita el contexto del cambio observado, mientras la confirmación contractual permanece en el nivel de variante.
+
+**Verificación:** Demostración: cargar una revisión pendiente y verificar cada identidad, motivo y estado local sin enviar el estado local de verificación como campo de Menu.
+
+**Estado:** Confirmado
+
+---
+
+<a id="data-ui-006"></a>
+### DATA-UI-006 — Representación monetaria de la preorden
+
+**Requisito:**
+La UI de orden deberá representar por separado el subtotal unitario resuelto, cantidad de línea, costo de línea, costo acumulado de preorden y moneda respecto del total de la orden existente y de los ajustes posteriores de Billing.
+
+**Tipo:** Datos — UI consumidora
+
+**Fuente:** Aclaración explícita de precio en la solicitud del 2026-09-13 y E-16; consolidada en `output/ui-spec/ui-data-spec.md`, sección 6.3.
+
+**Justificación:** El precio del catálogo es el costo de ordenar el item configurado, mientras Billing puede aplicar ajustes posteriores.
+
+**Verificación:** Demostración: cambiar cantidad y configuración y verificar costo de línea y acumulado mostrados; verificar que un ajuste posterior de Billing no se represente como parte del acumulado de preorden.
+
+**Estado:** Confirmado

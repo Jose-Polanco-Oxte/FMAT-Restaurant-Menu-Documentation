@@ -804,3 +804,23 @@ The Menu service shall allow repeated display names for entities with distinct v
 **Verification:** Repeated labels accepted; repeated dimension combinations still rejected.
 
 **Status:** Confirmed
+
+---
+
+## Confirmed consumer UI business rules
+
+<a id="br-ui-001"></a>
+### BR-UI-001 — Pre-order accumulated cost
+
+**Rule Statement:**
+The ordering UI shall calculate the displayed pre-order accumulated cost as the sum of each configured line cost, where each line cost equals its quantity multiplied by its resolved unit subtotal.
+
+**Domain Entities Involved:** DraftOrderLine, MenuItemVariant, PriceSummary
+
+**Source:** Explicit price clarification in the user request dated 2026-09-13 and E-16; consolidated in `output/ui-spec/ui-data-spec.md`, section 6.3.
+
+**Rationale:** The catalog price is the cost of ordering the configured item. Later Billing adjustments belong to the final amount and do not change the meaning of the pre-order accumulation.
+
+**Enforcement:** Recalculate the local accumulation when quantity or configuration changes and display it separately from the existing order total and final Billing amount.
+
+**Status:** Confirmed

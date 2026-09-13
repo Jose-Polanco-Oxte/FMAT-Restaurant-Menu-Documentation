@@ -197,3 +197,35 @@
 | [OPEN-008](./09-conflicts-and-open-items.md#open-008) | Variant lifecycle and displayed minimum | 09-conflicts-and-open-items.md | Closed |
 | [OPEN-009](./09-conflicts-and-open-items.md#open-009) | Pricing multiplicity and snapshot scope | 09-conflicts-and-open-items.md | Closed |
 | [OPEN-010](./09-conflicts-and-open-items.md#open-010) | Data validation policies | 09-conflicts-and-open-items.md | Partial |
+| [REQ-UI-001](./02-functional-requirements.md#req-ui-001) | Assigned table set | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-002](./02-functional-requirements.md#req-ui-002) | Table order distinction | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-003](./02-functional-requirements.md#req-ui-003) | Append to existing order | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-004](./02-functional-requirements.md#req-ui-004) | Sellable catalog types | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-005](./02-functional-requirements.md#req-ui-005) | Catalog search and filters | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-006](./02-functional-requirements.md#req-ui-006) | Local order draft editing | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-007](./02-functional-requirements.md#req-ui-007) | Item configuration before addition | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-008](./02-functional-requirements.md#req-ui-008) | Administrative catalog management | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-009](./02-functional-requirements.md#req-ui-009) | Administrative lifecycle sections | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-010](./02-functional-requirements.md#req-ui-010) | Soft removal from archived section | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-011](./02-functional-requirements.md#req-ui-011) | Item creation wizard | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-012](./02-functional-requirements.md#req-ui-012) | Item editing wizard | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-013](./02-functional-requirements.md#req-ui-013) | Create and edit distinction | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-014](./02-functional-requirements.md#req-ui-014) | Pending review presentation | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-015](./02-functional-requirements.md#req-ui-015) | Pending review acknowledgement | 02-functional-requirements.md | Confirmed |
+| [REQ-UI-016](./02-functional-requirements.md#req-ui-016) | Pre-order accumulated cost | 02-functional-requirements.md | Confirmed |
+| [BR-UI-001](./03-business-rules.md#br-ui-001) | Pre-order accumulated cost | 03-business-rules.md | Confirmed |
+| [DATA-UI-001](./04-data-requirements.md#data-ui-001) | Assigned table context | 04-data-requirements.md | Confirmed |
+| [DATA-UI-002](./04-data-requirements.md#data-ui-002) | Existing order and local draft distinction | 04-data-requirements.md | Confirmed |
+| [DATA-UI-003](./04-data-requirements.md#data-ui-003) | Commercial visual classification vocabulary | 04-data-requirements.md | Confirmed |
+| [DATA-UI-004](./04-data-requirements.md#data-ui-004) | Administrative lifecycle projection | 04-data-requirements.md | Confirmed |
+| [DATA-UI-005](./04-data-requirements.md#data-ui-005) | Pending review work item | 04-data-requirements.md | Confirmed |
+| [DATA-UI-006](./04-data-requirements.md#data-ui-006) | Pre-order monetary representation | 04-data-requirements.md | Confirmed |
+| [OPEN-011](./09-conflicts-and-open-items.md#open-011) | Assigned table projection | 09-conflicts-and-open-items.md | Open — external contract |
+| [OPEN-012](./09-conflicts-and-open-items.md#open-012) | Active order and order append projection | 09-conflicts-and-open-items.md | Open — external contract |
+| [OPEN-013](./09-conflicts-and-open-items.md#open-013) | Category source and visual-classification mapping | 09-conflicts-and-open-items.md | Open — external contract |
+| [OPEN-014](./09-conflicts-and-open-items.md#open-014) | Administrative catalog projection | 09-conflicts-and-open-items.md | Open — external contract |
+| [OPEN-015](./09-conflicts-and-open-items.md#open-015) | Root item archive and soft removal | 09-conflicts-and-open-items.md | Open — external contract |
+| [OPEN-016](./09-conflicts-and-open-items.md#open-016) | Coordinated Recipe and MenuItem save result | 09-conflicts-and-open-items.md | Open — external contract |
+| [OPEN-017](./09-conflicts-and-open-items.md#open-017) | Inventory selector projection | 09-conflicts-and-open-items.md | Open — external contract |
+| [OPEN-018](./09-conflicts-and-open-items.md#open-018) | Image upload and preview provider | 09-conflicts-and-open-items.md | Open — external contract |
+| [OPEN-019](./09-conflicts-and-open-items.md#open-019) | Final Billing adjustments | 09-conflicts-and-open-items.md | Open — external contract |

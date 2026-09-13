@@ -804,3 +804,23 @@ El servicio Menu deberá permitir nombres visibles repetidos para entidades con 
 **Verificación:** Etiquetas repetidas aceptadas; combinaciones dimensionales repetidas rechazadas.
 
 **Estado:** Confirmado
+
+---
+
+## Reglas de negocio confirmadas de las UI consumidoras
+
+<a id="br-ui-001"></a>
+### BR-UI-001 — Costo acumulado de preorden
+
+**Enunciado de regla:**
+La UI de orden deberá calcular el costo acumulado mostrado de la preorden como la suma del costo de cada línea configurada, donde cada costo de línea equivale a su cantidad multiplicada por su subtotal unitario resuelto.
+
+**Entidades de dominio involucradas:** DraftOrderLine, MenuItemVariant, PriceSummary
+
+**Fuente:** Aclaración explícita de precio en la solicitud del 2026-09-13 y E-16; consolidada en `output/ui-spec/ui-data-spec.md`, sección 6.3.
+
+**Justificación:** El precio del catálogo es el costo de ordenar el item configurado. Los ajustes posteriores de Billing pertenecen al importe final y no cambian el significado del acumulado de preorden.
+
+**Aplicación:** Recalcular el acumulado local cuando cambie la cantidad o configuración y mostrarlo separado del total de la orden existente y del importe final de Billing.
+
+**Estado:** Confirmado

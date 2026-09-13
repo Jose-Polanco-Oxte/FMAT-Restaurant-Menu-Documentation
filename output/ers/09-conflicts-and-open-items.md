@@ -2,7 +2,7 @@
 
 # Decision status
 
-Nine topics closed; OPEN-010 partial only for pending technical limits.
+The original Menu closure topics remain as documented; OPEN-010 is partial only for pending Inventory limits. This revision adds OPEN-011 through OPEN-019 for external projections required by the confirmed consumer UI. No UI decision is left open in those entries.
 
 ---
 
@@ -150,8 +150,147 @@ Nine topics closed; OPEN-010 partial only for pending technical limits.
 
 **Status:** Partial
 
-**Decision:** Resolved: one external currency, currency precision without rounding, nonnegative prices, positive physical inputs, repeated names and immutable type. Inventory supplies the ingredient/STOCKED catalog with at least ID, name and measurement unit and provides search (INT-MENU-024/025). Quantity magnitude/precision remains open pending Inventory specifications. Unit ownership is resolved; concrete routes, conversion and unit-change semantics await its contract. Seven-day review-token/idempotency retention (option B) and the external monetary configuration contract are approved. Only Inventory agreements remain open. Capacity is operational sizing, not an undefined business quota. See [approved decision](../../docs/reviews/ers-interfaces-alignment/open-010-proposals.md). No invented thresholds.
+**Decision:** Resolved: one external currency, currency precision without rounding, nonnegative prices, positive physical inputs, repeated names and immutable type. Inventory supplies the ingredient/STOCKED catalog with at least ID, name and measurement unit and provides search (INT-MENU-024/025). Quantity magnitude/precision remains open pending Inventory specifications. Unit ownership is resolved; concrete routes, conversion and unit-change semantics await its contract. Seven-day review-token/idempotency retention (option B) and the external monetary configuration contract are approved. Within the original Menu scope, only Inventory agreements remain open; consumer UI contracts are tracked separately below. Capacity is operational sizing, not an undefined business quota. See [approved decision](../../docs/reviews/ers-interfaces-alignment/open-010-proposals.md). No invented thresholds.
 
 **Closure source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
 **Affected documentation:** BR-MENU-041, BR-MENU-042, BR-MENU-043, BR-MENU-044
+
+---
+
+## External contracts required by confirmed consumer UI
+
+The following items are open only because the referenced owning service or provider is not specified in this repository. They do not make the corresponding UI decision provisional.
+
+<a id="open-011"></a>
+### OPEN-011 — Assigned table projection
+
+**Evidence:** Explicit waiter UI decision in the user request dated 2026-09-13; V-MES-01 in `output/ui-spec/ui-data-spec.md`.
+
+**Known Information:** Sala supplies a limited set of tables assigned to the waiter. The UI distinguishes tables with and without an order.
+
+**Missing Information:** Exact table identifier, visible label, assignment representation, table state, active-order reference and query/refresh contract.
+
+**Question to be Resolved:** What projection and contract shall Sala provide to the ordering UI for assigned tables and their order association?
+
+**Status:** Open — external contract
+
+---
+
+<a id="open-012"></a>
+### OPEN-012 — Active order and order append projection
+
+**Evidence:** Explicit waiter UI decision in the user request dated 2026-09-13; V-MES-02/V-MES-03 in `output/ui-spec/ui-data-spec.md`.
+
+**Known Information:** Orders owns existing orders, confirmed lines, line quantities and order totals. The UI prepares local draft lines and may add them to an existing order.
+
+**Missing Information:** Active-order read, order creation, append operation, line states, duplicate policy, waiter permissions and authoritative response after append.
+
+**Question to be Resolved:** What Orders contract shall support reading, creating and appending the order while preserving the local draft when an operation fails?
+
+**Status:** Open — external contract
+
+---
+
+<a id="open-013"></a>
+### OPEN-013 — Category source and visual-classification mapping
+
+**Evidence:** Explicit UI clarification in the user request dated 2026-09-13; UI-OPEN-003 and section 3.6 of `output/ui-spec/ui-data-spec.md`.
+
+**Known Information:** The UI classification values and labels are confirmed: DISH/Platillo, BEVERAGE/Bebida, COMBO/Combo, DESSERT/Postre and COMPLEMENT/Complemento. `categoryId` and fulfillment type remain distinct.
+
+**Missing Information:** Category catalog owner, category labels, mapping from `categoryId` to classification and versioning of category changes.
+
+**Question to be Resolved:** Which external catalog supplies categories and how does it map each category identity to the confirmed visual classification?
+
+**Status:** Open — external contract
+
+---
+
+<a id="open-014"></a>
+### OPEN-014 — Administrative catalog projection
+
+**Evidence:** Explicit administrator UI decision in the user request dated 2026-09-13; V-ADM-01 in `output/ui-spec/ui-data-spec.md`.
+
+**Known Information:** The administrative UI uses the same search and filter intent as the sales catalog and displays management data in cards.
+
+**Missing Information:** Administrative list endpoint or projection, supported filters, pagination, card fields and ownership of classification and lifecycle data.
+
+**Question to be Resolved:** What contract shall supply the administrative catalog projection with the filters and fields required by the UI?
+
+**Status:** Open — external contract
+
+---
+
+<a id="open-015"></a>
+### OPEN-015 — Root item archive and soft removal
+
+**Evidence:** Explicit administrator UI decision in the user request dated 2026-09-13; UI-REQ-009/UI-REQ-010 in `output/ui-spec/ui-data-spec.md`.
+
+**Known Information:** The UI separates ACTIVE, INACTIVE, REVIEW_REQUIRED and ARCHIVED and offers one-item, selected-item and all-results removal in the archived section. “Removal” is soft and does not physically delete history. Current Menu contracts define ARCHIVED for variants, not root MenuItems or bulk soft removal.
+
+**Missing Information:** Root item lifecycle state, archive operation, soft-removal operations, response state, restoration policy and historical-reference behavior.
+
+**Question to be Resolved:** What external Menu or administrative contract shall persist root-item archival and the three soft-removal scopes?
+
+**Status:** Open — external contract
+
+---
+
+<a id="open-016"></a>
+### OPEN-016 — Coordinated Recipe and MenuItem save result
+
+**Evidence:** Explicit creation/editing UI decision in the user request dated 2026-09-13; V-ADM-02 in `output/ui-spec/ui-data-spec.md`.
+
+**Known Information:** Recipe revisions and MenuItem revisions are separate concepts. The editor must expose their resulting identities separately.
+
+**Missing Information:** Atomicity, compensation and response semantics when one persistence operation succeeds and the other fails.
+
+**Question to be Resolved:** Shall the administrative UI coordinate separate operations, or shall an external contract provide an atomic combined result?
+
+**Status:** Open — external contract
+
+---
+
+<a id="open-017"></a>
+### OPEN-017 — Inventory selector projection
+
+**Evidence:** Explicit administrator UI decision in the user request dated 2026-09-13; V-ADM-02 and INT-MENU-024/025.
+
+**Known Information:** Inventory supplies selectable ingredient and STOCKED references with at least identifier, name, unit and search.
+
+**Missing Information:** Routes, pagination, quantity limits, precision, conversion and unit-change semantics. Quantity policy complements the partial status of OPEN-010.
+
+**Question to be Resolved:** What Inventory contract shall support the editor selectors and their quantity/unit controls?
+
+**Status:** Open — external contract
+
+---
+
+<a id="open-018"></a>
+### OPEN-018 — Image upload and preview provider
+
+**Evidence:** Explicit catalog-management UI decision in the user request dated 2026-09-13; `imageRef` handling in `output/ui-spec/ui-data-spec.md`.
+
+**Known Information:** Menu stores an image reference string or null; the UI needs image selection, upload state and preview.
+
+**Missing Information:** Provider, upload and deletion operations, validation, authorization and preview-reference lifetime.
+
+**Question to be Resolved:** Which external image contract supplies and resolves the image reference used by the UI?
+
+**Status:** Open — external contract
+
+---
+
+<a id="open-019"></a>
+### OPEN-019 — Final Billing adjustments
+
+**Evidence:** Explicit price clarification in the user request dated 2026-09-13; BR-UI-001 and DATA-UI-006.
+
+**Known Information:** The UI displays the pre-order accumulated cost as `Σ(quantity × resolvedUnitSubtotal)`. Billing may adjust the final amount later; those adjustments are not part of the pre-order accumulation.
+
+**Missing Information:** Billing contract for discounts, taxes, charges, rounding, final recalculation and presentation of the final amount.
+
+**Question to be Resolved:** Which Billing response shall provide the final amount and its adjustments after the pre-order is confirmed?
+
+**Status:** Open — external contract

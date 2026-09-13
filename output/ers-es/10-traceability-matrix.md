@@ -197,3 +197,35 @@
 | [OPEN-008](./09-conflicts-and-open-items.md#open-008) | Ciclo de variantes y mínimo mostrado | 09-conflicts-and-open-items.md | Cerrado |
 | [OPEN-009](./09-conflicts-and-open-items.md#open-009) | Multiplicidad de precios y alcance de copias | 09-conflicts-and-open-items.md | Cerrado |
 | [OPEN-010](./09-conflicts-and-open-items.md#open-010) | Políticas de validación de datos | 09-conflicts-and-open-items.md | Parcial |
+| [REQ-UI-001](./02-functional-requirements.md#req-ui-001) | Conjunto de mesas asignadas | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-002](./02-functional-requirements.md#req-ui-002) | Distinción de orden en mesa | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-003](./02-functional-requirements.md#req-ui-003) | Agregado a orden existente | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-004](./02-functional-requirements.md#req-ui-004) | Tipos del catálogo vendible | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-005](./02-functional-requirements.md#req-ui-005) | Búsqueda y filtros del catálogo | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-006](./02-functional-requirements.md#req-ui-006) | Edición local del borrador de orden | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-007](./02-functional-requirements.md#req-ui-007) | Configuración de item antes de agregar | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-008](./02-functional-requirements.md#req-ui-008) | Gestión administrativa del catálogo | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-009](./02-functional-requirements.md#req-ui-009) | Apartados del ciclo de vida administrativo | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-010](./02-functional-requirements.md#req-ui-010) | Retiro suave del apartado archivado | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-011](./02-functional-requirements.md#req-ui-011) | Wizard de creación de item | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-012](./02-functional-requirements.md#req-ui-012) | Wizard de edición de item | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-013](./02-functional-requirements.md#req-ui-013) | Distinción entre crear y editar | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-014](./02-functional-requirements.md#req-ui-014) | Presentación de revisión pendiente | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-015](./02-functional-requirements.md#req-ui-015) | Confirmación de revisión pendiente | 02-functional-requirements.md | Confirmado |
+| [REQ-UI-016](./02-functional-requirements.md#req-ui-016) | Costo acumulado de preorden | 02-functional-requirements.md | Confirmado |
+| [BR-UI-001](./03-business-rules.md#br-ui-001) | Costo acumulado de preorden | 03-business-rules.md | Confirmado |
+| [DATA-UI-001](./04-data-requirements.md#data-ui-001) | Contexto de mesa asignada | 04-data-requirements.md | Confirmado |
+| [DATA-UI-002](./04-data-requirements.md#data-ui-002) | Distinción entre orden existente y borrador local | 04-data-requirements.md | Confirmado |
+| [DATA-UI-003](./04-data-requirements.md#data-ui-003) | Vocabulario de clasificación visual comercial | 04-data-requirements.md | Confirmado |
+| [DATA-UI-004](./04-data-requirements.md#data-ui-004) | Proyección del ciclo de vida administrativo | 04-data-requirements.md | Confirmado |
+| [DATA-UI-005](./04-data-requirements.md#data-ui-005) | Elemento de trabajo de revisión pendiente | 04-data-requirements.md | Confirmado |
+| [DATA-UI-006](./04-data-requirements.md#data-ui-006) | Representación monetaria de la preorden | 04-data-requirements.md | Confirmado |
+| [OPEN-011](./09-conflicts-and-open-items.md#open-011) | Proyección de mesas asignadas | 09-conflicts-and-open-items.md | Abierto — contrato externo |
+| [OPEN-012](./09-conflicts-and-open-items.md#open-012) | Proyección de orden activa y agregado | 09-conflicts-and-open-items.md | Abierto — contrato externo |
+| [OPEN-013](./09-conflicts-and-open-items.md#open-013) | Fuente de categorías y mapeo de clasificación visual | 09-conflicts-and-open-items.md | Abierto — contrato externo |
+| [OPEN-014](./09-conflicts-and-open-items.md#open-014) | Proyección administrativa del catálogo | 09-conflicts-and-open-items.md | Abierto — contrato externo |
+| [OPEN-015](./09-conflicts-and-open-items.md#open-015) | Archivado de item raíz y retiro suave | 09-conflicts-and-open-items.md | Abierto — contrato externo |
+| [OPEN-016](./09-conflicts-and-open-items.md#open-016) | Resultado coordinado de guardado de Recipe y MenuItem | 09-conflicts-and-open-items.md | Abierto — contrato externo |
+| [OPEN-017](./09-conflicts-and-open-items.md#open-017) | Proyección del selector de Inventory | 09-conflicts-and-open-items.md | Abierto — contrato externo |
+| [OPEN-018](./09-conflicts-and-open-items.md#open-018) | Proveedor de carga y previsualización de imágenes | 09-conflicts-and-open-items.md | Abierto — contrato externo |
+| [OPEN-019](./09-conflicts-and-open-items.md#open-019) | Ajustes finales de Billing | 09-conflicts-and-open-items.md | Abierto — contrato externo |

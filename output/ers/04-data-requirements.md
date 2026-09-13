@@ -471,3 +471,115 @@ The Menu service shall retain a unique selection of own enabled option IDs withi
 **Verification:** INACTIVE incomplete base warns; ACTIVE requires valid base; not a customer default.
 
 **Status:** Confirmed
+
+---
+
+## Confirmed consumer UI data requirements
+
+These data requirements formalize the information that the confirmed waiter and administrator UI surfaces must represent. The ownership of external fields remains with their respective services.
+
+<a id="data-ui-001"></a>
+### DATA-UI-001 — Assigned table context
+
+**Requirement:**
+The ordering UI shall represent an assigned-table context with a table identifier, visible table label, waiter-assignment scope, order-presence state and active order reference when an order exists.
+
+**Type:** Data — Consumer UI
+
+**Source:** Explicit UI decision in the user request dated 2026-09-13; consolidated in `output/ui-spec/ui-data-spec.md`, V-MES-01 and V-MES-02.
+
+**Rationale:** These fields are required to select only assigned tables and to distinguish creating an order from adding to an existing order.
+
+**Verification:** Inspection: compare a rendered table context with the supplied assigned-table and active-order projection.
+
+**Status:** Confirmed
+
+---
+
+<a id="data-ui-002"></a>
+### DATA-UI-002 — Existing order and local draft distinction
+
+**Requirement:**
+The ordering UI shall represent confirmed order lines separately from local draft lines, including their distinct identities, quantities, selected configuration and line cost.
+
+**Type:** Data — Consumer UI
+
+**Source:** Explicit UI decision in the user request dated 2026-09-13; consolidated in `output/ui-spec/ui-data-spec.md`, V-MES-02 and V-MES-03.
+
+**Rationale:** The waiter must be able to add, edit or remove new selections without misrepresenting already confirmed order data.
+
+**Verification:** Demonstration: display an existing order with a local draft and verify that confirmed and draft identities and values remain distinguishable.
+
+**Status:** Confirmed
+
+---
+
+<a id="data-ui-003"></a>
+### DATA-UI-003 — Commercial visual classification vocabulary
+
+**Requirement:**
+The ordering and administrative UIs shall represent the commercial visual classification values DISH, BEVERAGE, COMBO, DESSERT and COMPLEMENT with the labels Platillo, Bebida, Combo, Postre and Complemento, respectively.
+
+**Type:** Data — Consumer UI
+
+**Source:** Explicit UI clarification in the user request dated 2026-09-13; consolidated in `output/ui-spec/ui-data-spec.md`, section 3.6.
+
+**Rationale:** The five labels are confirmed UI data and are not an unresolved assumption.
+
+**Verification:** Inspection: verify the five stable values and their Spanish labels in catalog filters, badges and the creation editor.
+
+**Status:** Confirmed
+
+---
+
+<a id="data-ui-004"></a>
+### DATA-UI-004 — Administrative lifecycle projection
+
+**Requirement:**
+The administrative UI shall represent each catalog item with its identity, name, category, commercial classification, fulfillment type, administrative status, review state when applicable, affected variant references when pending and local selection state.
+
+**Type:** Data — Consumer UI
+
+**Source:** Explicit UI decision in the user request dated 2026-09-13; consolidated in `output/ui-spec/ui-data-spec.md`, V-ADM-01.
+
+**Rationale:** These fields support management cards, separate active/inactive/review-required/archived sections and soft-removal selection.
+
+**Verification:** Demonstration: render items in each administrative section and verify that the card fields and selection state support the specified actions.
+
+**Status:** Confirmed
+
+---
+
+<a id="data-ui-005"></a>
+### DATA-UI-005 — Pending review work item
+
+**Requirement:**
+The administrative UI shall represent pending combo review with the combo identity, affected variant identity, review token and expiry, change identity, slot and option location, component reference, observed version, reasons and local verification state.
+
+**Type:** Data — Consumer UI
+
+**Source:** Explicit UI decision in the user request dated 2026-09-13 and E-19/E-20/E-21; consolidated in `output/ui-spec/ui-data-spec.md`, V-ADM-03.
+
+**Rationale:** The administrator needs the observed change context while the contractual confirmation remains at variant level.
+
+**Verification:** Demonstration: load a pending review and verify every listed identity, reason and local state without sending local verification state as a Menu field.
+
+**Status:** Confirmed
+
+---
+
+<a id="data-ui-006"></a>
+### DATA-UI-006 — Pre-order monetary representation
+
+**Requirement:**
+The ordering UI shall represent the resolved unit subtotal, line quantity, line cost, accumulated pre-order cost and currency separately from the existing order total and later Billing adjustments.
+
+**Type:** Data — Consumer UI
+
+**Source:** Explicit price clarification in the user request dated 2026-09-13 and E-16; consolidated in `output/ui-spec/ui-data-spec.md`, section 6.3.
+
+**Rationale:** The catalog price is the cost of ordering the configured item, while final Billing may apply later adjustments.
+
+**Verification:** Demonstration: change quantity and configuration and verify the displayed line cost and pre-order accumulation; verify that a later Billing adjustment is not represented as part of that pre-order accumulation.
+
+**Status:** Confirmed

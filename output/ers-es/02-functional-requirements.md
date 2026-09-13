@@ -721,3 +721,295 @@ El servicio Menu deberá exponer sumas de precios componentes guardados y actual
 **Verificación:** Multiplicar por cantidades suministradas; referencias nunca sobrescriben precio de venta.
 
 **Estado:** Confirmado
+
+---
+
+## Requisitos funcionales confirmados de las UI consumidoras
+
+Los siguientes requisitos formalizan las obligaciones confirmadas de UI solicitadas para las superficies de mesero y administrador. No transfieren a Menu la propiedad de datos externos; sus proyecciones externas faltantes se registran en OPEN-011 a OPEN-019.
+
+<a id="req-ui-001"></a>
+### REQ-UI-001 — Conjunto de mesas asignadas
+
+**Requisito:**
+La UI de orden deberá mostrar únicamente las mesas incluidas en la proyección autorizada de asignación de mesas para el mesero actual.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-001 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** El mesero recibe de Sala un conjunto limitado de mesas y no debe recibir mesas fuera de su asignación.
+
+**Verificación:** Demostración: cargar una proyección con mesas asignadas y no asignadas y comprobar que solo se muestran las asignadas.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-002"></a>
+### REQ-UI-002 — Distinción de orden en mesa
+
+**Requisito:**
+La UI de orden deberá distinguir una mesa con una orden asociada de una mesa sin una orden asociada.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-002 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** La distinción determina si el mesero inicia una orden o agrega productos a una orden existente.
+
+**Verificación:** Demostración: mostrar ambos estados de mesa y comprobar que cada uno tiene una indicación visual distinta.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-003"></a>
+### REQ-UI-003 — Agregado a orden existente
+
+**Requisito:**
+La UI de orden deberá permitir preparar productos adicionales para la orden asociada con una mesa que ya tiene una orden.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-003 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** Una mesa con una orden existente debe poder recibir productos nuevos.
+
+**Verificación:** Demostración: abrir una orden existente, crear líneas nuevas de borrador y comprobar que las líneas confirmadas siguen identificables y sin cambios.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-004"></a>
+### REQ-UI-004 — Tipos del catálogo vendible
+
+**Requisito:**
+La UI de orden deberá permitir seleccionar items del catálogo con tipo de suministro STOCKED, PREPARED o COMBO.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-004 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** El mesero puede ordenar cada tipo de suministro de Menu soportado desde el mismo catálogo.
+
+**Verificación:** Demostración: mostrar un item elegible de cada tipo de suministro y comprobar que cada uno abre su configuración aplicable.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-005"></a>
+### REQ-UI-005 — Búsqueda y filtros del catálogo
+
+**Requisito:**
+Las UI de orden y administrativa deberán proporcionar búsqueda por nombre y filtros por categoría y clasificación comercial.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-005 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** Las vistas de catálogo de mesero y administrador requieren las mismas dimensiones de descubrimiento.
+
+**Verificación:** Demostración: aplicar cada filtro por separado y combinado y comprobar que las tarjetas visibles satisfacen los criterios seleccionados.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-006"></a>
+### REQ-UI-006 — Edición local del borrador de orden
+
+**Requisito:**
+La UI de orden deberá permitir cambiar la cantidad, reconfigurar y quitar cada producto seleccionado antes de confirmar la orden.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-006 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** Estas interacciones gestionan la composición local de preorden del mesero y no son operaciones CRUD individuales del backend.
+
+**Verificación:** Demostración: cambiar, reconfigurar y quitar una línea de borrador y comprobar que las líneas confirmadas y el catálogo no se alteran.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-007"></a>
+### REQ-UI-007 — Configuración de item antes de agregar
+
+**Requisito:**
+La UI de orden deberá permitir configurar las dimensiones, modificadores, slots y opciones de combo aplicables antes de agregar un item al borrador de orden.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-007 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** La línea seleccionada debe conservar la configuración concreta del cliente antes de incorporarse a la preorden.
+
+**Verificación:** Demostración: configurar un item preparado y un combo, agregarlos al borrador y comprobar que conservan selecciones y cantidades.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-008"></a>
+### REQ-UI-008 — Gestión administrativa del catálogo
+
+**Requisito:**
+La UI administrativa deberá proporcionar creación, edición, búsqueda por nombre y filtros por categoría y clasificación comercial del catálogo.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-008 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** El administrador requiere las mismas capacidades de descubrimiento del catálogo que el mesero además de acciones de gestión.
+
+**Verificación:** Demostración: abrir el catálogo administrativo, aplicar los filtros confirmados y abrir las acciones de crear y editar.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-009"></a>
+### REQ-UI-009 — Apartados del ciclo de vida administrativo
+
+**Requisito:**
+La UI administrativa deberá presentar como apartados o filtros distinguibles los items activos, inactivos, pendientes de revisión y archivados.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13 y semántica vigente del ciclo de vida de Menu; consolidada como UI-REQ-009 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** Estado administrativo, estado de revisión y archivado son dimensiones distintas de presentación.
+
+**Verificación:** Inspección: comprobar que cada item aparece según la dimensión correcta y que REVIEW_REQUIRED y ARCHIVED no se muestran como un INACTIVE ordinario.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-010"></a>
+### REQ-UI-010 — Retiro suave del apartado archivado
+
+**Requisito:**
+La UI administrativa deberá permitir retirar un item archivado, items archivados seleccionados o todos los items archivados dentro del alcance de resultados seleccionado como una operación de retiro suave.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-010 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** Las acciones solicitadas de “eliminar” retiran items del conjunto visible de gestión sin borrado físico de la base de datos.
+
+**Verificación:** Demostración: ejecutar las acciones de un item, items seleccionados y todos los resultados y comprobar que la UI no representa borrado físico ni destrucción de historia.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-011"></a>
+### REQ-UI-011 — Wizard de creación de item
+
+**Requisito:**
+La UI administrativa deberá representar la creación de un item en cuatro pasos: clasificación comercial y tipo de suministro, configuración específica del item, configuración de modificadores y resumen de configuración con aceptación.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-011 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** La creación cambia sus controles según la clasificación, el tipo de suministro y la configuración seleccionada.
+
+**Verificación:** Demostración: iniciar la creación de cada tipo de suministro, inspeccionar los cuatro pasos y comprobar el resumen final antes de aceptar.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-012"></a>
+### REQ-UI-012 — Wizard de edición de item
+
+**Requisito:**
+La UI administrativa deberá representar la edición de un item en tres pasos: configuración del item, configuración de modificadores y confirmación.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-012 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** Editar un item existente no requiere seleccionar nuevamente el tipo de nuevo item y debe comenzar con datos precargados.
+
+**Verificación:** Demostración: abrir un item existente, comprobar sus datos precargados y verificar que el editor expone exactamente los tres pasos de edición.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-013"></a>
+### REQ-UI-013 — Distinción entre crear y editar
+
+**Requisito:**
+La UI administrativa deberá distinguir las acciones de crear y editar mediante su título, acción primaria, estado inicial y presencia de datos precargados.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-013 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** Crear y editar tienen distinta intención y estado de datos aunque utilicen controles relacionados.
+
+**Verificación:** Inspección: comparar las composiciones CREATE y EDIT y comprobar que no se representan como la misma operación.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-014"></a>
+### REQ-UI-014 — Presentación de revisión pendiente
+
+**Requisito:**
+La UI administrativa deberá presentar un combo pendiente de revisión en un contexto de edición distinto que identifique sus variantes afectadas y cambios de dependencias.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13 y contratos de revisión E-19/E-20; consolidada como UI-REQ-014 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** El administrador debe identificar qué cambió antes de confirmar la revisión.
+
+**Verificación:** Demostración: cargar un combo pendiente y comprobar un estado de revisión distinto, variantes afectadas y cambios observados.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-015"></a>
+### REQ-UI-015 — Confirmación de revisión pendiente
+
+**Requisito:**
+La UI administrativa deberá permitir confirmar las variantes de combo pendientes seleccionadas y ocultar el indicador de revisión únicamente después de que un estado actualizado de Menu informe UP_TO_DATE.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13 y contratos de revisión E-20/E-21; consolidada como UI-REQ-014 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** La UI no debe declarar verificación solo porque el administrador pulsó Guardar; el estado resultante de Menu es autoritativo.
+
+**Verificación:** Demostración: confirmar una o más variantes, actualizar el estado de revisión y comprobar que REVIEW_REQUIRED permanece cuando hay cambios nuevos pendientes.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-ui-016"></a>
+### REQ-UI-016 — Costo acumulado de preorden
+
+**Requisito:**
+La UI de orden deberá mostrar el costo acumulado de la preorden como la suma de los costos de sus líneas configuradas, tratando los ajustes posteriores de Billing como externos a ese acumulado mostrado.
+
+**Tipo:** Funcional — UI consumidora
+
+**Fuente:** Aclaración explícita de precio en la solicitud del 2026-09-13 y resumen monetario de E-16; consolidada como UI-REQ-015 en `output/ui-spec/ui-data-spec.md`.
+
+**Justificación:** El precio del catálogo es el costo de ordenar el item configurado; la UI debe mostrar la suma de los costos seleccionados sin esperar a Billing final.
+
+**Verificación:** Demostración: cambiar cantidades y configuraciones y comprobar `preorderTotal = Σ(quantity × resolvedUnitSubtotal)`; los ajustes posteriores de Billing no cambian el significado del acumulado mostrado.
+
+**Estado:** Confirmado

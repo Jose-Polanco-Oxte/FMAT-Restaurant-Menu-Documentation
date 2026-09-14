@@ -1,5 +1,7 @@
 ---
-name: POS Monochromatic Wireframe
+name: FMAT Restaurant Tablet UI
+viewport: 1024x768
+deviceType: TABLET
 colors:
   surface: '#FFFFFF'
   surface-dim: '#F7F7F7'
@@ -124,11 +126,11 @@ typography:
     fontWeight: '400'
     lineHeight: 16px
 rounded:
-  sm: 0.125rem
-  DEFAULT: 0.25rem
-  md: 0.25rem
-  lg: 0.375rem
-  xl: 0.375rem
+  sm: 0.25rem
+  DEFAULT: 0.5rem
+  md: 0.5rem
+  lg: 0.75rem
+  xl: 0.75rem
   full: 9999px
 spacing:
   unit: 8px
@@ -143,20 +145,22 @@ spacing:
   card-gap: 16px
 ---
 
-# Design System: Tablet UI Wireframing (FMAT Restaurant POS)
+# Design System: FMAT Restaurant Tablet UI
 **Project ID:** 15034143433341050287
 
 ## 1. Visual Theme & Atmosphere
 
-The interface embodies a **high-fidelity grayscale wireframe** engineered specifically for operational restaurant management, tablet point-of-sale (POS) terminals, and waiter service flows. The visual character is clean, sober, strictly functional, and geometric.
+The interface is a **high-fidelity grayscale operational UI** for a horizontal tablet point-of-sale terminal. It is calm, legible and structured without looking like a collection of rigid boxes. The visual character is clean and functional, with a small amount of warmth from moderate corner rounding and tonal layering.
 
-The design prioritizes scanability, rapid recognition, and typographic contrast over decoration. It functions as an advanced UX prototype where every pixel serves a concrete operational purpose. Geometry is straightforward, orderly, and bounded by crisp, thin lines.
+The design prioritizes scanability, rapid recognition and typographic contrast over decoration. Every visible module must support the actor's immediate decision. Geometry follows a regular grid, but grouping comes from spacing and surface tone before it comes from borders.
 
 **Core Principles:**
 - **Monochromatic Discipline:** Exclusively composed of white, black, and calibrated neutral light grays. No chromatic colors (no red, green, blue, purple, or orange).
 - **Functional States via Tonal Contrast:** Statuses, selections, and destructive actions are conveyed through tonal fills, dark underlines, stroke thickness, and iconography rather than chromatic cues.
-- **Orderly Geometry:** Rectangular layouts, aligned grids, clearly enclosed modules, and crisp 1–2px boundaries.
-- **Canvas Framing:** 3:2 landscape orientation optimized for tablet and administrative desktop screens, filling almost the entire viewport with a deliberate 24px outer margin and a thin black enclosing frame.
+- **Orderly Geometry:** Aligned grids, clear grouping and restrained 1px boundaries. Avoid a border around every text block.
+- **Tablet Canvas:** Every mockup is exported at exactly **1024 × 768 px**, landscape tablet orientation, with a 24px safe margin. Content must fit that canvas; long explanations belong in a collapsed detail or a separate state.
+- **Spanish-first UI:** Visible titles, actions, labels and messages are Spanish. Canonical enums and identifiers may appear as secondary metadata only.
+- **Family consistency:** Variants of one view reuse the same header, spacing, cards, controls and state hierarchy. A changed state may change content, not the base composition.
 
 ---
 
@@ -204,21 +208,21 @@ The design prioritizes scanability, rapid recognition, and typographic contrast 
 ## 4. Component Stylings
 
 ### Buttons
-- **Primary Action Button:** Solid dark ink fill (`#111111` or `#1A1A1A`), crisp white text (`#FFFFFF`), rectangular shape with minimal corner radius (2–4px), padding 8px vertical × 16px horizontal. Holds the highest visual weight on the screen.
-- **Secondary Action Button:** Pure white background (`#FFFFFF`), solid dark text (`#111111`), 1px solid black/dark gray border (`#1A1A1A` or `#BDBDBD`), minimal radius (2–4px).
+- **Primary Action Button:** Solid dark ink fill (`#111111` or `#1A1A1A`), crisp white text (`#FFFFFF`), moderate 8px radius and touch-friendly padding. It must describe the actor's business action, not an endpoint or service.
+- **Secondary Action Button:** Pure white background (`#FFFFFF`), solid dark text (`#111111`), 1px structural border and the same 8px radius.
 - **Tertiary / Ghost Button:** Transparent background, dark text (`#111111`), no border, subtle underline or icon.
-- **Button Rules:** No gradients, no glows, no pill shapes. Pair with simple outline icons when it accelerates operator recognition.
+- **Button Rules:** No gradients, no glows and no pill-shaped controls. Avoid duplicate buttons for the same object; keep one primary action and only the supporting alternatives required by the state.
 
 ### Cards & Container Modules
-- **Surface:** Pure white (`#FFFFFF`) with thin, sharp 1px dark border (`#1A1A1A` or `#BDBDBD`).
-- **Corner Radius:** Very small (2–6px). Square-cut, crisp, architectural appearance.
+- **Surface:** Pure white (`#FFFFFF`) grouped by whitespace and light-gray bands; use a 1px border only when the boundary improves scanning.
+- **Corner Radius:** Consistent moderate rounding (8–12px). Do not combine several nested boxes with different corner treatments.
 - **Shadows:** Flat. No heavy shadows or floating blur layers; optional barely perceptible hairline shadow (`0 1px 2px rgba(0,0,0,0.04)`).
 - **Padding:** Moderate to generous (16–24px).
 - **Selectable Cards:** Entire surface acts as a single interactive unit. When selected, the surface transitions to Light Gray (`#EDEDED`) with a 2px `#1A1A1A` border.
 
 ### Inputs & Form Fields
 - **Container:** White rectangular fields (`#FFFFFF`) framed by a thin 1px border (`#1A1A1A` or `#BDBDBD`).
-- **Corner Radius:** Minimal (2–4px).
+- **Corner Radius:** Consistent 8px radius for touch controls and 10–12px for modal surfaces.
 - **Dimensions:** Touch-friendly height (40–48px) for tablet point-of-sale taps.
 - **Placeholder:** Medium Gray (`#444444`).
 - **Focus State:** 2px solid dark border (`#1A1A1A`). Absolutely no glowing outer halos or floating label animations.
@@ -254,8 +258,9 @@ The design prioritizes scanability, rapid recognition, and typographic contrast 
   - Layout spacing: 16–24px (card internal padding, column gaps).
   - Section spacing: 32–48px (major module separation, modal margins).
 - **Alignment:** Strict left alignment for textual content and form labels; right alignment for numeric currency amounts and secondary actions; centered alignment only when mathematically required (e.g. status icons).
-- **Density:** Medium operational density. Accommodates substantial data (menu items, modifiers, assigned tables, order tickets) without visual clutter.
-- **Outer Frame:** Desktop/tablet landscape 3:2 canvas framed by a thin outer border, maintaining consistent 24px margins to screen edges.
+- **Density:** Medium operational density. Use the 1024 × 768 canvas efficiently: keep the decision area visible, place secondary metadata in a compact detail region, and avoid large unused zones beside long technical panels.
+- **Outer Frame:** Tablet landscape canvas at exactly 1024 × 768, maintaining a consistent 24px safe margin. Do not generate variable-height desktop pages and label them as tablet screens.
+- **Responsive composition:** Use two columns only when both columns carry an equally important decision. Otherwise use one primary column with a compact summary rail.
 
 ---
 
@@ -264,8 +269,10 @@ The design prioritizes scanability, rapid recognition, and typographic contrast 
 - **NO chromatic colors:** Any use of red, green, blue, purple, yellow, or orange is strictly forbidden.
 - **NO color-coded destructive alerts:** Red alert banners or red delete buttons are BANNED. Represent destruction via clear wording ("Eliminar / Cancelar"), confirmation modals, and outline trash icons.
 - **NO gradients or neon glows:** No "AI purple/blue" glows, radial gradients, or drop shadow bleeds.
-- **NO rounded bubble shapes:** Pill buttons, large rounded corners (>8px), and bubble badges are forbidden unless representing circular steppers or circular table counters.
+- **NO rounded bubble shapes:** Pill buttons, oversized rounded corners (>16px), and decorative bubble badges are forbidden. Moderate 8–12px rounding is the standard for cards and controls.
 - **NO glassmorphism or neumorphism:** No backdrop filters, blurred mica layers, or embossed shadows.
 - **NO decorative illustrations or stock photography:** Only functional wireframe line icons and schematic layout diagrams.
 - **NO floating unanchored cards:** All cards and panels must align to regular structural grid lines.
 - **NO invented metric statistics:** Do not fabricate dummy uptime, percentage cards, or decorative analytics not explicitly requested.
+- **NO infrastructure as primary UX:** Do not expose HTTP codes, schema names, sync pipelines, checksums, tenant nodes, service destinations or implementation notes in the main interaction surface. Put traceability in a collapsed secondary detail when it is genuinely needed.
+- **NO language mixing:** Do not mix English labels such as `ACTIVE`, `STATUS`, `DEFAULT` or `EDIT` into primary UI copy; use `Activo`, `Estado`, `Base` and `Editar`, retaining the canonical token only as secondary metadata.

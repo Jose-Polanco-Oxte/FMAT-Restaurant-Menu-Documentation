@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión del catálogo // V04-RR Pendientes de revisión</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Inter & JetBrains Mono Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#f9f9f9",
+            "inverse-primary": "#c8c6c5",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary": "#ffffff",
+            "on-primary-fixed-variant": "#474646",
+            "on-primary-fixed": "#1c1b1b",
+            "tertiary": "#000000",
+            "inverse-surface": "#2f3131",
+            "secondary-container": "#e4e2e2",
+            "surface-container-high": "#e8e8e8",
+            "tertiary-fixed": "#e3e2e2",
+            "on-tertiary-container": "#838484",
+            "on-primary": "#ffffff",
+            "on-tertiary-fixed": "#1a1c1c",
+            "inverse-on-surface": "#f0f1f1",
+            "on-error": "#ffffff",
+            "secondary-fixed-dim": "#c8c6c6",
+            "on-error-container": "#93000a",
+            "surface-container": "#eeeeee",
+            "on-secondary": "#ffffff",
+            "secondary": "#5f5e5e",
+            "on-tertiary-fixed-variant": "#464747",
+            "outline-variant": "#c4c7c7",
+            "secondary-fixed": "#e4e2e2",
+            "outline": "#747878",
+            "on-background": "#1a1c1c",
+            "surface-variant": "#e2e2e2",
+            "primary-fixed-dim": "#c8c6c5",
+            "on-surface": "#1a1c1c",
+            "primary-container": "#1c1b1b",
+            "surface-bright": "#f9f9f9",
+            "surface-container-highest": "#e2e2e2",
+            "surface": "#f9f9f9",
+            "tertiary-container": "#1a1c1c",
+            "on-primary-container": "#858383",
+            "primary-fixed": "#e5e2e1",
+            "surface-container-low": "#f3f3f4",
+            "on-secondary-container": "#656464",
+            "error-container": "#ffdad6",
+            "surface-dim": "#dadada",
+            "on-surface-variant": "#444748",
+            "on-secondary-fixed": "#1b1c1c",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "surface-tint": "#5f5e5e",
+            "error": "#ba1a1a",
+            "primary": "#000000",
+            "on-secondary-fixed-variant": "#474747"
+          },
+          borderRadius: {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          spacing: {
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2rem",
+            "gutter": "1rem",
+            "margin": "1.5rem"
+          },
+          fontFamily: {
+            "headline-lg": ["Inter", "sans-serif"],
+            "headline-md": ["Inter", "sans-serif"],
+            "headline-sm": ["Inter", "sans-serif"],
+            "body-lg": ["Inter", "sans-serif"],
+            "body-md": ["Inter", "sans-serif"],
+            "body-sm": ["Inter", "sans-serif"],
+            "label-lg": ["Inter", "sans-serif"],
+            "label-md": ["Inter", "sans-serif"],
+            "label-sm": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          fontSize: {
+            "headline-lg": ["30px", { lineHeight: "38px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "headline-md": ["22px", { lineHeight: "30px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "headline-sm": ["18px", { lineHeight: "24px", fontWeight: "600" }],
+            "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+            "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+            "label-lg": ["14px", { lineHeight: "20px", fontWeight: "600" }],
+            "label-md": ["13px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "500" }],
+            "label-sm": ["12px", { lineHeight: "16px", fontWeight: "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-block;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Monochromatic wireframe crisp borders */
+    .wireframe-box {
+      border: 1px solid #1A1A1A;
+    }
+    .wireframe-box-bold {
+      border: 2px solid #1A1A1A;
+    }
+    .wireframe-box-muted {
+      border: 1px solid #BDBDBD;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen p-6 font-body-md text-body-md select-none">
+<!-- Main Technical Canvas Container (3:2 Proportional framing with outer 24px margin layout) -->
+<main class="max-w-[1440px] mx-auto bg-surface-container-lowest border-2 border-primary rounded-lg p-6 flex flex-col gap-6 shadow-sm">
+<!-- 1. ENCABEZADO SUPERIOR -->
+<header class="border-b-2 border-primary pb-5 flex flex-col lg:flex-row justify-between lg:items-start gap-4"><div class="space-y-2"><div class="flex items-center flex-wrap gap-3"><h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Revisión de combos requerida</h1><div class="flex items-center gap-1.5 font-mono"><span class="inline-flex items-center px-2 py-0.5 bg-surface-container-high text-primary font-label-sm text-label-sm border border-primary font-semibold">V-ADM-01 · REVISIÓN CONTEXTUAL</span></div></div><p class="font-mono text-body-sm text-on-surface-variant flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-primary">storefront</span><span>Gestión del catálogo · revisión contextual · Restaurant r-fmat-01 · Menú principal · cat_id: ctg-main-01</span></p></div><div class="flex flex-col sm:items-end font-mono text-right bg-surface-container-low p-3 border border-outline-variant"><div class="flex items-center gap-1.5 text-primary font-label-md text-label-md font-semibold"><span class="material-symbols-outlined text-primary text-[18px]">verified_user</span><span>Actor: Administrador</span></div></div></header>
+<!-- 2. TABS SEMÁNTICOS (Subnavegación de estados) -->
+<section class="space-y-2.5">
+<nav aria-label="Estados de catálogo" class="flex flex-wrap items-center gap-2 border-b border-primary pb-2"><button class="px-4 py-2 bg-primary text-surface-container-lowest font-label-md text-label-md border-2 border-primary flex items-center gap-2 font-semibold" type="button"><span>Activos</span><span class="font-mono text-label-sm px-1.5 py-0.2 bg-surface-container-lowest text-primary font-bold">ACTIVE</span></button><button class="px-4 py-2 bg-surface-container-lowest hover:bg-surface-container text-on-surface-variant border border-outline-variant font-label-md text-label-md flex items-center gap-2 transition-colors" type="button"><span>Inactivos</span><span class="font-mono text-label-sm px-1.5 py-0.2 bg-surface-container-high text-on-surface border border-outline-variant">INACTIVE</span></button><button class="px-4 py-2 bg-surface-container-lowest hover:bg-surface-container text-on-surface-variant border border-outline-variant font-label-md text-label-md flex items-center gap-2 transition-colors" type="button"><span>Archivados</span><span class="font-mono text-label-sm px-1.5 py-0.2 bg-surface-container-high text-on-surface border border-outline-variant">ARCHIVED</span></button></nav>
+<!-- Caja de nota de ayuda/guía inmediata debajo de los tabs -->
+<div class="bg-surface-container-low border border-primary p-3 flex items-start gap-3"><span class="material-symbols-outlined text-primary text-[20px] mt-0.5">info</span><div class="text-body-sm text-on-surface font-mono leading-relaxed"><strong class="text-primary font-semibold font-label-md">REVIEW_REQUIRED</strong> es una condición técnica de auditoría superpuesta exclusiva para ítems tipo COMBO; no reemplaza ni constituye un estado administrativo base (<span class="bg-surface-container-high px-1 border border-outline-variant">ACTIVE</span> / <span class="bg-surface-container-high px-1 border border-outline-variant">INACTIVE</span> / <span class="bg-surface-container-high px-1 border border-outline-variant">ARCHIVED</span>).</div></div>
+</section>
+<!-- 3. BARRA DE FILTROS Y CONTROLES -->
+<section class="border border-primary bg-surface-bright p-4 flex flex-col gap-3">
+<!-- Fila 1 de controles -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+<!-- Input de búsqueda -->
+<div class="md:col-span-5 relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-primary">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</span>
+<input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest border border-primary rounded-none font-body-sm text-body-sm placeholder:text-on-surface-variant focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Buscar combo por nombre, menuItemId o token..." type="text" value=""/>
+</div>
+<!-- Select Categoría externa -->
+<div class="md:col-span-3">
+<div class="relative">
+<select class="w-full py-2 px-3 bg-surface-container-lowest border border-primary rounded-none font-body-sm text-body-sm appearance-none focus:outline-none focus:ring-1 focus:ring-primary">
+<option>Categoría: Todas (Paquetes, Desayunos...)</option>
+<option>Paquetes / Promociones</option>
+<option>Desayunos</option>
+<option>Especiales del día</option>
+</select>
+<span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-primary">
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</span>
+</div>
+</div>
+<!-- Selector Tipo de suministro: COMBO fijo -->
+<div class="md:col-span-3">
+<div class="relative">
+<select class="w-full py-2 px-3 bg-surface-container border-2 border-primary rounded-none font-mono text-body-sm font-semibold appearance-none focus:outline-none"><option selected="" value="COMBO">Tipo de suministro: COMBO</option><option value="STOCKED">Tipo de suministro: STOCKED</option><option value="PREPARED">Tipo de suministro: PREPARED</option></select>
+<span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-primary">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+</span>
+</div>
+</div>
+<!-- Botón limpiar filtros -->
+<div class="md:col-span-1 flex justify-end">
+<button class="w-full py-2 px-2 bg-surface-container-lowest border border-outline-variant hover:border-primary font-label-sm text-label-sm text-primary flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">filter_alt_off</span>
+<span>Limpiar</span>
+</button>
+</div>
+</div>
+<!-- Fila 2 de clasificación comercial (Pills/Botones segmentados) -->
+<div class="pt-2 border-t border-outline-variant flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center flex-wrap gap-1.5">
+<span class="font-mono text-label-sm text-on-surface-variant mr-1 font-semibold">Clasificación:</span>
+<button class="px-2.5 py-1 text-label-sm bg-surface-container-lowest border border-outline-variant text-on-surface hover:border-primary" type="button">Todas</button>
+<button class="px-2.5 py-1 text-label-sm bg-surface-container-lowest border border-outline-variant text-on-surface hover:border-primary" type="button">Platillo</button>
+<button class="px-2.5 py-1 text-label-sm bg-surface-container-lowest border border-outline-variant text-on-surface hover:border-primary" type="button">Bebida</button>
+<button class="px-2.5 py-1 text-label-sm bg-primary text-surface-container-lowest border border-primary font-semibold flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">check</span>
+            Combo - ACTIVO
+          </button>
+<button class="px-2.5 py-1 text-label-sm bg-surface-container-lowest border border-outline-variant text-on-surface hover:border-primary" type="button">Postre</button>
+<button class="px-2.5 py-1 text-label-sm bg-surface-container-lowest border border-outline-variant text-on-surface hover:border-primary" type="button">Complemento</button>
+</div>
+<!-- Aclaración visual -->
+<div class="font-mono text-label-sm text-on-surface-variant flex items-center gap-1.5 bg-surface-container-low px-2 py-1 border border-outline-variant">
+<span class="material-symbols-outlined text-[15px] text-primary">rule</span>
+<span>Aviso: REVIEW_REQUIRED no es una clasificación, es condición de auditoría técnica.</span>
+</div>
+</div>
+</section>
+<!-- 4. TABLA / LISTA DE COMBOS EN REVISIÓN -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start"><!-- ÁREA PRINCIPAL DENSA DE CATÁLOGO (8 columnas) --><div class="md:col-span-8 border-2 border-primary overflow-hidden flex flex-col"><div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead><tr class="bg-surface-container-high border-b-2 border-primary font-mono text-label-sm text-primary"><th class="py-3 px-3 uppercase tracking-wider font-semibold" scope="col">Ítem &amp; Metadatos</th><th class="py-3 px-2 uppercase tracking-wider font-semibold w-28" scope="col">Suministro</th><th class="py-3 px-2 uppercase tracking-wider font-semibold w-28" scope="col">Estado adm.</th><th class="py-3 px-3 uppercase tracking-wider font-semibold" scope="col">Resolución de Menu</th><th class="py-3 px-3 uppercase tracking-wider font-semibold text-right w-36" scope="col">Acciones</th></tr></thead><tbody class="divide-y divide-primary font-body-sm"><!-- FILA 1 (Seleccionada) --><tr class="bg-surface-container-low border-l-2 border-primary"><td class="py-3 px-3 align-top"><div class="font-headline-sm text-headline-sm text-primary font-bold">Combo comida · versión v3.0</div><div class="font-mono text-label-sm text-on-surface-variant mt-1 flex flex-wrap items-center gap-1.5"><span class="bg-surface-container px-1 py-0.2 border border-outline-variant text-primary font-semibold">ID: itm-cmb-04</span><span>|</span><span>v3.0</span><span>|</span><span>Paquetes</span><span>|</span><span class="font-semibold text-primary">$145.00</span></div><div class="font-mono text-[12px] text-on-surface-variant mt-1"><span class="bg-surface-container-high px-1 py-0.2 border border-outline-variant text-primary font-semibold">pendingVariantIds: [var-beb-02]</span></div></td><td class="py-3 px-2 align-top font-mono"><span class="inline-flex items-center px-1.5 py-0.5 border border-primary bg-primary text-surface-container-lowest font-label-sm font-bold">COMBO</span></td><td class="py-3 px-2 align-top font-mono"><span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-surface-container-lowest border border-primary text-primary font-label-sm font-semibold"><span class="w-2 h-2 bg-primary"></span>ACTIVE</span></td><td class="py-3 px-3 align-top"><div class="space-y-1"><span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary text-surface-container-lowest font-mono font-bold text-label-sm border border-primary"><span class="material-symbols-outlined text-[13px]">warning</span>▲ Revisión pendiente · REVIEW_REQUIRED</span><div class="font-mono text-label-sm text-on-surface">Requiere revisión de resolución de Menu ante cambio contractual</div></div></td><td class="py-3 px-3 align-top text-right"><div class="flex flex-col items-end gap-1"><button class="w-full px-2.5 py-1 bg-primary text-surface-container-lowest font-label-sm text-label-sm hover:bg-on-surface border border-primary flex items-center justify-center gap-1" type="button"><span>Revisar combo</span><span class="material-symbols-outlined text-[14px]">arrow_forward</span></button><div class="flex items-center gap-1 w-full"><button class="w-1/2 px-1.5 py-0.5 bg-surface-container-lowest text-primary font-label-sm text-label-sm border border-outline-variant hover:border-primary" type="button">Editar</button><button class="w-1/2 px-1.5 py-0.5 bg-surface-container-lowest text-primary font-label-sm text-label-sm border border-outline-variant hover:border-primary" type="button">Detalle</button></div></div></td></tr><!-- FILA 2 --><tr class="bg-surface-container-lowest hover:bg-surface-container-low transition-colors"><td class="py-3 px-3 align-top"><div class="font-headline-sm text-headline-sm text-primary font-bold">Combo desayuno · versión v2.1</div><div class="font-mono text-label-sm text-on-surface-variant mt-1 flex flex-wrap items-center gap-1.5"><span class="bg-surface-container-high px-1 py-0.2 border border-outline-variant text-primary font-semibold">ID: itm-cmb-02</span><span>|</span><span>v2.1</span><span>|</span><span>Desayunos</span></div></td><td class="py-3 px-2 align-top font-mono"><span class="inline-flex items-center px-1.5 py-0.5 border border-primary bg-primary text-surface-container-lowest font-label-sm font-bold">COMBO</span></td><td class="py-3 px-2 align-top font-mono"><span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-surface-container-lowest border border-primary text-primary font-label-sm font-semibold"><span class="w-2 h-2 bg-primary"></span>ACTIVE</span></td><td class="py-3 px-3 align-top"><div class="space-y-1"><span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary text-surface-container-lowest font-mono font-bold text-label-sm border border-primary"><span class="material-symbols-outlined text-[13px]">warning</span>REVIEW_REQUIRED</span><div class="font-mono text-label-sm text-on-surface">Requiere revisión de resolución de Menu</div></div></td><td class="py-3 px-3 align-top text-right"><div class="flex flex-col items-end gap-1"><button class="w-full px-2.5 py-1 bg-surface-container-lowest text-primary font-label-sm text-label-sm hover:bg-surface-container border border-primary flex items-center justify-center gap-1" type="button"><span>Revisar combo</span><span class="material-symbols-outlined text-[14px]">arrow_forward</span></button><div class="flex items-center gap-1 w-full"><button class="w-1/2 px-1.5 py-0.5 bg-surface-container-lowest text-primary font-label-sm text-label-sm border border-outline-variant hover:border-primary" type="button">Editar</button><button class="w-1/2 px-1.5 py-0.5 bg-surface-container-lowest text-primary font-label-sm text-label-sm border border-outline-variant hover:border-primary" type="button">Detalle</button></div></div></td></tr><!-- FILA 3 (Archivado) --><tr class="bg-surface-container-lowest hover:bg-surface-container-low transition-colors"><td class="py-3 px-3 align-top"><div class="font-headline-sm text-headline-sm text-on-surface font-semibold">Combo merienda ejecutiva · versión v1.8</div><div class="font-mono text-label-sm text-on-surface-variant mt-1 flex flex-wrap items-center gap-1.5"><span class="bg-surface-container px-1 py-0.2 border border-outline-variant text-on-surface font-semibold">ID: itm-cmb-merienda-01</span><span>|</span><span>v1.8</span><span>|</span><span>Paquetes</span></div></td><td class="py-3 px-2 align-top font-mono"><span class="inline-flex items-center px-1.5 py-0.5 border border-primary bg-primary text-surface-container-lowest font-label-sm font-bold">COMBO</span></td><td class="py-3 px-2 align-top font-mono"><span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-on-surface font-label-sm"><span class="w-2 h-2 bg-on-surface-variant"></span>ARCHIVED</span></td><td class="py-3 px-3 align-top"><div class="space-y-1"><span class="inline-flex items-center gap-1 px-2 py-0.5 bg-surface-container-high text-on-surface font-mono text-label-sm border border-outline-variant">UP_TO_DATE</span><div class="font-mono text-label-sm text-on-surface-variant">Elegibilidad según Menu: No elegible por archivo</div></div></td><td class="py-3 px-3 align-top text-right"><div class="flex flex-col items-end gap-1"><button class="w-full px-2.5 py-1 bg-surface-container-lowest text-primary font-label-sm text-label-sm hover:bg-surface-container border border-outline-variant flex items-center justify-center gap-1" type="button"><span>Ver detalle</span></button><button class="w-full px-2.5 py-0.5 bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm border border-outline-variant hover:border-primary" type="button">Editar item</button></div></td></tr></tbody></table></div><footer class="bg-surface-container-low border-t-2 border-primary p-3 flex flex-col sm:flex-row justify-between items-center gap-2 font-mono text-label-sm"><div class="flex items-center gap-2 text-on-surface"><span class="material-symbols-outlined text-primary text-[18px]">table_rows</span><span>Listado de combos · Elegibilidad según Menu</span></div><div class="flex items-center gap-1"><button class="px-3 py-1 bg-surface-container text-on-surface-variant border border-outline-variant font-label-sm cursor-not-allowed" disabled="" type="button">&lt; Anterior</button><button class="px-3 py-1 bg-primary text-surface-container-lowest border border-primary font-label-sm font-bold" type="button">1</button><button class="px-3 py-1 bg-surface-container text-on-surface-variant border border-outline-variant font-label-sm cursor-not-allowed" disabled="" type="button">Siguiente &gt;</button></div></footer></div><!-- PANEL LATERAL DEDICADO A LA REVISIÓN LOCAL DEL COMBO (4 columnas) --><aside class="md:col-span-4 border-2 border-primary bg-surface-bright flex flex-col space-y-4 p-4"><div class="border-b-2 border-primary pb-3"><div class="flex items-center justify-between"><span class="font-mono text-label-sm uppercase font-bold text-primary flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">rate_review</span>Revisión de combo</span><span class="px-2 py-0.5 bg-primary text-surface-container-lowest font-mono font-bold text-label-sm">REVIEW_REQUIRED</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold mt-2">Combo comida · v3.0</h3><div class="font-mono text-label-sm text-on-surface-variant mt-0.5">ID: itm-cmb-04 · Suministro: COMBO · Base: ACTIVE</div></div><div class="space-y-3 font-mono text-body-sm"><div class="text-label-sm font-bold text-primary uppercase">Detalle de revisión contractual</div><div class="border border-primary bg-surface-container-lowest p-3 space-y-2"><div class="flex items-center justify-between text-label-sm"><span class="font-bold text-primary">Slot: slot-refresco-01</span><span class="px-1.5 py-0.2 bg-primary text-surface-container-lowest text-label-sm font-bold">REVIEW_REQUIRED</span></div><div class="text-on-surface text-label-sm">Componente: itm-refresco-02</div><div class="text-label-sm text-primary font-semibold"><span class="bg-surface-container-high px-1 py-0.2 border border-outline-variant">pendingVariantIds: [var-beb-02]</span></div><div class="text-label-sm text-on-surface-variant border-t border-outline-variant pt-1.5">Requiere revisión de resolución de Menu: actualización en versión contractual del ítem referenciado.</div></div><div class="border border-outline-variant bg-surface-container-lowest p-3 space-y-2"><div class="flex items-center justify-between text-label-sm"><span class="font-bold text-primary">Slot: slot-platillo-01</span><span class="px-1.5 py-0.2 bg-surface-container-high border border-outline-variant text-on-surface text-label-sm font-semibold">UP_TO_DATE</span></div><div class="text-on-surface text-label-sm">Componente: itm-hamburguesa-clasica</div><div class="text-label-sm text-on-surface-variant border-t border-outline-variant pt-1.5">Elegibilidad según Menu: Vigente y validado.</div></div></div><div class="pt-2 border-t-2 border-primary flex flex-col gap-2"><button class="w-full px-4 py-2.5 bg-primary text-surface-container-lowest font-label-md text-label-md hover:bg-on-surface border border-primary flex items-center justify-center gap-2 font-bold" type="button"><span class="material-symbols-outlined text-[18px]">check_circle</span><span>Revisar combo</span></button><button class="w-full px-4 py-2 bg-surface-container-lowest text-primary font-label-md text-label-md hover:bg-surface-container border border-primary flex items-center justify-center gap-2" type="button"><span class="material-symbols-outlined text-[18px]">visibility</span><span>Ver detalle</span></button><button class="w-full px-4 py-1.5 bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm hover:border-primary border border-outline-variant flex items-center justify-center gap-1" type="button"><span>Editar item</span></button></div></aside></section>
+<!-- 5. PANEL INFERIOR DE INTERPRETACIÓN Y PROTOCOLO -->
+<section class="border-2 border-primary bg-surface-container-low p-5 space-y-4">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+<div class="space-y-2 max-w-4xl">
+<div class="flex items-center gap-2 text-primary font-headline-sm text-headline-sm font-bold">
+<span class="material-symbols-outlined text-[24px]">policy</span>
+<h2>Panel de interpretación arquitectónica y frontera de revisión:</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed pl-8 border-l-2 border-primary">REVIEW_REQUIRED es una condición técnica de auditoría exclusiva para ítems tipo COMBO. Señala que el combo requiere revisión de resolución de Menu debido a modificaciones en las referencias de sus componentes. No representa un estado de venta directa, no infiere existencia física ni reemplaza los estados administrativos ACTIVE, INACTIVE o ARCHIVED.</p>
+</div>
+<!-- Botones de acción del panel -->
+<div class="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-2 self-start md:self-end">
+<button class="px-4 py-2.5 bg-surface-container-lowest hover:bg-surface-container text-primary font-label-md text-label-md border-2 border-primary flex items-center justify-center gap-2 transition-transform active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+<span>Actualizar listado ↺</span>
+</button>
+<button class="px-5 py-2.5 bg-primary text-surface-container-lowest hover:bg-on-surface font-label-md text-label-md border-2 border-primary flex items-center justify-center gap-2 transition-transform active:scale-[0.98] font-bold" type="button">
+<span class="material-symbols-outlined text-[18px]">checklist</span>
+<span>Abrir revisión masiva</span>
+</button>
+</div>
+</div>
+<!-- Metadatos técnicos al pie -->
+<div class="pt-3 border-t border-primary flex flex-wrap items-center justify-between gap-2 font-mono text-label-sm text-on-surface-variant"><div class="flex flex-wrap items-center gap-3"><span class="bg-surface-container px-2 py-0.5 border border-outline-variant font-semibold text-primary">spec: POS-CORE-CATALOG-V-ADM-01</span><span>•</span><span class="bg-surface-container px-2 py-0.5 border border-outline-variant font-semibold text-primary">schema_binding: REVIEW_STATE_EVAL</span><span>•</span><span class="bg-surface-container px-2 py-0.5 border border-outline-variant font-semibold text-primary">tenant_node: RFMAT_SALON_01</span></div><div class="flex items-center gap-1 text-primary font-semibold"><span class="w-2 h-2 rounded-full bg-primary inline-block"></span><span>FMAT ARCHITECTURE PROTOCOL VALIDATED</span></div></div>
+</section>
+</main>
+</body></html>

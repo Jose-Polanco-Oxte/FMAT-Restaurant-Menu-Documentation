@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V-ADM-02 · Crear item de menú - Paso 3: Modificadores</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f9f9f9;
+      color: #111111;
+      margin: 0;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- Contenedor general del editor desktop de alta densidad -->
+  <div class="max-w-[1400px] w-full mx-auto bg-white border border-[#111111] flex flex-col">
+
+    <!-- 1. Encabezado Contextual de Trabajo -->
+    <header class="border-b border-[#111111] px-6 py-4 flex flex-wrap justify-between items-center bg-white gap-4">
+      <div class="flex items-center gap-3">
+        <span class="bg-[#111111] text-white text-xs font-mono-code font-bold px-2.5 py-1 tracking-wider uppercase">[CREATE]</span>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold tracking-tight text-[#111111]">Crear item de menú</h1>
+            <span class="text-sm font-mono-code text-[#666666] font-medium">V07-C · Paso 3: Modificadores</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-[#555555] mt-0.5 font-mono-code">
+            <span>Contexto: Restaurant r-fmat-01 / Menú principal</span>
+            <span>•</span>
+            <span>Item borrador: <strong class="text-[#111111]">Tacos de pescado</strong> (itm-pesc-01)</span>
+            <span>•</span>
+            <span class="inline-flex items-center gap-1 font-semibold text-[#111111]">
+              <span class="w-2 h-2 rounded-full bg-[#111111] inline-block"></span>
+              Borrador local · aún no persistido
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 text-xs font-mono-code text-right">
+        <div class="border-l border-[#e5e5e5] pl-4">
+          <div class="text-[#666666]">SPEC: <span class="font-bold text-[#111111]">POS-CORE-CATALOG-V07C</span></div>
+          <div class="text-[#666666]">SYNC STATUS: <span class="font-bold text-[#111111]">■ LOCAL_STAGED</span></div>
+        </div>
+        <div class="border-l border-[#e5e5e5] pl-4">
+          <div class="text-[#666666]">SCHEMA: <span class="font-bold text-[#111111]">MenuItem.draft#03</span></div>
+          <div class="text-[#666666]">MUTATION: <span class="font-bold text-[#111111]">DECLARATIVE_SPEC</span></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. Stepper Horizontal Canónico (Paso 3 Activo) -->
+    <nav class="border-b border-[#111111] bg-[#f9f9f9] grid grid-cols-4 divide-x divide-[#111111] text-xs" aria-label="Progreso del wizard">
+      
+      <!-- Paso 1: Clasificación y tipo (Completado) -->
+      <div class="p-3.5 bg-white flex items-center gap-2.5">
+        <div class="w-6 h-6 border border-[#111111] bg-white flex items-center justify-center font-mono-code font-bold text-xs text-[#111111]">
+          ✓
+        </div>
+        <div>
+          <div class="text-[10px] font-mono-code text-[#666666] tracking-wider uppercase font-semibold">1 Clasificación y tipo</div>
+          <div class="font-bold text-[#111111] leading-tight">Platillo · STOCKED</div>
+        </div>
+      </div>
+
+      <!-- Paso 2: Item y suministro (Completado) -->
+      <div class="p-3.5 bg-white flex items-center gap-2.5">
+        <div class="w-6 h-6 border border-[#111111] bg-white flex items-center justify-center font-mono-code font-bold text-xs text-[#111111]">
+          ✓
+        </div>
+        <div>
+          <div class="text-[10px] font-mono-code text-[#666666] tracking-wider uppercase font-semibold">2 Item y suministro</div>
+          <div class="font-bold text-[#111111] leading-tight">Datos y variante base ($168.00)</div>
+        </div>
+      </div>
+
+      <!-- Paso 3: Modificadores (Activo) -->
+      <div class="p-3.5 bg-[#111111] text-white flex items-center gap-2.5 relative">
+        <div class="w-6 h-6 bg-white text-[#111111] font-mono-code font-bold text-xs flex items-center justify-center">
+          3
+        </div>
+        <div>
+          <div class="text-[10px] font-mono-code text-white/70 tracking-wider uppercase font-semibold">3 Modificadores [ACTIVO]</div>
+          <div class="font-bold text-white leading-tight">Grupos y reglas operativas</div>
+        </div>
+        <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] border-t-[#111111]"></div>
+      </div>
+
+      <!-- Paso 4: Resumen y aceptación (Pendiente) -->
+      <div class="p-3.5 bg-[#f3f3f4] text-[#777777] flex items-center gap-2.5">
+        <div class="w-6 h-6 border border-[#cccccc] bg-white text-[#777777] font-mono-code font-bold text-xs flex items-center justify-center">
+          4
+        </div>
+        <div>
+          <div class="text-[10px] font-mono-code tracking-wider uppercase font-semibold">4 Resumen y aceptación</div>
+          <div class="font-medium leading-tight">Auditoría y guardado final</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Barra de Contexto de Variante Seleccionada -->
+    <div class="border-b border-[#111111] bg-white px-6 py-2.5 flex flex-wrap justify-between items-center text-xs gap-3">
+      <div class="flex items-center gap-3 font-mono-code">
+        <span class="font-bold uppercase tracking-wider text-[#111111]">Variante en configuración:</span>
+        <span class="bg-[#f0f0f0] border border-[#111111] px-2 py-0.5 font-bold text-[#111111]">Regular (var-taco-reg-01)</span>
+        <span class="text-[#666666]">Precio base: <strong>$168.00 MXN</strong></span>
+        <span class="text-[#666666]">• Suministro: <strong>STOCKED (Referencia de suministro)</strong></span>
+      </div>
+      <div class="text-[#555555] font-mono-code text-[11px]">
+        Regla MOD-SPEC: Las modificaciones se aplican declarativamente sobre la comanda.
+      </div>
+    </div>
+
+    <!-- 3. Área Principal en Dos Columnas -->
+    <main class="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#111111] bg-[#fcfcfc] min-h-[640px]">
+
+      <!-- COLUMNA PRINCIPAL (8 columnas de 12): Editor de Grupos y Opciones -->
+      <section class="lg:col-span-8 p-6 flex flex-col gap-6 bg-white" aria-label="Editor de modificadores">
+        
+        <!-- Encabezado de sección con acciones de nivel de grupo -->
+        <div class="flex flex-wrap justify-between items-center gap-3 border-b border-[#e5e5e5] pb-3">
+          <div>
+            <h2 class="text-base font-bold text-[#111111] tracking-tight flex items-center gap-2">
+              <span>Grupos de Modificadores Declarados</span>
+              <span class="text-xs font-mono-code font-normal bg-[#f0f0f0] border border-[#d0d0d0] px-2 py-0.5 text-[#333333]">1 grupo configurado</span>
+            </h2>
+            <p class="text-xs text-[#666666] mt-0.5">
+              Define los conjuntos de personalización disponibles para esta variante durante la comanda.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button type="button" class="h-10 px-3.5 border border-[#111111] bg-white text-xs font-semibold hover:bg-[#f5f5f5] active:bg-[#e9e9e9] transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-1 focus:ring-[#111111]">
+              <span class="text-sm font-bold leading-none">+</span>
+              <span>Agregar grupo</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- TARJETA DE GRUPO: Extras (groupId: GRP-01, min 0, max 3) -->
+        <div class="border-2 border-[#111111] bg-white">
+          
+          <!-- Cabecera de la Tarjeta del Grupo -->
+          <div class="border-b border-[#111111] bg-[#f3f3f4] p-4 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+              <span class="bg-[#111111] text-white text-[11px] font-mono-code font-bold px-2 py-0.5">GRP-01</span>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-bold text-[#111111]">Extras</span>
+                  <span class="text-xs font-mono-code text-[#666666]">(Ingredientes adicionales y preparación)</span>
+                </div>
+                <div class="text-[11px] font-mono-code text-[#555555] mt-0.5">
+                  Regla de selección: <strong>Mínimo 0 · Máximo 3</strong> (Cardinalidad: 0..3) · Selección opcional
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono-code bg-white border border-[#cccccc] px-2 py-1 font-semibold text-[#111111]">OPTIONAL</span>
+              <button type="button" class="text-xs font-mono-code text-[#666666] hover:text-[#111111] underline px-1 py-1">
+                Editar límites
+              </button>
+            </div>
+          </div>
+
+          <!-- Filas de Opciones Propias del Producto -->
+          <div class="p-4 flex flex-col gap-3">
+            
+            <div class="text-xs font-mono-code font-bold uppercase text-[#555555] pb-1 border-b border-[#e5e5e5] grid grid-cols-12 gap-2 px-3">
+              <div class="col-span-5">Opción &amp; Identificadores</div>
+              <div class="col-span-2 text-center">Estado</div>
+              <div class="col-span-3 text-right">Ajuste de Precio (Delta)</div>
+              <div class="col-span-2 text-center">Máximo</div>
+            </div>
+
+            <!-- FILA 1: Aguacate extra (ENABLED, qty 2, delta +$20.00) -->
+            <div class="border border-[#111111] bg-white p-3 grid grid-cols-12 gap-2 items-center hover:bg-[#fafafa] transition-colors">
+              <div class="col-span-5 flex flex-col">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-[#111111]">Aguacate extra</span>
+                  <span class="text-[10px] font-mono-code bg-[#111111] text-white px-1.5 py-0.5 font-bold uppercase">[ADD]</span>
+                </div>
+                <div class="text-[11px] font-mono-code text-[#666666] mt-0.5">
+                  optionId: <strong class="text-[#111111]">opt-aguacate</strong> · configId: <span class="text-[#444444]">cfg-mod-01</span>
+                </div>
+                <div class="text-[11px] text-[#777777] font-mono-code">
+                  Efecto: Aumento por porción definida
+                </div>
+              </div>
+
+              <!-- Control Enabled -->
+              <div class="col-span-2 flex justify-center">
+                <label class="inline-flex items-center gap-1.5 cursor-pointer h-10 px-2 rounded border border-[#111111] bg-[#111111] text-white text-xs font-semibold">
+                  <input type="checkbox" checked class="w-4 h-4 accent-black rounded-none border border-white">
+                  <span>Habilitada</span>
+                </label>
+              </div>
+
+              <!-- Control priceDelta -->
+              <div class="col-span-3 flex justify-end items-center gap-1">
+                <span class="text-xs font-mono-code font-bold text-[#111111]">+ $</span>
+                <input type="number" step="1.00" value="20.00" class="h-10 w-24 border border-[#111111] px-2 text-right font-mono-code text-sm font-bold text-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]">
+                <span class="text-[11px] font-mono-code text-[#666666]">MXN</span>
+              </div>
+
+              <!-- Control maxQuantity (Habilitada: al menos 1, aquí 2) -->
+              <div class="col-span-2 flex justify-center items-center gap-1">
+                <input type="number" min="1" max="10" value="2" class="h-10 w-16 border border-[#111111] px-2 text-center font-mono-code text-sm font-bold text-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]">
+                <span class="text-[11px] font-mono-code text-[#666666]">máx</span>
+              </div>
+            </div>
+
+            <!-- FILA 2: Lechuga adicional (ENABLED, qty 2, delta +$10.00) -->
+            <div class="border border-[#111111] bg-white p-3 grid grid-cols-12 gap-2 items-center hover:bg-[#fafafa] transition-colors">
+              <div class="col-span-5 flex flex-col">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-[#111111]">Lechuga adicional</span>
+                  <span class="text-[10px] font-mono-code bg-[#111111] text-white px-1.5 py-0.5 font-bold uppercase">[ADD]</span>
+                </div>
+                <div class="text-[11px] font-mono-code text-[#666666] mt-0.5">
+                  optionId: <strong class="text-[#111111]">opt-lechuga</strong> · configId: <span class="text-[#444444]">cfg-mod-02</span>
+                </div>
+                <div class="text-[11px] text-[#777777] font-mono-code">
+                  Efecto: Aumento por porción definida
+                </div>
+              </div>
+
+              <!-- Control Enabled -->
+              <div class="col-span-2 flex justify-center">
+                <label class="inline-flex items-center gap-1.5 cursor-pointer h-10 px-2 rounded border border-[#111111] bg-[#111111] text-white text-xs font-semibold">
+                  <input type="checkbox" checked class="w-4 h-4 accent-black rounded-none border border-white">
+                  <span>Habilitada</span>
+                </label>
+              </div>
+
+              <!-- Control priceDelta -->
+              <div class="col-span-3 flex justify-end items-center gap-1">
+                <span class="text-xs font-mono-code font-bold text-[#111111]">+ $</span>
+                <input type="number" step="1.00" value="10.00" class="h-10 w-24 border border-[#111111] px-2 text-right font-mono-code text-sm font-bold text-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]">
+                <span class="text-[11px] font-mono-code text-[#666666]">MXN</span>
+              </div>
+
+              <!-- Control maxQuantity (Habilitada: al menos 1, aquí 2) -->
+              <div class="col-span-2 flex justify-center items-center gap-1">
+                <input type="number" min="1" max="10" value="2" class="h-10 w-16 border border-[#111111] px-2 text-center font-mono-code text-sm font-bold text-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]">
+                <span class="text-[11px] font-mono-code text-[#666666]">máx</span>
+              </div>
+            </div>
+
+            <!-- FILA 3: Salsa chipotle artesanal (DISABLED, qty 0, delta +$12.00) -->
+            <div class="border border-[#d0d0d0] bg-[#f9f9f9] p-3 grid grid-cols-12 gap-2 items-center text-[#666666]">
+              <div class="col-span-5 flex flex-col">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-[#444444]">Salsa chipotle artesanal</span>
+                  <span class="text-[10px] font-mono-code bg-[#888888] text-white px-1.5 py-0.5 font-bold uppercase">[ADD]</span>
+                  <span class="text-[10px] font-mono-code border border-[#cccccc] bg-white px-1 py-0.2 text-[#777777]">DESHABILITADA</span>
+                </div>
+                <div class="text-[11px] font-mono-code text-[#888888] mt-0.5">
+                  optionId: <strong class="text-[#555555]">opt-salsa-chip</strong> · configId: <span class="text-[#777777]">cfg-mod-03</span>
+                </div>
+                <div class="text-[11px] text-[#888888] font-mono-code">
+                  Efecto: Porción extra (inactiva para esta variante)
+                </div>
+              </div>
+
+              <!-- Control Enabled: Desmarcado -->
+              <div class="col-span-2 flex justify-center">
+                <label class="inline-flex items-center gap-1.5 cursor-pointer h-10 px-2 rounded border border-[#cccccc] bg-white text-[#666666] text-xs font-medium hover:border-[#999999]">
+                  <input type="checkbox" class="w-4 h-4 rounded-none border border-[#888888]">
+                  <span>Deshabilitada</span>
+                </label>
+              </div>
+
+              <!-- Control priceDelta -->
+              <div class="col-span-3 flex justify-end items-center gap-1">
+                <span class="text-xs font-mono-code text-[#888888]">+ $</span>
+                <input type="number" step="1.00" value="12.00" class="h-10 w-24 border border-[#cccccc] bg-white px-2 text-right font-mono-code text-sm text-[#666666] focus:outline-none">
+                <span class="text-[11px] font-mono-code text-[#888888]">MXN</span>
+              </div>
+
+              <!-- Control maxQuantity (DISABLED: quantity 0 por regla de coherencia) -->
+              <div class="col-span-2 flex justify-center items-center gap-1">
+                <input type="number" value="0" disabled class="h-10 w-16 border border-[#cccccc] bg-[#ededed] px-2 text-center font-mono-code text-sm font-bold text-[#888888] cursor-not-allowed">
+                <span class="text-[11px] font-mono-code text-[#888888]">máx</span>
+              </div>
+            </div>
+
+            <!-- FILA 4: Omitir cebolla morada (ENABLED, regla OMIT, qty 1 fija, delta $0.00) -->
+            <div class="border border-[#111111] bg-white p-3 grid grid-cols-12 gap-2 items-center hover:bg-[#fafafa] transition-colors">
+              <div class="col-span-5 flex flex-col">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-[#111111]">Omitir cebolla morada</span>
+                  <span class="text-[10px] font-mono-code border border-[#111111] bg-white text-[#111111] px-1.5 py-0.5 font-bold uppercase">[OMIT]</span>
+                </div>
+                <div class="text-[11px] font-mono-code text-[#666666] mt-0.5">
+                  optionId: <strong class="text-[#111111]">opt-omit-cebolla</strong> · configId: <span class="text-[#444444]">cfg-mod-04</span>
+                </div>
+                <div class="text-[11px] text-[#777777] font-mono-code">
+                  Efecto: Quitar ingrediente base sin reducción de precio
+                </div>
+              </div>
+
+              <!-- Control Enabled -->
+              <div class="col-span-2 flex justify-center">
+                <label class="inline-flex items-center gap-1.5 cursor-pointer h-10 px-2 rounded border border-[#111111] bg-[#111111] text-white text-xs font-semibold">
+                  <input type="checkbox" checked class="w-4 h-4 accent-black rounded-none border border-white">
+                  <span>Habilitada</span>
+                </label>
+              </div>
+
+              <!-- Control priceDelta: Bloqueado en $0.00 para OMIT -->
+              <div class="col-span-3 flex justify-end items-center gap-1">
+                <span class="text-xs font-mono-code text-[#777777]">$</span>
+                <input type="text" value="0.00" readonly class="h-10 w-24 border border-[#d0d0d0] bg-[#f4f4f4] px-2 text-right font-mono-code text-sm font-bold text-[#555555] cursor-default">
+                <span class="text-[11px] font-mono-code text-[#666666]">MXN</span>
+              </div>
+
+              <!-- Control maxQuantity: 1 fija para OMIT binario -->
+              <div class="col-span-2 flex justify-center items-center gap-1">
+                <input type="number" value="1" readonly class="h-10 w-16 border border-[#d0d0d0] bg-[#f4f4f4] px-2 text-center font-mono-code text-sm font-bold text-[#555555] cursor-default">
+                <span class="text-[11px] font-mono-code text-[#666666]">fija</span>
+              </div>
+            </div>
+
+            <!-- Botón local: Agregar opción al grupo -->
+            <button type="button" class="mt-2 h-11 border border-dashed border-[#111111] bg-[#fafafa] hover:bg-[#f0f0f0] text-xs font-mono-code font-bold text-[#111111] flex items-center justify-center gap-2 transition-colors">
+              <span class="text-base leading-none">+</span>
+              <span>Agregar opción a este grupo (GRP-01)</span>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Indicador de auditoría local de la variante -->
+        <div class="border border-[#e0e0e0] bg-[#fafafa] p-3 flex items-center justify-between text-xs font-mono-code text-[#666666]">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-[#111111]">CONFIG_HASH:</span>
+            <span>0x9F82A01C_MODS_V3</span>
+            <span>•</span>
+            <span>4 opciones registradas (3 habilitadas, 1 deshabilitada)</span>
+          </div>
+          <div class="text-[#555555]">
+            Cardinalidad resultante válida: 0..3
+          </div>
+        </div>
+
+      </section>
+
+      <!-- COLUMNA SECUNDARIA (4 columnas de 12): Trazabilidad y Efectos de Suministro -->
+      <aside class="lg:col-span-4 p-6 flex flex-col gap-6 bg-[#f9f9f9]" aria-label="Efectos de configuración">
+        
+        <!-- Panel Efectos de Configuración -->
+        <div class="border border-[#111111] bg-white p-4">
+          <div class="flex items-center gap-2 pb-2 border-b border-[#111111]">
+            <span class="font-mono-code font-bold text-xs bg-[#111111] text-white px-2 py-0.5">PANEL TÉCNICO</span>
+            <h3 class="text-sm font-bold text-[#111111] tracking-tight">Efectos de configuración</h3>
+          </div>
+
+          <!-- Explicación breve y empresarial de reglas ADD y OMIT -->
+          <div class="mt-3 space-y-3 text-xs text-[#333333]">
+            <div class="border-l-2 border-[#111111] pl-2.5 py-0.5">
+              <div class="font-bold text-[#111111] flex items-center gap-1.5">
+                <span class="font-mono-code text-[11px] bg-[#f0f0f0] border border-[#d0d0d0] px-1 font-bold">[ADD] Regla de Aumento</span>
+              </div>
+              <p class="text-[11px] text-[#555555] mt-1 leading-relaxed">
+                Permite al comensal añadir porciones adicionales. Define un incremento unitario de precio (<code>priceDelta</code>) y un tope máximo operativo (<code>maxQuantity</code>).
+              </p>
+            </div>
+
+            <div class="border-l-2 border-[#111111] pl-2.5 py-0.5">
+              <div class="font-bold text-[#111111] flex items-center gap-1.5">
+                <span class="font-mono-code text-[11px] bg-[#f0f0f0] border border-[#d0d0d0] px-1 font-bold">[OMIT] Regla de Supresión</span>
+              </div>
+              <p class="text-[11px] text-[#555555] mt-1 leading-relaxed">
+                Permite omitir ingredientes base de la receta. No genera deducción en el precio base del ítem (<code>priceDelta = $0.00</code>) y tiene cardinalidad binaria fija.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloque: Trazabilidad y efectos de suministro -->
+        <div class="border border-[#111111] bg-white p-4">
+          <div class="flex items-center justify-between pb-2 border-b border-[#e5e5e5]">
+            <h4 class="text-xs font-mono-code font-bold uppercase tracking-wide text-[#111111]">
+              Trazabilidad y efectos de suministro
+            </h4>
+            <span class="text-[10px] font-mono-code text-[#666666]">DECLARATIVE</span>
+          </div>
+
+          <!-- Resumen de correspondencias declaradas -->
+          <div class="mt-3 space-y-2 text-xs font-mono-code">
+            <div class="bg-[#f8f8f8] border border-[#e5e5e5] p-2.5">
+              <div class="flex justify-between items-center text-[11px]">
+                <span class="font-bold text-[#111111]">opt-aguacate</span>
+                <span class="text-[#555555]">Porción: +0.050 kg</span>
+              </div>
+              <div class="text-[10px] text-[#777777] mt-0.5">
+                Referencia: Insumo aguacate hass (inv-aguacate-01)
+              </div>
+            </div>
+
+            <div class="bg-[#f8f8f8] border border-[#e5e5e5] p-2.5">
+              <div class="flex justify-between items-center text-[11px]">
+                <span class="font-bold text-[#111111]">opt-lechuga</span>
+                <span class="text-[#555555]">Porción: +0.030 kg</span>
+              </div>
+              <div class="text-[10px] text-[#777777] mt-0.5">
+                Referencia: Insumo lechuga romana (inv-lechuga-01)
+              </div>
+            </div>
+
+            <div class="bg-[#f8f8f8] border border-[#e5e5e5] p-2.5">
+              <div class="flex justify-between items-center text-[11px]">
+                <span class="font-bold text-[#111111]">opt-omit-cebolla</span>
+                <span class="text-[#555555]">Supresión de insumo base</span>
+              </div>
+              <div class="text-[10px] text-[#777777] mt-0.5">
+                Referencia: Cebolla morada fina (0.000 kg)
+              </div>
+            </div>
+          </div>
+
+          <!-- Nota Contractual Estricta Requerida -->
+          <div class="mt-4 border-t border-[#e5e5e5] pt-3 text-[11px] text-[#555555] leading-relaxed">
+            <span class="font-bold text-[#111111]">Nota de arquitectura:</span>
+            Los efectos se declaran en la configuración del MenuItem; la pantalla no informa existencias disponibles ni confirma operaciones de Orders o Inventory.
+          </div>
+        </div>
+
+        <!-- Bloque Compacto de Resumen de Suministro -->
+        <div class="border border-[#111111] bg-white p-4">
+          <div class="flex items-center justify-between pb-2 border-b border-[#111111]">
+            <span class="text-xs font-mono-code font-bold uppercase text-[#111111]">Resumen de suministro</span>
+            <span class="text-[10px] font-mono-code bg-[#111111] text-white px-1.5 py-0.2">STOCKED</span>
+          </div>
+
+          <div class="mt-3 space-y-2 text-xs">
+            <div class="flex justify-between items-center font-mono-code">
+              <span class="text-[#666666]">Tipo de suministro:</span>
+              <span class="font-bold text-[#111111]">Referencia de suministro</span>
+            </div>
+
+            <div class="flex justify-between items-center font-mono-code">
+              <span class="text-[#666666]">Ítem base vinculado:</span>
+              <span class="font-semibold text-[#111111]">Filete de pescado (0.150 kg)</span>
+            </div>
+
+            <div class="border border-[#111111] bg-[#f9f9f9] p-2.5 text-center mt-2">
+              <div class="font-mono-code text-[11px] font-bold text-[#111111] uppercase tracking-wide">
+                No representa stock disponible
+              </div>
+              <div class="text-[10px] text-[#666666] mt-0.5">
+                Configuración puramente compositiva para el catálogo
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+
+    <!-- 4. Barra de Navegación y Acciones Locales (Footer del Editor) -->
+    <footer class="border-t border-[#111111] bg-white px-6 py-4 flex flex-wrap justify-between items-center gap-4">
+      
+      <!-- Acción Secundaria: Volver al Paso 2 -->
+      <div class="flex items-center gap-3">
+        <button type="button" class="h-11 px-5 border border-[#111111] bg-white text-xs font-bold text-[#111111] hover:bg-[#f5f5f5] active:bg-[#e9e9e9] transition-colors flex items-center gap-2 focus:outline-none focus:ring-1 focus:ring-[#111111]">
+          <span>← Volver al paso 2: Item y suministro</span>
+        </button>
+        <button type="button" class="h-11 px-4 border border-[#cccccc] bg-white text-xs font-mono-code text-[#666666] hover:text-[#111111] hover:border-[#111111] transition-colors">
+          Cancelar borrador
+        </button>
+      </div>
+
+      <!-- Acciones de Persistencia Local y Continuación -->
+      <div class="flex items-center gap-3">
+        
+        <!-- Guardar borrador local -->
+        <button type="button" class="h-11 px-5 border border-[#111111] bg-white text-xs font-bold text-[#111111] hover:bg-[#f5f5f5] active:bg-[#e9e9e9] transition-colors flex items-center gap-2 focus:outline-none focus:ring-1 focus:ring-[#111111]">
+          <span class="font-mono-code font-normal">💾</span>
+          <span>Guardar borrador</span>
+        </button>
+
+        <!-- Continuar al Paso 4 -->
+        <button type="button" class="h-11 px-6 bg-[#111111] text-white text-xs font-bold hover:bg-[#222222] active:bg-black transition-colors flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#111111]">
+          <span>Continuar a paso 4: Resumen y aceptación</span>
+          <span class="font-mono-code">→</span>
+        </button>
+
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Pie de Pantalla Técnico Discreto -->
+  <div class="max-w-[1400px] w-full mx-auto mt-2 px-2 flex justify-between items-center text-[11px] font-mono-code text-[#777777]">
+    <div>FMAT POS WIREFRAME · MÓDULO CATÁLOGO V-ADM-02 · PASO 3 DE 4</div>
+    <div>TERMINAL: POS-ADM-01 // OPERATOR: admin-cat-01</div>
+  </div>
+
+</body>
+</html>

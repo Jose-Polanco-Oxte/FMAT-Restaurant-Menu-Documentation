@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>V06-C · Crear item de menú - Paso 2: Item y suministro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            surface: '#f9f9f9',
+            'surface-container-lowest': '#ffffff',
+            'surface-container-low': '#f3f3f4',
+            'surface-container': '#ececee',
+            'surface-container-high': '#e3e3e5',
+            'surface-dim': '#dadada',
+            primary: '#111111',
+            'on-surface': '#111111',
+            'on-surface-variant': '#555555',
+            outline: '#777777',
+            'outline-variant': '#d0d0d2',
+            'neutral-badge': '#e8e8ea',
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    input[type="text"], input[type="number"], textarea, select {
+      border: 1px solid #111111;
+      border-radius: 4px;
+      outline: none;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
+      ring: 2px solid #111111;
+      border-color: #111111;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-sans antialiased min-h-screen p-6 flex flex-col justify-between selection:bg-black selection:text-white">
+<!-- WRAPPER PRINCIPAL CONTENIDO EN LIENZO ESTILO WIREFRAME MONOCROMÁTICO -->
+<div class="max-w-[1440px] w-full mx-auto bg-surface-container-lowest border-2 border-primary rounded-none shadow-none flex flex-col min-h-[920px]">
+<!-- 1. ENCABEZADO -->
+<header class="border-b-2 border-primary px-8 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-surface-container-lowest">
+<div>
+<div class="flex items-center gap-3 flex-wrap">
+<span class="bg-primary text-white text-xs font-mono px-2.5 py-1 font-semibold tracking-wider">[CREATE]</span>
+<h1 class="text-2xl font-bold tracking-tight text-primary">Crear item de menú</h1>
+<span class="border border-primary text-primary text-xs font-mono px-2 py-0.5 font-medium bg-surface-container-low">V06-C · Item y suministro</span>
+</div>
+<div class="flex items-center gap-2 text-xs font-mono text-on-surface-variant mt-2">
+<span>Contexto: <strong class="text-primary font-semibold">Restaurant r-fmat-01</strong> / <strong>Menú principal</strong></span>
+<span>•</span>
+<span class="text-primary font-medium">Nuevo registro · borrador local</span>
+</div>
+</div>
+<!-- Spec & Sync metadata info box -->
+<div class="border border-primary p-2.5 bg-surface-container-low text-[11px] font-mono leading-tight flex flex-col gap-1 min-w-[260px]">
+<div class="flex justify-between">
+<span class="text-on-surface-variant">SPEC:</span>
+<span class="font-semibold text-primary">POS-CORE-CATALOG-V06C</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant">SYNC STATUS:</span>
+<span class="font-semibold text-primary">■ LOCAL_STAGED</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant">SCHEMA:</span>
+<span class="font-semibold text-primary">MenuItem.draft#02</span>
+</div>
+</div>
+</header>
+<!-- 2. STEPPER -->
+<nav class="border-b-2 border-primary bg-surface-container-low grid grid-cols-4 text-xs font-mono">
+<!-- Paso 1: Completado -->
+<div class="p-3.5 border-r-2 border-primary flex items-center gap-3 bg-surface-container">
+<div class="w-6 h-6 rounded-none bg-primary text-white flex items-center justify-center font-bold text-xs">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<div class="leading-tight">
+<div class="font-semibold text-primary">1 Clasificación y tipo</div>
+<div class="text-[10px] text-on-surface-variant">COMPLETADO</div>
+</div>
+</div>
+<!-- Paso 2: Activo -->
+<div class="p-3.5 border-r-2 border-primary flex items-center gap-3 bg-surface-container-lowest border-b-4 border-b-primary -mb-[2px] z-10">
+<div class="w-6 h-6 rounded-none bg-primary text-white flex items-center justify-center font-bold text-xs">2</div>
+<div class="leading-tight">
+<div class="font-bold text-primary tracking-tight">2 Item y suministro</div>
+<div class="text-[10px] font-bold text-primary">PASO ACTUAL</div>
+</div>
+</div>
+<!-- Paso 3: Pendiente -->
+<div class="p-3.5 border-r-2 border-primary flex items-center gap-3 opacity-60 bg-surface-container-low">
+<div class="w-6 h-6 rounded-none border border-primary flex items-center justify-center font-bold text-xs text-primary">3</div>
+<div class="leading-tight">
+<div class="font-medium text-primary">3 Modificadores</div>
+<div class="text-[10px] text-on-surface-variant">PENDIENTE</div>
+</div>
+</div>
+<!-- Paso 4: Final -->
+<div class="p-3.5 flex items-center gap-3 opacity-60 bg-surface-container-low">
+<div class="w-6 h-6 rounded-none border border-primary flex items-center justify-center font-bold text-xs text-primary">4</div>
+<div class="leading-tight">
+<div class="font-medium text-primary">4 Resumen y aceptación</div>
+<div class="text-[10px] text-on-surface-variant">FINAL</div>
+</div>
+</div>
+</nav>
+<!-- ÁREA DE CONTENIDO (DOS COLUMNAS: FORMULARIO PRINCIPAL + RESUMEN/VARIANTE E INVENTORY) -->
+<div class="grid grid-cols-12 flex-1 divide-y-2 md:divide-y-0 md:divide-x-2 divide-primary">
+<!-- COLUMNA IZQUIERDA: 3. DATOS COMERCIALES (col-span-7) -->
+<main class="col-span-12 lg:col-span-7 p-8 space-y-7 bg-surface-container-lowest">
+<!-- Header de sección -->
+<div class="flex items-center justify-between border-b border-outline-variant pb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xl text-primary">edit_document</span>
+<h2 class="text-sm font-bold tracking-wider uppercase font-mono text-primary">Datos Comerciales del Ítem</h2>
+</div>
+<span class="text-[11px] font-mono text-on-surface-variant">DIMENSIÓN COMERCIAL &amp; METADATOS</span>
+</div>
+<!-- Alerta / Regla explicativa de negocio requerida -->
+<div class="border border-primary bg-surface-container-low p-3.5 flex items-start gap-3">
+<span class="material-symbols-outlined text-lg text-primary mt-0.5">info</span>
+<div class="text-xs">
+<span class="font-bold text-primary">Aviso de modelado:</span>
+<span class="text-on-surface"> Categoría externa y clasificación comercial son datos diferentes. La clasificación define el comportamiento operativo en caja, mientras que la categoría agrupa visualmente en el menú.</span>
+</div>
+</div>
+<!-- Formulario de campos -->
+<div class="space-y-5">
+<!-- Nombre del item -->
+<div>
+<div class="flex justify-between items-baseline mb-1.5">
+<label class="text-xs font-bold font-mono uppercase text-primary tracking-wide" for="item-name">Nombre del ítem <span class="text-primary">*</span></label>
+<span class="text-[10px] font-mono text-on-surface-variant">menuItem.name [STAGED]</span>
+</div>
+<input class="w-full px-3.5 py-2.5 text-sm bg-white font-medium text-primary border border-primary focus:ring-1 focus:ring-primary shadow-none" id="item-name" type="text" value="Tacos de pescado"/>
+</div>
+<!-- Metadatos Clasificación, Categoría y Estado en Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<!-- Clasificación comercial -->
+<div class="border border-primary p-3 bg-surface-container-low flex flex-col justify-between">
+<div>
+<div class="text-[10px] font-mono uppercase text-on-surface-variant mb-1">Clasificación</div>
+<div class="flex items-center gap-1.5 font-bold text-sm text-primary">
+<span class="material-symbols-outlined text-base">restaurant</span>
+                  Platillo
+                </div>
+</div>
+<div class="mt-2.5 pt-2 border-t border-outline-variant flex justify-between items-center text-[10px] font-mono">
+<span class="text-on-surface-variant">metadata:</span>
+<span class="bg-primary text-white px-1.5 py-0.5 font-semibold">DISH</span>
+</div>
+</div>
+<!-- Categoría externa -->
+<div class="border border-primary p-3 bg-surface-container-low flex flex-col justify-between">
+<div>
+<div class="text-[10px] font-mono uppercase text-on-surface-variant mb-1">Categoría externa</div>
+<div class="flex items-center gap-1.5 font-bold text-sm text-primary">
+<span class="material-symbols-outlined text-base">category</span>
+                  Platos fuertes
+                </div>
+</div>
+<div class="mt-2.5 pt-2 border-t border-outline-variant flex justify-between items-center text-[10px] font-mono">
+<span class="text-on-surface-variant">categoryId:</span>
+<span class="bg-white border border-primary px-1.5 py-0.2 font-semibold">cat-platos-01</span>
+</div>
+</div>
+<!-- Estado -->
+<div class="border border-primary p-3 bg-surface-container-low flex flex-col justify-between">
+<div>
+<div class="text-[10px] font-mono uppercase text-on-surface-variant mb-1">Estado adm.</div>
+<div class="flex items-center gap-1.5 font-bold text-sm text-primary">
+<span class="w-2 h-2 bg-primary inline-block"></span>
+                  Activo
+                </div>
+</div>
+<div class="mt-2.5 pt-2 border-t border-outline-variant flex justify-between items-center text-[10px] font-mono">
+<span class="text-on-surface-variant">metadata:</span>
+<span class="bg-primary text-white px-1.5 py-0.5 font-semibold">ACTIVE</span>
+</div>
+</div>
+</div>
+<!-- Descripción -->
+<div>
+<div class="flex justify-between items-baseline mb-1.5">
+<label class="text-xs font-bold font-mono uppercase text-primary tracking-wide" for="item-desc">Descripción gastronómica</label>
+<span class="text-[10px] font-mono text-on-surface-variant">menuItem.description</span>
+</div>
+<textarea class="w-full px-3.5 py-2.5 text-sm bg-white font-normal text-primary border border-primary focus:ring-1 focus:ring-primary leading-relaxed shadow-none" id="item-desc" rows="3">Filete de pescado fresco empanizado al estilo Ensenada con aderezo tártara artesanal y ensalada de col crujiente sobre tortillas de maíz recién hechas.</textarea>
+</div>
+<!-- Referencia de imagen -->
+<div class="border border-primary p-4 bg-white space-y-2">
+<div class="flex justify-between items-baseline">
+<label class="text-xs font-bold font-mono uppercase text-primary tracking-wide flex items-center gap-1.5" for="img-ref">
+<span class="material-symbols-outlined text-base">image</span>
+                Referencia de imagen
+              </label>
+<span class="text-[10px] font-mono text-on-surface-variant">tipo: string | null</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex-1">
+<input class="w-full px-3 py-2 text-xs font-mono font-medium text-primary bg-surface-container-low border border-primary" id="img-ref" type="text" value="img:taco-pescado-v2"/>
+</div>
+<div class="w-10 h-10 border border-primary flex items-center justify-center bg-surface-container-low shrink-0 text-primary">
+<span class="material-symbols-outlined text-xl">image_search</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 text-[11px] text-on-surface-variant font-mono mt-1">
+<span class="material-symbols-outlined text-xs">help_outline</span>
+<span>La carga y resolución dependen de un proveedor externo.</span>
+</div>
+</div>
+</div>
+</main>
+<!-- COLUMNA DERECHA: 4. VARIANTE & 5. EDITOR INVENTORY (col-span-5) -->
+<aside class="col-span-12 lg:col-span-5 p-8 space-y-6 bg-surface-container-low flex flex-col justify-between">
+<div class="space-y-6">
+<!-- 4. TARJETA DE VARIANTE -->
+<div class="border-2 border-primary bg-surface-container-lowest p-5 space-y-4">
+<div class="flex items-center justify-between border-b border-outline-variant pb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-lg text-primary">tune</span>
+<h3 class="text-xs font-bold font-mono uppercase tracking-wider text-primary">Tarjeta de Variante Única</h3>
+</div>
+<span class="bg-primary text-white text-[10px] font-mono px-2 py-0.5 font-bold uppercase">ACTIVE</span>
+</div>
+<!-- Datos de cabecera de variante -->
+<div class="grid grid-cols-2 gap-3 text-xs font-mono">
+<div class="p-2.5 border border-outline-variant bg-surface-container-low">
+<div class="text-[10px] text-on-surface-variant">Nombre variante</div>
+<div class="font-bold text-sm text-primary mt-0.5">Regular</div>
+</div>
+<div class="p-2.5 border border-outline-variant bg-surface-container-low">
+<div class="text-[10px] text-on-surface-variant">variantId</div>
+<div class="font-bold text-primary mt-0.5">var-taco-reg-01</div>
+</div>
+<div class="p-2.5 border border-outline-variant bg-surface-container-low">
+<div class="text-[10px] text-on-surface-variant">Versión ítem</div>
+<div class="font-bold text-primary mt-0.5">v2.1</div>
+</div>
+<div class="p-2.5 border border-outline-variant bg-surface-container-low">
+<div class="text-[10px] text-on-surface-variant">Estado adm.</div>
+<div class="font-bold text-primary mt-0.5">■ ACTIVE</div>
+</div>
+</div>
+<!-- Precio de la variante -->
+<div class="border border-primary p-3.5 bg-surface-container-lowest flex items-center justify-between">
+<div>
+<div class="text-[10px] font-mono uppercase tracking-wide text-on-surface-variant">Precio de la variante</div>
+<div class="text-2xl font-bold font-mono text-primary mt-0.5">$168.00 <span class="text-xs font-semibold text-on-surface-variant">MXN</span></div>
+</div>
+<span class="text-[10px] font-mono border border-primary px-2 py-1 bg-surface-container-low">basePrice</span>
+</div>
+<!-- Restricción de inmutabilidad: STOCKED -->
+<div class="border border-primary bg-surface-container p-3 flex items-start gap-2.5"><span class="material-symbols-outlined text-base text-primary mt-0.5">lock</span>
+<div class="text-[11px] font-mono leading-tight">
+<div class="font-bold text-primary uppercase">Tipo de suministro: STOCKED</div>
+<div class="text-on-surface-variant mt-0.5">Inmutable después de crear. Consumo definido por porción; no representa stock disponible.</div>
+</div></div>
+</div>
+<!-- 5. EDITOR DE REFERENCIA INVENTORY -->
+<div class="border-2 border-primary bg-surface-container-lowest p-5 space-y-4">
+<div class="flex items-center justify-between border-b border-outline-variant pb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-lg text-primary">inventory_2</span>
+<h3 class="text-xs font-bold font-mono uppercase tracking-wider text-primary">Referencia Inventory</h3>
+</div>
+<span class="text-[10px] font-mono border border-primary px-2 py-0.5 bg-surface-container-low">Referencia de suministro</span>
+</div>
+<!-- Selector con inventoryItemId -->
+<div class="space-y-3 font-mono">
+<div>
+<label class="block text-[11px] font-bold uppercase text-primary mb-1">Insumo / Ítem de almacén</label>
+<div class="border border-primary p-2.5 bg-surface-container-low flex justify-between items-center text-xs">
+<div>
+<div class="font-bold text-primary font-sans text-sm">Filete de pescado</div>
+<div class="text-[10px] text-on-surface-variant font-mono mt-0.5">inventoryItemId: <span class="font-semibold text-primary">inv-filete-01</span></div>
+</div>
+<span class="border border-primary bg-white px-2 py-1 text-[10px] font-bold">Unidad: kg</span>
+</div>
+</div>
+<!-- Cantidad de consumo (consumo definido, nunca stock disponible) -->
+<div class="p-3 border border-primary bg-white">
+<div class="flex justify-between items-baseline mb-1">
+<span class="text-xs font-bold uppercase text-primary">Cantidad de consumo definido:</span>
+<span class="text-[10px] text-on-surface-variant">(por orden/unidad)</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<div class="text-xl font-bold text-primary font-mono bg-surface-container-low border border-primary px-3 py-1 flex-1">
+                    0.150 <span class="text-xs font-normal text-on-surface-variant">kg</span>
+</div>
+</div>
+<div class="text-[10px] text-on-surface-variant mt-2 leading-tight">
+                  * <strong>Consumo definido:</strong> Especifica el factor de deducción por porción producida. No representa el stock físico disponible en bodega.
+                </div>
+</div>
+<!-- Aviso de validación explícito -->
+<div class="border-2 border-dashed border-primary p-3 bg-surface-container flex items-center gap-2.5"><span class="material-symbols-outlined text-base text-primary">info</span>
+<div>
+<div class="text-xs font-bold uppercase text-primary">Aviso de suministro</div>
+<div class="text-[11px] font-semibold text-primary">Referencia de suministro registrada en la definición del ítem</div>
+</div></div>
+</div>
+</div>
+</div>
+<!-- Metadatos de sesión inferior -->
+<div class="pt-4 border-t border-outline-variant text-[10px] font-mono text-on-surface-variant flex justify-between">
+<span>OPERATOR: carlos.m@pos-core</span>
+<span>STAGE: DRAFT_STOCKED_EVAL</span>
+</div>
+</aside>
+</div>
+<!-- 6. BARRA INFERIOR DE ACCIONES Y PERSISTENCIA -->
+<footer class="border-t-2 border-primary p-5 bg-surface-container-lowest flex flex-col md:flex-row items-center justify-between gap-4">
+<!-- Advertencia explícita sobre el borrador local -->
+<div class="flex items-center gap-2.5 text-xs text-on-surface">
+<span class="material-symbols-outlined text-base text-primary">warning</span>
+<span>El borrador local se almacena en el cliente y <strong>no constituye un MenuItem persistido</strong> en el catálogo central.</span>
+</div>
+<!-- Botones de acción -->
+<div class="flex items-center gap-3 w-full md:w-auto justify-end">
+<button class="px-4 py-2.5 border border-primary text-xs font-mono font-semibold uppercase tracking-wider bg-white hover:bg-surface-container text-primary transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-sm">save</span>
+          Guardar borrador local
+        </button>
+<button class="px-4 py-2.5 border border-primary text-xs font-mono font-semibold uppercase tracking-wider bg-white hover:bg-surface-container text-primary transition-colors" type="button">
+          Cancelar
+        </button>
+<button class="px-6 py-2.5 bg-primary text-white border border-primary text-xs font-mono font-bold uppercase tracking-wider hover:bg-black transition-colors flex items-center gap-2 shadow-none" type="button">
+<span>Continuar a modificadores</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</footer>
+</div>
+</body>
+</html>

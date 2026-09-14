@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Revisión de combo // POS Terminal Admin</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-dim": "#dadada",
+            "primary-fixed": "#e5e2e1",
+            "on-primary": "#ffffff",
+            "surface-bright": "#f9f9f9",
+            "on-error": "#ffffff",
+            "surface-tint": "#5f5e5e",
+            "secondary-fixed-dim": "#c8c6c6",
+            "error": "#ba1a1a",
+            "primary-fixed-dim": "#c8c6c5",
+            "background": "#f9f9f9",
+            "surface-variant": "#e2e2e2",
+            "error-container": "#ffdad6",
+            "on-tertiary-fixed-variant": "#464747",
+            "surface-container-low": "#f3f3f4",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-highest": "#e2e2e2",
+            "outline": "#747878",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "secondary": "#5f5e5e",
+            "tertiary": "#000000",
+            "surface-container": "#eeeeee",
+            "surface-container-high": "#e8e8e8",
+            "inverse-surface": "#2f3131",
+            "inverse-on-surface": "#f0f1f1",
+            "tertiary-fixed": "#e3e2e2",
+            "on-primary-fixed-variant": "#474646",
+            "tertiary-container": "#1a1c1c",
+            "secondary-fixed": "#e4e2e2",
+            "on-primary-container": "#858383",
+            "surface": "#f9f9f9",
+            "on-secondary-container": "#656464",
+            "on-primary-fixed": "#1c1b1b",
+            "on-error-container": "#93000a",
+            "on-secondary": "#ffffff",
+            "secondary-container": "#e4e2e2",
+            "on-secondary-fixed-variant": "#474747",
+            "primary-container": "#1c1b1b",
+            "on-background": "#1a1c1c",
+            "on-tertiary-fixed": "#1a1c1c",
+            "on-secondary-fixed": "#1b1c1c",
+            "on-tertiary": "#ffffff",
+            "on-tertiary-container": "#838484",
+            "on-surface": "#1a1c1c",
+            "outline-variant": "#c4c7c7",
+            "on-surface-variant": "#444748",
+            "inverse-primary": "#c8c6c5",
+            "primary": "#000000"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "space-xs": "0.25rem",
+            "space-xl": "2rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "margin": "1.5rem"
+          },
+          "fontFamily": {
+            "label-md": ["Inter"],
+            "label-lg": ["Inter"],
+            "headline-sm": ["Inter"],
+            "body-md": ["Inter"],
+            "label-sm": ["Inter"],
+            "headline-md": ["Inter"],
+            "body-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "headline-lg": ["Inter"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          "fontSize": {
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen p-space-md lg:p-margin flex flex-col items-center justify-center font-body-md">
+<!-- Main Administrative Canvas (3:2 optimized landscape viewport) -->
+<div class="w-full max-w-[1400px] border border-primary bg-surface-container-lowest flex flex-col shadow-none">
+<!-- 1. ENCABEZADO Y CONTEXTO TÉCNICO -->
+<header class="border-b border-primary p-space-lg bg-surface-container-lowest">
+<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-space-md mb-space-md">
+<div class="flex items-center gap-space-sm">
+<a class="inline-flex items-center gap-space-xs text-on-surface-variant hover:text-primary font-label-sm text-label-sm border border-outline-variant hover:border-primary px-space-sm py-space-xs bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined">arrow_back</span>
+<span>Volver a gestión de catálogo</span>
+</a>
+<span class="text-outline-variant">|</span>
+<span class="font-mono text-label-sm text-on-surface-variant">Término de auditoría V08-C</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-mono text-label-sm bg-surface-container-high px-space-sm py-1 border border-outline font-medium text-on-surface">Fuente: E-19 / E-20</span>
+<span class="font-mono text-label-sm bg-surface-container-highest px-space-sm py-1 border border-primary font-semibold text-primary">reviewState: REVIEW_REQUIRED</span>
+</div>
+</div>
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md pt-space-xs">
+<div>
+<div class="flex items-center gap-space-sm mb-1">
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight">Revisión de combo</h1>
+<span class="border border-primary bg-primary text-on-primary font-label-sm text-label-sm px-2 py-0.5 uppercase tracking-wide">Revisión pendiente</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Contexto de ítem: <strong class="text-primary font-semibold">Combo comida · menuItemVersion v3.0</strong>
+</p>
+</div>
+<div class="text-right hidden sm:block">
+<div class="font-mono text-label-sm text-on-surface-variant">Instancia POS: RT-TERMINAL-02</div>
+<div class="font-mono text-label-sm text-on-surface">Tipo de proceso: Aislado estricto por variante</div>
+</div>
+</div>
+</header>
+<!-- 6. NOTA DE FRONTERA CONTRACTUAL (CALLOUT DESTACADO) -->
+<section class="border-b border-primary bg-surface-container-low px-space-lg py-space-sm flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+<div class="font-label-md text-label-md text-primary font-medium tracking-normal">
+<span class="font-semibold uppercase tracking-wider text-label-sm mr-2 border border-primary px-1.5 py-0.5 bg-surface-container-lowest">Aviso de frontera:</span>
+        Solo se atienden los cambios observados por los tokens seleccionados. Pueden aparecer cambios nuevos después de confirmar.
+      </div>
+</section>
+<!-- CUERPO PRINCIPAL DIVIDIDO EN BENTO 2 COLUMNAS -->
+<main class="grid grid-cols-1 lg:grid-cols-12 gap-0 border-b border-primary">
+<!-- COLUMNA IZQUIERDA: RESUMEN DE VARIANTES REVISABLES (5 Columnas en desktop) -->
+<section class="lg:col-span-5 border-b lg:border-b-0 lg:border-r border-primary bg-surface-container-lowest p-space-lg flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-space-sm border-b border-outline-variant mb-space-md">
+<div>
+<h2 class="font-headline-sm text-headline-sm font-semibold text-primary">Variantes en revisión</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Seleccione una variante para inspección profunda</p>
+</div>
+<span class="font-mono text-label-sm bg-surface-container px-2 py-1 border border-outline-variant font-medium">3 registradas</span>
+</div>
+<!-- TABLA DE VARIANTES -->
+<div class="border border-primary overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high border-b border-primary">
+<th class="py-2.5 px-3 font-label-sm text-label-sm font-bold text-primary">variantId</th>
+<th class="py-2.5 px-3 font-label-sm text-label-sm font-bold text-primary">Estado local</th>
+<th class="py-2.5 px-3 font-label-sm text-label-sm font-bold text-primary text-center">Cambios</th>
+<th class="py-2.5 px-3 font-label-sm text-label-sm font-bold text-primary text-right">Acción</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Fila 1: var-combo-01 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-3 font-mono text-label-md text-primary font-medium">var-combo-01</td>
+<td class="py-3 px-3">
+<span class="inline-block px-2 py-0.5 border border-outline text-on-surface-variant font-mono text-label-sm bg-surface-container">UNSEEN</span>
+</td>
+<td class="py-3 px-3 text-center font-mono text-body-sm text-on-surface">1 pendiente</td>
+<td class="py-3 px-3 text-right">
+<button class="px-2.5 py-1 text-label-sm font-label-sm border border-outline hover:border-primary text-primary bg-surface-container-lowest hover:bg-surface-container">Ver</button>
+</td>
+</tr>
+<!-- Fila 2: var-combo-02 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-3 font-mono text-label-md text-primary font-medium">var-combo-02</td>
+<td class="py-3 px-3">
+<span class="inline-block px-2 py-0.5 border border-outline-variant text-on-surface font-mono text-label-sm bg-surface-container-high">SEEN</span>
+</td>
+<td class="py-3 px-3 text-center font-mono text-body-sm text-on-surface">2 pendientes</td>
+<td class="py-3 px-3 text-right">
+<button class="px-2.5 py-1 text-label-sm font-label-sm border border-outline hover:border-primary text-primary bg-surface-container-lowest hover:bg-surface-container">Ver</button>
+</td>
+</tr>
+<!-- Fila 3: var-combo-03 (Activa / Seleccionada) -->
+<tr class="bg-surface-container border-l-4 border-l-primary">
+<td class="py-3 px-3 font-mono text-label-md text-primary font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">arrow_right</span>
+<span>var-combo-03</span>
+</td>
+<td class="py-3 px-3">
+<span class="inline-block px-2 py-0.5 border border-primary text-on-primary font-mono text-label-sm bg-primary font-semibold">SELECTED_FOR_CONFIRMATION</span>
+</td>
+<td class="py-3 px-3 text-center font-mono text-body-sm font-bold text-primary">1 pendiente</td>
+<td class="py-3 px-3 text-right">
+<span class="font-label-sm text-label-sm font-semibold text-primary underline">Activa</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- LEYENDA TÉCNICA OBLIGATORIA (Sin UP_TO_DATE) -->
+<div class="mt-space-lg border border-outline-variant p-space-md bg-surface-container-low">
+<div class="flex items-center gap-space-xs mb-2">
+<span class="material-symbols-outlined text-primary">info</span>
+<h3 class="font-label-sm text-label-sm font-bold text-primary uppercase tracking-wide">Estados posibles de observación local</h3>
+</div>
+<ul class="space-y-2 text-body-sm text-on-surface-variant font-body-sm">
+<li class="flex items-start gap-2">
+<span class="font-mono text-label-sm font-semibold text-primary border border-outline-variant bg-surface-container-lowest px-1.5 py-0.2">UNSEEN:</span>
+<span>Variante contiene diferencias reportadas por E-19 aún no visualizadas por el usuario.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="font-mono text-label-sm font-semibold text-primary border border-outline-variant bg-surface-container-lowest px-1.5 py-0.2">SEEN:</span>
+<span>Cambios desplegados al menos una vez en pantalla; pendiente de inclusión contractual.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="font-mono text-label-sm font-semibold text-on-primary bg-primary px-1.5 py-0.2">SELECTED_FOR_CONFIRMATION:</span>
+<span>Variante marcada explícitamente para emisión de ticket mediante reviewToken actual.</span>
+</li>
+</ul>
+<div class="mt-space-sm pt-space-xs border-t border-outline-variant font-mono text-label-sm text-on-surface font-medium">
+            Restricción estricta: El estado terminal sincronizado sólo se resuelve vía re-evaluación E-20 posterior.
+          </div>
+</div>
+</section>
+<!-- COLUMNA DERECHA: DETALLE E INSPECCIÓN PROFUNDA DE var-combo-03 (7 Columnas en desktop) -->
+<section class="lg:col-span-7 bg-surface-container-lowest p-space-lg flex flex-col justify-between">
+<div>
+<!-- Header de Detalle -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-space-sm border-b border-primary gap-2 mb-space-md">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-mono text-label-sm bg-primary text-on-primary px-2 py-0.5 font-bold">INSPECCIÓN ACTIVA</span>
+<span class="font-mono text-headline-sm text-headline-sm font-bold text-primary">var-combo-03</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Auditoría atómica de slot y componente sustituido</p>
+</div>
+<div class="text-left sm:text-right font-mono text-label-sm">
+<span class="text-on-surface-variant">changeId: </span>
+<span class="font-semibold text-primary">chg-2026-09-13-07</span>
+</div>
+</div>
+<!-- Metadatos de Trazabilidad Criptográfica / Token -->
+<div class="border border-primary bg-surface-container-low p-space-md mb-space-md">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div>
+<label class="block font-mono text-label-sm text-on-surface-variant mb-1">reviewToken (token opaco de auditoría):</label>
+<div class="font-mono text-label-md bg-surface-container-lowest border border-outline px-2.5 py-1.5 text-primary font-semibold break-all">
+                  rtk_9f82a1_opq_2026_e19
+                </div>
+</div>
+<div>
+<label class="block font-mono text-label-sm text-on-surface-variant mb-1">reviewTokenExpiresAt:</label>
+<div class="font-mono text-label-md bg-surface-container-lowest border border-outline px-2.5 py-1.5 text-primary font-medium flex items-center justify-between">
+<span>2026-09-13 18:30:00 UTC</span>
+<span class="material-symbols-outlined text-outline">schedule</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Mapeo de Slot y Componente Afectado -->
+<div class="border border-outline-variant p-space-md mb-space-lg bg-surface-container-lowest">
+<h3 class="font-label-lg text-label-lg font-bold text-primary mb-space-sm pb-1 border-b border-outline-variant flex items-center justify-between">
+<span>Definición de slot afectado</span>
+<span class="font-mono text-label-sm font-normal text-on-surface-variant">Detección E-19</span>
+</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-space-lg gap-y-space-sm text-body-sm">
+<div class="flex items-center justify-between py-1 border-b border-surface-container-high">
+<span class="text-on-surface-variant font-medium">Slot del combo:</span>
+<span class="font-mono font-semibold text-primary">slot-bebida-01</span>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-surface-container-high">
+<span class="text-on-surface-variant font-medium">Opción de slot:</span>
+<span class="font-mono font-semibold text-primary">BEB-02</span>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-surface-container-high">
+<span class="text-on-surface-variant font-medium">menuItemId fijado:</span>
+<span class="font-mono font-semibold text-primary">itm-refresco-02</span>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-surface-container-high">
+<span class="text-on-surface-variant font-medium">variantId componente:</span>
+<span class="font-mono font-semibold text-primary">var-ref-regular</span>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-surface-container-high">
+<span class="text-on-surface-variant font-medium">Versión observada en detección:</span>
+<span class="font-mono font-semibold text-on-surface bg-surface-container px-1.5 py-0.5 border border-outline">v1.3</span>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-surface-container-high">
+<span class="text-on-surface-variant font-medium">Versión actual en definición:</span>
+<span class="font-mono font-bold text-primary bg-surface-container-high px-1.5 py-0.5 border border-primary">v1.4</span>
+</div>
+<div class="md:col-span-2 flex items-center justify-between pt-1">
+<span class="text-on-surface-variant font-medium">Motivo del cambio detectado:</span>
+<span class="font-label-md text-label-md font-bold text-primary uppercase bg-surface-container px-2 py-0.5 border border-primary">
+                  Cambio de precio
+                </span>
+</div>
+</div>
+</div>
+<!-- 4. REFERENCIA DE IMPACTO ECONÓMICO -->
+<div class="border-2 border-primary p-space-md bg-surface-container-low">
+<div class="flex items-center justify-between mb-space-sm pb-2 border-b border-primary">
+<h3 class="font-headline-sm text-headline-sm font-bold text-primary tracking-tight">Impacto administrativo del componente</h3>
+<span class="font-mono text-label-sm text-primary font-semibold uppercase">Desglose Referencial</span>
+</div>
+<!-- Métricas lado a lado -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm mb-space-md">
+<!-- Métrica 1 -->
+<div class="bg-surface-container-lowest border border-outline p-space-sm flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Precio guardado del componente</span>
+<div class="mt-2">
+<div class="font-mono text-headline-md font-bold text-on-surface">$25.00 <span class="text-body-sm font-normal text-on-surface-variant">MXN</span></div>
+<span class="font-mono text-label-sm text-on-surface-variant">Base en versión v1.3</span>
+</div>
+</div>
+<!-- Métrica 2 -->
+<div class="bg-surface-container-lowest border border-outline p-space-sm flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Precio actual del componente</span>
+<div class="mt-2">
+<div class="font-mono text-headline-md font-bold text-primary">$32.00 <span class="text-body-sm font-normal text-on-surface-variant">MXN</span></div>
+<span class="font-mono text-label-sm text-on-surface-variant">Nuevo valor en v1.4</span>
+</div>
+</div>
+<!-- Métrica 3 -->
+<div class="bg-surface-container-lowest border-2 border-primary p-space-sm flex flex-col justify-between">
+<span class="font-label-sm text-label-sm font-bold text-primary">Diferencia de referencia</span>
+<div class="mt-2">
+<div class="font-mono text-headline-md font-bold text-primary">+$7.00 <span class="text-body-sm font-normal text-on-surface-variant">MXN</span></div>
+<span class="font-mono text-label-sm font-bold text-primary">+28% margen insumo</span>
+</div>
+</div>
+</div>
+<!-- Disclaimer / Aclaración técnica obligatoria -->
+<div class="border border-outline-variant bg-surface-container-lowest p-space-sm">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-on-surface mt-0.5">report</span>
+<p class="font-body-sm text-body-sm text-on-surface font-normal leading-relaxed">
+<strong class="font-semibold text-primary">Nota aclaratoria:</strong> Este impacto refleja exclusivamente el costo/precio interno de referencia del insumo/componente. No representa ni altera automáticamente el precio de venta final al público del combo ($215.00 MXN).
+                </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Meta status lateral -->
+<div class="mt-space-md pt-space-sm border-t border-outline-variant flex items-center justify-between font-mono text-label-sm text-on-surface-variant">
+<span>Scope: slot-level change validation</span>
+<span>Hash: 8f92ac01e4a</span>
+</div>
+</section>
+</main>
+<!-- 5. ACCIONES CONTRACTUALES Y TELEMETRÍA (FOOTER) -->
+<footer class="p-space-lg bg-surface-container-lowest flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md">
+<!-- Indicadores de Ciclo de Vida y Advertencias Técnicas -->
+<div class="flex-1 space-y-1.5">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 bg-primary rounded-none inline-block"></span>
+<p class="font-label-md text-label-md font-semibold text-primary">
+            Confirma por variantId + reviewToken; no usa verified=true ni confirma por componente.
+          </p>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal pl-4 border-l border-outline">
+          Al confirmar se volverá a consultar E-20; no existe estado previo UP_TO_DATE en este cliente antes de dicha consulta.
+        </p>
+</div>
+<!-- Bloque de Botones de Acción -->
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm">
+<!-- Botón Secundario -->
+<button class="px-space-md py-2.5 border border-primary bg-surface-container-lowest hover:bg-surface-container text-primary font-label-lg text-label-lg font-semibold flex items-center justify-center gap-2 transition-colors duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined">refresh</span>
+<span>Actualizar revisión</span>
+</button>
+<!-- Botón Primario Prominente -->
+<button class="px-space-lg py-2.5 border-2 border-primary bg-primary hover:bg-surface-container-highest hover:text-primary text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-none transition-colors duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined">check_circle</span>
+<span>Confirmar revisión</span>
+</button>
+</div>
+</footer>
+<!-- BARRA INFERIOR DE PROTOCOLO DE CONEXIÓN -->
+<div class="bg-surface-container-highest px-space-lg py-1.5 border-t border-primary flex items-center justify-between font-mono text-label-sm text-on-surface-variant">
+<span>Protocolo: REST-POS-SYNC / Pipeline E-19</span>
+<span class="hidden sm:inline">Sesión de Auditoría Activa // Sin persistencia volátil</span>
+<span>Terminal: 02 (Salón)</span>
+</div>
+</div>
+</body></html>

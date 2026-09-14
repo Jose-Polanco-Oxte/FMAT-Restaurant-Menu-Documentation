@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>V04-AR · Archivados · FMAT POS Wireframe</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "tertiary-fixed": "#e3e2e2",
+            "on-primary": "#ffffff",
+            "surface-variant": "#e2e2e2",
+            "on-secondary-container": "#656464",
+            "secondary": "#5f5e5e",
+            "outline": "#747878",
+            "tertiary-container": "#1a1c1c",
+            "inverse-primary": "#c8c6c5",
+            "surface-container-low": "#f3f3f4",
+            "on-primary-fixed": "#1c1b1b",
+            "error-container": "#ffdad6",
+            "inverse-on-surface": "#f0f1f1",
+            "surface-tint": "#5f5e5e",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "secondary-container": "#e4e2e2",
+            "primary-fixed-dim": "#c8c6c5",
+            "on-tertiary-fixed-variant": "#464747",
+            "on-surface-variant": "#444748",
+            "on-secondary-fixed-variant": "#474747",
+            "on-primary-fixed-variant": "#474646",
+            "surface-container-lowest": "#ffffff",
+            "surface-container": "#eeeeee",
+            "primary": "#000000",
+            "secondary-fixed-dim": "#c8c6c6",
+            "on-tertiary": "#ffffff",
+            "secondary-fixed": "#e4e2e2",
+            "on-background": "#1a1c1c",
+            "on-error-container": "#93000a",
+            "on-surface": "#1a1c1c",
+            "background": "#f9f9f9",
+            "surface": "#f9f9f9",
+            "on-primary-container": "#858383",
+            "on-secondary-fixed": "#1b1c1c",
+            "on-tertiary-container": "#838484",
+            "surface-container-highest": "#e2e2e2",
+            "surface-container-high": "#e8e8e8",
+            "on-secondary": "#ffffff",
+            "on-error": "#ffffff",
+            "inverse-surface": "#2f3131",
+            "surface-dim": "#dadada",
+            "primary-container": "#1c1b1b",
+            "error": "#ba1a1a",
+            "tertiary": "#000000",
+            "surface-bright": "#f9f9f9",
+            "on-tertiary-fixed": "#1a1c1c",
+            "primary-fixed": "#e5e2e1",
+            "outline-variant": "#c4c7c7"
+          },
+          borderRadius: {
+            DEFAULT: "0.125rem",
+            lg: "0.25rem",
+            xl: "0.5rem",
+            full: "0.75rem"
+          },
+          spacing: {
+            "space-xl": "2rem",
+            gutter: "1rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            margin: "1.5rem"
+          },
+          fontFamily: {
+            "body-sm": ["Inter"],
+            "headline-sm": ["Inter"],
+            "body-md": ["Inter"],
+            "label-sm": ["Inter"],
+            "label-lg": ["Inter"],
+            "headline-lg": ["Inter"],
+            "headline-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "label-md": ["Inter"]
+          },
+          fontSize: {
+            "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+            "headline-sm": ["18px", { lineHeight: "24px", fontWeight: "600" }],
+            "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+            "label-sm": ["12px", { lineHeight: "16px", fontWeight: "500" }],
+            "label-lg": ["14px", { lineHeight: "20px", fontWeight: "600" }],
+            "headline-lg": ["30px", { lineHeight: "38px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "headline-md": ["22px", { lineHeight: "30px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "label-md": ["13px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "500" }]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-background text-on-surface antialiased p-6 min-h-screen flex items-center justify-center font-body-md text-body-md">
+<!-- Canvas framing: 3:2 desktop wireframe landscape container with deliberate 24px outer boundaries -->
+<div class="w-full max-w-[1400px] bg-surface-container-lowest border border-primary text-primary flex flex-col min-h-[860px]">
+<!-- 1. Encabezado de la Vista Administrativa Focalizada (Sin navegación global/sidebar/breadcrumbs) -->
+<header class="w-full px-6 py-4 border-b border-primary flex items-center justify-between bg-surface-container-lowest">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 bg-primary text-on-primary flex items-center justify-center font-bold text-label-lg">
+          AR
+        </div>
+<div>
+<div class="flex items-center gap-3">
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight">Archivados</h1>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 border border-primary bg-surface-container font-mono text-[11px] font-semibold text-primary">
+<span class="material-symbols-outlined text-[13px]">inventory_2</span>
+              ARCHIVED
+            </span>
+<span class="px-2 py-0.5 border border-outline-variant bg-surface-container-low font-mono text-[11px] text-on-surface-variant">
+              CAT-AUDIT: #AR-2026-v04
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            Gestión del catálogo · Restaurant r-fmat-01 · <span class="font-mono text-[11px]">terminal: adm-pos-desk-01</span>
+</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="px-3 py-1.5 border border-outline-variant bg-surface-container-low text-on-surface-variant font-mono text-[12px] flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span>Permiso: admin_catalog_retire</span>
+</div>
+<button class="px-3 py-1.5 border border-primary bg-surface-container-lowest hover:bg-surface-container text-primary font-label-md text-label-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">refresh</span>
+<span>Sincronizar</span>
+</button>
+</div>
+</header>
+<!-- 2. Barra de Herramientas Completa -->
+<section class="w-full border-b border-primary bg-surface-container-low p-4 flex flex-col gap-3">
+<!-- Fila Superior: Búsqueda y Dropdown de Categoría Gastronómica -->
+<div class="grid grid-cols-12 gap-3">
+<!-- Campo de búsqueda -->
+<div class="col-span-8 flex items-center border border-primary bg-surface-container-lowest px-3 py-2">
+<span class="material-symbols-outlined text-primary text-[18px] mr-2">search</span>
+<input class="w-full bg-transparent border-0 p-0 text-body-md font-body-md focus:ring-0 focus:outline-none placeholder:text-on-surface-variant" placeholder="Buscar por nombre de ítem o menuItemId (ej. itm-past-temporada-04)..." type="text" value="Pastel de temporada"/>
+<span class="text-label-sm font-label-sm font-mono text-on-surface-variant px-1.5 py-0.5 border border-outline-variant bg-surface-container">
+            1 resultado
+          </span>
+</div>
+<!-- Selector / dropdown de categoría gastronómica externa -->
+<div class="col-span-4 flex items-center border border-primary bg-surface-container-lowest px-3 py-2 justify-between">
+<div class="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
+<span class="material-symbols-outlined text-[18px] text-primary">category</span>
+<span class="font-body-md text-body-md text-primary truncate">Categoría: Todas (Postres, Paquetes, Repostería...)</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-primary">arrow_drop_down</span>
+</div>
+</div>
+<!-- Fila Media: Segmented Filter de Clasificación -->
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-1 bg-surface-container-lowest p-1 border border-primary">
+<span class="font-label-sm text-label-sm text-on-surface-variant px-2 uppercase tracking-wide">Clasificación:</span>
+<button class="px-3 py-1 font-label-md text-label-md bg-surface-container-lowest hover:bg-surface-container border border-transparent text-on-surface-variant">Todas</button>
+<button class="px-3 py-1 font-label-md text-label-md bg-surface-container-lowest hover:bg-surface-container border border-transparent text-on-surface-variant">Platillo</button>
+<button class="px-3 py-1 font-label-md text-label-md bg-surface-container-lowest hover:bg-surface-container border border-transparent text-on-surface-variant">Bebida</button>
+<button class="px-3 py-1 font-label-md text-label-md bg-surface-container-lowest hover:bg-surface-container border border-transparent text-on-surface-variant">Combo</button>
+<button class="px-3 py-1 font-label-md text-label-md bg-surface-container text-primary font-bold border border-primary">Postre</button>
+<button class="px-3 py-1 font-label-md text-label-md bg-surface-container-lowest hover:bg-surface-container border border-transparent text-on-surface-variant">Complemento</button>
+</div>
+<div class="font-mono text-label-sm text-label-sm text-on-surface-variant flex items-center gap-2">
+<span>Total en vista: <strong class="text-primary font-bold">3 items</strong></span>
+<span class="text-outline-variant">|</span>
+<span>Repositorio inactivo: 48 items</span>
+</div>
+</div>
+<!-- Fila Inferior: Control de Selección Masiva & Acciones Sobrias -->
+<div class="flex items-center justify-between bg-surface-container-lowest p-3 border border-primary">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">checklist</span>
+<span class="font-label-md text-label-md text-primary font-semibold">Selección masiva:</span>
+</div>
+<div class="flex items-center gap-1 border border-outline-variant p-0.5 bg-surface-container-low">
+<button class="px-2 py-0.5 font-label-sm text-label-sm bg-surface-container-lowest border border-outline text-primary font-medium hover:bg-surface-container">Todos</button>
+<button class="px-2 py-0.5 font-label-sm text-label-sm text-on-surface-variant hover:text-primary">Ninguno</button>
+</div>
+<span class="font-mono text-label-sm text-label-sm px-2 py-1 bg-surface-container border border-outline font-semibold">
+            2 seleccionados de 3
+          </span>
+</div>
+<!-- Acciones masivas sobrias + Nota explicativa -->
+<div class="flex items-center gap-3">
+<div class="text-right">
+<span class="font-body-sm text-body-sm text-on-surface-variant block">
+              Nota explicativa:
+            </span>
+<span class="font-label-sm text-label-sm font-medium text-primary">
+              Eliminar aquí significa retiro suave; no borra el historial
+            </span>
+</div>
+<div class="h-8 w-px bg-outline-variant"></div>
+<button class="px-3 py-1.5 border border-primary bg-surface-container-lowest hover:bg-surface-container text-primary font-label-md text-label-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">remove_done</span>
+            [Eliminar seleccionados]
+          </button>
+<button class="px-3 py-1.5 border border-primary bg-surface-container-lowest hover:bg-surface-container text-primary font-label-md text-label-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">delete_sweep</span>
+            [Eliminar todos]
+          </button>
+</div>
+</div>
+</section>
+<!-- 3 & 4. Contenedor Principal: Lista de Items Archivados (Izquierda) + Detalle Anclado de Variante (Derecha) -->
+<div class="flex-1 grid grid-cols-12 relative bg-surface-container-low">
+<!-- COLUMNA IZQUIERDA: LISTA DE ITEMS ARCHIVADOS -->
+<div class="col-span-7 p-4 flex flex-col gap-3 overflow-y-auto border-r border-primary">
+<div class="flex items-center justify-between pb-1">
+<span class="font-label-md text-label-md font-bold uppercase tracking-wider text-primary">
+            Lista de Ítems Archivados (Catálogo Inactivo)
+          </span>
+<span class="font-mono text-label-sm text-label-sm text-on-surface-variant">
+            Pág 1 de 1 · Filtro activo: Postre
+          </span>
+</div>
+<!-- ITEM 1: Seleccionado y Activo con Checkbox Marcado -->
+<div class="border-2 border-primary bg-surface-container p-4 relative flex flex-col gap-3 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+<div class="flex items-start justify-between">
+<div class="flex items-start gap-3">
+<div class="w-5 h-5 mt-0.5 border-2 border-primary bg-primary text-on-primary flex items-center justify-center cursor-pointer">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">Pastel de temporada</h2>
+<span class="px-1.5 py-0.5 border border-primary bg-surface-container-lowest font-mono text-[10px] font-bold tracking-wide">
+                    ARCHIVED
+                  </span>
+<span class="px-1.5 py-0.5 bg-primary text-on-primary font-mono text-[10px] uppercase">
+                    Ítem activo enfocado
+                  </span>
+</div>
+<div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 font-body-sm text-body-sm text-on-surface-variant">
+<span><strong>Clasificación:</strong> Postre</span>
+<span class="text-outline-variant">•</span>
+<span><strong>Archivado el:</strong> <span class="font-mono">2026-09-10</span></span>
+<span class="text-outline-variant">•</span>
+<span><strong>Archivado por:</strong> <span class="font-mono">admin-07</span></span>
+</div>
+<div class="mt-1 font-mono text-[11px] text-secondary">
+                  menuItemId: <strong class="text-primary font-semibold">itm-past-temporada-04</strong>
+</div>
+</div>
+</div>
+<!-- Botón de acción individual -->
+<button class="px-3 py-1.5 border border-primary bg-surface-container-lowest hover:bg-surface-container text-primary font-label-md text-label-md flex items-center gap-1 active:scale-[0.98]">
+<span class="material-symbols-outlined text-[16px]">archive</span>
+<span>[Eliminar (Retiro suave)]</span>
+</button>
+</div>
+<!-- Metadato de resumen contextual para el item -->
+<div class="border-t border-outline-variant pt-2 flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
+<span>Variantes registradas: 1 (var-pastel-01)</span>
+<span class="font-mono text-[11px]">Última comanda: Ticket #TK-8891 (2026-09-09)</span>
+</div>
+<!-- 5. DIÁLOGO CONTEXTUAL DE CONFIRMACIÓN ABIERTO PARA "ELIMINAR UNO" (Anclado inline) -->
+<div class="mt-2 border-2 border-primary bg-surface-container-lowest p-4 relative">
+<div class="flex items-center justify-between border-b border-primary pb-2 mb-3">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 border border-primary bg-surface-container flex items-center justify-center font-mono text-[11px] font-bold">!</span>
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold">Confirmar retiro suave</h3>
+</div>
+<span class="font-mono text-[11px] px-2 py-0.5 border border-outline-variant bg-surface-container-low text-on-surface-variant">
+                Modal Contextual · Operación #RS-01
+              </span>
+</div>
+<div class="space-y-2">
+<p class="font-body-md text-body-md text-primary font-semibold">
+                Retiro suave de catálogo: "<span class="underline">Pastel de temporada</span>" (<span class="font-mono font-normal">1 ítem seleccionado</span>)
+              </p>
+<div class="p-2.5 border border-outline bg-surface-container-low text-body-sm font-body-sm text-on-surface">
+<p class="leading-snug">
+                  El registro pasará al repositorio inactivo permanente preservando el histórico de transacciones pasadas y comandas previas.
+                </p>
+</div>
+<div class="font-mono text-[11px] text-on-surface-variant flex items-center gap-2 pt-1">
+<span class="material-symbols-outlined text-[14px]">info</span>
+<span>Impacto operativo: El producto dejará de sugerirse en POS y no aparecerá en menú rápido.</span>
+</div>
+</div>
+<!-- Acciones del Diálogo Contextual -->
+<div class="mt-4 pt-3 border-t border-outline-variant flex items-center justify-end gap-3">
+<button class="px-4 py-2 border border-primary bg-surface-container-lowest hover:bg-surface-container text-primary font-label-md text-label-md">
+                [Cancelar]
+              </button>
+<button class="px-4 py-2 bg-primary text-on-primary font-label-md text-label-md font-semibold hover:bg-tertiary-container border border-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">check_box</span>
+                [Confirmar retiro suave]
+              </button>
+</div>
+</div>
+</div>
+<!-- ITEM 2: Demostrando Selección Múltiple -->
+<div class="border border-primary bg-surface-container p-4 flex flex-col gap-3">
+<div class="flex items-start justify-between">
+<div class="flex items-start gap-3">
+<div class="w-5 h-5 mt-0.5 border-2 border-primary bg-primary text-on-primary flex items-center justify-center cursor-pointer">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">Combo merienda ejecutiva</h2>
+<span class="px-1.5 py-0.5 border border-primary bg-surface-container-lowest font-mono text-[10px] font-bold tracking-wide">
+                    ARCHIVED
+                  </span>
+</div>
+<div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 font-body-sm text-body-sm text-on-surface-variant">
+<span><strong>Clasificación:</strong> Combo</span>
+<span class="text-outline-variant">•</span>
+<span><strong>Archivado el:</strong> <span class="font-mono">2026-09-02</span></span>
+<span class="text-outline-variant">•</span>
+<span><strong>Archivado por:</strong> <span class="font-mono">admin-03</span></span>
+</div>
+<div class="mt-1 font-mono text-[11px] text-secondary">
+                  menuItemId: <strong class="text-primary font-semibold">itm-cmb-merienda-01</strong>
+</div>
+</div>
+</div>
+<!-- Botón de acción individual -->
+<button class="px-3 py-1.5 border border-primary bg-surface-container-lowest hover:bg-surface-container text-primary font-label-md text-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">archive</span>
+<span>[Eliminar (Retiro suave)]</span>
+</button>
+</div>
+<div class="border-t border-outline-variant pt-2 flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
+<span>Incluye 2 productos base (Bebida + Repostería)</span>
+<span class="font-mono text-[11px]">Sin alertas de disponibilidad</span>
+</div>
+</div>
+<!-- ITEM 3: Ítem de Referencia (No Seleccionado) -->
+<div class="border border-outline-variant bg-surface-container-lowest p-4 flex flex-col gap-3">
+<div class="flex items-start justify-between">
+<div class="flex items-start gap-3">
+<div class="w-5 h-5 mt-0.5 border border-outline bg-surface-container-lowest cursor-pointer hover:border-primary"></div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Té helado artesanal</h2>
+<span class="px-1.5 py-0.5 border border-outline bg-surface-container-low font-mono text-[10px] font-medium text-secondary">
+                    ARCHIVED
+                  </span>
+</div>
+<div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 font-body-sm text-body-sm text-on-surface-variant">
+<span><strong>Clasificación:</strong> Bebida</span>
+<span class="text-outline-variant">•</span>
+<span><strong>Archivada:</strong> <span class="font-mono">2026-08-15</span></span>
+<span class="text-outline-variant">•</span>
+<span><strong>Archivado por:</strong> <span class="font-mono">admin-01</span></span>
+</div>
+<div class="mt-1 font-mono text-[11px] text-secondary">
+                  menuItemId: <span class="text-on-surface font-mono">itm-beb-te-hel-02</span>
+</div>
+</div>
+</div>
+<!-- Botón de acción individual -->
+<button class="px-3 py-1.5 border border-outline bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">archive</span>
+<span>[Eliminar (Retiro suave)]</span>
+</button>
+</div>
+<div class="border-t border-outline-variant pt-2 flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
+<span>Variantes: Normal / Sin Azúcar</span>
+<span class="font-mono text-[11px]">Último ticket: #TK-6102</span>
+</div>
+</div>
+</div>
+<!-- COLUMNA DERECHA: 4. DETALLE ANCLADO DEL ITEM SELECCIONADO (VARIANTE) -->
+<aside class="col-span-5 p-5 bg-surface-container-lowest flex flex-col justify-between">
+<div class="space-y-4">
+<!-- Encabezado de detalle -->
+<div class="border-b border-primary pb-3">
+<div class="flex items-center justify-between">
+<span class="font-mono text-[11px] font-bold uppercase tracking-wider text-secondary">
+                Panel Lateral de Auditoría
+              </span>
+<span class="px-2 py-0.5 border border-primary bg-surface-container font-mono text-[11px] font-semibold text-primary">
+                ANCLADO
+              </span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold mt-1">
+              Detalle de variante archivada · Pastel de temporada
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+              Inspección de datos de variante desincorporada del servicio activo.
+            </p>
+</div>
+<!-- Atributos principales de la variante -->
+<div class="border border-primary bg-surface-container-low p-3 space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">ID de variante:</span>
+<span class="font-mono text-label-lg text-label-lg font-bold text-primary">var-pastel-01</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">Estado de la variante:</span>
+<span class="px-2 py-0.5 border border-primary bg-surface-container-lowest font-mono text-[11px] font-bold">
+                ARCHIVED
+              </span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">Precio histórico:</span>
+<span class="font-mono text-label-lg text-label-lg font-bold text-primary">
+                $85.00 MXN <span class="font-body-sm font-normal text-on-surface-variant">(Último precio registrado)</span>
+</span>
+</div>
+</div>
+<!-- Metadatos de auditoría de variante -->
+<div class="border border-outline-variant p-3 bg-surface-container-lowest space-y-2">
+<h4 class="font-label-md text-label-md font-bold uppercase tracking-wide text-primary border-b border-outline-variant pb-1">
+              Metadatos de Auditoría de Variante
+            </h4>
+<div class="grid grid-cols-2 gap-2 text-body-sm font-body-sm pt-1">
+<div>
+<span class="text-on-surface-variant block font-label-sm">Porciones por unidad:</span>
+<span class="font-semibold text-primary">1 porción (220g aprox.)</span>
+</div>
+<div>
+<span class="text-on-surface-variant block font-label-sm">SKU histórico:</span>
+<span class="font-mono font-semibold text-primary">SKU-PST-TEMP-01</span>
+</div>
+<div>
+<span class="text-on-surface-variant block font-label-sm">Fecha de desincorporación:</span>
+<span class="font-mono text-primary">2026-09-10 14:32:05 CST</span>
+</div>
+<div>
+<span class="text-on-surface-variant block font-label-sm">Centro de costo / Cocina:</span>
+<span class="text-primary font-mono">CC-REPOSTERIA-02</span>
+</div>
+</div>
+</div>
+<!-- Desglose de insumos / Receta histórica -->
+<div class="border border-outline-variant p-3 bg-surface-container-lowest">
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wide text-on-surface-variant block mb-1">
+              Composición de variantes asociadas:
+            </span>
+<table class="w-full text-left font-mono text-[12px]">
+<thead>
+<tr class="border-b border-outline-variant text-secondary">
+<th class="py-1">Componente</th>
+<th class="py-1 text-right">Cant.</th>
+<th class="py-1 text-right">Merma reg.</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr>
+<td class="py-1 text-primary">Base bizcocho nuez</td>
+<td class="py-1 text-right">1 pza</td>
+<td class="py-1 text-right">0.00</td>
+</tr>
+<tr>
+<td class="py-1 text-primary">Cobertura crema vainilla</td>
+<td class="py-1 text-right">45 g</td>
+<td class="py-1 text-right">2.1%</td>
+</tr>
+<tr>
+<td class="py-1 text-primary">Fruto silvestre temporada</td>
+<td class="py-1 text-right">30 g</td>
+<td class="py-1 text-right">5.0%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- NOTA EXPLÍCITA Y AISLADA DE LA VARIANTE -->
+<div class="p-3 border-2 border-primary bg-surface-container flex items-start gap-2.5">
+<span class="material-symbols-outlined text-[18px] text-primary mt-0.5">lock_clock</span>
+<div>
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wide text-primary block">
+                Restricción técnica de variante:
+              </span>
+<p class="font-body-md text-body-md text-primary font-semibold mt-0.5">
+                "Las variantes ARCHIVED no se reactivan desde esta versión".
+              </p>
+<span class="font-body-sm text-body-sm text-on-surface-variant block mt-1">
+                (Esta limitación aplica exclusivamente a nivel de variante y no condiciona la reincorporación global del ítem raíz).
+              </span>
+</div>
+</div>
+</div>
+<!-- Pie del detalle anclado -->
+<div class="border-t border-primary pt-3 mt-4 flex items-center justify-between text-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1.5 font-mono text-[11px]">
+<span class="material-symbols-outlined text-[14px]">history</span>
+<span>Auditoría inmutable activa</span>
+</div>
+<button class="px-3 py-1.5 border border-primary bg-surface-container-lowest hover:bg-surface-container text-primary font-label-md text-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+<span>Copiar ID para log</span>
+</button>
+</div>
+</aside>
+</div>
+<!-- Barra de Estado / Footer de la Vista Administrativa -->
+<footer class="w-full px-6 py-2.5 border-t border-primary bg-surface-container-lowest flex items-center justify-between font-mono text-[12px] text-on-surface-variant">
+<div class="flex items-center gap-4">
+<span>MÓDULO: V04-AR (CATÁLOGO ARCHIVADO)</span>
+<span>•</span>
+<span>MODO: WIREFRAME OPERACIONAL MONOCROMÁTICO</span>
+<span>•</span>
+<span>PROTOCOLO: RETIRO SUAVE</span>
+</div>
+<div class="flex items-center gap-3 text-primary">
+<span>FMAT POS WIREFRAME SYSTEM</span>
+<span class="w-2 h-2 bg-primary"></span>
+</div>
+</footer>
+</div>
+</body></html>

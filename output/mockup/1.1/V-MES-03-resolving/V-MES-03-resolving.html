@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>V03-AO · Agregar productos a la orden (Resolviendo configuración)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            surface: {
+              DEFAULT: '#f9f9f9',
+              dim: '#dadada',
+              bright: '#ffffff',
+              container: '#f3f3f4',
+              lowest: '#ffffff'
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    @keyframes pulseLinear {
+      0%, 100% { opacity: 0.3; transform: translateX(-100%); }
+      50% { opacity: 1; transform: translateX(100%); }
+    }
+    .animate-linear-progress {
+      animation: progressSweep 1.8s ease-in-out infinite;
+    }
+    @keyframes progressSweep {
+      0% { transform: translateX(-100%) scaleX(0.2); }
+      50% { transform: translateX(25%) scaleX(0.6); }
+      100% { transform: translateX(100%) scaleX(0.2); }
+    }
+  </style>
+</head>
+<body class="bg-[#f9f9f9] text-[#111111] font-sans antialiased min-h-screen p-6 flex flex-col justify-between select-none">
+<!-- CONTENEDOR PRINCIPAL TIPO CANVAS WIREFRAME (CONSISTENTE CON POS WIREFRAME SYSTEM) -->
+<div class="max-w-[1520px] w-full mx-auto bg-white border border-[#111111] shadow-[4px_4px_0px_#111111] flex flex-col min-h-[920px]">
+<!-- 1. ENCABEZADO SUPERIOR -->
+<header class="border-b border-[#111111] px-6 py-4 bg-white flex flex-wrap items-center justify-between gap-4">
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center gap-3">
+<h1 class="text-2xl font-bold tracking-tight text-[#111111]">Agregar productos a la orden</h1>
+<span class="inline-flex items-center px-2 py-0.5 text-xs font-mono font-medium bg-[#f3f3f4] border border-[#111111] rounded-sm">
+            Modo: APPEND_TO_ORDER · Agregando a comanda activa
+          </span>
+<!-- TÍTULO DE NEGOCIO + ENUM TÉCNICO -->
+<div class="flex items-center gap-1.5 ml-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#111111] text-white text-xs font-medium tracking-wide uppercase rounded-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+              Resolviendo configuración
+            </span>
+<span class="font-mono text-xs px-2 py-0.5 bg-[#f3f3f4] border border-[#111111] text-[#111111] font-bold">
+              RESOLVING
+            </span>
+</div>
+</div>
+<div class="flex items-center gap-4 text-xs font-mono text-neutral-600">
+<span class="flex items-center gap-1 text-black font-semibold">
+<span class="material-symbols-outlined text-sm">table_restaurant</span>
+            Mesa 07
+          </span>
+<span>·</span>
+<span>tableId: <strong class="text-black">tbl-sala-07</strong></span>
+<span>·</span>
+<span>orderId: <strong class="text-black">ORD-2048</strong></span>
+<span>·</span>
+<span>Fuente: <strong>Menu E-16 Pipeline</strong></span>
+<span>·</span>
+<span>Servidor: <strong>Carlos M.</strong></span>
+</div>
+</div>
+<!-- BOTÓN VOLVER (SIN SIDEBAR, SIN MENÚ GLOBAL, SIN BREADCRUMBS) -->
+<div class="flex items-center gap-3">
+<button class="inline-flex items-center gap-2 px-3 py-1.5 border border-[#111111] text-xs font-medium bg-white hover:bg-[#f3f3f4] active:translate-y-0.5 transition-all" type="button">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+          Volver a la orden
+        </button>
+</div>
+</header>
+<!-- BARRA DE FILTROS Y CONTROL RÁPIDO DE CATÁLOGO (ESTADO INFORMATIVO) -->
+<div class="border-b border-[#111111] px-6 py-2.5 bg-[#f9f9f9] flex items-center justify-between gap-4 text-xs font-mono">
+<div class="flex items-center gap-3 flex-1">
+<div class="relative w-72">
+<input class="w-full bg-white border border-[#111111] px-2.5 py-1 text-xs text-neutral-800 font-sans focus:outline-none cursor-not-allowed opacity-90 pl-7" disabled="" type="text" value="Taco de pescado"/>
+<span class="material-symbols-outlined absolute left-1.5 top-1 text-base text-neutral-500">search</span>
+</div>
+<div class="px-2.5 py-1 bg-white border border-[#111111] text-xs font-sans">
+          Categoría: <span class="font-semibold">Platos fuertes</span>
+</div>
+<div class="px-2.5 py-1 bg-white border border-[#111111] text-xs font-sans">
+          Tipo de suministro: <span class="font-semibold">PREPARED</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+<span class="text-neutral-700">Canal de resolución E-16 activo · Terminal POS #02</span>
+</div>
+</div>
+<!-- CUERPO PRINCIPAL EN 2 COLUMNAS (CATÁLOGO + RESOLUCIÓN / BORRADOR LOCAL) -->
+<main class="grid grid-cols-12 flex-1 divide-x divide-[#111111]">
+<!-- COLUMNA IZQUIERDA: CATÁLOGO Y PANEL DE RESOLUCIÓN EN CURSO (COL 8) -->
+<section class="col-span-8 p-6 flex flex-col gap-6 bg-white">
+<!-- 2. CATÁLOGO: TARJETA SELECCIONADA -->
+<div>
+<div class="flex items-center justify-between mb-3">
+<h2 class="text-xs font-mono font-bold tracking-wider text-neutral-700 uppercase">
+              Ítem seleccionado para evaluación comercial y técnica
+            </h2>
+<span class="text-[11px] font-mono text-neutral-500">
+              catalogVersion: cat_2024_02_e2
+            </span>
+</div>
+<!-- TARJETA TACO DE PESCADO -->
+<div class="border-2 border-[#111111] bg-white p-5 relative shadow-[2px_2px_0px_#111111]">
+<div class="flex items-start justify-between gap-4">
+<div class="flex-1">
+<!-- BADGES DE ESPECIFICACIÓN -->
+<div class="flex items-center gap-2 mb-2 font-mono text-xs">
+<span class="px-1.5 py-0.5 border border-[#111111] bg-white text-black font-semibold uppercase">
+                    [Platillo]
+                  </span>
+<span class="px-1.5 py-0.5 border border-[#111111] bg-[#f3f3f4] text-black font-semibold uppercase">
+                    [PREPARED]
+                  </span>
+<span class="px-2 py-0.5 bg-neutral-100 text-black border border-neutral-400 font-medium inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-neutral-700">check_circle</span>
+                    Elegible para ordenar
+                  </span>
+</div>
+<h3 class="text-xl font-bold text-[#111111] tracking-tight">Taco de pescado</h3>
+<p class="font-mono text-xs text-neutral-600 mt-0.5">
+                  menuItemId: <span class="text-black font-semibold">itm-tc-pesc-01</span> · menuItemVersion: <span class="text-black font-semibold">v2.1</span> · variante: <span class="text-black font-semibold">"2 tacos"</span> (var-tco-maiz-01)
+                </p>
+<p class="text-xs text-neutral-600 mt-2 line-clamp-2 max-w-xl">
+                  Filete de pescado fresco rebozado al estilo Ensenada con aderezo tártara artesanal, col morada crujiente sobre tortillas de maíz recién hechas.
+                </p>
+</div>
+<!-- CONTROLES DE LA TARJETA (INDICANDO "CONFIGURANDO") -->
+<div class="flex flex-col items-end gap-2 shrink-0">
+<div class="text-right">
+<span class="text-[10px] font-mono uppercase text-neutral-500 block">Precio de referencia</span>
+<span class="font-mono text-base font-bold text-neutral-400">
+                    --.-- MXN
+                  </span>
+</div>
+<div class="flex items-center gap-2 mt-2">
+<div class="flex items-center border border-[#111111] bg-[#f3f3f4] text-xs font-mono px-2 py-1 opacity-70">
+<span>Cant: 1</span>
+</div>
+<!-- CONTROL CLAVE: INDICAR "CONFIGURANDO" -->
+<div class="inline-flex items-center gap-2 px-3 py-1.5 bg-[#111111] text-white text-xs font-medium border border-[#111111] shadow-[1px_1px_0px_#111111]">
+<svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"></path>
+</svg>
+<span>Configurando...</span>
+</div>
+</div>
+</div>
+</div>
+<!-- SUB-ESTADO VISUAL INFORMATIVO DE REGLAS DE RECETA -->
+<div class="mt-4 pt-3 border-t border-dashed border-neutral-300 flex items-center justify-between text-[11px] font-mono text-neutral-600">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-xs">tune</span>
+                Modificadores seleccionados: Tortilla Maíz · Sin cebolla morada · Aderezo tártara estándar
+              </span>
+<span class="px-1.5 py-0.5 bg-neutral-100 border border-neutral-300">
+                Configuración en pipeline de contrato
+              </span>
+</div>
+</div>
+</div>
+<!-- 3. PANEL DE RESOLUCIÓN (ESTADO DE CARGA CON INDICADOR LINEAL / SKELETON) -->
+<div class="border-2 border-[#111111] bg-white p-5 flex flex-col gap-4">
+<div class="flex items-center justify-between border-b border-[#111111] pb-3">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-xl text-[#111111]">sync</span>
+<div>
+<h3 class="text-sm font-bold text-[#111111] uppercase tracking-wide">
+                  Panel de resolución asíncrona de contrato
+                </h3>
+<p class="text-xs text-neutral-600">
+                  Validando la selección con Menu
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-mono text-xs px-2 py-0.5 bg-[#f3f3f4] border border-[#111111] text-black">
+                ESTADO: <strong>RESOLVING</strong>
+</span>
+<span class="font-mono text-xs px-2 py-0.5 bg-amber-100 border border-amber-800 text-amber-900 font-semibold">
+                EN CURSO (HTTP IN-FLIGHT)
+              </span>
+</div>
+</div>
+<!-- INDICADOR LINEAL DE PROGRESO DE ALTA PRECISIÓN -->
+<div class="w-full bg-[#f3f3f4] border border-[#111111] h-3.5 relative overflow-hidden">
+<div class="absolute top-0 bottom-0 left-0 bg-[#111111] w-full animate-linear-progress"></div>
+</div>
+<!-- SKELETON UI: SIMULACIÓN DE CAMPOS EN PROCESO DE RESPUESTA -->
+<div class="grid grid-cols-3 gap-3 pt-1">
+<div class="border border-neutral-300 p-3 bg-neutral-50 flex flex-col gap-1.5">
+<span class="text-[10px] font-mono text-neutral-500 uppercase">Tarifa &amp; Subtotal unitario</span>
+<div class="h-5 bg-neutral-200 rounded-sm animate-pulse w-3/4"></div>
+<span class="text-[10px] font-mono text-neutral-400">Calculando deltas de modificador...</span>
+</div>
+<div class="border border-neutral-300 p-3 bg-neutral-50 flex flex-col gap-1.5"><span class="text-[10px] font-mono text-neutral-500 uppercase">Resolución de selección en curso</span>
+<div class="h-5 bg-neutral-200 rounded-sm animate-pulse w-4/5"></div>
+<span class="text-[10px] font-mono text-neutral-400">Validando selección con Menu...</span></div>
+<div class="border border-neutral-300 p-3 bg-neutral-50 flex flex-col gap-1.5"><span class="text-[10px] font-mono text-neutral-500 uppercase">Resultado de elegibilidad</span>
+<div class="h-5 bg-neutral-200 rounded-sm animate-pulse w-2/3"></div>
+<span class="text-[10px] font-mono text-neutral-400">Esperando respuesta de contrato...</span></div>
+</div>
+<!-- DIAGNÓSTICO Y METADATOS TÉCNICOS STRICT: NO INVENTAR PRECIO, STOCK NI TOTAL -->
+<div class="border border-[#111111] bg-[#f9f9f9] p-3 text-xs font-mono flex flex-col gap-2">
+<div class="flex items-center justify-between text-neutral-700"><span>requestId: <strong class="text-black font-semibold">req-res-99412-menu</strong></span>
+<span>syncStatus: <strong>RESOLVING_ACTIVE</strong></span>
+<span>pipeline: <strong>Menu E-16 (Asíncrono)</strong></span></div>
+<div class="p-2.5 bg-white border border-neutral-300 flex items-start gap-2">
+<span class="material-symbols-outlined text-base text-neutral-700 mt-0.5">info</span>
+<div class="text-[11px] leading-relaxed text-neutral-800"><strong>E-16 resuelve una unidad; todavía no hay una línea confirmada.</strong><br/>
+Regla de fidelidad: No se proyecta precio unitario calculado ni elegibilidad positiva definitiva mientras el estado permanezca en <code class="bg-neutral-100 px-1 border border-neutral-300">RESOLVING</code>.</div>
+</div>
+</div>
+<!-- 5. ACCIONES DE RESOLUCIÓN OPERATIVA -->
+<div class="flex items-center justify-between pt-2">
+<div class="text-[11px] font-mono text-neutral-500 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-xs">hourglass_top</span>
+              Aclaración: Un estado <strong>RESOLVING</strong> es temporal de la UI y no un estado persistido de Menu.
+            </div>
+<div class="flex items-center gap-3"><button class="px-4 py-2 border border-[#111111] text-xs font-semibold bg-white hover:bg-neutral-100 active:translate-y-0.5 transition-all inline-flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-sm">cancel</span>
+  Cancelar
+</button>
+<button class="px-4 py-2 border border-[#111111] text-xs font-semibold bg-white hover:bg-neutral-100 active:translate-y-0.5 transition-all inline-flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+  Volver al catálogo
+</button></div>
+</div>
+</div>
+</section>
+<!-- COLUMNA DERECHA: 4. PANEL DE BORRADOR LOCAL (COL 4) -->
+<aside class="col-span-4 p-6 bg-[#f9f9f9] flex flex-col justify-between">
+<div class="flex flex-col gap-5">
+<!-- CABECERA DE PANEL LATERAL -->
+<div class="flex items-center justify-between border-b border-[#111111] pb-3">
+<div>
+<h2 class="text-base font-bold text-[#111111] tracking-tight">Selecciones nuevas</h2>
+<span class="text-xs font-mono text-neutral-600 block">
+                DraftOrderLine[] · borrador local · pendiente de resolución
+              </span>
+</div>
+<span class="font-mono text-xs px-2 py-0.5 border border-[#111111] bg-white font-bold">
+              0 líneas
+            </span>
+</div>
+<!-- ESTADO VACÍO / EN ESPERA: SIN AGREGAR LA LÍNEA HASTA OBTENER RESULTADO -->
+<div class="border-2 border-dashed border-neutral-400 bg-white p-8 flex flex-col items-center text-center gap-3 my-4">
+<div class="w-12 h-12 border border-[#111111] flex items-center justify-center bg-[#f3f3f4]">
+<span class="material-symbols-outlined text-2xl text-neutral-700">hourglass_empty</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-[#111111]">Sin líneas agregadas</h4>
+<p class="text-xs text-neutral-600 mt-1 max-w-xs leading-relaxed">
+                La línea de <strong class="text-black">Taco de pescado</strong> no se incorpora al borrador hasta que concluya exitosamente la resolución de contrato con Menu.
+              </p>
+</div>
+<div class="w-full mt-2 pt-3 border-t border-neutral-200 text-left">
+<span class="text-[10px] font-mono uppercase text-neutral-500 block mb-1">Estado de la línea pendiente:</span>
+<div class="bg-amber-50 border border-amber-300 p-2 font-mono text-[11px] text-amber-900 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+<span>Resolución de contrato en curso</span></div>
+</div>
+</div>
+<!-- DESGLOSE ECONÓMICO CONTROLADO -->
+<div class="border border-[#111111] bg-white p-4 flex flex-col gap-2.5 font-mono text-xs">
+<div class="flex justify-between items-center text-neutral-600">
+<span>Total actual de orden (confirmada):</span>
+<span class="font-bold text-black">$485.00 MXN</span>
+</div>
+<div class="flex justify-between items-center text-neutral-600">
+<span>Nuevas selecciones (en resolución):</span>
+<span class="font-bold text-neutral-400">--.-- MXN</span>
+</div>
+<div class="flex justify-between items-center pt-2 border-t border-dashed border-neutral-300">
+<span class="font-bold text-black">Total de preorden:</span>
+<span class="font-bold text-black text-sm">$0.00 MXN</span>
+</div>
+<div class="flex justify-between items-center pt-2 border-t border-[#111111] text-sm">
+<span class="font-bold text-black">TOTAL PROYECTADO:</span>
+<span class="font-bold text-black text-base">$485.00 MXN</span>
+</div>
+<p class="text-[10px] text-neutral-500 italic mt-1 font-sans">
+              * El total proyectado no incorpora montos no resueltos por contrato.
+            </p>
+</div>
+</div>
+<!-- ACCIONES FINALES DEL BORRADOR: BOTÓN DESHABILITADO -->
+<div class="flex flex-col gap-2 pt-6">
+<button class="w-full py-3 px-4 bg-neutral-200 text-neutral-500 border border-neutral-400 text-xs font-bold uppercase tracking-wider cursor-not-allowed flex items-center justify-center gap-2 shadow-none" disabled="" type="button">
+<span class="material-symbols-outlined text-base">lock_clock</span>
+<span>Agregar a la orden (Esperando resolución)</span>
+</button>
+<button class="w-full py-2 px-3 border border-[#111111] bg-white text-xs font-semibold text-neutral-800 hover:bg-[#f3f3f4] active:translate-y-0.5 transition-all text-center" type="button">
+            ← Volver a la orden
+          </button>
+<div class="text-center font-mono text-[10px] text-neutral-500 mt-1">
+            Target Order Session: 0xORD-2048-REV03 · E-16 Channel
+          </div>
+</div>
+</aside>
+</main>
+<!-- FOOTER TÉCNICO INFORMATIVO DE FRONTERA OPERATIVA -->
+<footer class="border-t border-[#111111] px-6 py-2 bg-[#f9f9f9] flex items-center justify-between text-xs font-mono text-neutral-700">
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-1 text-black font-semibold">
+<span class="material-symbols-outlined text-sm">terminal</span>
+          Regla de sistema:
+        </span>
+<span>Una selección en resolución no se convierte en una línea válida ni se envía a Orders hasta confirmación explícita de Menu.</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="px-2 py-0.5 bg-white border border-[#111111] text-[11px] font-bold">
+          syncStatus: RESOLVING
+        </span>
+<span class="text-neutral-500">rev: 1.0.4</span>
+<span class="text-neutral-500">Terminal POS #02 · Salón</span>
+</div>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>POS Terminal - Agregar productos a la orden</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Inter Google Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-variant": "#e2e2e2",
+            "inverse-primary": "#c8c6c5",
+            "primary-fixed-dim": "#c8c6c5",
+            "secondary-fixed": "#e4e2e2",
+            "on-secondary": "#ffffff",
+            "on-surface": "#1a1c1c",
+            "on-primary-fixed-variant": "#474646",
+            "on-error": "#ffffff",
+            "surface-tint": "#5f5e5e",
+            "on-primary": "#ffffff",
+            "surface-container-highest": "#e2e2e2",
+            "secondary": "#5f5e5e",
+            "primary-fixed": "#e5e2e1",
+            "outline": "#747878",
+            "tertiary": "#000000",
+            "on-tertiary": "#ffffff",
+            "on-surface-variant": "#444748",
+            "secondary-container": "#e4e2e2",
+            "primary": "#000000",
+            "inverse-surface": "#2f3131",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "outline-variant": "#c4c7c7",
+            "on-tertiary-container": "#838484",
+            "on-error-container": "#93000a",
+            "on-secondary-fixed-variant": "#474747",
+            "error-container": "#ffdad6",
+            "primary-container": "#1c1b1b",
+            "on-secondary-container": "#656464",
+            "on-background": "#1a1c1c",
+            "tertiary-fixed": "#e3e2e2",
+            "surface-container-low": "#f3f3f4",
+            "surface-bright": "#f9f9f9",
+            "inverse-on-surface": "#f0f1f1",
+            "tertiary-container": "#1a1c1c",
+            "surface-dim": "#dadada",
+            "surface-container": "#eeeeee",
+            "surface": "#f9f9f9",
+            "background": "#f9f9f9",
+            "secondary-fixed-dim": "#c8c6c6",
+            "on-tertiary-fixed": "#1a1c1c",
+            "error": "#ba1a1a",
+            "on-primary-fixed": "#1c1b1b",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary-fixed-variant": "#464747",
+            "surface-container-high": "#e8e8e8",
+            "on-secondary-fixed": "#1b1c1c",
+            "on-primary-container": "#858383"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "space-xl": "2rem",
+            "margin": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-lg": "1.5rem",
+            "gutter": "1rem"
+          },
+          "fontFamily": {
+            "headline-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "label-sm": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-sm": ["Inter"],
+            "body-sm": ["Inter"],
+            "headline-lg": ["Inter"],
+            "label-lg": ["Inter"],
+            "body-md": ["Inter"]
+          },
+          "fontSize": {
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased h-full flex flex-col justify-center items-center p-space-md lg:p-space-lg select-none">
+<!-- Desktop Landscape 3:2 Canvas Framing with crisp outer boundary -->
+<main class="w-full max-w-[1440px] h-[920px] bg-surface-container-lowest border border-tertiary flex flex-col overflow-hidden shadow-none">
+<!-- 1. TOP HEADER (Focused contextual header: strictly NO sidebar, NO global nav, NO breadcrumbs) -->
+<header class="w-full bg-surface-container-lowest border-b border-tertiary px-space-lg py-3 flex flex-col gap-2 shrink-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight font-semibold">
+            Agregar productos a la orden
+          </h1>
+<span class="inline-flex items-center px-2 py-0.5 border border-tertiary bg-surface-container-low font-label-sm text-label-sm text-primary">
+            Modo: APPEND_TO_ORDER · Agregando a comanda activa
+          </span>
+</div>
+<!-- Top-right action: Back to order -->
+<button class="inline-flex items-center gap-2 px-3 py-1.5 border border-tertiary bg-surface-container-lowest text-primary hover:bg-surface-container active:scale-[0.98] transition-all rounded-DEFAULT font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Volver a la orden</span>
+</button>
+</div>
+<!-- Technical Metadata Bar -->
+<div class="flex items-center gap-3 font-label-sm text-label-sm text-on-surface-variant pt-1 border-t border-surface-container">
+<div class="flex items-center gap-1.5 font-semibold text-primary">
+<span class="material-symbols-outlined text-[16px]">table_restaurant</span>
+<span>Mesa 07</span>
+</div>
+<span class="text-outline-variant">|</span>
+<span class="font-mono text-on-surface">tableId: tbl-sala-07</span>
+<span class="text-outline-variant">|</span>
+<span class="font-mono text-on-surface">orderId: ORD-2048</span>
+<span class="text-outline-variant">|</span>
+<span>Fuente: <strong class="text-primary font-medium">Menu E-02</strong></span>
+<span class="text-outline-variant">|</span>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">badge</span>
+<span>Servidor: Carlos M.</span>
+</div>
+</div>
+</header>
+<!-- 2. CATALOG FILTER & SEARCH BAR -->
+<section class="w-full bg-surface-container-low border-b border-tertiary px-space-lg py-2.5 flex flex-col gap-2 shrink-0">
+<!-- Upper Controls Row -->
+<div class="flex items-center gap-3">
+<!-- Search input -->
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full h-9 pl-9 pr-3 bg-surface-container-lowest border border-outline focus:border-tertiary focus:ring-0 text-primary font-body-sm text-body-sm rounded-DEFAULT placeholder:text-on-surface-variant" placeholder="Buscar por nombre (coincidencia libre)..." type="text" value=""/>
+</div>
+<!-- Select Category -->
+<div class="w-56">
+<div class="relative">
+<select class="w-full h-9 pl-3 pr-8 bg-surface-container-lowest border border-outline focus:border-tertiary focus:ring-0 text-primary font-body-sm text-body-sm rounded-DEFAULT appearance-none">
+<option>Categoría: Todas</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-primary text-[18px]">arrow_drop_down</span>
+</div>
+</div>
+<!-- Select Supply Type -->
+<div class="w-60">
+<div class="relative">
+<select class="w-full h-9 pl-3 pr-8 bg-surface-container-lowest border border-outline focus:border-tertiary focus:ring-0 text-primary font-body-sm text-body-sm rounded-DEFAULT appearance-none">
+<option>Tipo de suministro: Todos</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-primary text-[18px]">arrow_drop_down</span>
+</div>
+</div>
+<!-- Clear filters button -->
+<button class="h-9 px-3 border border-outline bg-surface-container-lowest hover:bg-surface-container text-primary font-label-md text-label-md flex items-center gap-1.5 rounded-DEFAULT active:scale-[0.98] transition-all shrink-0" type="button">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+<span>Limpiar filtros</span>
+</button>
+</div>
+<!-- Lower Controls Row: Category Pills & Diagnostic Chip -->
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-1.5 overflow-x-auto">
+<button class="px-2.5 py-1 text-label-sm font-label-sm border border-tertiary bg-surface-container-highest text-primary font-semibold rounded-DEFAULT">
+            Todas (0)
+          </button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:border-outline hover:text-primary rounded-DEFAULT">
+            Platillo (0)
+          </button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:border-outline hover:text-primary rounded-DEFAULT">
+            Bebida (0)
+          </button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:border-outline hover:text-primary rounded-DEFAULT">
+            Combo (0)
+          </button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:border-outline hover:text-primary rounded-DEFAULT">
+            Postre (0)
+          </button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:border-outline hover:text-primary rounded-DEFAULT">
+            Complemento (0)
+          </button>
+</div>
+<!-- Diagnostic Counter Chip -->
+<div class="flex items-center gap-1.5 px-2.5 py-1 bg-surface-container border border-outline text-primary font-label-sm text-label-sm shrink-0">
+<span class="material-symbols-outlined text-[16px] text-outline">database</span>
+<span>Catálogo recibido: <strong class="font-semibold">vacío (0 items devueltos)</strong></span>
+</div>
+</div>
+</section>
+<!-- 3. MAIN CONTENT AREA (Split Grid ~68% / ~32%) -->
+<div class="flex-1 flex w-full overflow-hidden">
+<!-- LEFT / CENTER: Catalog Area (~68%) -->
+<section class="w-[68%] h-full p-space-lg flex flex-col justify-between overflow-y-auto bg-surface">
+<!-- Empty State Module Container -->
+<div class="w-full flex-1 flex flex-col items-center justify-center border-2 border-dashed border-outline-variant bg-surface-container-lowest p-space-xl text-center rounded-DEFAULT">
+<!-- Wireframe Icon Representation -->
+<div class="w-16 h-16 border-2 border-dashed border-tertiary flex items-center justify-center bg-surface-container mb-4">
+<span class="material-symbols-outlined text-[36px] text-primary">restaurant_menu</span>
+</div>
+<!-- Headline & Contextual Explanations -->
+<h2 class="font-headline-md text-headline-md text-primary font-semibold mb-1">
+            No hay productos para mostrar
+          </h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-lg mb-2">
+            El catálogo no devolvió items elegibles para estos filtros o contexto operativo.
+          </p>
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-surface-container-low border border-outline-variant text-on-surface font-label-sm text-label-sm mb-6">
+<span class="material-symbols-outlined text-[16px] text-outline">info</span>
+<span>No se encontraron registros activos de venta en la sincronización del catálogo Menu E-02.</span>
+</div>
+<!-- Actions Row -->
+<div class="flex items-center gap-3">
+<button class="h-10 px-5 bg-primary text-on-primary font-label-lg text-label-lg rounded-DEFAULT hover:bg-primary-container active:scale-[0.98] transition-all flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">filter_alt_off</span>
+<span>Limpiar filtros</span>
+</button>
+<button class="h-10 px-5 bg-surface-container-lowest border border-tertiary text-primary font-label-lg text-label-lg rounded-DEFAULT hover:bg-surface-container active:scale-[0.98] transition-all flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+<span>↻ Actualizar catálogo</span>
+</button>
+</div>
+</div>
+<!-- Technical Telemetry / Fail-safe Note at bottom of left panel -->
+<div class="mt-4 p-3 bg-surface-container-low border border-outline-variant flex items-start gap-2.5">
+<span class="material-symbols-outlined text-[18px] text-on-surface shrink-0 mt-0.5">verified_user</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+<strong class="text-primary font-semibold">Aviso:</strong> No se muestran tarjetas ficticias ni precios de referencia sin contrato de catálogo activo. El estado de la comanda en cocina no se ve alterado.
+          </p>
+</div>
+</section>
+<!-- RIGHT PANEL: Draft Order Sidebar (~32%) -->
+<aside class="w-[32%] h-full border-l border-tertiary bg-surface-container-lowest flex flex-col justify-between">
+<!-- Sidebar Header -->
+<div class="p-space-lg border-b border-surface-container">
+<div class="flex items-center justify-between mb-1">
+<h2 class="font-headline-sm text-headline-sm text-primary font-semibold">
+              Selecciones nuevas
+            </h2>
+<span class="px-2 py-0.5 border border-tertiary bg-surface-container font-label-sm text-label-sm font-semibold text-primary">
+              0 líneas
+            </span>
+</div>
+<p class="font-mono text-label-sm text-label-sm text-on-surface-variant">
+            DraftOrderLine[] · borrador local · aún no confirmado
+          </p>
+</div>
+<!-- Sidebar Body: Empty Draft State Box -->
+<div class="flex-1 p-space-lg flex flex-col items-center justify-center text-center">
+<div class="w-12 h-12 border border-dashed border-outline flex items-center justify-center bg-surface-container-low mb-3">
+<span class="material-symbols-outlined text-[26px] text-outline">receipt_long</span>
+</div>
+<p class="font-label-lg text-label-lg text-primary font-semibold mb-1">
+            Sin líneas pendientes
+          </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-[220px]">
+            No hay productos seleccionados en este borrador de agregado.
+          </p>
+</div>
+<!-- Sidebar Bottom Area: Breakdown, Callout & Action -->
+<div class="p-space-lg border-t border-surface-container bg-surface-container-low flex flex-col gap-3">
+<!-- Pricing Breakdown -->
+<div class="flex flex-col gap-2 font-body-sm text-body-sm">
+<div class="flex justify-between text-on-surface-variant">
+<span>Total actual de orden (confirmada):</span>
+<span class="font-mono font-medium text-on-surface">$485.00 MXN</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span>Nuevas selecciones:</span>
+<span class="font-mono font-medium text-on-surface">$0.00 MXN</span>
+</div>
+<div class="border-b border-outline-variant my-0.5"></div>
+<div class="flex justify-between text-on-surface-variant">
+<span>Total de preorden:</span>
+<span class="font-mono font-medium text-on-surface">$0.00 MXN</span>
+</div>
+<div class="flex justify-between font-label-lg text-label-lg text-primary font-bold pt-1">
+<span>Total proyectado:</span>
+<span class="font-mono">$485.00 MXN</span>
+</div>
+</div>
+<!-- Return Primary Action Button -->
+<button class="w-full h-11 border border-tertiary bg-surface-container-lowest hover:bg-surface-container text-primary font-label-lg text-label-lg font-semibold flex items-center justify-center gap-2 rounded-DEFAULT active:scale-[0.98] transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+<span>Volver a la orden</span>
+</button>
+<!-- Sidebar Callout / Explicit Note -->
+<div class="p-2.5 bg-surface-container-lowest border border-outline text-left">
+<p class="font-label-sm text-label-sm text-on-surface-variant leading-normal">
+<strong class="text-primary font-semibold">Nota explícita:</strong> El catálogo vacío no modifica la orden existente ni elimina los productos previamente comandados en mesa 07.
+            </p>
+</div>
+</div>
+</aside>
+</div>
+<!-- 4. BOTTOM TELEMETRY BAR -->
+<footer class="w-full bg-surface-container-lowest border-t border-tertiary px-space-lg py-2 flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant shrink-0 font-mono">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full border border-tertiary bg-surface-container-high"></span>
+<span class="text-primary font-medium font-sans">Catálogo comercial: 0 registros disponibles</span>
+</div>
+<div class="flex items-center gap-4">
+<span>syncStatus: <strong class="text-primary font-bold">MENU_EMPTY_SET</strong></span>
+<span class="text-outline-variant">|</span>
+<span>rev: 1.0.4</span>
+<span class="text-outline-variant">|</span>
+<span class="font-sans text-primary">Terminal POS #02 · Salón</span>
+</div>
+</footer>
+</main>
+</body></html>

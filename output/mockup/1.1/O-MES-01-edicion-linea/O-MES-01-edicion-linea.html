@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>O-MES-01 · Editar selección (Línea configurada en borrador local)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            brand: {
+              black: '#111111',
+              dark: '#222222',
+              gray: '#666666',
+              lightGray: '#e5e5e5',
+              border: '#d4d4d4',
+              bgLight: '#f9f9f9',
+              bgCard: '#f4f4f4'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #71717a;
+      color: #111111;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Backdrop simulation of the active order view behind */
+    .underlying-screen {
+      filter: blur(3px) grayscale(0.5) opacity(0.35);
+      pointer-events: none;
+      user-select: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen relative overflow-x-hidden flex items-center justify-center p-4 md:p-8">
+
+  <!-- VISTA SUBYACENTE SIMULADA (ActiveOrderView Mesa 07 en segundo plano desenfocada) -->
+  <div class="fixed inset-0 underlying-screen bg-neutral-100 flex flex-col p-6 z-0">
+    <div class="w-full bg-white border border-neutral-300 p-4 mb-4 flex justify-between">
+      <div class="h-8 bg-neutral-300 w-64 rounded"></div>
+      <div class="h-8 bg-neutral-200 w-48 rounded"></div>
+    </div>
+    <div class="grid grid-cols-3 gap-6 flex-1">
+      <div class="col-span-2 bg-white border border-neutral-300 p-6 space-y-4">
+        <div class="h-10 bg-neutral-200 w-1/3 rounded"></div>
+        <div class="h-24 bg-neutral-100 border border-neutral-200 rounded"></div>
+        <div class="h-24 bg-neutral-100 border border-neutral-200 rounded"></div>
+      </div>
+      <div class="bg-white border border-neutral-300 p-6 space-y-4">
+        <div class="h-8 bg-neutral-200 w-1/2 rounded"></div>
+        <div class="h-32 bg-neutral-100 border border-neutral-200 rounded"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY CONTEXTUAL O-MES-01 (Composición desktop modal rectangular independiente) -->
+  <div class="relative z-10 w-full max-w-4xl bg-white border-2 border-black shadow-2xl flex flex-col my-auto text-black">
+    
+    <!-- HEADER DEL OVERLAY -->
+    <header class="border-b-2 border-black p-5 bg-white flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="w-8 h-8 bg-black text-white flex items-center justify-center font-bold font-mono-code text-sm">
+          01
+        </div>
+        <div>
+          <div class="flex items-center gap-3">
+            <h1 class="text-xl font-bold tracking-tight uppercase">Editar selección</h1>
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-mono-code bg-neutral-100 border border-neutral-400 text-neutral-800">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              Borrador local · No persistido en Orders
+            </span>
+          </div>
+          <div class="flex items-center gap-3 text-xs text-neutral-600 font-mono-code mt-1">
+            <span class="font-semibold text-black">Mesa 07</span>
+            <span>·</span>
+            <span>tableId: tbl-sala-07</span>
+            <span>·</span>
+            <span>draftLineId: dl-0084</span>
+            <span>·</span>
+            <span>orderId: ORD-2048</span>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" aria-label="Cerrar modal" class="w-9 h-9 border border-black flex items-center justify-center hover:bg-neutral-100 active:bg-neutral-200 transition-colors">
+        <span class="material-symbols-outlined text-xl">close</span>
+      </button>
+    </header>
+
+    <!-- CONTEXTO DE LA LÍNEA SELECCIONADA Y CONTROL DE CANTIDAD GLOBAL DE LÍNEA -->
+    <div class="border-b border-black bg-neutral-50 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="px-2 py-0.5 text-xs font-mono-code font-semibold bg-black text-white">PLATILLO</span>
+          <span class="px-2 py-0.5 text-xs font-mono-code border border-black bg-white">PREPARED</span>
+          <span class="text-xs font-mono-code text-neutral-600">menuItemId: itm-pesc-01 · v2.1</span>
+        </div>
+        <div class="flex items-baseline gap-3">
+          <h2 class="text-2xl font-bold tracking-tight">Taco de pescado</h2>
+          <span class="text-sm text-neutral-700 font-medium">Variante: <strong>Regular</strong> (var-tco-reg-01)</span>
+        </div>
+      </div>
+
+      <!-- CONTROL DE CANTIDAD DE LÍNEA (Cantidad: 2) -->
+      <div class="border border-black bg-white p-2.5 flex items-center gap-4">
+        <div class="text-right">
+          <span class="block text-[11px] font-mono-code uppercase text-neutral-500 font-semibold leading-tight">Multiplicador</span>
+          <span class="text-xs font-bold uppercase">Cantidad de línea</span>
+        </div>
+        <div class="flex items-center border border-black">
+          <button type="button" class="w-8 h-8 flex items-center justify-center font-bold text-base hover:bg-neutral-100 active:bg-neutral-200 border-r border-black" title="Disminuir unidades">-</button>
+          <span class="w-10 text-center font-mono-code font-bold text-base">2</span>
+          <button type="button" class="w-8 h-8 flex items-center justify-center font-bold text-base hover:bg-neutral-100 active:bg-neutral-200 border-l border-black" title="Aumentar unidades">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUERPO PRINCIPAL EN DOS COLUMNAS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x border-b border-black">
+      
+      <!-- COLUMNA IZQUIERDA: GRUPOS DE MODIFICADORES NORMALIZADOS (7 Cols) -->
+      <div class="lg:col-span-7 p-6 space-y-6">
+        
+        <div class="flex items-center justify-between border-b border-neutral-200 pb-2">
+          <span class="text-xs font-mono-code font-bold uppercase tracking-wider text-neutral-600">
+            Grupos de modificadores normalizados
+          </span>
+          <span class="text-[11px] font-mono-code text-neutral-500">
+            Reglas canónicas vinculadas
+          </span>
+        </div>
+
+        <!-- GRUPO 1: EXTRAS (EFECTO ADD) -->
+        <div class="border border-black bg-white">
+          <div class="bg-neutral-100 border-b border-black px-4 py-2.5 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 bg-black"></span>
+              <span class="font-bold text-sm tracking-tight uppercase">Extras</span>
+              <span class="text-[11px] font-mono-code text-neutral-600">(Efecto ADD · Incremento unitario)</span>
+            </div>
+            <span class="text-[11px] font-mono-code px-2 py-0.5 border border-black bg-white">
+              groupId: grp-extras-01
+            </span>
+          </div>
+
+          <div class="divide-y divide-neutral-200 p-0">
+            
+            <!-- REGLA 1: AGUACATE EXTRA (HABILITADO, quantity 1, priceDelta +$20.00 MXN) -->
+            <div class="p-4 bg-neutral-50/60 flex items-center justify-between gap-4">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-mono-code px-1.5 py-0.5 bg-black text-white font-bold">ADD</span>
+                  <span class="font-bold text-sm text-black">Aguacate extra</span>
+                  <span class="text-xs font-mono-code font-bold text-black">+$20.00 MXN</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] font-mono-code text-neutral-600 mt-1">
+                  <span>optionId: opt-aguacate</span>
+                  <span>·</span>
+                  <span>configId: cfg-mod-01</span>
+                </div>
+                <div class="text-[11px] text-neutral-500 mt-0.5 font-mono-code">
+                  Estado: <strong class="text-black">enabled=true</strong> (quantity &ge; 1) · Porción extra
+                </div>
+              </div>
+
+              <!-- Selector de cantidad con coherencia enabled=true -> quantity=1 -->
+              <div class="flex items-center gap-3">
+                <div class="flex items-center border border-black bg-white">
+                  <button type="button" class="w-7 h-7 flex items-center justify-center font-bold text-sm hover:bg-neutral-100 active:bg-neutral-200 border-r border-black">-</button>
+                  <span class="w-8 text-center font-mono-code font-bold text-sm">1</span>
+                  <button type="button" class="w-7 h-7 flex items-center justify-center font-bold text-sm hover:bg-neutral-100 active:bg-neutral-200 border-l border-black">+</button>
+                </div>
+                <span class="text-[11px] font-mono-code text-neutral-500">máx. 2</span>
+              </div>
+            </div>
+
+            <!-- REGLA 2: LECHUGA ADICIONAL (DESHABILITADA, quantity 0) -->
+            <div class="p-4 bg-white flex items-center justify-between gap-4 opacity-75">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-mono-code px-1.5 py-0.5 border border-neutral-400 text-neutral-600 font-bold">ADD</span>
+                  <span class="font-medium text-sm text-neutral-800">Lechuga adicional</span>
+                  <span class="text-xs font-mono-code text-neutral-500">+$10.00 MXN</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] font-mono-code text-neutral-500 mt-1">
+                  <span>optionId: opt-lechuga</span>
+                  <span>·</span>
+                  <span>configId: cfg-mod-02</span>
+                </div>
+                <div class="text-[11px] text-neutral-500 mt-0.5 font-mono-code">
+                  Estado: <strong>enabled=false</strong> (quantity = 0) · Sin adición
+                </div>
+              </div>
+
+              <!-- Selector de cantidad en 0 -->
+              <div class="flex items-center gap-3">
+                <div class="flex items-center border border-neutral-300 bg-neutral-100 text-neutral-400">
+                  <button type="button" disabled class="w-7 h-7 flex items-center justify-center font-bold text-sm cursor-not-allowed border-r border-neutral-300">-</button>
+                  <span class="w-8 text-center font-mono-code font-medium text-sm text-neutral-600">0</span>
+                  <button type="button" class="w-7 h-7 flex items-center justify-center font-bold text-sm hover:bg-neutral-200 border-l border-neutral-300 text-black">+</button>
+                </div>
+                <span class="text-[11px] font-mono-code text-neutral-400">máx. 2</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- GRUPO 2: PREFERENCIAS DE PREPARACIÓN / INGREDIENTES (EFECTO OMIT) -->
+        <div class="border border-black bg-white">
+          <div class="bg-neutral-100 border-b border-black px-4 py-2.5 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 bg-black"></span>
+              <span class="font-bold text-sm tracking-tight uppercase">Sin ingredientes</span>
+              <span class="text-[11px] font-mono-code text-neutral-600">(Efecto OMIT · Supresión sin descuento)</span>
+            </div>
+            <span class="text-[11px] font-mono-code px-2 py-0.5 border border-black bg-white">
+              groupId: grp-sin-ingr-02
+            </span>
+          </div>
+
+          <div class="p-4 bg-neutral-50/60 flex items-center justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono-code px-1.5 py-0.5 bg-black text-white font-bold">OMIT</span>
+                <span class="font-bold text-sm text-black">Sin cebolla morada</span>
+                <span class="text-xs font-mono-code font-semibold text-neutral-600">$0.00 MXN (Fijo)</span>
+              </div>
+              <div class="flex items-center gap-2 text-[11px] font-mono-code text-neutral-600 mt-1">
+                <span>optionId: opt-omit-cebolla</span>
+                <span>·</span>
+                <span>configId: cfg-mod-04</span>
+              </div>
+              <p class="text-[11px] text-neutral-600 mt-1 leading-snug">
+                Efecto OMIT: supresión en comanda de cocina. No genera precio negativo ni decremento en la cantidad base de la orden.
+              </p>
+            </div>
+
+            <!-- Switch / Checkbox interactivo rectangular -->
+            <div class="flex items-center gap-3">
+              <label class="flex items-center gap-2 cursor-pointer border-2 border-black px-3 py-1.5 bg-black text-white text-xs font-bold font-mono-code">
+                <span class="material-symbols-outlined text-sm font-bold">check</span>
+                OMITIDO
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTA CONTRACTUAL DE INTEGRIDAD Y REGLA DE CANTIDADES -->
+        <div class="border border-neutral-300 bg-neutral-50 p-3 text-xs text-neutral-600 space-y-1">
+          <div class="font-mono-code font-semibold text-neutral-800 text-[11px] flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-xs">info</span>
+            REGLA DE COHERENCIA EN REGLAS NORMALIZADAS:
+          </div>
+          <p class="text-[11px] leading-relaxed">
+            <code>enabled=true &hArr; quantity &ge; 1</code> y <code>enabled=false &hArr; quantity = 0</code>. Las exclusiones (OMIT) suprimen insumos de la preparación sin descontar precio ni introducir cardinalidades negativas.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- COLUMNA DERECHA: ÁREA DE RESUMEN ECONÓMICO Y ESTADO DE LÍNEA (5 Cols) -->
+      <div class="lg:col-span-5 p-6 bg-neutral-50 flex flex-col justify-between">
+        
+        <div class="space-y-5">
+          <div class="border-b border-neutral-300 pb-2 flex items-center justify-between">
+            <span class="text-xs font-mono-code font-bold uppercase tracking-wider text-neutral-700">
+              Resumen de cálculo unitario
+            </span>
+            <span class="text-[11px] font-mono-code px-1.5 py-0.5 bg-neutral-200 text-neutral-700 font-medium">
+              MONEDA: MXN
+            </span>
+          </div>
+
+          <!-- DESGLOSE ARITMÉTICO UNITARIO -->
+          <div class="space-y-3 bg-white border border-neutral-300 p-4 font-mono-code text-xs">
+            
+            <div class="flex justify-between items-center text-neutral-700">
+              <span>Precio base de la variante (basePrice):</span>
+              <span class="font-bold text-black">$168.00 MXN</span>
+            </div>
+
+            <div class="flex justify-between items-center text-neutral-700">
+              <span class="flex items-center gap-1">
+                <span>Extras seleccionados (extrasTotal):</span>
+              </span>
+              <span class="font-bold text-black">+$20.00 MXN</span>
+            </div>
+
+            <div class="text-[11px] text-neutral-500 pl-2">
+              &bull; Aguacate extra (1 &times; $20.00 MXN)
+            </div>
+
+            <div class="border-t border-neutral-200 pt-2 flex justify-between items-center font-bold text-neutral-900">
+              <span>Subtotal por unidad (unitSubtotal):</span>
+              <span class="text-sm text-black">$188.00 MXN</span>
+            </div>
+
+            <div class="flex justify-between items-center text-neutral-600 pt-1">
+              <span>Cantidad de unidades de línea:</span>
+              <span class="font-bold text-black">&times; 2</span>
+            </div>
+
+          </div>
+
+          <!-- RECUADRO DESTACADO: COSTO TOTAL DE LÍNEA -->
+          <div class="border-2 border-black bg-white p-4">
+            <div class="flex items-baseline justify-between mb-1">
+              <span class="text-xs font-mono-code uppercase font-bold tracking-wider text-neutral-600">
+                Costo de línea (lineCost)
+              </span>
+              <span class="text-xs font-mono-code text-neutral-500">2 &times; $188.00</span>
+            </div>
+            <div class="flex items-baseline justify-between">
+              <div class="text-3xl font-extrabold font-mono-code tracking-tight text-black">
+                $376.00 <span class="text-sm font-semibold">MXN</span>
+              </div>
+              <span class="inline-flex items-center text-[11px] font-mono-code bg-black text-white px-2 py-0.5 font-semibold">
+                CALCULADO
+              </span>
+            </div>
+          </div>
+
+          <!-- ACLARACIÓN CONTRACTUAL DE BORRADOR LOCAL -->
+          <div class="border border-neutral-300 bg-white p-3.5 space-y-2 text-xs">
+            <div class="flex items-center gap-1.5 font-bold font-mono-code text-neutral-900 text-[11px]">
+              <span class="material-symbols-outlined text-xs">history_edu</span>
+              DELIMITACIÓN CONTRACTUAL DEL BORRADOR:
+            </div>
+            <p class="text-neutral-600 text-[11px] leading-relaxed">
+              Esta pantalla <strong>actualiza exclusivamente el borrador local (DraftOrderLine)</strong> en la memoria del terminal.
+            </p>
+            <p class="text-neutral-600 text-[11px] leading-relaxed">
+              La confirmación formal de la comanda hacia <strong>Orders</strong> se realiza de manera posterior. Esta edición <strong>no genera una venta directa, no reserva inventario ni consulta stock físico</strong>.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- ACCIONES LOCALES DEL OVERLAY -->
+        <div class="pt-6 space-y-2">
+          <div class="grid grid-cols-2 gap-2">
+            <!-- Botón Restablecer -->
+            <button type="button" class="w-full border border-black py-2.5 px-3 font-mono-code text-xs font-bold uppercase hover:bg-neutral-100 active:bg-neutral-200 transition-colors flex items-center justify-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">restart_alt</span>
+              Restablecer selección
+            </button>
+
+            <!-- Botón Cancelar -->
+            <button type="button" class="w-full border border-black py-2.5 px-3 font-mono-code text-xs font-bold uppercase hover:bg-neutral-100 active:bg-neutral-200 transition-colors flex items-center justify-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">close</span>
+              Cancelar
+            </button>
+          </div>
+
+          <!-- Botón Primario Guardar cambios -->
+          <button type="button" class="w-full bg-black text-white border-2 border-black py-3 px-4 font-mono-code text-xs font-bold uppercase hover:bg-neutral-800 active:bg-neutral-900 transition-colors flex items-center justify-center gap-2 shadow-sm">
+            <span class="material-symbols-outlined text-sm">check_circle</span>
+            Guardar cambios ($376.00 MXN)
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- FOOTER TÉCNICO INFORMATIVO DEL MODAL -->
+    <footer class="bg-neutral-100 px-6 py-2.5 flex flex-wrap items-center justify-between text-[11px] font-mono-code text-neutral-600">
+      <div>
+        <span>FMAT POS // OVERLAY CONTEXTUAL · REF: O-MES-01-DRAFT-EDIT</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span>Alcance: draftLineId [dl-0084]</span>
+        <span>·</span>
+        <span>Entidad: PREPARED</span>
+        <span>·</span>
+        <span class="text-black font-semibold">Terminal 02 (Salón)</span>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Confirmación de guardado — CatalogEntrySavedView</title>
+<!-- Tailwind CSS CDN with forms & container queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Verbatim Tailwind Configuration -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary": "#ffffff",
+            "on-secondary-fixed": "#1b1c1c",
+            "on-secondary-container": "#656464",
+            "on-tertiary-fixed": "#1a1c1c",
+            "inverse-on-surface": "#f0f1f1",
+            "error": "#ba1a1a",
+            "on-primary-fixed": "#1c1b1b",
+            "secondary-fixed-dim": "#c8c6c6",
+            "error-container": "#ffdad6",
+            "on-tertiary-container": "#838484",
+            "inverse-primary": "#c8c6c5",
+            "surface-container": "#eeeeee",
+            "secondary-fixed": "#e4e2e2",
+            "primary": "#000000",
+            "outline-variant": "#c4c7c7",
+            "surface-container-highest": "#e2e2e2",
+            "on-background": "#1a1c1c",
+            "on-error": "#ffffff",
+            "surface-container-high": "#e8e8e8",
+            "on-tertiary": "#ffffff",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "surface-dim": "#dadada",
+            "primary-container": "#1c1b1b",
+            "surface-container-low": "#f3f3f4",
+            "tertiary": "#000000",
+            "surface-variant": "#e2e2e2",
+            "surface-tint": "#5f5e5e",
+            "on-secondary-fixed-variant": "#474747",
+            "tertiary-fixed": "#e3e2e2",
+            "background": "#f9f9f9",
+            "secondary": "#5f5e5e",
+            "primary-fixed": "#e5e2e1",
+            "secondary-container": "#e4e2e2",
+            "surface": "#f9f9f9",
+            "outline": "#747878",
+            "on-tertiary-fixed-variant": "#464747",
+            "primary-fixed-dim": "#c8c6c5",
+            "on-primary-fixed-variant": "#474646",
+            "inverse-surface": "#2f3131",
+            "tertiary-container": "#1a1c1c",
+            "surface-container-lowest": "#ffffff",
+            "surface-bright": "#f9f9f9",
+            "on-surface": "#1a1c1c",
+            "on-primary-container": "#858383",
+            "on-secondary": "#ffffff",
+            "on-error-container": "#93000a",
+            "on-surface-variant": "#444748"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "margin": "1.5rem",
+            "space-xs": "0.25rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2rem"
+          },
+          "fontFamily": {
+            "headline-md": ["Inter"],
+            "headline-lg": ["Inter"],
+            "label-lg": ["Inter"],
+            "label-sm": ["Inter"],
+            "body-sm": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-sm": ["Inter"],
+            "body-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          "fontSize": {
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .font-mono-tech {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen p-6 flex flex-col justify-between">
+<!-- Desktop Enclosing Wireframe Canvas Frame -->
+<main class="w-full max-w-[1440px] mx-auto bg-surface-container-lowest border border-primary flex flex-col flex-1 shadow-sm">
+<!-- 1. ENCABEZADO SUPERIOR TÉCNICO -->
+<header class="border-b border-outline-variant bg-surface-container-lowest px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+<div class="flex items-start gap-4">
+<div class="h-10 w-10 border border-primary bg-surface-container-low flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="task_alt">task_alt</span>
+</div>
+<div>
+<div class="flex items-center gap-3">
+<h1 class="font-headline-sm text-headline-sm text-primary tracking-tight font-semibold font-mono-tech">
+              Confirmación de guardado
+            </h1>
+<span class="inline-flex items-center px-2 py-0.5 border border-outline text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider bg-surface-container-low">
+              UI · no es un nuevo recurso de Menu
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            Resultado de una operación administrativa
+          </p>
+</div>
+</div>
+<div class="text-right">
+<div class="font-mono-tech text-label-sm text-primary font-medium tracking-tight bg-surface-container-low px-3 py-1.5 border border-outline-variant inline-block">
+          SPEC: POS-CORE-CATALOG-V11-SAVED // ESTADO DE PRESENTACIÓN ADMINISTRATIVA
+        </div>
+</div>
+</header>
+<!-- 2. SELECTOR DE COMPOSICIÓN (CONTROLES RECTANGULARES MUTUAMENTE EXCLUYENTES) -->
+<section class="bg-surface-container-low border-b border-outline-variant px-6 py-4">
+<div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 mb-2.5">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md font-semibold text-primary">Composición mostrada</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(Selector de demostración de estados de resultado; solo una composición activa a la vez)</span>
+</div>
+<span class="font-mono-tech text-label-sm text-secondary">MODO: VISTA AISLADA [1/4]</span>
+</div>
+<!-- Segmented Control Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2" role="tablist">
+<button aria-selected="false" class="px-3 py-2 bg-surface-container-lowest border border-outline-variant text-left hover:bg-surface-container transition-colors" role="tab" type="button">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">01 · Estado</span>
+<span class="material-symbols-outlined text-outline text-base" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+</div>
+<p class="font-label-md text-label-md font-medium text-on-surface mt-1">Alta guardada</p>
+</button>
+<button aria-selected="true" class="px-3 py-2 bg-primary text-on-primary border-2 border-primary text-left shadow-sm relative" role="tab" type="button">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-surface-container-high uppercase tracking-wider font-mono-tech font-semibold">02 · Activo</span>
+<span class="material-symbols-outlined text-on-primary text-base" data-icon="check_circle">check_circle</span>
+</div>
+<p class="font-label-md text-label-md font-semibold text-on-primary mt-1">Edición guardada con advertencias</p>
+</button>
+<button aria-selected="false" class="px-3 py-2 bg-surface-container-lowest border border-outline-variant text-left hover:bg-surface-container transition-colors" role="tab" type="button">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">03 · Estado</span>
+<span class="material-symbols-outlined text-outline text-base" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+</div>
+<p class="font-label-md text-label-md font-medium text-on-surface mt-1">Receta guardada</p>
+</button>
+<button aria-selected="false" class="px-3 py-2 bg-surface-container-lowest border border-outline-variant text-left hover:bg-surface-container transition-colors" role="tab" type="button">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">04 · Estado</span>
+<span class="material-symbols-outlined text-outline text-base" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+</div>
+<p class="font-label-md text-label-md font-medium text-on-surface mt-1">Revisión confirmada</p>
+</button>
+</div>
+</section>
+<!-- CUERPO PRINCIPAL DE CONTENIDO -->
+<div class="p-6 space-y-6 flex-1 bg-surface-container-lowest">
+<!-- 3. PANEL PRINCIPAL VISIBLE: "Edición guardada con advertencias" -->
+<section class="border border-primary bg-surface-container-lowest">
+<!-- Panel Header -->
+<div class="border-b border-primary p-4 bg-surface-container-low flex flex-col md:flex-row md:items-center justify-between gap-3">
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary text-on-primary font-mono-tech text-label-sm font-semibold tracking-wider">
+<span class="material-symbols-outlined text-sm" data-icon="warning">warning</span>
+              PARCIAL / GUARDADO CON ADVERTENCIAS
+            </span>
+<span class="text-secondary font-mono-tech text-label-sm hidden sm:inline">|</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-semibold">
+              Edición guardada con advertencias
+            </h2>
+</div>
+<div class="font-mono-tech text-label-sm text-on-surface-variant">
+            STATUS_CODE: <span class="font-semibold text-primary">200_OK_WITH_WARNINGS</span>
+</div>
+</div>
+<!-- Entity Human Summary + Technical Row -->
+<div class="p-5 border-b border-outline-variant space-y-4">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+<div>
+<span class="font-mono-tech text-label-sm text-secondary uppercase block mb-1">Entidad Principal Modificada</span>
+<div class="flex items-center gap-3">
+<span class="font-headline-md text-headline-md text-primary font-semibold tracking-tight">
+                  Tacos de pescado · variante Regular
+                </span>
+<span class="px-2 py-0.5 border border-primary font-label-sm text-label-sm bg-surface-container-lowest font-medium">
+                  Tipo: Platillo
+                </span>
+<span class="px-2 py-0.5 bg-surface-container-high border border-outline font-mono-tech text-label-sm text-primary">
+                  STOCKED
+                </span>
+</div>
+</div>
+<!-- Technical Metadata Row -->
+<div class="flex flex-wrap items-center gap-2 font-mono-tech text-label-sm">
+<div class="px-2.5 py-1 bg-surface-container border border-outline-variant">
+<span class="text-secondary">menuItemId:</span> <span class="font-semibold text-primary">itm-pesc-01</span>
+</div>
+<div class="px-2.5 py-1 bg-surface-container border border-outline-variant">
+<span class="text-secondary">menuItemVersion:</span> <span class="font-semibold text-primary">v2.2</span> <span class="text-on-surface-variant">(desde v2.1)</span>
+</div>
+<div class="px-2.5 py-1 bg-surface-container border border-outline-variant">
+<span class="text-secondary">ETag:</span> <span class="font-semibold text-primary">"w/9490-c44d"</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Warning Notifications Block -->
+<div class="p-5 bg-surface-container-low border-b border-outline-variant">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="report_problem">report_problem</span>
+<h3 class="font-label-lg text-label-lg text-primary uppercase tracking-wide font-semibold">
+              Advertencias de sincronización retornadas por E-09 (No bloqueantes)
+            </h3>
+</div>
+<div class="space-y-2.5"><div class="p-3 bg-surface-container-lowest border border-outline flex items-start gap-3">
+<span class="font-mono-tech text-label-sm font-semibold text-primary bg-surface-container-high px-1.5 py-0.5 border border-outline-variant flex-shrink-0">
+[WARN-W042]
+</span>
+<p class="font-body-md text-body-md text-on-surface leading-snug">
+<strong class="font-semibold text-primary">Advertencia devuelta por Menu:</strong> la definición requiere revisar su relación de suministro o receta antes de quedar ACTIVE.
+</p>
+</div>
+<div class="p-3 bg-surface-container-lowest border border-outline flex items-start gap-3">
+<span class="font-mono-tech text-label-sm font-semibold text-primary bg-surface-container-high px-1.5 py-0.5 border border-outline-variant flex-shrink-0">
+[WARN-W058]
+</span>
+<p class="font-body-md text-body-md text-on-surface leading-snug">
+<strong class="font-semibold text-primary">Precios de modificadores ajustados:</strong> Diferencia de delta unitario aceptada administrativamente según especificación contractual de catálogo.
+</p>
+</div></div>
+</div>
+<!-- 4. METADATOS DE AUDITORÍA SECUNDARIOS (EN CAJA ESTRUCTURADA) -->
+<div class="p-5 bg-surface-container-lowest">
+<div class="text-label-sm font-mono-tech text-secondary uppercase mb-3 tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="history_edu">history_edu</span>
+            Ficha de Trazabilidad &amp; Auditoría Técnica
+          </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+<div class="p-3 border border-outline-variant bg-surface-container-low">
+<span class="font-mono-tech text-label-sm text-secondary block">Actor / Operador</span>
+<span class="font-mono-tech text-body-sm font-semibold text-primary mt-1 block">admin-07</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-0.5">Auditoría Administrativa Nivel 2</span>
+</div>
+<div class="p-3 border border-outline-variant bg-surface-container-low">
+<span class="font-mono-tech text-label-sm text-secondary block">Instante de confirmación</span>
+<span class="font-mono-tech text-body-sm font-semibold text-primary mt-1 block">2026-09-13 18:45:12 UTC</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-0.5">Sync clock homologado</span>
+</div>
+<div class="p-3 border border-outline-variant bg-surface-container-low">
+<span class="font-mono-tech text-label-sm text-secondary block">Operación ejecutada</span>
+<span class="font-mono-tech text-body-sm font-semibold text-primary mt-1 block">MUTATION: E-09</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-0.5">REPLACEMENT_SPEC</span>
+</div>
+<div class="p-3 border border-outline-variant bg-surface-container-low">
+<span class="font-mono-tech text-label-sm text-secondary block">Precondición HTTP</span>
+<span class="font-mono-tech text-body-sm font-semibold text-primary mt-1 block">If-Match: "w/9482-a01c"</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-0.5">Aceptado y homologado</span>
+</div>
+</div>
+</div>
+</section>
+<!-- TWO COLUMN SECTION: PANEL DE ALCANCE OPERACIONAL + PANEL ALTERNATIVO DE RECUPERACIÓN -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- 5. PANEL DE ALCANCE OPERACIONAL (DELIMITACIÓN DE LÍMITES ESTRICTA) -->
+<section class="lg:col-span-7 border-2 border-primary bg-surface-container-lowest p-5 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 pb-3 border-b border-outline-variant">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="verified">verified</span>
+<h3 class="font-label-lg text-label-lg text-primary font-semibold uppercase tracking-wider">
+                Delimitación de Alcance Operacional
+              </h3>
+</div>
+<div class="mt-4 space-y-3">
+<div class="p-3 bg-surface-container-low border-l-4 border-primary">
+<p class="font-body-md text-body-md text-primary font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-base" data-icon="check">check</span>
+                  Menu confirmó su mutación de catálogo.
+                </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 pl-6">
+                  La estructura de platillo, receta maestra referenciada y deltas de precio de modificadores han quedado asentados en el core de catálogo.
+                </p>
+</div>
+<div class="p-3 bg-surface-container-lowest border border-primary">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-lg flex-shrink-0 mt-0.5" data-icon="fmd_bad">fmd_bad</span>
+<div>
+<span class="font-label-md text-label-md font-semibold text-primary block">
+                      Aviso de límite transaccional estricto:
+                    </span>
+<p class="font-body-sm text-body-sm text-on-surface leading-normal mt-1">
+                      Esto <strong class="font-semibold text-primary underline">no confirma Orders</strong>, <strong class="font-semibold text-primary underline">no crea una orden</strong> y <strong class="font-semibold text-primary underline">no descuenta Inventory</strong>. La mutación afecta exclusivamente la especificación del catálogo administrativo.
+                    </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t border-outline-variant flex items-center justify-between font-mono-tech text-label-sm text-secondary">
+<span>MODULO: CATALOG_SPEC_SYNC</span>
+<span>EFECTO: DECLARATIVO_SOLAMENTE</span>
+</div>
+</section>
+<!-- 6. PANEL ALTERNATIVO DE RECUPERACIÓN (SEPARADO Y CLARAMENTE SECUNDARIO) -->
+<section class="lg:col-span-5 border border-dashed border-outline bg-surface-container-low p-5 flex flex-col justify-between"><div>
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="cloud_off">cloud_off</span>
+<h3 class="font-label-lg text-label-lg text-on-surface font-semibold">
+Borrador local no confirmado
+</h3>
+</div>
+<span class="px-2 py-0.5 text-label-sm font-mono-tech bg-surface-container-high border border-outline-variant text-secondary uppercase">
+No persistido
+</span>
+</div>
+<div class="mt-4 space-y-3">
+<div class="p-2.5 bg-surface-container-lowest border border-outline-variant text-label-sm font-body-sm text-on-surface-variant leading-relaxed">
+Estado temporal en memoria local del cliente. <strong>No registrado en el servidor</strong> ni persistido en el catálogo central.
+</div>
+<div class="p-3 bg-surface-container-lowest border border-outline-variant">
+<span class="font-mono-tech text-label-sm text-secondary block">Snapshot cliente:</span>
+<span class="font-mono-tech text-body-sm text-primary block mt-0.5">draft-itm-pesc-01-pre-v2.2</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant block mt-1">Capturado: 18:41:04 UTC (memoria de sesión de cliente)</span>
+</div>
+</div>
+</div>
+<div class="mt-5 pt-3 border-t border-outline-variant">
+<button class="w-full px-4 py-2.5 bg-surface-container-lowest border border-primary text-primary font-label-md text-label-md font-semibold hover:bg-surface-container transition-colors flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-base" data-icon="restore">restore</span>
+Ver borrador local
+</button>
+<p class="font-body-sm text-body-sm text-secondary text-center mt-2 leading-tight">
+(Acción secundaria local: consulta el estado en memoria cliente sin alterar el catálogo persistido)
+</p>
+</div></section>
+</div>
+</div>
+<!-- 7. BARRA DE ACCIONES INFERIOR (FOOTER ESTRUCTURAL) -->
+<footer class="border-t border-primary bg-surface-container-lowest px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+<!-- Trailing secondary action (Left in desktop) -->
+<button class="w-full md:w-auto px-5 py-2.5 bg-surface-container-lowest border border-primary text-primary font-label-md text-label-md font-semibold hover:bg-surface-container transition-colors flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-base" data-icon="manage_search">manage_search</span>
+        Ver detalle guardado
+      </button>
+<!-- Central disclaimer / helper note -->
+<div class="text-center px-4 max-w-xl">
+<p class="font-body-sm text-body-sm text-secondary">
+          El selector superior permite revisar otros resultados de esta misma vista sin alterar la persistencia del catálogo.
+        </p>
+</div>
+<!-- Primary action button (Right in desktop) -->
+<button class="w-full md:w-auto px-6 py-2.5 bg-primary text-on-primary font-label-md text-label-md font-semibold hover:bg-surface-container-highest hover:text-primary transition-colors flex items-center justify-center gap-2 border border-primary" type="button">
+<span>Volver al catálogo</span>
+<span class="material-symbols-outlined text-base" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</footer>
+</main>
+</body></html>

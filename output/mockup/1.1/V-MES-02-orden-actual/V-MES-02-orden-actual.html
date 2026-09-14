@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orden actual - POS Terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-tertiary": "#ffffff",
+            "on-surface": "#1a1c1c",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "on-background": "#1a1c1c",
+            "surface": "#f9f9f9",
+            "on-secondary-container": "#656464",
+            "surface-container": "#eeeeee",
+            "primary-fixed-dim": "#c8c6c5",
+            "on-error-container": "#93000a",
+            "error-container": "#ffdad6",
+            "primary-fixed": "#e5e2e1",
+            "primary": "#000000",
+            "on-primary-container": "#858383",
+            "on-primary": "#ffffff",
+            "on-secondary-fixed-variant": "#474747",
+            "outline": "#747878",
+            "inverse-primary": "#c8c6c5",
+            "inverse-on-surface": "#f0f1f1",
+            "surface-bright": "#f9f9f9",
+            "on-tertiary-container": "#838484",
+            "secondary-container": "#e4e2e2",
+            "surface-variant": "#e2e2e2",
+            "tertiary-container": "#1a1c1c",
+            "error": "#ba1a1a",
+            "on-tertiary-fixed": "#1a1c1c",
+            "inverse-surface": "#2f3131",
+            "on-error": "#ffffff",
+            "surface-tint": "#5f5e5e",
+            "on-primary-fixed-variant": "#474646",
+            "on-secondary-fixed": "#1b1c1c",
+            "surface-container-high": "#e8e8e8",
+            "primary-container": "#1c1b1b",
+            "tertiary-fixed": "#e3e2e2",
+            "surface-container-highest": "#e2e2e2",
+            "secondary": "#5f5e5e",
+            "on-tertiary-fixed-variant": "#464747",
+            "surface-dim": "#dadada",
+            "surface-container-low": "#f3f3f4",
+            "secondary-fixed-dim": "#c8c6c6",
+            "on-secondary": "#ffffff",
+            "on-surface-variant": "#444748",
+            "tertiary": "#000000",
+            "on-primary-fixed": "#1c1b1b",
+            "surface-container-lowest": "#ffffff",
+            "secondary-fixed": "#e4e2e2",
+            "outline-variant": "#c4c7c7",
+            "background": "#f9f9f9"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "margin": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2rem",
+            "gutter": "1rem"
+          },
+          "fontFamily": {
+            "headline-sm": ["Inter"],
+            "label-lg": ["Inter"],
+            "body-sm": ["Inter"],
+            "headline-md": ["Inter"],
+            "label-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "label-md": ["Inter"]
+          },
+          "fontSize": {
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      vertical-align: middle;
+      display: inline-block;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen p-space-lg flex justify-center items-start selection:bg-surface-container-high">
+<!-- Operational 3:2 Canvas Framing -->
+<div class="w-full max-w-[1240px] bg-surface-container-lowest border border-on-surface rounded-lg shadow-none flex flex-col overflow-hidden">
+<!-- 1. ENCABEZADO (Header sin sidebar ni menú global) -->
+<header class="w-full px-space-lg py-space-md border-b border-on-surface bg-surface-container-lowest flex flex-col md:flex-row md:items-center md:justify-between gap-space-sm">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm flex-wrap">
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Orden actual</h1>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 border border-on-surface bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold rounded">
+<span class="w-2 h-2 rounded-full bg-primary inline-block"></span>
+            en atención
+          </span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm flex-wrap">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Mesa 07 · tableId tbl-sala-07</span>
+<span class="text-outline">/</span>
+<span>orderId ORD-2048</span>
+<span class="text-outline">/</span>
+<span>Fuente: Orders / Sala</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto">
+<div class="px-3 py-1.5 border border-outline-variant bg-surface rounded font-label-sm text-label-sm text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">receipt_long</span>
+<span>Terminal 02</span>
+</div>
+</div>
+</header>
+<!-- MAIN BODY CANVAS -->
+<main class="p-space-lg flex flex-col gap-space-lg bg-surface">
+<!-- 2. RESUMEN DE LA ORDEN (No editable) -->
+<section aria-label="Resumen de la orden">
+<div class="bg-surface-container-lowest border border-outline-variant rounded p-space-md grid grid-cols-1 sm:grid-cols-3 gap-space-md">
+<div class="flex flex-col border-r border-outline-variant sm:last:border-r-0 pr-space-md">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">groups</span>
+              Número de comensales
+            </span>
+<span class="font-headline-sm text-headline-sm text-on-surface mt-1">3 comensales</span>
+</div>
+<div class="flex flex-col border-r border-outline-variant sm:last:border-r-0 pr-space-md">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+              Última actividad recibida
+            </span>
+<span class="font-headline-sm text-headline-sm text-on-surface mt-1">Hace 12 min (14:32)</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+              Total confirmado
+            </span>
+<span class="font-headline-sm text-headline-sm text-on-surface mt-1 font-bold">$485.00 MXN</span>
+</div>
+</div>
+</section>
+<!-- 3. ÁREA DE LÍNEAS CONFIRMADAS (Solo lectura) -->
+<section aria-labelledby="seccion-lineas-confirmadas" class="bg-surface-container-lowest border border-outline-variant rounded flex flex-col overflow-hidden">
+<div class="px-space-md py-3 bg-surface-container-low border-b border-outline-variant flex items-center justify-between flex-wrap gap-2">
+<div class="flex items-center gap-space-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-surface" id="seccion-lineas-confirmadas">Líneas confirmadas</h2>
+<span class="inline-flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm bg-surface-container px-2 py-0.5 rounded border border-outline-variant">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+              No editable desde esta vista
+            </span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">3 líneas inalterables</span>
+</div>
+<!-- Tabla estructurada -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant font-label-sm text-label-sm text-on-surface font-semibold">
+<th class="py-2.5 px-4">orderLineId</th>
+<th class="py-2.5 px-4">Producto</th>
+<th class="py-2.5 px-4">Variante</th>
+<th class="py-2.5 px-4">Personalización resumida</th>
+<th class="py-2.5 px-4 text-center">Cant.</th>
+<th class="py-2.5 px-4 text-right">Precio unitario</th>
+<th class="py-2.5 px-4 text-right">Costo de línea</th>
+<th class="py-2.5 px-4 text-center">Estado recibido</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant font-body-sm text-body-sm text-on-surface">
+<!-- Item 1 -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150">
+<td class="py-3 px-4 font-mono font-medium text-on-surface-variant">ln-901</td>
+<td class="py-3 px-4 font-semibold text-on-surface">Hamburguesa Clásica</td>
+<td class="py-3 px-4 text-on-surface-variant">Término medio</td>
+<td class="py-3 px-4 text-on-surface">Sin cebolla morada, + Queso Cheddar</td>
+<td class="py-3 px-4 text-center font-semibold">x1</td>
+<td class="py-3 px-4 text-right font-mono">$160.00</td>
+<td class="py-3 px-4 text-right font-mono font-semibold">$180.00 MXN</td>
+<td class="py-3 px-4 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded border border-outline-variant bg-surface-container font-label-sm text-label-sm text-on-surface font-medium">
+                    en cocina
+                  </span>
+</td>
+</tr>
+<!-- Item 2 -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150">
+<td class="py-3 px-4 font-mono font-medium text-on-surface-variant">ln-902</td>
+<td class="py-3 px-4 font-semibold text-on-surface">Papas Rústicas</td>
+<td class="py-3 px-4 text-on-surface-variant">Porción regular</td>
+<td class="py-3 px-4 text-on-surface">Con dip extra</td>
+<td class="py-3 px-4 text-center font-semibold">x2</td>
+<td class="py-3 px-4 text-right font-mono">$45.00</td>
+<td class="py-3 px-4 text-right font-mono font-semibold">$90.00 MXN</td>
+<td class="py-3 px-4 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded border border-outline-variant bg-surface-container font-label-sm text-label-sm text-on-surface font-medium">
+                    en preparación
+                  </span>
+</td>
+</tr>
+<!-- Item 3 -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150">
+<td class="py-3 px-4 font-mono font-medium text-on-surface-variant">ln-903</td>
+<td class="py-3 px-4 font-semibold text-on-surface">Agua Mineral</td>
+<td class="py-3 px-4 text-on-surface-variant">500 ml fría</td>
+<td class="py-3 px-4 text-on-surface">Sin hielo</td>
+<td class="py-3 px-4 text-center font-semibold">x1</td>
+<td class="py-3 px-4 text-right font-mono">$35.00</td>
+<td class="py-3 px-4 text-right font-mono font-semibold">$35.00 MXN</td>
+<td class="py-3 px-4 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded border border-outline font-label-sm text-label-sm text-on-surface font-medium bg-surface-container-high">
+                    servido
+                  </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- 4. ÁREA DE PREORDEN LOCAL (Borrador local) -->
+<section aria-labelledby="seccion-nuevos-productos" class="bg-surface-container-lowest border-2 border-on-surface rounded p-space-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-outline-variant"><button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-lowest text-primary border border-on-surface font-label-sm text-label-sm rounded hover:bg-surface-container active:scale-[0.98] transition-all" type="button"><span class="material-symbols-outlined text-[16px]">tune</span><span>Editar selección</span></button><button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-lowest text-on-surface-variant border border-outline-variant font-label-sm text-label-sm rounded hover:border-on-surface hover:text-primary active:scale-[0.98] transition-all" type="button"><span class="material-symbols-outlined text-[16px]">delete</span><span>Eliminar línea</span></button></div>
+<!-- DraftOrderLine Card -->
+<div class="border border-outline-variant bg-surface rounded p-space-md flex flex-col md:flex-row md:items-center md:justify-between gap-space-md hover:border-on-surface transition-colors">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2"><button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-lowest text-primary border border-on-surface font-label-sm text-label-sm rounded hover:bg-surface-container active:scale-[0.98] transition-all" type="button"><span class="material-symbols-outlined text-[16px]">tune</span><span>Editar selección</span></button><button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-lowest text-on-surface-variant border border-outline-variant font-label-sm text-label-sm rounded hover:border-on-surface hover:text-primary active:scale-[0.98] transition-all" type="button"><span class="material-symbols-outlined text-[16px]">delete</span><span>Eliminar línea</span></button></div>
+<div class="flex items-center gap-4 text-body-sm font-body-sm text-on-surface-variant flex-wrap mt-0.5"><span><strong class="font-semibold text-on-surface">Variante:</strong> 2 tacos</span><span><strong class="font-semibold text-on-surface">Personalización:</strong> sin cebolla</span><span><strong class="font-semibold text-on-surface">Cantidad:</strong> 2</span><span><strong class="font-semibold text-on-surface">Precio unitario:</strong> $168.00 MXN</span></div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-lg pt-2 md:pt-0 border-t md:border-t-0 border-outline-variant">
+<div class="text-right">
+<span class="block font-label-sm text-label-sm text-on-surface-variant">Costo de línea</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary font-mono">$336.00 MXN</span>
+</div>
+<!-- Acciones permitidas y visibles -->
+<div class="flex items-center gap-2"><button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-lowest text-primary border border-on-surface font-label-sm text-label-sm rounded hover:bg-surface-container active:scale-[0.98] transition-all" type="button"><span class="material-symbols-outlined text-[16px]">tune</span><span>Editar selección</span></button><button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-lowest text-on-surface-variant border border-outline-variant font-label-sm text-label-sm rounded hover:border-on-surface hover:text-primary active:scale-[0.98] transition-all" type="button"><span class="material-symbols-outlined text-[16px]">delete</span><span>Eliminar línea</span></button></div>
+</div>
+</div>
+</section>
+<!-- 5. RESUMEN MONETARIO Y ACCIONES -->
+<section aria-label="Resumen monetario y acciones de cierre" class="bg-surface-container-lowest border border-on-surface rounded p-space-md flex flex-col md:flex-row md:items-end md:justify-between gap-space-lg">
+<!-- Bloque de balance financiero diferenciado -->
+<div class="flex flex-col gap-2 w-full md:w-auto">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 pb-3 border-b border-outline-variant">
+<div class="flex justify-between items-center sm:gap-6">
+<span class="font-body-md text-body-md text-on-surface-variant">Total confirmado:</span>
+<span class="font-label-lg text-label-lg font-mono text-on-surface">$485.00 MXN</span>
+</div>
+<div class="flex justify-between items-center sm:gap-6">
+<span class="font-body-md text-body-md text-on-surface-variant">Total de preorden <span class="font-label-sm text-on-surface-variant">(borrador local)</span>:</span>
+<span class="font-label-lg text-label-lg font-mono text-on-surface font-semibold">$336.00 MXN</span>
+</div>
+</div>
+<div class="flex justify-between items-baseline pt-1"><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary">Total proyectado:</span><span class="font-label-sm text-label-sm text-on-surface-variant">Proyección estimada sujeta a confirmación</span></div><span class="font-headline-md text-headline-md text-primary font-bold font-mono">$821.00 MXN</span></div>
+</div>
+<!-- Botones de acción operativos -->
+<div class="flex items-center gap-3 w-full md:w-auto justify-end flex-wrap">
+<button class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-surface-container-lowest text-primary border border-on-surface font-label-md text-label-md font-semibold rounded hover:bg-surface-container active:scale-[0.98] transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>Agregar productos</span>
+</button>
+<button class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-on-primary border border-primary font-label-md text-label-md font-semibold rounded hover:bg-tertiary-container active:scale-[0.98] transition-all shadow-none" type="button">
+<span class="material-symbols-outlined text-[18px]">send</span>
+<span>Enviar a la orden</span>
+</button>
+</div>
+</section>
+</main>
+<!-- 6. NOTA DE FRONTERA AL PIE -->
+<footer class="w-full px-space-lg py-3 bg-surface-container-low border-t border-outline-variant text-center">
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+        Menu resuelve la configuración de una unidad; Orders confirma la orden y sus líneas
+      </p>
+</footer>
+</div>
+</body></html>

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>POS FMAT - Conflicto de Revisión (Tacos de Pescado)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "error": "#ba1a1a",
+            "primary-container": "#1c1b1b",
+            "on-primary-fixed": "#1c1b1b",
+            "primary": "#000000",
+            "surface-bright": "#f9f9f9",
+            "outline": "#747878",
+            "surface-container-low": "#f3f3f4",
+            "on-background": "#1a1c1c",
+            "inverse-on-surface": "#f0f1f1",
+            "primary-fixed-dim": "#c8c6c5",
+            "on-tertiary-fixed-variant": "#464747",
+            "on-primary-container": "#858383",
+            "on-error": "#ffffff",
+            "background": "#f9f9f9",
+            "on-secondary": "#ffffff",
+            "tertiary": "#000000",
+            "on-tertiary-container": "#838484",
+            "secondary-container": "#e4e2e2",
+            "surface-container-high": "#e8e8e8",
+            "primary-fixed": "#e5e2e1",
+            "outline-variant": "#c4c7c7",
+            "on-tertiary": "#ffffff",
+            "tertiary-fixed": "#e3e2e2",
+            "secondary-fixed-dim": "#c8c6c6",
+            "inverse-primary": "#c8c6c5",
+            "tertiary-container": "#1a1c1c",
+            "on-secondary-container": "#656464",
+            "on-error-container": "#93000a",
+            "surface-variant": "#e2e2e2",
+            "surface-dim": "#dadada",
+            "on-secondary-fixed-variant": "#474747",
+            "surface-tint": "#5f5e5e",
+            "on-primary-fixed-variant": "#474646",
+            "on-surface-variant": "#444748",
+            "on-surface": "#1a1c1c",
+            "surface": "#f9f9f9",
+            "inverse-surface": "#2f3131",
+            "surface-container": "#eeeeee",
+            "on-secondary-fixed": "#1b1c1c",
+            "secondary-fixed": "#e4e2e2",
+            "surface-container-highest": "#e2e2e2",
+            "secondary": "#5f5e5e",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "on-primary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary-fixed": "#1a1c1c",
+            "error-container": "#ffdad6"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "space-lg": "1.5rem",
+            "margin": "1.5rem",
+            "space-xl": "2rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem"
+          },
+          "fontFamily": {
+            "headline-lg": ["Inter"],
+            "label-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "label-lg": ["Inter"],
+            "headline-sm": ["Inter"],
+            "body-sm": ["Inter"],
+            "headline-md": ["Inter"],
+            "body-md": ["Inter"],
+            "label-md": ["Inter"],
+            "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"]
+          },
+          "fontSize": {
+            "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+            "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+            "label-lg": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+            "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+            "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+            "headline-md": ["22px", {"lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+            "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+            "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased p-3 md:p-6 min-h-screen flex justify-center items-center selection:bg-surface-container-highest">
+<!-- Main Canvas Frame: 3:2 landscape wireframe container with 1px architectural border -->
+<div class="w-full max-w-[1360px] bg-surface-container-lowest border-2 border-primary shadow-sm flex flex-col my-auto">
+<!-- 1. ENCABEZADO SUPERIOR WIREFRAME MONOCROMÁTICO -->
+<header class="border-b border-primary p-4 md:p-6 bg-surface-container-lowest flex flex-col gap-4">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+<!-- Título y Contexto -->
+<div class="flex items-start gap-3">
+<span class="border border-primary bg-primary text-on-primary font-headline-sm text-label-sm px-2 py-1 uppercase tracking-wider font-semibold rounded-none">
+            EDIT
+          </span>
+<div>
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight">
+              Editar item de menú · Conflicto de revisión
+            </h1>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-2 mt-0.5">
+<span>Tacos de pescado / itm-pesc-01</span>
+<span class="inline-block w-1 h-1 rounded-full bg-outline"></span>
+<span class="font-label-md text-label-md font-semibold text-primary">Borrador local conservado</span>
+</p>
+</div>
+</div>
+<!-- Metadatos de Sistema Wireframe -->
+<div class="flex flex-wrap items-center gap-2 font-mono text-[11px] leading-tight text-on-surface">
+<div class="border border-outline-variant bg-surface-container-low px-2.5 py-1.5 flex items-center gap-1.5">
+<span class="text-on-surface-variant font-medium">SPEC:</span>
+<span class="font-semibold text-primary">POS-CORE-CATALOG-V07E-CONFLICT</span>
+</div>
+<div class="border border-primary bg-surface-container px-2.5 py-1.5 flex items-center gap-1.5 font-bold">
+<span class="material-symbols-outlined text-[14px]">sync_problem</span>
+<span>HTTP: 412 PRECONDITION FAILED</span>
+</div>
+<div class="border border-outline bg-surface-container-lowest px-2.5 py-1.5 font-semibold tracking-wider">
+            ESTADO: LOCAL_DRAFT_PRESERVED
+          </div>
+</div>
+</div>
+<!-- Banner Principal de Alerta de Concurrencia Optimista -->
+<div class="border-2 border-primary bg-surface-container-low p-3.5 md:p-4 flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[24px] mt-0.5 shrink-0">crisis_alert</span>
+<div class="flex-1">
+<p class="font-label-lg text-label-lg text-primary">
+            La definición cambió mientras editabas — Detección de concurrencia optimista (ETag mismatch). Se ha evitado la sobrescritura silenciosa del catálogo.
+          </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            El registro remoto fue actualizado por otra estación mientras este borrador permanecía en formulario. Selecciona conciliar para proteger la integridad operativa.
+          </p>
+</div>
+</div>
+</header>
+<!-- 2. STEPPER EDIT (3 PASOS) -->
+<nav aria-label="Progreso de Edición" class="border-b border-outline-variant bg-surface-container-lowest px-4 md:px-6 py-3">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4">
+<!-- Paso 1 -->
+<div class="border border-outline-variant bg-surface-bright p-3 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 border border-primary bg-surface-container flex items-center justify-center font-label-sm text-label-sm font-bold text-primary">
+              ✓
+            </span>
+<span class="font-label-md text-label-md font-semibold text-primary">1 Item y suministro</span>
+</div>
+<span class="font-mono text-[11px] text-on-surface-variant px-1.5 py-0.5 bg-surface-container border border-outline-variant">COMPLETADO · v2.1-base</span>
+</div>
+<!-- Paso 2 -->
+<div class="border border-outline-variant bg-surface-bright p-3 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 border border-primary bg-surface-container flex items-center justify-center font-label-sm text-label-sm font-bold text-primary">
+              ✓
+            </span>
+<span class="font-label-md text-label-md font-semibold text-primary">2 Modificadores</span>
+</div>
+<span class="font-mono text-[11px] text-on-surface-variant px-1.5 py-0.5 bg-surface-container border border-outline-variant">COMPLETADO · Borrador listo</span>
+</div>
+<!-- Paso 3 (Activo con conflicto) -->
+<div class="border-2 border-primary bg-surface-container-high p-3 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 bg-primary text-on-primary flex items-center justify-center font-label-sm text-label-sm font-bold">
+              3
+            </span>
+<span class="font-label-md text-label-md font-bold text-primary">3 Confirmación</span>
+</div>
+<span class="font-mono text-[11px] font-bold text-on-primary bg-primary px-2 py-0.5 flex items-center gap-1">
+<span class="inline-block w-1.5 h-1.5 bg-surface-container-lowest rounded-full animate-pulse"></span>
+            CONFLICTO DETECTADO
+          </span>
+</div>
+</div>
+</nav>
+<!-- CONTENEDOR CENTRAL / WORKSPACE -->
+<main class="p-4 md:p-6 space-y-6 bg-surface">
+<!-- 3. PANEL DESTACADO: ESTADO DE PRESERVACIÓN DE BORRADOR -->
+<section class="border-2 border-primary bg-surface-container-lowest p-4 md:p-5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+<div class="flex items-start gap-3.5">
+<div class="w-10 h-10 border-2 border-primary bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[22px]">inventory_2</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-headline-sm text-headline-sm text-primary">
+                  Borrador conservado · No persistido en catálogo
+                </h2>
+<span class="font-mono text-[11px] border border-primary px-1.5 py-0.2 bg-surface-container-low font-bold">SEGURIDAD LOCAL ACTIVA</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1.5 max-w-3xl">
+                Tu trabajo local no se ha perdido. Los cambios realizados en modificadores y suministros continúan intactos en la memoria de tu terminal, pero el servidor rechazó la persistencia automática porque otro operador actualizó este ítem recientemente.
+              </p>
+</div>
+</div>
+<!-- Acciones Inmediatas de Borrador -->
+<div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
+<button class="border border-primary bg-surface-container-lowest hover:bg-surface-container px-3.5 py-2 font-label-md text-label-md text-primary font-semibold flex items-center gap-1.5 active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+<span>Copiar resumen de mis cambios</span>
+</button>
+<button class="border border-primary bg-surface-container-lowest hover:bg-surface-container px-3.5 py-2 font-label-md text-label-md text-primary font-semibold flex items-center gap-1.5 active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+<span>Exportar borrador JSON / portapapeles</span>
+</button>
+</div>
+</div>
+</section>
+<!-- 4. COMPARACIÓN ESTRUCTURAL LADO A LADO (DIFF DE CONCURRENCIA) -->
+<section class="space-y-2">
+<div class="flex items-center justify-between">
+<h3 class="font-label-lg text-label-lg uppercase tracking-wider text-primary font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">difference</span>
+            Análisis de divergencia de versión (ETag Diff)
+          </h3>
+<span class="font-mono text-xs text-on-surface-variant">COMPARANDO: BASE v2.1 ➔ SERVIDOR v2.2</span>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+<!-- COLUMNA A: TU BORRADOR LOCAL -->
+<div class="border-2 border-primary bg-surface-container-lowest flex flex-col justify-between">
+<div>
+<!-- Header Columna A -->
+<div class="border-b border-primary bg-surface-container-low p-3.5 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">laptop_chromebook</span>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-primary">TU BORRADOR LOCAL</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant font-mono">v2.1 en edición · ETag: "w/9482-a01c"</p>
+</div>
+</div>
+<span class="border border-outline bg-surface-container-lowest px-2 py-1 font-mono text-[11px] font-bold">
+                  LOCAL CLIENT
+                </span>
+</div>
+<!-- Contenido Columna A -->
+<div class="p-4 space-y-4">
+<!-- Precio Base Local -->
+<div class="border border-outline-variant p-3 bg-surface-bright flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Precio base configurado:</span>
+<span class="font-headline-md text-headline-md font-bold text-primary font-mono">$168.00 MXN</span>
+</div>
+<span class="border border-outline-variant px-2 py-1 font-mono text-[11px] text-on-surface-variant">Sin alterar</span>
+</div>
+<!-- Modificadores Locales -->
+<div>
+<span class="font-label-md text-label-md font-bold text-primary block mb-2">
+                    Modificadores configurados localmente (4 elementos):
+                  </span>
+<ul class="space-y-1.5 font-mono text-body-sm">
+<li class="border border-outline-variant bg-surface-bright p-2 flex items-center justify-between">
+<span class="font-medium text-primary">Aguacate extra (+máx. 2)</span>
+<div class="flex items-center gap-2">
+<span class="font-bold">+$20.00 MXN</span>
+<span class="border border-primary bg-surface-container-high px-1.5 py-0.5 text-[10px] font-bold">ADD</span>
+</div>
+</li>
+<li class="border border-outline-variant bg-surface-bright p-2 flex items-center justify-between">
+<span class="font-medium text-primary">Sin cebolla morada</span>
+<div class="flex items-center gap-2">
+<span class="font-bold">$0.00 MXN</span>
+<span class="border border-outline-variant bg-surface-container-low px-1.5 py-0.5 text-[10px] font-bold">OMIT</span>
+</div>
+</li>
+<li class="border border-outline-variant bg-surface-bright p-2 flex items-center justify-between">
+<span class="font-medium text-primary">Lechuga adicional</span>
+<div class="flex items-center gap-2">
+<span class="font-bold">+$10.00 MXN</span>
+<span class="border border-primary bg-surface-container-high px-1.5 py-0.5 text-[10px] font-bold">ADD</span>
+</div>
+</li>
+<li class="border border-outline-variant bg-surface-bright p-2 flex items-center justify-between">
+<span class="font-medium text-primary">Aderezo habanero especial</span>
+<div class="flex items-center gap-2">
+<span class="font-bold">+$15.00 MXN</span>
+<span class="border border-primary bg-surface-container-high px-1.5 py-0.5 text-[10px] font-bold">ADD</span>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Footer Columna A -->
+<div class="border-t border-outline-variant p-3 bg-surface-bright font-mono text-label-sm flex items-center justify-between">
+<span class="text-on-surface-variant">Estado de mutación:</span>
+<span class="font-bold text-primary">Encolado para aplicar sobre v2.1</span>
+</div>
+</div>
+<!-- COLUMNA B: VERSIÓN ACTUAL DEL CATÁLOGO -->
+<div class="border-2 border-primary bg-surface-container-lowest flex flex-col justify-between">
+<div>
+<!-- Header Columna B -->
+<div class="border-b border-primary bg-surface-container p-3.5 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">cloud_sync</span>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-primary">VERSIÓN ACTUAL DEL CATÁLOGO</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant font-mono">v2.2 en servidor · Nuevo ETag: "w/9490-c44d"</p>
+</div>
+</div>
+<span class="border border-primary bg-primary text-on-primary px-2 py-1 font-mono text-[11px] font-bold">
+                  SERVER LIVE
+                </span>
+</div>
+<!-- Contenido Columna B -->
+<div class="p-4 space-y-4">
+<!-- Precio Servidor Modificado -->
+<div class="border-2 border-primary p-3 bg-surface-container-high flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm text-primary font-semibold block">Precio base actualizado en servidor:</span>
+<span class="font-headline-md text-headline-md font-bold text-primary font-mono">$175.00 MXN</span>
+</div>
+<span class="border border-primary bg-surface-container-lowest px-2 py-1 font-mono text-[11px] font-bold text-primary">
+                    +$7.00 AJUSTE INSUMOS
+                  </span>
+</div>
+<!-- Cambios Servidor Detectados -->
+<div>
+<span class="font-label-md text-label-md font-bold text-primary block mb-2">
+                    Cambios detectados (guardados por: admin-cocina-02 hace 3 min):
+                  </span>
+<ul class="space-y-1.5 font-mono text-body-sm">
+<li class="border-2 border-primary bg-surface-container p-2 flex items-center justify-between">
+<div>
+<span class="font-bold text-primary block">Salsa chipotle artesanal</span>
+<span class="text-[11px] text-on-surface-variant">Reconfigurada como regla obligatoria</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-bold">$14.00 MXN</span>
+<span class="border border-primary bg-primary text-on-primary px-1.5 py-0.5 text-[10px] font-bold">MANDATORY</span>
+</div>
+</li>
+<li class="border border-outline p-2 bg-surface-bright flex items-center justify-between"><div>
+<span class="font-medium text-primary block">Referencia de suministro camarón/pescado</span>
+<span class="text-[11px] text-on-surface-variant">Suministro base asociado a inventario</span>
+</div>
+<span class="border border-outline-variant bg-surface-container-low px-1.5 py-0.5 text-[10px] font-bold">ACTIVO</span></li>
+</ul>
+</div>
+<!-- Alerta de Regla E-09 / E-17 -->
+<div class="border border-primary bg-surface-container-low p-3 flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">warning</span>
+<p class="font-body-sm text-body-sm text-primary"><strong class="font-semibold">Advertencia de regla E-09 / E-17:</strong> Sobrescribir v2.2 con v2.1 alteraría los ajustes de precios y las referencias de modificadores registradas en el catálogo.</p>
+</div>
+</div>
+</div>
+<!-- Footer Columna B -->
+<div class="border-t border-outline-variant p-3 bg-surface-container font-mono text-label-sm flex items-center justify-between">
+<span class="text-on-surface-variant">Último commit:</span>
+<span class="font-bold text-primary">2023-10-24 14:48:19 UTC · Terminal 01</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. DETALLE TÉCNICO COLAPSABLE (VALIDACIÓN Y TELEMETRÍA) -->
+<section class="border border-primary bg-surface-container-lowest">
+<details class="group" open="">
+<summary class="cursor-pointer border-b border-primary bg-surface-container-low p-3.5 flex items-center justify-between select-none hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary transition-transform group-open:rotate-90">chevron_right</span>
+<span class="font-label-md text-label-md font-bold text-primary">
+                Detalles técnicos del protocolo de concurrencia (HTTP 412 / E-17 / E-09)
+              </span>
+</div>
+<span class="font-mono text-xs text-on-surface-variant">RFC-7232 OPTIMISTIC LOCKING TELEMETRY</span>
+</summary>
+<div class="p-4 bg-surface-container-lowest">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 font-mono text-xs">
+<div class="border border-outline-variant p-2.5 bg-surface-bright">
+<span class="text-on-surface-variant block mb-1">Header enviado (Request):</span>
+<span class="font-semibold text-primary block select-all">If-Match: "w/9482-a01c"</span>
+</div>
+<div class="border border-outline-variant p-2.5 bg-surface-bright">
+<span class="text-on-surface-variant block mb-1">Server Response Status:</span>
+<span class="font-bold text-primary block">412 Precondition Failed</span>
+</div>
+<div class="border border-outline-variant p-2.5 bg-surface-bright">
+<span class="text-on-surface-variant block mb-1">Remote Current ETag:</span>
+<span class="font-semibold text-primary block select-all">"w/9490-c44d"</span>
+</div>
+<div class="border border-outline-variant p-2.5 bg-surface-bright">
+<span class="text-on-surface-variant block mb-1">Idempotency-Key:</span>
+<span class="font-semibold text-primary block select-all">idemp-edit-item-994821</span>
+</div>
+<div class="border border-outline-variant p-2.5 bg-surface-bright">
+<span class="text-on-surface-variant block mb-1">Mutation Strategy:</span>
+<span class="font-semibold text-primary block">REPLACEMENT_SPEC</span>
+</div>
+<div class="border border-outline-variant p-2.5 bg-surface-bright">
+<span class="text-on-surface-variant block mb-1">Exception Handled:</span>
+<span class="font-semibold text-primary block">ETagMismatchException (Safe Abort)</span>
+</div>
+</div>
+</div>
+</details>
+</section>
+</main>
+<!-- 6. BARRA DE ACCIONES INFERIOR WIREFRAME -->
+<footer class="border-t-2 border-primary bg-surface-container-lowest p-4 md:p-6 flex flex-col gap-3">
+<div class="flex flex-col md:flex-row items-center justify-between gap-4">
+<!-- Botón Secundario Izquierdo -->
+<button class="w-full md:w-auto border border-primary bg-surface-container-lowest hover:bg-surface-container px-4 py-2.5 font-label-lg text-label-lg text-primary font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Cancelar y salir al catálogo</span>
+</button>
+<!-- Bloque de Botones Centrales y Primarios -->
+<div class="w-full md:w-auto flex flex-col sm:flex-row items-center gap-3">
+<!-- Botón Neutro -->
+<button class="w-full sm:w-auto border border-outline hover:border-primary bg-surface-container-lowest hover:bg-surface-container-low px-4 py-2.5 font-label-lg text-label-lg text-primary font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+<span>Volver a cargar definición actual (Descartar cambios locales)</span>
+</button>
+<!-- Botón Terciario -->
+<button class="w-full sm:w-auto border border-outline bg-surface-container px-4 py-2.5 font-label-lg text-label-lg text-primary font-semibold hover:bg-surface-container-high flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-[18px]">bookmark</span>
+<span>Conservar mi borrador en memoria</span>
+</button>
+<!-- Botón Primario Destacado -->
+<button class="w-full sm:w-auto border-2 border-primary bg-primary text-on-primary hover:bg-primary-container px-6 py-2.5 font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)]">
+<span>Revisar y resolver conflicto</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Nota al Pie de Arquitectura -->
+<div class="border-t border-outline-variant pt-2.5 flex items-center justify-between text-on-surface-variant font-mono text-[11px]">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+<span><strong>Nota de arquitectura:</strong> El sistema nunca aplica sobrescrituras ciegas. Todo conflicto de versión debe conciliarse explícitamente por el operador.</span>
+</div>
+<div class="hidden md:block">
+<span>TERMINAL: POS-02 // SALÓN CENTRAL</span>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

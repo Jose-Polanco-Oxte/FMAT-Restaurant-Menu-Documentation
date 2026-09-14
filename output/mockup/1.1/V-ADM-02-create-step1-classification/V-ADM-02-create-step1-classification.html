@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FMAT POS // Crear item de menú - V05 Clasificación y tipo</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration Verbatim -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-low": "#f3f3f4",
+            "on-background": "#1a1c1c",
+            "primary-fixed-dim": "#c8c6c5",
+            "on-surface": "#1a1c1c",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "surface-dim": "#dadada",
+            "error": "#ba1a1a",
+            "on-surface-variant": "#444748",
+            "on-secondary-fixed": "#1b1c1c",
+            "primary-container": "#1c1b1b",
+            "error-container": "#ffdad6",
+            "tertiary": "#000000",
+            "tertiary-fixed": "#e3e2e2",
+            "surface-container-highest": "#e2e2e2",
+            "primary-fixed": "#e5e2e1",
+            "surface-tint": "#5f5e5e",
+            "on-error": "#ffffff",
+            "on-secondary-fixed-variant": "#474747",
+            "on-secondary-container": "#656464",
+            "secondary-fixed": "#e4e2e2",
+            "on-primary-container": "#858383",
+            "tertiary-container": "#1a1c1c",
+            "surface-variant": "#e2e2e2",
+            "on-error-container": "#93000a",
+            "surface-container-high": "#e8e8e8",
+            "outline-variant": "#c4c7c7",
+            "inverse-on-surface": "#f0f1f1",
+            "on-tertiary-fixed-variant": "#464747",
+            "background": "#f9f9f9",
+            "surface": "#f9f9f9",
+            "outline": "#747878",
+            "secondary-fixed-dim": "#c8c6c6",
+            "on-primary": "#ffffff",
+            "on-primary-fixed": "#1c1b1b",
+            "surface-container": "#eeeeee",
+            "inverse-surface": "#2f3131",
+            "secondary-container": "#e4e2e2",
+            "primary": "#000000",
+            "on-secondary": "#ffffff",
+            "on-primary-fixed-variant": "#474646",
+            "surface-bright": "#f9f9f9",
+            "on-tertiary-fixed": "#1a1c1c",
+            "on-tertiary": "#ffffff",
+            "secondary": "#5f5e5e",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary-container": "#838484",
+            "inverse-primary": "#c8c6c5"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "margin": "1.5rem",
+            "space-sm": "0.5rem",
+            "gutter": "1rem",
+            "space-xs": "0.25rem",
+            "space-xl": "2rem"
+          },
+          "fontFamily": {
+            "label-sm": ["Inter"],
+            "body-md": ["Inter"],
+            "headline-md": ["Inter"],
+            "label-lg": ["Inter"],
+            "body-sm": ["Inter"],
+            "headline-sm": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          "fontSize": {
+            "label-sm": [
+              "12px",
+              {
+                "lineHeight": "16px",
+                "fontWeight": "500"
+              }
+            ],
+            "body-md": [
+              "14px",
+              {
+                "lineHeight": "20px",
+                "fontWeight": "400"
+              }
+            ],
+            "headline-md": [
+              "22px",
+              {
+                "lineHeight": "30px",
+                "letterSpacing": "-0.01em",
+                "fontWeight": "600"
+              }
+            ],
+            "label-lg": [
+              "14px",
+              {
+                "lineHeight": "20px",
+                "fontWeight": "600"
+              }
+            ],
+            "body-sm": [
+              "13px",
+              {
+                "lineHeight": "18px",
+                "fontWeight": "400"
+              }
+            ],
+            "headline-sm": [
+              "18px",
+              {
+                "lineHeight": "24px",
+                "fontWeight": "600"
+              }
+            ],
+            "headline-lg": [
+              "30px",
+              {
+                "lineHeight": "38px",
+                "letterSpacing": "-0.02em",
+                "fontWeight": "700"
+              }
+            ],
+            "body-lg": [
+              "16px",
+              {
+                "lineHeight": "24px",
+                "fontWeight": "400"
+              }
+            ],
+            "label-md": [
+              "13px",
+              {
+                "lineHeight": "16px",
+                "letterSpacing": "0.01em",
+                "fontWeight": "500"
+              }
+            ]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 500;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen p-space-lg flex flex-col justify-between selection:bg-surface-container-highest">
+<!-- Outer Canvas Framing (3:2 Architectural Tablet/Desktop POS Container) -->
+<main class="w-full max-w-7xl mx-auto bg-surface-container-lowest border-2 border-primary flex flex-col shadow-none">
+<!-- 1. ENCABEZADO TÉCNICO WIREFRAME -->
+<header class="w-full bg-surface-container-lowest border-b-2 border-primary p-space-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="bg-primary text-on-primary font-mono text-[11px] font-bold px-2 py-0.5 tracking-wider border border-primary">
+            [CREATE]
+          </span>
+<span class="font-headline-md text-headline-md font-bold text-primary tracking-tight">
+            Crear item de menú
+          </span>
+<span class="font-mono text-label-sm text-on-surface-variant px-2 py-0.5 bg-surface-container-low border border-outline-variant">
+            V05 · Clasificación y tipo
+          </span>
+</div>
+<div class="flex items-center gap-space-sm text-on-surface-variant flex-wrap font-body-sm text-body-sm">
+<span class="font-semibold text-primary">Contexto:</span>
+<span>Restaurant r-fmat-01</span>
+<span class="text-outline-variant">/</span>
+<span class="font-medium text-primary">Menú principal</span>
+<span class="text-outline-variant">•</span>
+<span class="italic text-on-surface-variant">Nuevo registro · todavía no persistido</span>
+</div>
+</div>
+<!-- Metadatos de contexto de sistema (Specs & Sync) -->
+<div class="flex flex-col items-start md:items-end font-mono text-[11px] text-on-surface-variant gap-0.5 bg-surface-container-low border border-outline-variant p-2 w-full md:w-auto">
+<div class="flex items-center gap-2">
+<span class="text-secondary">SPEC:</span>
+<span class="font-semibold text-primary">POS-CORE-CATALOG-V05</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-secondary">SYNC STATUS:</span>
+<span class="inline-flex items-center gap-1 font-semibold text-primary">
+<span class="w-1.5 h-1.5 bg-primary rounded-none"></span> LOCAL_STAGED
+          </span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-secondary">SCHEMA:</span>
+<span>MenuItem.draft#01</span>
+</div>
+</div>
+</header>
+<!-- 2. STEPPER SUPERIOR ESTABLE (4 PASOS) -->
+<nav aria-label="Progreso de creación" class="w-full bg-surface-container-low border-b border-primary px-space-lg py-space-sm">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+<!-- Paso 1 (Activo) -->
+<div class="flex items-center gap-3 bg-surface-container-lowest border-2 border-primary p-2.5">
+<div class="w-6 h-6 bg-primary text-on-primary font-mono text-label-sm font-bold flex items-center justify-center">
+            1
+          </div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-primary leading-tight">Clasificación y tipo</span>
+<span class="font-mono text-[10px] text-primary tracking-tight font-semibold uppercase">Paso actual</span>
+</div>
+</div>
+<!-- Paso 2 (Próximo) -->
+<div class="flex items-center gap-3 bg-surface-container border border-outline-variant p-2.5 opacity-80">
+<div class="w-6 h-6 border border-primary text-primary font-mono text-label-sm font-bold flex items-center justify-center bg-surface-container-lowest">
+            2
+          </div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface-variant leading-tight">Item y suministro</span>
+<span class="font-mono text-[10px] text-on-secondary-container uppercase">Pendiente</span>
+</div>
+</div>
+<!-- Paso 3 (Próximo) -->
+<div class="flex items-center gap-3 bg-surface-container border border-outline-variant p-2.5 opacity-80">
+<div class="w-6 h-6 border border-primary text-primary font-mono text-label-sm font-bold flex items-center justify-center bg-surface-container-lowest">
+            3
+          </div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface-variant leading-tight">Modificadores</span>
+<span class="font-mono text-[10px] text-on-secondary-container uppercase">Pendiente</span>
+</div>
+</div>
+<!-- Paso 4 (Próximo) -->
+<div class="flex items-center gap-3 bg-surface-container border border-outline-variant p-2.5 opacity-80">
+<div class="w-6 h-6 border border-primary text-primary font-mono text-label-sm font-bold flex items-center justify-center bg-surface-container-lowest">
+            4
+          </div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface-variant leading-tight">Resumen y aceptación</span>
+<span class="font-mono text-[10px] text-on-secondary-container uppercase">Final</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- 3. CUERPO PRINCIPAL (CANVAS OPERACIONAL BIDIRECCIONAL) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-primary min-h-[540px]">
+<!-- Columna Principal: Grupos de Selección (8 cols) -->
+<section class="lg:col-span-8 p-space-lg flex flex-col gap-space-lg bg-surface-container-lowest">
+<!-- GRUPO 1: CLASIFICACIÓN COMERCIAL -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-baseline justify-between border-b border-surface-dim pb-1.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">sell</span>
+<h2 class="font-label-lg text-label-lg font-bold text-primary uppercase tracking-wide">
+                Grupo 1: Clasificación comercial
+              </h2>
+</div>
+<span class="font-mono text-[11px] text-on-surface-variant font-medium">DIMENSIÓN 1 DE 2 [SELECCIÓN ÚNICA]</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Determina cómo se categoriza comercialmente dentro de la terminal de venta y el menú de sala.
+          </p>
+<!-- Tarjetas interactivas de 5 opciones -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
+<!-- 1. DISH -->
+<div class="border border-outline-variant hover:border-primary p-3 bg-surface-container-lowest flex flex-col justify-between cursor-pointer transition-colors duration-150">
+<div class="flex items-start justify-between">
+<span class="font-mono text-[11px] font-bold px-2 py-0.5 bg-surface-container border border-outline-variant text-primary">
+                  DISH
+                </span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">restaurant</span>
+</div>
+<div class="mt-3">
+<span class="font-label-md text-label-md font-bold text-primary block">Platillo</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[12px] leading-tight mt-1">
+                  Alimentos preparados principales o entradas.
+                </p>
+</div>
+<div class="mt-3 pt-2 border-t border-surface-container-high flex justify-end">
+<span class="font-mono text-[10px] text-secondary">ID: CLS_DISH</span>
+</div>
+</div>
+<!-- 2. BEVERAGE -->
+<div class="border border-outline-variant hover:border-primary p-3 bg-surface-container-lowest flex flex-col justify-between cursor-pointer transition-colors duration-150">
+<div class="flex items-start justify-between">
+<span class="font-mono text-[11px] font-bold px-2 py-0.5 bg-surface-container border border-outline-variant text-primary">
+                  BEVERAGE
+                </span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">local_bar</span>
+</div>
+<div class="mt-3">
+<span class="font-label-md text-label-md font-bold text-primary block">Bebida</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[12px] leading-tight mt-1">
+                  Bebidas frías, calientes o embotelladas.
+                </p>
+</div>
+<div class="mt-3 pt-2 border-t border-surface-container-high flex justify-end">
+<span class="font-mono text-[10px] text-secondary">ID: CLS_BEV</span>
+</div>
+</div>
+<!-- 3. COMBO (SELECCIONADO) -->
+<div class="border-2 border-primary p-3 bg-surface-container-highest flex flex-col justify-between cursor-pointer relative shadow-none">
+<div class="absolute -top-2.5 right-2 bg-primary text-on-primary font-mono text-[9px] font-bold px-1.5 py-0.2 uppercase border border-primary">
+                Activo
+              </div>
+<div class="flex items-start justify-between">
+<span class="font-mono text-[11px] font-bold px-2 py-0.5 bg-primary text-on-primary border border-primary">
+                  COMBO
+                </span>
+<span class="material-symbols-outlined text-primary text-[20px] fill-icon">check_circle</span>
+</div>
+<div class="mt-3">
+<span class="font-label-md text-label-md font-bold text-primary block">Combo</span>
+<p class="font-body-sm text-body-sm text-primary text-[12px] leading-tight mt-1 font-medium">
+                  Paquete con múltiples ítems o agrupaciones.
+                </p>
+</div>
+<div class="mt-3 pt-2 border-t border-outline flex justify-between items-center">
+<span class="font-mono text-[10px] font-bold text-primary">SELECCIONADO</span>
+<span class="font-mono text-[10px] text-primary">ID: CLS_COMBO</span>
+</div>
+</div>
+<!-- 4. DESSERT -->
+<div class="border border-outline-variant hover:border-primary p-3 bg-surface-container-lowest flex flex-col justify-between cursor-pointer transition-colors duration-150">
+<div class="flex items-start justify-between">
+<span class="font-mono text-[11px] font-bold px-2 py-0.5 bg-surface-container border border-outline-variant text-primary">
+                  DESSERT
+                </span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">cake</span>
+</div>
+<div class="mt-3">
+<span class="font-label-md text-label-md font-bold text-primary block">Postre</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[12px] leading-tight mt-1">
+                  Repostería y dulces de sobremesa.
+                </p>
+</div>
+<div class="mt-3 pt-2 border-t border-surface-container-high flex justify-end">
+<span class="font-mono text-[10px] text-secondary">ID: CLS_DES</span>
+</div>
+</div>
+<!-- 5. COMPLEMENT -->
+<div class="border border-outline-variant hover:border-primary p-3 bg-surface-container-lowest flex flex-col justify-between cursor-pointer transition-colors duration-150">
+<div class="flex items-start justify-between">
+<span class="font-mono text-[11px] font-bold px-2 py-0.5 bg-surface-container border border-outline-variant text-primary">
+                  COMPLEMENT
+                </span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">tapas</span>
+</div>
+<div class="mt-3">
+<span class="font-label-md text-label-md font-bold text-primary block">Complemento</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[12px] leading-tight mt-1">
+                  Guarniciones, salsas y extras.
+                </p>
+</div>
+<div class="mt-3 pt-2 border-t border-surface-container-high flex justify-end">
+<span class="font-mono text-[10px] text-secondary">ID: CLS_CMP</span>
+</div>
+</div>
+</div>
+</div>
+<!-- GRUPO 2: TIPO DE SUMINISTRO -->
+<div class="flex flex-col gap-space-sm pt-2">
+<div class="flex items-baseline justify-between border-b border-surface-dim pb-1.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">inventory_2</span>
+<h2 class="font-label-lg text-label-lg font-bold text-primary uppercase tracking-wide">
+                Grupo 2: Tipo de suministro
+              </h2>
+</div>
+<span class="font-mono text-[11px] text-on-surface-variant font-medium">DIMENSIÓN 2 DE 2 [SELECCIÓN ÚNICA]</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">El tipo de suministro determina la estructura del editor.</p>
+<!-- Selector independiente en 3 tarjetas -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">
+<!-- 1. STOCKED -->
+<div class="border border-outline-variant hover:border-primary p-3.5 bg-surface-container-lowest flex flex-col justify-between cursor-pointer">
+<div class="flex items-start justify-between">
+<span class="font-mono text-[11px] font-bold px-2 py-0.5 bg-surface-container border border-outline-variant text-primary">
+                  STOCKED
+                </span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">inventory</span>
+</div>
+<div class="mt-3">
+<span class="font-label-md text-label-md font-bold text-primary block">Almacenable</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[12px] leading-snug mt-1">Configuración de suministro directo y referencia de insumo o producto.</p>
+</div>
+<div class="mt-3 pt-2 border-t border-surface-container-high text-[11px] font-mono text-secondary">
+                SUPPLY_TYPE: STOCKED
+              </div>
+</div>
+<!-- 2. PREPARED -->
+<div class="border border-outline-variant hover:border-primary p-3.5 bg-surface-container-lowest flex flex-col justify-between cursor-pointer">
+<div class="flex items-start justify-between">
+<span class="font-mono text-[11px] font-bold px-2 py-0.5 bg-surface-container border border-outline-variant text-primary">
+                  PREPARED
+                </span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">skillet</span>
+</div>
+<div class="mt-3">
+<span class="font-label-md text-label-md font-bold text-primary block">Elaborado al momento</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[12px] leading-snug mt-1">Configuración vinculada a fórmula técnica o receta de preparación.</p>
+</div>
+<div class="mt-3 pt-2 border-t border-surface-container-high text-[11px] font-mono text-secondary">
+                SUPPLY_TYPE: PREPARED
+              </div>
+</div>
+<!-- 3. COMBO (SELECCIONADO) -->
+<div class="border-2 border-primary p-3.5 bg-surface-container-highest flex flex-col justify-between cursor-pointer relative">
+<div class="absolute -top-2.5 right-2 bg-primary text-on-primary font-mono text-[9px] font-bold px-1.5 py-0.2 uppercase border border-primary">
+                Activo
+              </div>
+<div class="flex items-start justify-between">
+<span class="font-mono text-[11px] font-bold px-2 py-0.5 bg-primary text-on-primary border border-primary">
+                  COMBO
+                </span>
+<span class="material-symbols-outlined text-primary text-[20px] fill-icon">check_circle</span>
+</div>
+<div class="mt-3">
+<span class="font-label-md text-label-md font-bold text-primary block">Compuesto (Combo)</span>
+<p class="font-body-sm text-body-sm text-primary text-[12px] leading-snug mt-1 font-medium">Composición articulada de ítems individuales y slots de opciones.</p>
+</div>
+<div class="mt-3 pt-2 border-t border-outline flex justify-between items-center text-[11px] font-mono font-bold text-primary">
+<span>SELECCIONADO</span>
+<span>SUPPLY_TYPE: COMBO</span>
+</div>
+</div>
+</div>
+<!-- Cuadro de ayuda prominente (Aviso arquitectónico FMAT) -->
+<div class="mt-2 bg-surface-container border border-primary p-3 flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5">info</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-primary">Independencia de dimensiones:</span>
+<p class="font-body-sm text-body-sm text-primary leading-normal mt-0.5">
+                La clasificación comercial y el tipo de suministro son dimensiones independientes; una elección no deriva automáticamente la otra.
+              </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Columna Lateral: Resumen Contextual & Metadatos de Borrador (4 cols) -->
+<aside class="lg:col-span-4 p-space-lg bg-surface-container-low flex flex-col justify-between gap-space-lg">
+<div class="flex flex-col gap-space-md">
+<!-- Encabezado de Borrador -->
+<div class="border-b border-outline-variant pb-space-sm flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">receipt_long</span>
+<span class="font-label-lg text-label-lg font-bold text-primary uppercase tracking-tight">
+                Resumen contextual
+              </span>
+</div>
+<span class="font-mono text-[10px] px-1.5 py-0.5 border border-primary bg-surface-container-lowest font-bold">
+              STAGED_OBJ
+            </span>
+</div>
+<!-- Lista de Labels de Negocio con Valores -->
+<div class="flex flex-col gap-3 font-body-sm">
+<!-- Menú -->
+<div class="p-2.5 bg-surface-container-lowest border border-outline-variant flex flex-col gap-1">
+<span class="font-mono text-[11px] text-secondary font-semibold uppercase">Menú destino</span>
+<div class="font-label-md text-label-md font-bold text-primary flex items-center justify-between">
+<span>Menú principal</span>
+<span class="font-mono text-[11px] text-on-surface-variant font-normal">menuId: ctg-main-01</span>
+</div>
+</div>
+<!-- Categoría externa -->
+<div class="p-2.5 bg-surface-container-lowest border border-outline-variant flex flex-col gap-1">
+<span class="font-mono text-[11px] text-secondary font-semibold uppercase">Categoría externa asignada</span>
+<div class="font-label-md text-label-md font-bold text-primary flex items-center justify-between">
+<span>Paquetes y Promociones</span>
+<span class="font-mono text-[11px] text-on-surface-variant font-normal">categoryId: cat-pkg-001</span>
+</div>
+</div>
+<!-- Estado de registro -->
+<div class="p-2.5 bg-surface-container-lowest border border-outline-variant flex flex-col gap-1">
+<span class="font-mono text-[11px] text-secondary font-semibold uppercase">Estado del borrador</span>
+<div class="font-label-md text-label-md font-bold text-primary flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 bg-on-surface-variant"></span>
+                  Pendiente de captura
+                </span>
+<span class="font-mono text-[11px] text-on-surface-variant font-normal">status: INACTIVE_DRAFT</span>
+</div>
+</div>
+<!-- Nombre pendiente -->
+<div class="p-2.5 bg-surface-container-lowest border border-outline-variant flex flex-col gap-1">
+<span class="font-mono text-[11px] text-secondary font-semibold uppercase">Nombre del ítem</span>
+<div class="font-label-md text-label-md text-secondary italic flex items-center justify-between">
+<span>(Por definir en paso 2)</span>
+<span class="font-mono text-[11px] text-outline-variant not-italic">field: null</span>
+</div>
+</div>
+<!-- Configuración seleccionada en este paso -->
+<div class="p-2.5 bg-surface-container border border-primary flex flex-col gap-1.5">
+<span class="font-mono text-[11px] text-primary font-bold uppercase">Configuración de paso 1</span>
+<div class="grid grid-cols-2 gap-2 text-[12px]">
+<div class="border border-outline-variant p-1.5 bg-surface-container-lowest">
+<span class="text-secondary block text-[10px] font-mono">COMERCIAL</span>
+<span class="font-bold text-primary font-mono">COMBO</span>
+</div>
+<div class="border border-outline-variant p-1.5 bg-surface-container-lowest">
+<span class="text-secondary block text-[10px] font-mono">SUMINISTRO</span>
+<span class="font-bold text-primary font-mono">COMBO</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Nota de Validación Explícita -->
+<div class="border-l-2 border-primary pl-3 py-1 bg-surface-container-lowest border border-outline-variant">
+<span class="font-mono text-[11px] font-bold text-primary uppercase block">Regla de persistencia:</span>
+<p class="font-body-sm text-[12px] text-on-surface-variant leading-tight mt-0.5">
+              Estado inicial: <span class="font-mono font-bold text-primary">INACTIVE</span> si se guarda incompleto o sin suministros vinculados.
+            </p>
+</div>
+</div>
+<!-- Metadatos de auditoría de cliente -->
+<div class="border-t border-outline-variant pt-space-sm flex flex-col font-mono text-[10px] text-secondary gap-1">
+<div class="flex justify-between">
+<span>CLIENT SESSION:</span>
+<span class="text-primary font-medium">TERMINAL-SALON-02</span>
+</div>
+<div class="flex justify-between">
+<span>OPERATOR AUTH:</span>
+<span class="text-primary font-medium">carlos.m@pos-core</span>
+</div>
+<div class="flex justify-between">
+<span>BUFFER CHECKSUM:</span>
+<span class="text-primary font-medium">0x8F4E2A</span>
+</div>
+</div>
+</aside>
+</div>
+<!-- 4. BARRA DE ACCIONES INFERIOR (FOOTER TRANSACTIONAL) -->
+<footer class="w-full bg-surface-container-lowest border-t-2 border-primary p-space-lg flex flex-col md:flex-row items-center justify-between gap-space-md">
+<!-- Texto explicativo normativo -->
+<div class="flex items-start gap-2 max-w-xl">
+<span class="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5">warning</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[12px] leading-tight">
+          El borrador local se almacena en el cliente y no constituye un MenuItem persistido en el catálogo central.
+        </p>
+</div>
+<!-- Acciones de control -->
+<div class="flex items-center gap-space-sm w-full md:w-auto justify-end flex-wrap">
+<!-- Acción Terciaria: Guardar borrador local -->
+<button class="px-3 py-2 text-primary hover:bg-surface-container font-label-md text-label-md font-semibold underline underline-offset-4 flex items-center gap-1.5 transition-colors duration-150" type="button">
+<span class="material-symbols-outlined text-[16px]">save</span>
+          Guardar borrador local
+        </button>
+<!-- Botón Secundario: Cancelar -->
+<button class="px-4 py-2 bg-surface-container-lowest border border-primary text-primary font-label-md text-label-md font-semibold hover:bg-surface-container active:scale-[0.98] transition-transform duration-100" type="button">
+          Cancelar
+        </button>
+<!-- Botón Primario: Continuar a item y suministro -->
+<button class="px-5 py-2.5 bg-primary text-on-primary font-label-md text-label-md font-bold flex items-center gap-2 border border-primary hover:bg-neutral-800 active:scale-[0.98] transition-all duration-100" type="button">
+<span>Continuar a item y suministro</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</footer>
+</main>
+</body></html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>V03-AO - Agregar productos a la orden | Fallo de resolución de Menú</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary-fixed-dim": "#c8c6c5",
+            "inverse-primary": "#c8c6c5",
+            "surface-dim": "#dadada",
+            "secondary-container": "#e4e2e2",
+            "outline": "#747878",
+            "on-primary": "#ffffff",
+            "inverse-surface": "#2f3131",
+            "tertiary": "#000000",
+            "error-container": "#ffdad6",
+            "on-primary-container": "#858383",
+            "surface": "#f9f9f9",
+            "primary-container": "#1c1b1b",
+            "surface-bright": "#f9f9f9",
+            "background": "#f9f9f9",
+            "secondary-fixed-dim": "#c8c6c6",
+            "inverse-on-surface": "#f0f1f1",
+            "primary": "#000000",
+            "on-tertiary-fixed-variant": "#464747",
+            "on-primary-fixed": "#1c1b1b",
+            "on-tertiary-container": "#838484",
+            "on-tertiary": "#ffffff",
+            "on-secondary": "#ffffff",
+            "secondary-fixed": "#e4e2e2",
+            "on-surface": "#1a1c1c",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f3f3f4",
+            "on-secondary-fixed-variant": "#474747",
+            "on-background": "#1a1c1c",
+            "surface-container": "#eeeeee",
+            "error": "#ba1a1a",
+            "outline-variant": "#c4c7c7",
+            "tertiary-container": "#1a1c1c",
+            "surface-tint": "#5f5e5e",
+            "on-primary-fixed-variant": "#474646",
+            "on-error-container": "#93000a",
+            "tertiary-fixed": "#e3e2e2",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "primary-fixed": "#e5e2e1",
+            "on-tertiary-fixed": "#1a1c1c",
+            "on-secondary-fixed": "#1b1c1c",
+            "surface-variant": "#e2e2e2",
+            "on-error": "#ffffff",
+            "surface-container-highest": "#e2e2e2",
+            "on-surface-variant": "#444748",
+            "surface-container-high": "#e8e8e8",
+            "on-secondary-container": "#656464",
+            "secondary": "#5f5e5e"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xl": "2rem",
+            "margin": "1.5rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "gutter": "1rem",
+            "space-xs": "0.25rem",
+            "space-md": "1rem"
+          },
+          "fontFamily": {
+            "label-sm": ["Inter"],
+            "headline-sm": ["Inter"],
+            "headline-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "body-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "headline-md": ["Inter"],
+            "label-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "mono": ["'JetBrains Mono'", "monospace"]
+          },
+          "fontSize": {
+            "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #f3f3f4;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #c4c7c7;
+      border-radius: 2px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #747878;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex flex-col p-4 md:p-6 antialiased selection:bg-surface-container-highest">
+<!-- Main Canvas Container (Framed 3:2 Architecture) -->
+<div class="flex-1 flex flex-col border border-primary bg-surface-container-lowest shadow-sm rounded-none overflow-hidden max-w-[1600px] w-full mx-auto">
+<!-- 1. Header (POS Top Bar - Strictly Full Canvas, No Drawer/Sidebar) -->
+<header class="border-b border-primary bg-surface-container-lowest px-5 py-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center gap-2.5 flex-wrap">
+<h1 class="font-headline-sm text-headline-sm text-primary tracking-tight font-bold">
+            Agregar productos a la orden
+          </h1>
+<span class="inline-flex items-center px-2 py-0.5 border border-primary bg-surface text-on-surface font-mono text-[11px] font-medium tracking-tight">
+            Modo: APPEND_TO_ORDER · Agregando a comanda activa
+          </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 border border-primary bg-primary text-on-primary font-mono text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[13px]">report_problem</span>
+            MENU_RESOLUTION_REJECTED
+          </span>
+</div>
+<!-- Context details -->
+<div class="flex items-center gap-2 text-on-surface-variant font-mono text-[12px] flex-wrap">
+<span class="font-semibold text-primary">Mesa 07</span>
+<span class="text-outline-variant">|</span>
+<span>tableId: <strong class="text-primary font-normal">tbl-sala-07</strong></span>
+<span class="text-outline-variant">|</span>
+<span>orderId: <strong class="text-primary font-normal">ORD-2048</strong></span>
+<span class="text-outline-variant">|</span>
+<span>Fuente: <strong class="text-primary font-normal">Menu E-02</strong></span>
+<span class="text-outline-variant">|</span>
+<span>Servidor: <strong class="text-primary font-normal">Carlos M.</strong></span>
+</div>
+</div>
+<!-- Navigation button top right -->
+<div class="flex items-center gap-3 self-end md:self-auto">
+<button class="h-9 px-4 border border-primary bg-surface-container-lowest text-primary font-label-md text-label-md font-semibold hover:bg-surface-container transition-colors duration-150 active:scale-[0.98] flex items-center gap-1.5 rounded-none" type="button">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+<span>← Volver a la orden</span>
+</button>
+</div>
+</header>
+<!-- 2. Main Body Grid: 2-Column POS Layout (Left ~62%, Right ~38%) -->
+<main class="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+<!-- LEFT COLUMN (~62% Catalog + Resolution Diagnostic Panel) -->
+<section class="lg:col-span-7 xl:col-span-8 border-b lg:border-b-0 lg:border-r border-primary flex flex-col bg-surface-bright custom-scroll overflow-y-auto">
+<!-- A. Filters Bar -->
+<div class="p-4 border-b border-primary bg-surface-container-lowest flex flex-col gap-3">
+<div class="flex flex-col md:flex-row gap-2.5 items-stretch md:items-center">
+<!-- Search Box -->
+<div class="relative flex-1">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined">search</span>
+</span>
+<input class="w-full pl-9 pr-3 py-2 border border-primary text-primary font-body-sm text-body-sm bg-surface-container-lowest focus:ring-0 focus:border-primary placeholder:text-outline font-normal rounded-none" placeholder="Buscar por nombre (coincidencia libre)..." type="text" value="Pastel"/>
+</div>
+<!-- Dropdowns -->
+<div class="flex items-center gap-2">
+<div class="relative">
+<select class="h-9 text-body-sm font-body-sm border border-primary bg-surface-container-lowest text-primary pl-2.5 pr-8 py-1 rounded-none appearance-none focus:ring-0 focus:border-primary">
+<option selected="">Categoría: Postres</option>
+<option>Categoría: Entradas</option>
+<option>Categoría: Fuertes</option>
+<option>Categoría: Bebidas</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 pointer-events-none text-primary text-[16px]">expand_more</span>
+</div>
+<div class="relative">
+<select class="h-9 text-body-sm font-body-sm border border-primary bg-surface-container-lowest text-primary pl-2.5 pr-8 py-1 rounded-none appearance-none focus:ring-0 focus:border-primary">
+<option selected="">Tipo de suministro: STOCKED</option>
+<option>Tipo de suministro: PREPARED_ON_DEMAND</option>
+<option>Tipo de suministro: THIRD_PARTY</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 pointer-events-none text-primary text-[16px]">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Pill Filters / Segmented Controls -->
+<div class="flex items-center gap-1.5 flex-wrap pt-1 font-mono text-[11px]"><button class="px-2.5 py-1 border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:border-primary hover:text-primary" type="button">
+              Todas
+            </button>
+<button class="px-2.5 py-1 border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:border-primary hover:text-primary" type="button">
+              Platillo
+            </button>
+<button class="px-2.5 py-1 border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:border-primary hover:text-primary" type="button">
+              Bebida
+            </button>
+<button class="px-2.5 py-1 border border-outline-variant text-outline bg-surface-container-low opacity-60 cursor-not-allowed" type="button">
+              Combo
+            </button>
+<button class="px-2.5 py-1 border-2 border-primary bg-primary text-on-primary font-bold shadow-none" type="button">
+              Postre
+            </button>
+<button class="px-2.5 py-1 border border-outline-variant text-outline bg-surface-container-low opacity-60 cursor-not-allowed" type="button">
+              Complemento
+            </button></div>
+</div>
+<!-- B. Catalog Section -->
+<div class="p-4 flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<span class="font-mono text-[12px] uppercase text-on-surface-variant tracking-wider font-semibold">
+              Resultados de catálogo (1 coincidencia filtrada)
+            </span>
+<span class="font-mono text-[11px] text-on-surface-variant">
+              catalogVersion: cat_2024_02_e2
+            </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Card 1: 'Pastel del día' (INSPECTED & REJECTED) -->
+<div class="border-2 border-primary bg-surface-container-lowest relative p-4 flex flex-col justify-between transition-none shadow-none">
+<!-- Selection indicator flag -->
+<div class="absolute -top-[10px] left-3 bg-primary text-on-primary font-mono text-[10px] px-2 py-0.2 font-semibold">
+                SELECCIONADO PARA INSPECCIÓN
+              </div>
+<div>
+<!-- Badges header -->
+<div class="flex items-center justify-between gap-2 pt-1 mb-2">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-1.5 py-0.5 border border-primary bg-surface-container-high text-primary font-mono text-[10px] font-bold">
+                      [Postre]
+                    </span>
+<span class="px-1.5 py-0.5 border border-primary bg-surface-container-high text-primary font-mono text-[10px] font-bold">
+                      [STOCKED]
+                    </span>
+</div>
+<!-- Status Indicator Badge -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 border border-primary bg-surface-container-high text-primary font-mono text-[11px] font-bold">
+<span class="material-symbols-outlined text-[14px]">block</span>
+                    ⊘ No elegible para ordenar
+                  </span>
+</div>
+<!-- Product Name -->
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary mb-1">
+                  Pastel del día
+                </h2>
+<!-- Technical Subtext -->
+<p class="font-mono text-[11px] text-on-surface-variant mb-2">
+                  menuItemId: itm-pst-dia-09 · menuItemVersion: v1.2
+                </p>
+<!-- Description -->
+<p class="font-body-sm text-body-sm text-on-surface mb-3 leading-relaxed">
+                  Rebanada de tarta artesanal horneada en casa con frutos de estación y crema diplomática.
+                </p>
+<!-- Notice on Card -->
+<div class="p-2.5 border border-primary bg-surface-container-high mb-3"><div class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-primary mt-0.5">error_outline</span><div><span class="font-mono text-[11px] font-bold text-primary block">No se pudo resolver la selección en Menu</span><span class="font-mono text-[10px] text-on-surface-variant block mt-0.5">Estado: NOT_ELIGIBLE · Detalle: RESOLUTION_ERROR</span></div></div></div>
+</div>
+<!-- Card Action Area -->
+<div class="pt-3 border-t border-primary/20 flex flex-col gap-2.5">
+<!-- Price Display -->
+<div class="flex items-baseline justify-between"><span class="font-mono text-[11px] text-on-surface-variant">Precio:</span><div class="text-right"><span class="font-mono text-[12px] font-bold text-primary block">Sin precio de referencia</span><span class="font-mono text-[10px] text-on-surface-variant">(fromPrice: null)</span></div></div>
+<!-- Stepper + Disabled Buttons -->
+<div class="flex items-center gap-2">
+<!-- Stepper disabled -->
+<div class="flex items-center border border-outline-variant bg-surface-container opacity-60 cursor-not-allowed h-9">
+<button class="px-2.5 text-outline cursor-not-allowed font-mono text-base" disabled="" type="button">-</button>
+<span class="px-3 font-mono text-body-sm font-bold text-outline">0</span>
+<button class="px-2.5 text-outline cursor-not-allowed font-mono text-base" disabled="" type="button">+</button>
+</div>
+<!-- Button Personalizar / Configurar DISABLED -->
+<button class="flex-1 h-9 px-2 border border-outline-variant bg-surface-container text-outline font-label-sm text-label-sm cursor-not-allowed text-center uppercase tracking-tight font-semibold" disabled="" type="button">
+                    Personalizar / Configurar
+                  </button>
+<!-- Button Agregar DISABLED -->
+<button class="h-9 px-3 border border-outline-variant bg-surface-container text-outline font-label-sm text-label-sm cursor-not-allowed font-bold" disabled="" type="button">
+                    Agregar
+                  </button>
+</div>
+</div>
+</div>
+<!-- Card 2: Context reference item (Dimmed / Sopa de tortilla) -->
+<div class="border border-outline-variant bg-surface-container-low p-4 flex flex-col justify-between opacity-50 select-none">
+<div>
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-1.5">
+<span class="px-1.5 py-0.5 border border-outline bg-surface-container text-on-surface-variant font-mono text-[10px]">
+                      [Entrada]
+                    </span>
+<span class="px-1.5 py-0.5 border border-outline bg-surface-container text-on-surface-variant font-mono text-[10px]">
+                      [PREPARED]
+                    </span>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant">No coincide con filtro: Postres</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-semibold text-on-surface-variant mb-1">
+                  Sopa de tortilla tradicional
+                </h3>
+<p class="font-mono text-[11px] text-outline mb-2">
+                  menuItemId: itm-ent-sop-01 · v2.0
+                </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                  Caldo de jitomate con pasilla, tiras de maíz crujiente, aguacate y queso fresco.
+                </p>
+</div>
+<div class="pt-3 border-t border-outline-variant mt-4 flex items-center justify-between">
+<span class="font-mono text-sm font-semibold text-on-surface-variant">$125.00 MXN</span>
+<span class="font-mono text-[11px] text-outline">Filtro inactivo</span>
+</div>
+</div>
+</div>
+<!-- C. Prominent Resolution Diagnostic Panel (Menu Resolution Rejection) -->
+<div class="mt-2 border-2 border-primary bg-surface-container-lowest p-5 flex flex-col gap-4"><div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-primary pb-3"><div class="flex items-center gap-2.5"><div class="w-8 h-8 bg-primary text-on-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">warning</span></div><div><h3 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">No elegible para ordenar según Menu</h3><span class="font-mono text-[11px] text-on-surface-variant">Fallo en la resolución del producto en el servicio de Menu</span></div></div><div class="flex items-center gap-1.5"><span class="px-2 py-1 border border-primary bg-surface text-primary font-mono text-[11px] font-bold">[NOT_ELIGIBLE]</span><span class="px-2 py-1 border border-primary bg-primary text-on-primary font-mono text-[11px] font-bold">[RESOLUTION_ERROR]</span></div></div><div class="flex flex-col gap-2.5"><div class="p-3 border border-primary bg-surface font-body-sm text-body-sm text-primary flex items-start gap-2.5"><span class="material-symbols-outlined text-[18px] text-primary mt-0.5">info</span><div><p class="font-semibold mb-1">No se pudo resolver la selección en Menu.</p><p class="text-on-surface-variant text-[12px] leading-relaxed">El elemento seleccionado presenta una condición no elegible según las reglas activas de Menu. Sin precio de referencia (fromPrice: null).</p></div></div></div><div class="border border-primary bg-surface-container p-3 font-mono text-[12px] flex flex-col gap-2"><div class="flex items-center justify-between border-b border-outline-variant pb-1.5"><span class="text-on-surface-variant font-semibold uppercase text-[10px] tracking-wider">Detalle técnico</span><span class="text-[11px] text-primary font-bold">syncStatus: RESOLUTION_ERROR</span></div><div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 pt-1 text-primary"><div><span class="text-on-surface-variant">Estado del ítem:</span><span class="font-bold ml-1">NOT_ELIGIBLE</span></div><div><span class="text-on-surface-variant">Diagnóstico:</span><span class="font-bold ml-1 text-primary">RESOLUTION_ERROR</span></div><div class="md:col-span-2 pt-1 border-t border-outline-variant/60"><span class="text-on-surface-variant block mb-0.5">fromPrice:</span><p class="bg-surface-container-lowest p-2 border border-outline-variant font-mono text-[11px] text-primary">Sin precio de referencia (fromPrice: null)</p></div></div></div><div class="flex items-center justify-end gap-3 pt-1"><button class="h-9 px-4 border border-primary bg-surface-container-lowest text-primary font-label-md text-label-md font-semibold hover:bg-surface-container transition-colors duration-150" type="button">Cerrar detalle</button><button class="h-9 px-4 border border-primary bg-surface-container-lowest text-primary font-label-md text-label-md font-semibold hover:bg-surface-container transition-colors duration-150" type="button">Volver al catálogo</button><button class="h-9 px-4 border-2 border-primary bg-surface-container-lowest text-primary font-label-md text-label-md font-bold hover:bg-primary hover:text-on-primary transition-colors duration-150 flex items-center gap-1.5" type="button"><span class="material-symbols-outlined text-[16px]">refresh</span>Reintentar selección</button></div></div>
+</div>
+</section>
+<!-- RIGHT COLUMN (~38% Draft Order Sidebar: "Selecciones nuevas") -->
+<section class="lg:col-span-5 xl:col-span-4 flex flex-col bg-surface-container-lowest justify-between">
+<!-- Sidebar Header -->
+<div class="p-4 border-b border-primary bg-surface">
+<div class="flex items-center justify-between mb-1">
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary flex items-center gap-2">
+<span>Selecciones nuevas</span>
+<span class="px-2 py-0.5 border border-primary bg-surface-container text-primary font-mono text-[11px] font-bold">
+                0 líneas
+              </span>
+</h2>
+<span class="font-mono text-[11px] text-on-surface-variant font-semibold">
+              APPEND DRAFT
+            </span>
+</div>
+<p class="font-mono text-[11px] text-on-surface-variant">
+            DraftOrderLine[] · borrador local · aún no confirmado
+          </p>
+</div>
+<!-- Sidebar Content: Strict Empty State -->
+<div class="flex-1 p-6 flex flex-col items-center justify-center text-center bg-surface-container-lowest">
+<div class="w-16 h-16 border-2 border-dashed border-primary flex items-center justify-center mb-3 bg-surface">
+<span class="material-symbols-outlined text-[32px] text-primary">receipt_long</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-primary mb-1.5">
+            Sin líneas pendientes
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-xs leading-relaxed mb-4">
+            No hay productos seleccionados en este borrador de agregado. El producto rechazado no fue añadido a <code class="font-mono bg-surface-container px-1 py-0.5 text-primary text-[11px]">DraftOrderLine[]</code>.
+          </p>
+<div class="w-full max-w-sm border border-outline-variant bg-surface p-3 text-left font-mono text-[11px] text-on-surface-variant">
+<div class="flex items-center gap-1.5 font-bold text-primary mb-1">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+              Invariante de integridad:
+            </div>
+<p class="text-[10px] leading-normal text-on-surface-variant">Ningún ítem clasificado como <code class="text-primary font-semibold">NOT_ELIGIBLE</code> puede cruzar al borrador activo.</p>
+</div>
+</div>
+<!-- Summary Numbers & Commit Section -->
+<div class="border-t border-primary bg-surface p-5 flex flex-col gap-4">
+<!-- Figures breakdown -->
+<div class="space-y-2 font-mono text-[12px]">
+<div class="flex justify-between items-center text-on-surface-variant">
+<span>Total actual de orden (confirmada):</span>
+<span class="font-semibold text-primary">$485.00 MXN</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span>Nuevas selecciones:</span>
+<span class="font-semibold text-primary">$0.00 MXN</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span>Total de preorden:</span>
+<span class="font-semibold text-primary">$0.00 MXN</span>
+</div>
+<div class="border-t border-primary pt-2.5 flex justify-between items-baseline font-mono">
+<span class="font-bold text-primary text-sm uppercase">Total proyectado:</span>
+<div class="text-right">
+<span class="font-headline-md text-headline-md font-bold text-primary leading-none">$485.00</span>
+<span class="text-[12px] font-semibold text-primary ml-1">MXN</span>
+</div>
+</div>
+</div>
+<!-- Commit Actions -->
+<div class="flex flex-col gap-2 pt-1">
+<!-- Primary Action Button: DISABLED -->
+<button class="w-full py-3 px-4 border border-outline-variant bg-surface-container text-outline font-label-lg text-label-lg font-bold cursor-not-allowed text-center uppercase tracking-wide transition-none flex items-center justify-center gap-2" disabled="" type="button">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+<span>Agregar a la orden (0 líneas seleccionadas)</span>
+</button>
+<!-- Secondary Button -->
+<button class="w-full py-2.5 px-4 border border-primary bg-surface-container-lowest text-primary font-label-md text-label-md font-semibold hover:bg-surface-container transition-colors duration-150 active:scale-[0.98] text-center" type="button">
+              ← Volver a la orden
+            </button>
+</div>
+<!-- Small auxiliary info -->
+<div class="text-center">
+<span class="font-mono text-[10px] text-on-surface-variant">
+              Target Order Session: 0xORD-2048-REV03
+            </span>
+</div>
+</div>
+</section>
+</main>
+<!-- 4. Footer Bar -->
+<footer class="border-t border-primary bg-surface-container-lowest px-5 py-2.5 flex flex-col md:flex-row justify-between items-center gap-2 font-mono text-[11px]">
+<!-- Mandatory explicit architecture note -->
+<div class="flex items-center gap-2 text-primary font-medium"><span class="material-symbols-outlined text-[15px] text-primary">gavel</span><span><strong>Regla de sistema:</strong> Una selección no elegible según Menu no se convierte en una línea válida.</span></div>
+<!-- Technical footer indicators -->
+<div class="flex items-center gap-3 text-on-surface-variant flex-wrap">
+<span class="px-1.5 py-0.5 border border-primary bg-surface font-bold text-primary">
+          syncStatus: RESOLUTION_REJECTED
+        </span>
+<span class="text-outline-variant">|</span>
+<span>rev: 1.0.4</span>
+<span class="text-outline-variant">|</span>
+<span class="font-semibold text-primary">Terminal POS #02 · Salón</span>
+</div>
+</footer>
+</div>
+</body></html>

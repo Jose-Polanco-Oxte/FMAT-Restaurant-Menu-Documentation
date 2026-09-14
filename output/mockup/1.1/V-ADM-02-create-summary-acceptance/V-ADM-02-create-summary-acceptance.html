@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background text-on-background" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Crear item de menú · Resumen y aceptación (V08-C / V10-C)</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-tertiary": "#ffffff",
+            "inverse-surface": "#2f3131",
+            "secondary-container": "#e4e2e2",
+            "outline": "#747878",
+            "surface-tint": "#5f5e5e",
+            "surface-container": "#eeeeee",
+            "on-tertiary-container": "#838484",
+            "primary-fixed-dim": "#c8c6c5",
+            "error-container": "#ffdad6",
+            "on-primary-container": "#858383",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "inverse-on-surface": "#f0f1f1",
+            "error": "#ba1a1a",
+            "on-surface-variant": "#444748",
+            "on-primary-fixed": "#1c1b1b",
+            "on-secondary-fixed-variant": "#474747",
+            "surface-container-low": "#f3f3f4",
+            "on-secondary-fixed": "#1b1c1c",
+            "inverse-primary": "#c8c6c5",
+            "on-primary-fixed-variant": "#474646",
+            "on-error-container": "#93000a",
+            "on-tertiary-fixed": "#1a1c1c",
+            "on-tertiary-fixed-variant": "#464747",
+            "tertiary-container": "#1a1c1c",
+            "surface-bright": "#f9f9f9",
+            "primary": "#000000",
+            "on-secondary-container": "#656464",
+            "tertiary-fixed": "#e3e2e2",
+            "surface-container-high": "#e8e8e8",
+            "secondary-fixed": "#e4e2e2",
+            "secondary-fixed-dim": "#c8c6c6",
+            "surface": "#f9f9f9",
+            "surface-variant": "#e2e2e2",
+            "surface-dim": "#dadada",
+            "background": "#f9f9f9",
+            "on-primary": "#ffffff",
+            "outline-variant": "#c4c7c7",
+            "secondary": "#5f5e5e",
+            "tertiary": "#000000",
+            "on-surface": "#1a1c1c",
+            "surface-container-highest": "#e2e2e2",
+            "surface-container-lowest": "#ffffff",
+            "primary-fixed": "#e5e2e1",
+            "on-secondary": "#ffffff",
+            "primary-container": "#1c1b1b",
+            "on-background": "#1a1c1c",
+            "on-error": "#ffffff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "space-xl": "2rem",
+            "space-sm": "0.5rem",
+            "margin": "1.5rem",
+            "gutter": "1rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem"
+          },
+          "fontFamily": {
+            "headline-sm": ["Inter", "sans-serif"],
+            "label-sm": ["Inter", "sans-serif"],
+            "body-md": ["Inter", "sans-serif"],
+            "body-lg": ["Inter", "sans-serif"],
+            "headline-lg": ["Inter", "sans-serif"],
+            "label-md": ["Inter", "sans-serif"],
+            "body-sm": ["Inter", "sans-serif"],
+            "label-lg": ["Inter", "sans-serif"],
+            "headline-md": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          "fontSize": {
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill-icon {
+      font-variation-settings: 'FILL' 1;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-background font-body-md text-on-surface antialiased p-4 md:p-6 flex flex-col items-center justify-start selection:bg-primary selection:text-on-primary">
+<!-- Main Enclosing Frame (Landscape 3:2 Architecture, 24px Canvas Margin standard) -->
+<div class="w-full max-w-[1400px] bg-surface-container-lowest border-2 border-primary shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col min-h-[calc(100vh-3rem)]">
+<!-- 1. HEADER SUPERIOR TÉCNICO -->
+<header class="border-b-2 border-primary bg-surface-container-lowest p-4 md:px-6 md:py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="bg-primary text-on-primary font-mono text-[10px] tracking-wider px-1.5 py-0.5 font-bold uppercase rounded-[2px] leading-tight">
+            [CREATE]
+          </span>
+<h1 class="font-headline-md text-headline-md tracking-tight text-primary">
+            Crear item de menú · Resumen y aceptación
+          </h1>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1.5">
+<span>Restaurant r-fmat-01 / Menú principal</span>
+<span class="text-outline-variant">•</span>
+<span class="font-mono text-[11px] text-on-surface bg-surface-container px-1 rounded">Borrador local · todavía no persistido</span>
+</p>
+</div>
+<!-- Right Technical Metadata Block -->
+<div class="flex flex-col items-start md:items-end font-mono text-[11px] leading-tight text-on-surface border border-outline-variant p-2 bg-surface-container-low rounded-[2px]">
+<div class="flex items-center gap-2">
+<span class="text-on-surface-variant font-medium">SPEC:</span>
+<span class="font-semibold text-primary">POS-CORE-CATALOG-V08C-V10C</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-on-surface-variant font-medium">SYNC STATUS:</span>
+<span class="font-semibold text-primary flex items-center gap-1">
+<span class="inline-block w-2 h-2 bg-primary"></span> LOCAL_STAGED
+          </span>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-on-surface-variant font-medium">SCHEMA:</span>
+<span class="font-mono text-on-surface">MenuItem.draft#04 · COMBO_REVIEW</span>
+</div>
+</div>
+</header>
+<!-- 2. STEPPER HORIZONTAL DE 4 PASOS -->
+<nav aria-label="Progreso del asistente" class="border-b border-primary bg-surface-container-low px-4 md:px-6 py-2.5">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+<!-- Paso 1 -->
+<div class="flex items-center justify-between border border-outline-variant bg-surface-container-lowest px-3 py-2 text-on-surface-variant rounded-[2px]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="check_circle">check_circle</span>
+<span class="font-mono text-[11px] font-semibold tracking-tight text-on-surface">1 CLASIFICACIÓN Y TIPO</span>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant uppercase">[✓ COMPLETADO]</span>
+</div>
+<!-- Paso 2 -->
+<div class="flex items-center justify-between border border-outline-variant bg-surface-container-lowest px-3 py-2 text-on-surface-variant rounded-[2px]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="check_circle">check_circle</span>
+<span class="font-mono text-[11px] font-semibold tracking-tight text-on-surface">2 ITEM Y SUMINISTRO</span>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant uppercase">[✓ COMPLETADO]</span>
+</div>
+<!-- Paso 3 -->
+<div class="flex items-center justify-between border border-outline-variant bg-surface-container-lowest px-3 py-2 text-on-surface-variant rounded-[2px]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="check_circle">check_circle</span>
+<span class="font-mono text-[11px] font-semibold tracking-tight text-on-surface">3 MODIFICADORES</span>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant uppercase">[✓ COMPLETADO]</span>
+</div>
+<!-- Paso 4: ACTUAL -->
+<div class="flex items-center justify-between border-2 border-primary bg-primary text-on-primary px-3 py-2 rounded-[2px]">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-on-primary inline-block animate-pulse"></span>
+<span class="font-mono text-[11px] font-bold tracking-tight text-on-primary">4 RESUMEN Y ACEPTACIÓN</span>
+</div>
+<span class="font-mono text-[10px] text-on-primary bg-primary-container px-1 rounded font-bold uppercase">[● FINAL]</span>
+</div>
+</div>
+</nav>
+<!-- 3. CONTENIDO PRINCIPAL: CUADRÍCULA ESTRUCTURADA 2 COLUMNAS -->
+<main class="flex-1 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 bg-surface-bright">
+<!-- COLUMNA IZQUIERDA: Identidad Comercial, Suministro y Validación (5 cols) -->
+<section class="lg:col-span-5 flex flex-col gap-5">
+<!-- SECCIÓN: DATOS COMERCIALES Y SUMINISTRO -->
+<div class="border border-primary bg-surface-container-lowest rounded-[2px] p-4 flex flex-col gap-4">
+<div class="flex items-center justify-between border-b border-primary pb-2.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="inventory_2">inventory_2</span>
+<h2 class="font-label-lg text-label-lg font-bold uppercase tracking-wider text-primary">
+                Datos Comerciales y Suministro
+              </h2>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant bg-surface-container px-1.5 py-0.5 rounded border border-outline-variant">
+              DIMENSIÓN COMERCIAL
+            </span>
+</div>
+<!-- Nombre y Versión Staged -->
+<div class="bg-surface-container-low border border-outline-variant p-3 rounded-[2px] flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-mono text-[10px] uppercase text-on-surface-variant">Nombre de Ítem (menuItem.name)</span>
+<span class="font-mono text-[10px] font-bold bg-primary text-on-primary px-1.5 py-0.5 rounded-[2px]">
+                [STAGED_REVIEW]
+              </span>
+</div>
+<div class="font-headline-sm text-headline-sm font-bold text-primary tracking-tight">
+              Combo comida
+            </div>
+<div class="font-mono text-[11px] text-on-surface-variant flex flex-wrap gap-x-3 gap-y-1 pt-1 border-t border-outline-variant mt-1">
+<span>menuId: <strong class="text-on-surface">ctg-main-01</strong></span>
+<span>version: <strong class="text-on-surface">v3.0#staged</strong></span>
+<span>itemId: <strong class="text-on-surface">itm-cmb-04</strong></span>
+</div>
+</div>
+<!-- Atributos en Cuadrícula Paramétrica -->
+<div class="grid grid-cols-2 gap-3 text-body-sm">
+<div class="border border-outline-variant p-2.5 rounded-[2px] bg-surface-container-lowest">
+<span class="font-mono text-[10px] block text-on-surface-variant uppercase font-medium">Clasificación</span>
+<span class="font-label-md text-label-md font-bold text-on-surface flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[16px]" data-icon="layers">layers</span>
+                Combo
+              </span>
+<span class="font-mono text-[10px] text-outline block mt-0.5">metadata: COMBO</span>
+</div>
+<div class="border border-outline-variant p-2.5 rounded-[2px] bg-surface-container-lowest">
+<span class="font-mono text-[10px] block text-on-surface-variant uppercase font-medium">Categoría Externa</span>
+<span class="font-label-md text-label-md font-bold text-on-surface flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[16px]" data-icon="sell">sell</span>
+                Paquetes / Promociones
+              </span>
+<span class="font-mono text-[10px] text-outline block mt-0.5">categoryId: cat-pkg-001</span>
+</div>
+<div class="col-span-2 border border-outline-variant p-2.5 rounded-[2px] bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-mono text-[10px] text-on-surface-variant uppercase font-medium">Tipo de Suministro</span>
+<span class="font-mono text-[10px] font-bold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]" data-icon="lock">lock</span>
+                  BLOQUEADO
+                </span>
+</div>
+<div class="font-label-lg text-label-lg font-bold text-primary">
+                COMBO
+              </div>
+<div class="font-mono text-[10px] text-on-surface-variant flex gap-3">
+<span>fulfillmentType: <span class="text-primary font-semibold">COMBO_AGGREGATED</span></span>
+<span>supplyMode: <span class="text-primary font-semibold">SLOT_COMPOSITION</span></span>
+</div>
+</div>
+</div>
+<!-- Variante Única y Precio Absoluto -->
+<div class="border-2 border-primary p-3 rounded-[2px] bg-surface-container-lowest flex flex-col gap-2">
+<div class="flex justify-between items-start border-b border-outline-variant pb-2">
+<div>
+<span class="font-mono text-[10px] uppercase text-on-surface-variant font-medium">Variante Base Única</span>
+<div class="font-headline-sm text-headline-sm font-bold text-primary">Regular</div>
+<span class="font-mono text-[10px] text-outline">variantId: var-cmb-reg-01</span>
+</div>
+<div class="text-right">
+<span class="font-mono text-[10px] uppercase text-on-surface-variant font-medium">Estado Administrativo</span>
+<div class="font-mono text-label-sm font-bold bg-surface-container px-2 py-0.5 rounded mt-0.5 inline-block text-on-surface border border-outline-variant">
+                  PROPUESTO: ACTIVE
+                </div>
+</div>
+</div>
+<div class="flex justify-between items-end pt-1">
+<div>
+<span class="font-mono text-[11px] uppercase text-on-surface-variant block">Precio de Venta (unitPrice)</span>
+<span class="font-mono text-[10px] text-outline font-semibold uppercase">PRECIO ABSOLUTO</span>
+</div>
+<div class="text-right">
+<div class="font-mono text-headline-lg text-headline-lg font-bold text-primary tracking-tight">
+                  $215.00 <span class="font-mono text-label-sm font-normal text-on-surface-variant">MXN</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container border-l-2 border-primary p-2 mt-1">
+<p class="font-mono text-[11px] text-on-surface-variant leading-snug">
+                Nota: Precio absoluto del paquete; no suma componentes ni calcula deltas directos.
+              </p>
+</div>
+</div>
+</div>
+<!-- SECCIÓN: PANEL DE AUDITORÍA Y VALIDACIONES -->
+<div class="border border-primary bg-surface-container-lowest rounded-[2px] p-4 flex flex-col gap-3">
+<div class="flex items-center justify-between border-b border-primary pb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="policy">policy</span>
+<h2 class="font-label-lg text-label-lg font-bold uppercase tracking-wider text-primary">
+                Auditoría y Validaciones
+              </h2>
+</div>
+<span class="font-mono text-[10px] text-primary font-bold">1 ALERTA / 0 FATAL</span>
+</div>
+<!-- Caja de Alerta Técnica de Capacidad (Warning Operativo) -->
+<div class="border-2 border-primary bg-surface-container-low p-3 rounded-[2px] flex flex-col gap-2">
+<div class="flex items-center justify-between border-b border-outline-variant pb-1.5">
+<div class="flex items-center gap-1.5 font-label-md text-label-md font-bold text-primary">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="warning">warning</span>
+<span>Advertencia de capacidad operacional [W-042]</span>
+</div>
+<span class="font-mono text-[10px] font-bold uppercase bg-surface-container border border-primary px-1.5 py-0.2 rounded">
+                ALERTA NO-BLOQUEANTE
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">Existe una discrepancia de disponibilidad en el componente de bebida (<code class="font-mono text-[11px] font-bold">var-beb-02</code>). La política de catálogo obliga a persistir el ítem como <strong class="font-semibold">INACTIVE</strong> hasta que la capacidad de suministro o relación de receta quede homologada. No es un error bloqueante, pero condiciona el estado de activación en salón.</p>
+<div class="font-mono text-[10px] text-on-surface-variant flex items-center gap-2 bg-surface-container-lowest p-1.5 border border-outline-variant"><span class="material-symbols-outlined text-[14px]" data-icon="info">info</span><span>Resolución sugerida: Validar en módulo de Recetas tras persistencia. <strong class="text-primary font-bold">[AVISO: ESTE WARNING NO CONSTITUYE UNA APROBACIÓN]</strong></span></div>
+</div>
+<!-- Aprobación Silenciosa / Límite de Integridad -->
+<div class="border border-outline-variant bg-surface-container-lowest p-2.5 rounded-[2px] flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-[16px] mt-0.5" data-icon="check_box">check_box</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">Validación de Integridad de Catálogo</span>
+<p class="font-mono text-[11px] text-on-surface-variant leading-normal mt-0.5">
+                Menu confirma su mutación de catálogo; no confirma Orders en mesa ni descuenta Inventory en este paso administrativo.
+              </p>
+</div>
+</div>
+</div>
+</section>
+<!-- COLUMNA DERECHA: Composición de Slots y Modificadores (7 cols) -->
+<section class="lg:col-span-7 flex flex-col gap-5">
+<!-- SECCIÓN: RESUMEN DE COMPOSICIÓN DE SLOTS -->
+<div class="border border-primary bg-surface-container-lowest rounded-[2px] p-4 flex flex-col gap-4">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-primary pb-2.5 gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="grid_view">grid_view</span>
+<h2 class="font-label-lg text-label-lg font-bold uppercase tracking-wider text-primary">
+                Composición de Slots del Combo
+              </h2>
+</div>
+<div class="font-mono text-[11px] text-on-surface bg-surface-container-low px-2 py-0.5 rounded border border-outline-variant flex items-center gap-1.5">
+<span class="text-on-surface-variant font-medium">CANONICAL:</span>
+<span class="font-bold text-primary">baseOptionIds: [BEB-01, ACC-01]</span>
+</div>
+</div>
+<!-- SLOT 1: BEBIDA -->
+<div class="border border-primary rounded-[2px] p-3 bg-surface-container-lowest flex flex-col gap-3">
+<div class="flex items-center justify-between bg-surface-container-low p-2 border border-outline-variant">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[10px] font-bold bg-primary text-on-primary px-1.5 py-0.5 rounded-[2px]">SLOT 01</span>
+<span class="font-label-lg text-label-lg font-bold text-primary">BEBIDA</span>
+</div>
+<div class="font-mono text-[11px] text-on-surface-variant">
+                slotId: <span class="text-on-surface font-semibold">slt-bebida-01</span> | min: <span class="font-bold text-primary">1</span> | max: <span class="font-bold text-primary">1</span> | suppliedQty: <span class="font-bold text-primary">1</span>
+</div>
+</div>
+<!-- Opciones Slot 1 -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+<!-- Opción Base BEB-01 -->
+<div class="border-2 border-primary bg-surface-container-low p-2.5 rounded-[2px] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-mono text-[10px] font-bold bg-primary text-on-primary px-1 rounded">OPCIÓN BASE / DEFAULT</span>
+<span class="font-mono text-[11px] font-bold text-primary">+$0.00 MXN</span>
+</div>
+<div class="font-label-md text-label-md font-bold text-primary">
+                    BEB-01 Agua fresca
+                  </div>
+</div>
+<div class="font-mono text-[10px] text-on-surface-variant mt-2 pt-1 border-t border-outline-variant flex justify-between">
+<span>version: v1.0</span>
+<span>variantId: var-beb-af-reg</span>
+</div>
+</div>
+<!-- Opción Permitida BEB-02 -->
+<div class="border border-outline-variant bg-surface-container-lowest p-2.5 rounded-[2px] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-mono text-[10px] text-on-surface-variant bg-surface-container px-1 rounded border border-outline-variant">OPCIÓN PERMITIDA</span>
+<span class="font-mono text-[11px] font-semibold text-on-surface-variant">+$0.00 MXN</span>
+</div>
+<div class="font-label-md text-label-md font-semibold text-on-surface">
+                    BEB-02 Refresco
+                  </div>
+</div>
+<div class="font-mono text-[10px] text-on-surface-variant mt-2 pt-1 border-t border-outline-variant flex justify-between">
+<span>version: v2.1</span>
+<span>variantId: var-beb-ref-can</span>
+</div>
+</div>
+</div>
+</div>
+<!-- SLOT 2: ACOMPAÑAMIENTO -->
+<div class="border border-primary rounded-[2px] p-3 bg-surface-container-lowest flex flex-col gap-3">
+<div class="flex items-center justify-between bg-surface-container-low p-2 border border-outline-variant">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[10px] font-bold bg-primary text-on-primary px-1.5 py-0.5 rounded-[2px]">SLOT 02</span>
+<span class="font-label-lg text-label-lg font-bold text-primary">ACOMPAÑAMIENTO</span>
+</div>
+<div class="font-mono text-[11px] text-on-surface-variant">
+                slotId: <span class="text-on-surface font-semibold">slt-acomp-02</span> | min: <span class="font-bold text-primary">1</span> | max: <span class="font-bold text-primary">1</span> | suppliedQty: <span class="font-bold text-primary">1</span>
+</div>
+</div>
+<!-- Opciones Slot 2 -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+<!-- Opción Base ACC-01 -->
+<div class="border-2 border-primary bg-surface-container-low p-2.5 rounded-[2px] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-mono text-[10px] font-bold bg-primary text-on-primary px-1 rounded">OPCIÓN BASE / DEFAULT</span>
+<span class="font-mono text-[11px] font-bold text-primary">+$0.00 MXN</span>
+</div>
+<div class="font-label-md text-label-md font-bold text-primary">
+                    ACC-01 Papas
+                  </div>
+</div>
+<div class="font-mono text-[10px] text-on-surface-variant mt-2 pt-1 border-t border-outline-variant flex justify-between">
+<span>version: v1.2</span>
+<span>variantId: var-acc-pap-rust</span>
+</div>
+</div>
+<!-- Opción Permitida ACC-02 -->
+<div class="border border-outline-variant bg-surface-container-lowest p-2.5 rounded-[2px] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-mono text-[10px] text-on-surface-variant bg-surface-container px-1 rounded border border-outline-variant">OPCIÓN PERMITIDA</span>
+<span class="font-mono text-[11px] font-semibold text-on-surface-variant">+$0.00 MXN</span>
+</div>
+<div class="font-label-md text-label-md font-semibold text-on-surface">
+                    ACC-02 Ensalada
+                  </div>
+</div>
+<div class="font-mono text-[10px] text-on-surface-variant mt-2 pt-1 border-t border-outline-variant flex justify-between">
+<span>version: v1.0</span>
+<span>variantId: var-acc-ens-mix</span>
+</div>
+</div>
+</div>
+</div>
+<div class="font-mono text-[11px] text-on-surface-variant bg-surface-container p-2 border-l-2 border-primary">
+            Las opciones configuradas no agregan cargos adicionales en esta composición base; definen los intercambios válidos para salón.
+          </div>
+</div>
+<!-- SECCIÓN: RESUMEN DE MODIFICADORES CONFIGURADOS -->
+<div class="border border-primary bg-surface-container-lowest rounded-[2px] p-4 flex flex-col gap-3">
+<div class="flex items-center justify-between border-b border-primary pb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="tune">tune</span>
+<h2 class="font-label-lg text-label-lg font-bold uppercase tracking-wider text-primary">
+                Modificadores Configurados
+              </h2>
+</div>
+<span class="font-mono text-[10px] text-on-surface bg-surface-container px-2 py-0.5 rounded border border-outline-variant">
+              GRUPO: Extras y Preferencias de Preparación
+            </span>
+</div>
+<div class="space-y-2">
+<!-- Modificador 1: OMIT Cebolla -->
+<div class="border border-outline-variant p-2.5 rounded-[2px] bg-surface-container-lowest flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-3">
+<span class="font-mono text-[10px] font-bold uppercase bg-surface-container text-on-surface border border-primary px-1.5 py-0.5 rounded-[2px]">
+                  OMIT
+                </span>
+<div>
+<div class="font-label-md text-label-md font-semibold text-on-surface">Cebolla morada</div>
+<div class="font-mono text-[10px] text-outline">Efecto: Quitar ingrediente base sin reducción de precio</div>
+</div>
+</div>
+<div class="text-right font-mono text-[11px]">
+<div class="text-on-surface font-semibold">$0.00 MXN</div>
+<div class="text-[10px] text-on-surface-variant">min: 0 | max: 1</div>
+</div>
+</div>
+<!-- Modificador 2: ADD Salsa o Aderezo extra -->
+<div class="border border-primary p-2.5 rounded-[2px] bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="font-mono text-[10px] font-bold uppercase bg-primary text-on-primary px-1.5 py-0.5 rounded-[2px]">
+                  ADD
+                </span>
+<div>
+<div class="font-label-md text-label-md font-bold text-primary">Salsa o Aderezo extra</div>
+<div class="font-mono text-[10px] text-on-surface-variant">Efecto: Aumento por porción extra · enabled: true</div>
+</div>
+</div>
+<div class="text-right font-mono text-[11px]">
+<div class="text-primary font-bold">+$12.00 MXN</div>
+<div class="text-[10px] text-on-surface-variant">min: 0 | max: 2 | priceDelta: +12.00</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- 4. BARRA INFERIOR DE ACEPTACIÓN Y ACCIONES (FOOTER ANCLADO) -->
+<footer class="border-t-2 border-primary bg-surface-container-lowest p-4 md:px-6 flex flex-col gap-3">
+<!-- Banner / Checkbox de Confirmación Explícita -->
+<div class="bg-surface-container-low border border-primary p-3 rounded-[2px] flex flex-col md:flex-row md:items-center justify-between gap-3">
+<label class="flex items-center gap-3 cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded-[2px] border-2 border-primary text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+<span class="font-label-md text-label-md font-bold text-primary">
+            [✓] Acepto revisar la configuración completa antes de guardarla en el catálogo.
+          </span>
+</label>
+<div class="flex items-center gap-1.5 font-mono text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[15px]" data-icon="info">info</span>
+<span>Cualquier resultado persistido se mostrará en una pantalla posterior de confirmación (V11 · CatalogEntrySavedView). El borrador local actual no altera pedidos en curso.</span>
+</div>
+</div>
+<!-- Grupo de Botones de Acción Operativa -->
+<div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-1">
+<!-- Izquierda: Guardar borrador -->
+<button class="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-primary bg-surface-container-lowest px-4 py-2 rounded-[2px] font-label-md text-label-md font-semibold text-primary hover:bg-surface-container active:scale-[0.98] transition-transform" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="save">save</span>
+          Guardar borrador local
+        </button>
+<!-- Derecha: Navegación de Flujo -->
+<div class="w-full sm:w-auto flex items-center gap-3">
+<button class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 border border-primary bg-surface-container-lowest px-4 py-2 rounded-[2px] font-label-md text-label-md font-semibold text-primary hover:bg-surface-container active:scale-[0.98] transition-transform" type="button">
+<span class="material-symbols-outlined text-[16px]" data-icon="arrow_back">arrow_back</span>
+            ← Volver al paso 3: Modificadores
+          </button>
+<button class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 border-2 border-primary bg-primary px-6 py-2 rounded-[2px] font-label-md text-label-md font-bold text-on-primary hover:bg-primary-container active:scale-[0.98] transition-transform shadow-[0_1px_2px_rgba(0,0,0,0.1)]" type="button">
+<span>Guardar item en catálogo →</span>
+<span class="material-symbols-outlined text-[18px]" data-icon="check">check</span>
+</button>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

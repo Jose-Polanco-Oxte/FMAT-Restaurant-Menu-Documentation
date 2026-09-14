@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-surface" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>V03-AO · Agregar productos a la orden - POS Terminal</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Verbatim Tailwind Config -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary": "#000000",
+            "inverse-on-surface": "#f0f1f1",
+            "surface-container-low": "#f3f3f4",
+            "on-primary": "#ffffff",
+            "on-secondary-container": "#656464",
+            "error-container": "#ffdad6",
+            "on-primary-container": "#858383",
+            "tertiary-container": "#1a1c1c",
+            "on-background": "#1a1c1c",
+            "on-error": "#ffffff",
+            "on-secondary-fixed": "#1b1c1c",
+            "on-surface": "#1a1c1c",
+            "on-primary-fixed-variant": "#474646",
+            "error": "#ba1a1a",
+            "outline-variant": "#c4c7c7",
+            "secondary-fixed": "#e4e2e2",
+            "surface-bright": "#f9f9f9",
+            "surface-container-highest": "#e2e2e2",
+            "primary-fixed": "#e5e2e1",
+            "on-secondary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "inverse-primary": "#c8c6c5",
+            "background": "#f9f9f9",
+            "surface-container-high": "#e8e8e8",
+            "tertiary-fixed": "#e3e2e2",
+            "on-tertiary": "#ffffff",
+            "surface-tint": "#5f5e5e",
+            "on-tertiary-container": "#838484",
+            "on-secondary-fixed-variant": "#474747",
+            "on-tertiary-fixed-variant": "#464747",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "surface": "#f9f9f9",
+            "surface-dim": "#dadada",
+            "outline": "#747878",
+            "surface-container": "#eeeeee",
+            "inverse-surface": "#2f3131",
+            "surface-variant": "#e2e2e2",
+            "primary-fixed-dim": "#c8c6c5",
+            "secondary": "#5f5e5e",
+            "on-primary-fixed": "#1c1b1b",
+            "primary-container": "#1c1b1b",
+            "on-surface-variant": "#444748",
+            "primary": "#000000",
+            "on-tertiary-fixed": "#1a1c1c",
+            "on-error-container": "#93000a",
+            "secondary-container": "#e4e2e2",
+            "secondary-fixed-dim": "#c8c6c6"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-lg": "1.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-xl": "2rem",
+            "space-md": "1rem",
+            "margin": "1.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "label-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "label-sm": ["Inter"],
+            "headline-sm": ["Inter"],
+            "body-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-sm": ["Inter"],
+            "headline-md": ["Inter"]
+          },
+          "fontSize": {
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      display: inline-block;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+    }
+  </style>
+</head>
+<body class="h-full bg-surface text-on-surface flex flex-col p-4 select-none overflow-hidden">
+<!-- Canvas Outer Framing: 3:2 Wireframe Landscape Canvas Border -->
+<div class="flex-1 flex flex-col bg-surface-container-lowest border border-tertiary rounded shadow-sm overflow-hidden">
+<!-- 1. ENCABEZADO (Header de Vista Específica - Sin Shell Global) -->
+<header class="bg-surface-container-lowest border-b border-outline-variant px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="restaurant_menu">restaurant_menu</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">
+            Agregar productos a la orden
+          </h1>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-label-sm font-label-sm bg-surface-container text-on-surface border border-outline">
+            Modo: APPEND_TO_ORDER · Agregando a comanda activa
+          </span>
+</div>
+<div class="flex items-center gap-2 text-body-sm font-body-sm text-on-surface-variant">
+<span class="font-label-md text-label-md font-semibold text-primary">Mesa 07</span>
+<span class="text-outline-variant">|</span>
+<span class="font-mono text-label-sm text-on-surface-variant">tableId: tbl-sala-07</span>
+<span class="text-outline-variant">|</span>
+<span class="font-mono text-label-sm text-on-surface-variant">orderId: ORD-2048</span>
+<span class="text-outline-variant">|</span>
+<span class="inline-flex items-center gap-1 text-label-sm font-label-sm text-secondary">
+<span class="w-2 h-2 rounded-full bg-primary inline-block"></span> Servidor: Carlos M.
+          </span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="inline-flex items-center gap-2 px-3 py-2 bg-surface-container-lowest border border-outline text-primary hover:bg-surface-container rounded text-label-md font-label-md transition-colors" type="button">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+          Volver a Comanda
+        </button>
+</div>
+</header>
+<!-- CUERPO PRINCIPAL DIVIDIDO EN 2 COLUMNAS: CATÁLOGO Y PANEL LATERAL DRAFT -->
+<div class="flex-1 flex overflow-hidden">
+<!-- COLUMNA IZQUIERDA: CATÁLOGO Y FILTROS -->
+<main class="flex-1 flex flex-col border-r border-outline-variant bg-surface overflow-hidden">
+<!-- 2. BARRA DE CATÁLOGO Y FILTROS -->
+<section class="bg-surface-container-lowest border-b border-outline-variant p-4 flex flex-col gap-3">
+<!-- Búsqueda y Dropdowns -->
+<div class="flex flex-wrap lg:flex-nowrap items-center gap-3">
+<!-- Buscador -->
+<div class="relative flex-1 min-w-[240px]">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-secondary">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</span>
+<input class="block w-full pl-9 pr-3 py-2 bg-surface-container-lowest border border-outline rounded text-body-md font-body-md text-on-surface placeholder:text-secondary focus:outline-none focus:border-primary" placeholder="Buscar por nombre (coincidencia parcial)..." type="text"/>
+</div>
+<!-- Dropdown Categoría -->
+<div class="w-48">
+<select class="block w-full py-2 px-3 bg-surface-container-lowest border border-outline rounded text-body-md font-body-md text-on-surface focus:outline-none focus:border-primary">
+<option value="todas">Todas las categorías</option>
+<option value="entradas">Entradas</option>
+<option selected="" value="platos_fuertes">Platos fuertes</option>
+<option value="postres">Postres</option>
+<option value="bebidas">Bebidas</option>
+</select>
+</div>
+<!-- Filtro Especial Tipo de Suministro con Tooltip -->
+<div class="relative group">
+<div class="flex items-center gap-1.5 px-3 py-2 border border-outline rounded bg-surface-container-lowest">
+<span class="material-symbols-outlined text-secondary" data-icon="inventory_2">inventory_2</span>
+<span class="text-label-md font-label-md text-on-surface">Suministro:</span>
+<select class="bg-transparent border-0 p-0 text-label-md font-label-md text-primary font-semibold focus:ring-0 cursor-pointer">
+<option value="TODOS">Todos</option>
+<option value="STOCKED">STOCKED</option>
+<option value="PREPARED">PREPARED</option>
+<option value="COMBO">COMBO</option>
+</select>
+<span class="material-symbols-outlined text-secondary cursor-help ml-1" data-icon="help_outline">help_outline</span>
+</div>
+<!-- Tooltip descriptivo -->
+<div class="absolute left-0 -bottom-9 hidden group-hover:flex z-30 bg-tertiary text-on-primary text-label-sm font-label-sm px-2.5 py-1 rounded shadow-md whitespace-nowrap">
+                requiere detalle o proyección ampliada
+              </div>
+</div>
+<!-- Botón Limpiar Filtros -->
+<button class="inline-flex items-center gap-1 px-3 py-2 border border-outline text-on-surface hover:bg-surface-container rounded text-label-md font-label-md transition-colors" type="button">
+<span class="material-symbols-outlined" data-icon="refresh">refresh</span>
+              Limpiar filtros
+            </button>
+</div>
+<!-- Filtro Segmentado de Clasificación Visual -->
+<div class="flex items-center gap-1.5 overflow-x-auto pt-1">
+<span class="text-label-sm font-label-sm text-secondary mr-2">Clasificación:</span>
+<button class="px-3 py-1 rounded text-label-sm font-label-sm border border-outline bg-surface-container-lowest text-on-surface hover:bg-surface-container" type="button">
+              Todas
+            </button>
+<button class="px-3 py-1 rounded text-label-sm font-label-sm border border-tertiary bg-surface-container text-primary font-bold" type="button">
+              Platillo
+            </button>
+<button class="px-3 py-1 rounded text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container" type="button">
+              Bebida
+            </button>
+<button class="px-3 py-1 rounded text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container" type="button">
+              Combo
+            </button>
+<button class="px-3 py-1 rounded text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container" type="button">
+              Postre
+            </button>
+<button class="px-3 py-1 rounded text-label-sm font-label-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container" type="button">
+              Complemento
+            </button>
+</div>
+</section>
+<!-- 3. CATÁLOGO DE PRODUCTOS (Grid 2x2 Bento de Wireframe de Alta Fidelidad) -->
+<div class="flex-1 p-4 overflow-y-auto">
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+<!-- TARJETA 1: Tacos de pescado -->
+<div class="bg-surface-container-lowest border border-tertiary rounded p-4 flex flex-col justify-between hover:border-primary transition-colors">
+<div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary">Tacos de pescado</h2>
+<div class="text-label-sm font-label-sm font-mono text-secondary mt-0.5">
+                      menuItemId: itm-tc-pesc-01 · menuItemVersion: v2.1
+                    </div>
+</div>
+<!-- Estado Elegible -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 border border-tertiary bg-surface-container text-primary text-label-sm font-label-sm font-semibold rounded">
+<span class="material-symbols-outlined" data-icon="check_circle" style="font-size: 14px;">check_circle</span>
+                    Elegible para ordenar
+                  </span>
+</div>
+<!-- Badges de Clasificación y Suministro -->
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 bg-surface-container-low border border-outline-variant text-label-sm font-label-sm rounded text-primary">
+                    Platillo
+                  </span>
+<span class="px-2 py-0.5 bg-surface-container-low border border-outline-variant text-label-sm font-label-sm rounded font-mono text-secondary">
+                    STOCKED
+                  </span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mb-4">
+                  Filete de pescado fresco empanizado al estilo Ensenada con aderezo tártara.
+                </p>
+</div>
+<div class="border-t border-outline-variant pt-3 flex flex-wrap items-center justify-between gap-3">
+<div>
+<span class="text-body-sm font-body-sm text-secondary block">fromPrice</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Desde $168.00 MXN</span>
+</div>
+<div class="flex items-center gap-2">
+<!-- Stepper de Cantidad -->
+<div class="flex items-center border border-outline rounded bg-surface-container-lowest">
+<button class="w-7 h-7 flex items-center justify-center text-primary hover:bg-surface-container text-label-md font-label-md border-r border-outline" type="button">-</button>
+<span class="w-8 text-center text-label-md font-label-md font-bold text-primary">1</span>
+<button class="w-7 h-7 flex items-center justify-center text-primary hover:bg-surface-container text-label-md font-label-md border-l border-outline" type="button">+</button>
+</div>
+<!-- Personalizar -->
+<button class="px-2.5 py-1.5 border border-outline rounded text-label-sm font-label-sm text-primary hover:bg-surface-container transition-colors" type="button">
+                    Personalizar / Configurar
+                  </button>
+<!-- Agregar -->
+<button class="px-3 py-1.5 bg-primary text-on-primary rounded text-label-sm font-label-sm font-semibold hover:bg-tertiary-container transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined" data-icon="add" style="font-size: 16px;">add</span>
+                    Agregar
+                  </button>
+</div>
+</div>
+</div>
+<!-- TARJETA 2: Sopa de tortilla -->
+<div class="bg-surface-container-lowest border border-tertiary rounded p-4 flex flex-col justify-between hover:border-primary transition-colors">
+<div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary">Sopa de tortilla</h2>
+<div class="text-label-sm font-label-sm font-mono text-secondary mt-0.5">
+                      menuItemId: itm-sp-tort-04 · menuItemVersion: v1.0
+                    </div>
+</div>
+<!-- Estado Elegible -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 border border-tertiary bg-surface-container text-primary text-label-sm font-label-sm font-semibold rounded">
+<span class="material-symbols-outlined" data-icon="check_circle" style="font-size: 14px;">check_circle</span>
+                    Elegible para ordenar
+                  </span>
+</div>
+<!-- Badges de Clasificación y Suministro -->
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 bg-surface-container-low border border-outline-variant text-label-sm font-label-sm rounded text-primary">
+                    Platillo
+                  </span>
+<span class="px-2 py-0.5 bg-surface-container-low border border-outline-variant text-label-sm font-label-sm rounded font-mono text-secondary">
+                    PREPARED
+                  </span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mb-4">
+                  Caldo tradicional de jitomate con tiras de tortilla crocante, aguacate, queso y crema.
+                </p>
+</div>
+<div class="border-t border-outline-variant pt-3 flex flex-wrap items-center justify-between gap-3">
+<div>
+<span class="text-body-sm font-body-sm text-secondary block">fromPrice</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Desde $95.00 MXN</span>
+</div>
+<div class="flex items-center gap-2">
+<!-- Stepper de Cantidad -->
+<div class="flex items-center border border-outline rounded bg-surface-container-lowest">
+<button class="w-7 h-7 flex items-center justify-center text-primary hover:bg-surface-container text-label-md font-label-md border-r border-outline" type="button">-</button>
+<span class="w-8 text-center text-label-md font-label-md font-bold text-primary">1</span>
+<button class="w-7 h-7 flex items-center justify-center text-primary hover:bg-surface-container text-label-md font-label-md border-l border-outline" type="button">+</button>
+</div>
+<!-- Personalizar -->
+<button class="px-2.5 py-1.5 border border-outline rounded text-label-sm font-label-sm text-primary hover:bg-surface-container transition-colors" type="button">
+                    Personalizar / Configurar
+                  </button>
+<!-- Agregar -->
+<button class="px-3 py-1.5 bg-primary text-on-primary rounded text-label-sm font-label-sm font-semibold hover:bg-tertiary-container transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined" data-icon="add" style="font-size: 16px;">add</span>
+                    Agregar
+                  </button>
+</div>
+</div>
+</div>
+<!-- TARJETA 3: Combo comida -->
+<div class="bg-surface-container-lowest border border-tertiary rounded p-4 flex flex-col justify-between hover:border-primary transition-colors">
+<div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary">Combo comida</h2>
+<div class="text-label-sm font-label-sm font-mono text-secondary mt-0.5">
+                      menuItemId: cmb-com-dia-02 · menuItemVersion: v3.0
+                    </div>
+</div>
+<!-- Estado Elegible -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 border border-tertiary bg-surface-container text-primary text-label-sm font-label-sm font-semibold rounded">
+<span class="material-symbols-outlined" data-icon="check_circle" style="font-size: 14px;">check_circle</span>
+                    Elegible para ordenar
+                  </span>
+</div>
+<!-- Badges de Clasificación y Suministro -->
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 bg-surface-container-low border border-outline-variant text-label-sm font-label-sm rounded text-primary">
+                    Combo
+                  </span>
+<span class="px-2 py-0.5 bg-surface-container-low border border-outline-variant text-label-sm font-label-sm rounded font-mono text-secondary">
+                    COMBO
+                  </span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mb-4">
+                  Incluye platillo fuerte, acompañamiento rústico y bebida de 500 ml a elección.
+                </p>
+</div>
+<div class="border-t border-outline-variant pt-3 flex flex-wrap items-center justify-between gap-3">
+<div>
+<span class="text-body-sm font-body-sm text-secondary block">fromPrice</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Desde $215.00 MXN</span>
+</div>
+<div class="flex items-center gap-2">
+<!-- Stepper de Cantidad -->
+<div class="flex items-center border border-outline rounded bg-surface-container-lowest">
+<button class="w-7 h-7 flex items-center justify-center text-primary hover:bg-surface-container text-label-md font-label-md border-r border-outline" type="button">-</button>
+<span class="w-8 text-center text-label-md font-label-md font-bold text-primary">1</span>
+<button class="w-7 h-7 flex items-center justify-center text-primary hover:bg-surface-container text-label-md font-label-md border-l border-outline" type="button">+</button>
+</div>
+<!-- Personalizar Combo -->
+<button class="px-2.5 py-1.5 border border-outline rounded text-label-sm font-label-sm text-primary hover:bg-surface-container transition-colors" type="button">
+                    Personalizar Combo
+                  </button>
+<!-- Agregar -->
+<button class="px-3 py-1.5 bg-primary text-on-primary rounded text-label-sm font-label-sm font-semibold hover:bg-tertiary-container transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined" data-icon="add" style="font-size: 16px;">add</span>
+                    Agregar
+                  </button>
+</div>
+</div>
+</div>
+<!-- TARJETA 4: Pastel del día (No elegible / Agotado) -->
+<div class="bg-surface-container-low border border-outline-variant rounded p-4 flex flex-col justify-between opacity-80">
+<div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-secondary">Pastel del día (No elegible)</h2>
+<div class="text-label-sm font-label-sm font-mono text-secondary mt-0.5">
+                      menuItemId: itm-pst-dia-09 · menuItemVersion: v1.2
+                    </div>
+</div>
+<!-- Estado NO Elegible Prominente -->
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 border border-outline bg-surface-container-high text-on-surface text-label-sm font-label-sm font-bold rounded"><span class="material-symbols-outlined" data-icon="block" style="font-size: 14px;">block</span> No elegible para ordenar según Menu</span>
+</div>
+<!-- Badges de Clasificación y Suministro -->
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 bg-surface-container-high border border-outline-variant text-label-sm font-label-sm rounded text-secondary">
+                    Postre
+                  </span>
+<span class="px-2 py-0.5 bg-surface-container-high border border-outline-variant text-label-sm font-label-sm rounded font-mono text-secondary">
+                    STOCKED
+                  </span>
+<span class="text-label-sm font-label-sm text-secondary italic">
+                    (eligible=false · fromPrice=null)
+                  </span>
+</div>
+<p class="text-body-sm font-body-sm text-secondary mb-4">
+                  Rebanada de tarta artesanal horneada en casa.
+                </p>
+</div>
+<div class="border-t border-outline-variant pt-3 flex flex-wrap items-center justify-between gap-3">
+<div>
+<span class="text-body-sm font-body-sm text-secondary block">fromPrice</span>
+<span class="font-label-md text-label-md font-semibold text-secondary">— Sin precio asignado —</span>
+</div>
+<div class="flex items-center gap-2">
+<!-- Botón Deshabilitado General -->
+<button class="px-4 py-2 border border-outline-variant bg-surface-container text-secondary cursor-not-allowed rounded text-label-sm font-label-sm font-medium" disabled="" type="button">
+                    No disponible para ordenar
+                  </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- 4. PANEL LATERAL DE TRABAJO (BORRADOR LOCAL - Anclado a la derecha) -->
+<aside class="w-96 flex flex-col bg-surface-container-lowest overflow-hidden">
+<!-- Encabezado del Panel de Borrador -->
+<div class="p-4 border-b border-outline-variant bg-surface-container-low">
+<div class="flex items-center justify-between mb-1">
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="edit_note">edit_note</span>
+              Selecciones nuevas
+            </h2>
+<span class="px-2 py-0.5 bg-surface-container border border-outline text-label-sm font-label-sm font-bold text-primary rounded">
+              2 líneas
+            </span>
+</div>
+<p class="text-label-sm font-label-sm font-mono text-secondary">
+            DraftOrderLine[] · borrador local (aún no confirmado)
+          </p>
+</div>
+<!-- Lista de Líneas Configuradas en el Borrador Local -->
+<div class="flex-1 p-4 overflow-y-auto space-y-3 bg-surface">
+<!-- Línea 1 configurada -->
+<div class="bg-surface-container-lowest border border-outline rounded p-3 relative">
+<div class="flex items-start justify-between gap-2 mb-1">
+<div>
+<div class="font-label-lg text-label-lg font-bold text-primary">
+                  Taco de pescado
+                </div>
+<div class="text-label-sm font-label-sm text-secondary">
+                  tortilla de maíz <span class="font-mono text-[11px]">(variantId: var-tco-maiz-01)</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-lg text-label-lg font-bold text-primary">$336.00 MXN</span>
+<span class="block text-label-sm font-label-sm text-secondary">2 × $168.00</span>
+</div>
+</div>
+<!-- Resumen de Personalización -->
+<div class="bg-surface-container-low border border-outline-variant rounded p-2 text-body-sm font-body-sm text-on-surface-variant my-2">
+<span class="font-label-sm font-semibold text-primary block mb-0.5">Notas de preparación:</span>
+              • Sin cebolla morada<br/>
+              • Salsa chipotle aparte
+            </div>
+<!-- Acciones de Línea -->
+<div class="flex items-center justify-between pt-1 border-t border-outline-variant text-label-sm font-label-sm">
+<span class="text-secondary font-mono">quantity: 2</span>
+<div class="flex items-center gap-2">
+<button class="text-primary hover:underline flex items-center gap-0.5" type="button">
+<span class="material-symbols-outlined" data-icon="edit" style="font-size: 15px;">edit</span>
+                  Editar
+                </button>
+<button class="text-primary hover:underline flex items-center gap-0.5" type="button">
+<span class="material-symbols-outlined" data-icon="tune" style="font-size: 15px;">tune</span>
+                  Reconfigurar
+                </button>
+<button class="text-secondary hover:text-primary hover:underline flex items-center gap-0.5" type="button">
+<span class="material-symbols-outlined" data-icon="delete" style="font-size: 15px;">delete</span>
+                  Quitar
+                </button>
+</div>
+</div>
+</div>
+<!-- Línea 2 configurada -->
+<div class="bg-surface-container-lowest border border-outline rounded p-3 relative">
+<div class="flex items-start justify-between gap-2 mb-1">
+<div>
+<div class="font-label-lg text-label-lg font-bold text-primary">
+                  Sopa de tortilla
+                </div>
+<div class="text-label-sm font-label-sm text-secondary">
+                  Porción regular <span class="font-mono text-[11px]">(variantId: var-sp-reg-01)</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-lg text-label-lg font-bold text-primary">$115.00 MXN</span>
+<span class="block text-label-sm font-label-sm text-secondary">1 × $95.00 + extras</span>
+</div>
+</div>
+<!-- Resumen de Personalización -->
+<div class="bg-surface-container-low border border-outline-variant rounded p-2 text-body-sm font-body-sm text-on-surface-variant my-2">
+<span class="font-label-sm font-semibold text-primary block mb-0.5">Notas de preparación:</span>
+              • Aguacate extra (+ $20.00 MXN)<br/>
+              • Sin crema
+            </div>
+<!-- Acciones de Línea -->
+<div class="flex items-center justify-between pt-1 border-t border-outline-variant text-label-sm font-label-sm">
+<span class="text-secondary font-mono">quantity: 1</span>
+<div class="flex items-center gap-2">
+<button class="text-primary hover:underline flex items-center gap-0.5" type="button">
+<span class="material-symbols-outlined" data-icon="edit" style="font-size: 15px;">edit</span>
+                  Editar
+                </button>
+<button class="text-primary hover:underline flex items-center gap-0.5" type="button">
+<span class="material-symbols-outlined" data-icon="tune" style="font-size: 15px;">tune</span>
+                  Reconfigurar
+                </button>
+<button class="text-secondary hover:text-primary hover:underline flex items-center gap-0.5" type="button">
+<span class="material-symbols-outlined" data-icon="delete" style="font-size: 15px;">delete</span>
+                  Quitar
+                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. PIE DEL PANEL LATERAL: DESGLOSE ECONÓMICO Y ACCIONES -->
+<div class="border-t border-outline-variant bg-surface-container-lowest p-4 flex flex-col gap-3">
+<!-- Desglose de Totales -->
+<div class="space-y-1.5 text-body-sm font-body-sm">
+<div class="flex justify-between text-secondary">
+<span>Subtotal selecciones nuevas:</span>
+<span class="font-mono text-primary font-medium">$451.00 MXN</span>
+</div>
+<div class="flex justify-between text-secondary text-label-sm">
+<span>preorderTotal (snapshot de lote):</span>
+<span class="font-mono text-secondary">$451.00 MXN</span>
+</div>
+<div class="border-t border-outline-variant pt-2 flex justify-between items-baseline">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Total de preorden:</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary font-mono">$451.00 MXN</span>
+</div>
+</div>
+<!-- Nota de Proceso y Arquitectura de Datos -->
+<div class="bg-surface-container-low border border-outline-variant rounded p-2 text-label-sm font-label-sm text-secondary flex items-start gap-1.5">
+<span class="material-symbols-outlined text-secondary flex-shrink-0" data-icon="info" style="font-size: 16px;">info</span>
+<span>Aviso: la confirmación final y el snapshot canónico pertenecen a Orders al enviar la comanda.</span>
+</div>
+<!-- Botones de Acción de Pie -->
+<div class="flex flex-col gap-2 pt-1">
+<button class="w-full py-3 px-4 bg-primary text-on-primary rounded text-label-lg font-label-lg font-bold flex items-center justify-center gap-2 hover:bg-tertiary-container active:scale-[0.99] transition-transform shadow-none" type="button">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+              Enviar a la orden
+            </button>
+<button class="w-full py-2 px-4 bg-surface-container-lowest border border-outline text-primary rounded text-label-md font-label-md font-semibold hover:bg-surface-container transition-colors text-center" type="button">
+              Seguir agregando
+            </button>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</body></html>

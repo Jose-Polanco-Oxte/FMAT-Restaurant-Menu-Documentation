@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión del catálogo - Ítems inactivos (V04-I) · FMAT POS</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Inter & JetBrains Mono font families -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with custom config -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary-fixed": "#e5e2e1",
+            "on-primary-container": "#858383",
+            "error-container": "#ffdad6",
+            "inverse-primary": "#c8c6c5",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-high": "#e8e8e8",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "surface-tint": "#5f5e5e",
+            "surface-container-low": "#f3f3f4",
+            "on-secondary-fixed-variant": "#474747",
+            "on-primary-fixed": "#1c1b1b",
+            "primary-container": "#1c1b1b",
+            "on-tertiary-fixed-variant": "#464747",
+            "on-surface": "#1a1c1c",
+            "surface-container-highest": "#e2e2e2",
+            "surface-container": "#eeeeee",
+            "secondary-fixed": "#e4e2e2",
+            "outline-variant": "#c4c7c7",
+            "on-error-container": "#93000a",
+            "error": "#ba1a1a",
+            "background": "#f9f9f9",
+            "outline": "#747878",
+            "surface-dim": "#dadada",
+            "on-tertiary": "#ffffff",
+            "primary-fixed-dim": "#c8c6c5",
+            "secondary": "#5f5e5e",
+            "on-secondary-container": "#656464",
+            "secondary-fixed-dim": "#c8c6c6",
+            "on-background": "#1a1c1c",
+            "tertiary": "#000000",
+            "on-primary-fixed-variant": "#474646",
+            "on-tertiary-container": "#838484",
+            "on-secondary": "#ffffff",
+            "on-secondary-fixed": "#1b1c1c",
+            "tertiary-container": "#1a1c1c",
+            "surface": "#f9f9f9",
+            "tertiary-fixed": "#e3e2e2",
+            "secondary-container": "#e4e2e2",
+            "on-tertiary-fixed": "#1a1c1c",
+            "on-surface-variant": "#444748",
+            "primary": "#000000",
+            "on-error": "#ffffff",
+            "surface-variant": "#e2e2e2",
+            "surface-bright": "#f9f9f9",
+            "on-primary": "#ffffff",
+            "inverse-surface": "#2f3131",
+            "inverse-on-surface": "#f0f1f1"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-lg": "1.5rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "gutter": "1rem",
+            "space-xs": "0.25rem",
+            "space-xl": "2rem",
+            "margin": "1.5rem"
+          },
+          "fontFamily": {
+            "body-md": ["Inter"],
+            "headline-md": ["Inter"],
+            "label-sm": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-sm": ["Inter"],
+            "label-lg": ["Inter"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          "fontSize": {
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-background text-on-surface font-body-md text-body-md min-h-screen p-space-lg antialiased">
+<!-- Outer Monochromatic Canvas Frame (3:2 Landscape Layout Optimized) -->
+<div class="max-w-7xl mx-auto bg-surface-container-lowest border-2 border-primary shadow-sm flex flex-col">
+<!-- 1. ENCABEZADO -->
+<header class="p-space-lg border-b border-primary flex flex-col md:flex-row justify-between items-start md:items-center gap-space-md bg-surface-container-lowest">
+<div class="space-y-1">
+<div class="flex items-center gap-space-sm flex-wrap">
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Gestión del catálogo</h1>
+<span class="inline-flex items-center px-2 py-0.5 border border-primary text-primary font-mono text-xs font-semibold bg-surface-container">
+            STATUS: INACTIVE
+          </span>
+<span class="font-mono text-xs text-on-surface-variant border-l border-outline-variant pl-2">
+            V04-I
+          </span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="font-headline-sm text-headline-sm text-primary">Ítems inactivos</span>
+<span class="text-outline">·</span>
+<span class="font-body-sm text-body-sm">Restaurant r-fmat-01 · Menú principal · <span class="font-mono">cat_id: ctg-main-01</span></span>
+</div>
+</div>
+<!-- Sync & Actor Metadata -->
+<div class="flex flex-col md:items-end gap-1 text-right self-stretch md:self-auto pt-2 md:pt-0 border-t md:border-t-0 border-outline-variant"><div class="border border-outline-variant bg-surface-container-low px-3 py-1.5 flex items-center gap-2"><span class="material-symbols-outlined text-primary" data-icon="shield_person">shield_person</span><span class="font-label-md text-label-md text-primary font-semibold">Actor: Administrador</span></div></div>
+</header>
+<!-- 2. TABS Y APARTADOS SEMÁNTICAMENTE SEPARADOS -->
+<nav aria-label="Estados del Catálogo" class="border-b border-outline-variant bg-surface-container-low px-space-lg pt-3 flex flex-wrap gap-2 items-center"><button class="bg-surface-container-lowest/50 hover:bg-surface-container-lowest border border-outline-variant -mb-[1px] px-5 py-2.5 flex items-center gap-2 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" type="button"><span>Activos</span><span class="bg-surface-container-highest border border-outline-variant text-on-surface-variant font-mono text-[10px] px-1.5 py-0.2">ACTIVE</span></button><button class="bg-surface-container-lowest border-t-2 border-l-2 border-r-2 border-primary -mb-[1px] px-5 py-2.5 flex items-center gap-2 font-label-md text-label-md text-primary font-bold z-10 transition-colors" type="button"><span>Inactivos</span><span class="bg-primary text-on-primary font-mono text-[10px] px-1.5 py-0.2 rounded-none tracking-wider">INACTIVE</span></button><button class="bg-surface-container-lowest/50 hover:bg-surface-container-lowest border border-outline-variant -mb-[1px] px-5 py-2.5 flex items-center gap-2 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" type="button"><span>Archivados</span><span class="bg-surface-container-highest border border-outline-variant text-on-surface-variant font-mono text-[10px] px-1.5 py-0.2">ARCHIVED</span></button></nav>
+<!-- Semantic Help Message Box -->
+<div class="px-space-lg py-2.5 bg-surface-container-low border-b border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0">info</span>
+<p class="font-body-sm text-body-sm text-on-surface">
+<strong class="font-semibold text-primary">Nota operativa:</strong> INACTIVE es un estado administrativo; no equivale a ARCHIVED ni determina elegibilidad directa de venta en salón/POS.
+      </p>
+</div>
+<!-- 3. BARRA DE FILTROS -->
+<section class="p-space-md border-b border-primary bg-surface-container-lowest space-y-space-sm">
+<div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md">
+<!-- Search & Dropdowns Cluster -->
+<div class="flex flex-wrap items-center gap-space-sm flex-1">
+<!-- Búsqueda libre -->
+<div class="relative min-w-[260px] flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary text-[18px]">search</span>
+<input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest border border-primary text-primary font-body-md text-body-md placeholder:text-on-surface-variant focus:outline-none focus:ring-1 focus:ring-primary rounded-none" placeholder="Buscar por nombre o ID..." type="text" value=""/>
+</div>
+<!-- Selector de Categoría externa -->
+<div class="relative">
+<select aria-label="Filtro de Categoría externa" class="pl-3 pr-8 py-2 bg-surface-container-lowest border border-primary font-body-sm text-body-sm text-primary appearance-none cursor-pointer focus:outline-none rounded-none">
+<option>Categoría: Todas (Entradas, Fuertes, Mariscos...)</option>
+<option>Entradas</option>
+<option>Platos Fuertes</option>
+<option>Mariscos</option>
+<option>Paquetes</option>
+<option>Postres</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-primary text-[18px]">expand_more</span>
+</div>
+<!-- Filtro de Tipo de suministro -->
+<div class="relative">
+<select aria-label="Filtro de Tipo de suministro" class="pl-3 pr-8 py-2 bg-surface-container-lowest border border-primary font-body-sm text-body-sm text-primary appearance-none cursor-pointer focus:outline-none rounded-none">
+<option>Tipo de suministro: Todos (STOCKED, PREPARED, COMBO)</option>
+<option>STOCKED</option>
+<option>PREPARED (Producción/Cocina)</option>
+<option>COMBO (Agrupación compuesta)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-primary text-[18px]">expand_more</span>
+</div>
+</div>
+<!-- Botón secundario Limpiar Filtros -->
+<div class="flex items-center gap-2 self-end xl:self-auto"><button class="h-10 px-5 bg-primary hover:bg-tertiary-container text-on-primary font-label-md text-label-md flex items-center gap-2 border border-primary transition-transform active:scale-[0.98]" type="button"><span class="material-symbols-outlined text-[18px]" data-icon="add">add</span><span class="font-semibold tracking-wide">+ Nuevo ítem</span></button></div>
+</div>
+<!-- Filtro de Clasificación: Botones Segmentados Monocromáticos -->
+<div class="flex flex-wrap items-center gap-1 pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant mr-2">Clasificación:</span>
+<div class="inline-flex flex-wrap border border-primary bg-surface-container-lowest">
+<!-- Todas (Seleccionado) -->
+<button class="px-3 py-1.5 font-label-sm text-label-sm bg-primary text-surface-container-lowest font-semibold border-r border-primary" type="button">
+            Todas
+          </button>
+<!-- Platillo -->
+<button class="px-3 py-1.5 font-label-sm text-label-sm text-primary hover:bg-surface-container border-r border-primary transition-colors" type="button">
+            Platillo
+          </button>
+<!-- Bebida -->
+<button class="px-3 py-1.5 font-label-sm text-label-sm text-primary hover:bg-surface-container border-r border-primary transition-colors" type="button">
+            Bebida
+          </button>
+<!-- Combo -->
+<button class="px-3 py-1.5 font-label-sm text-label-sm text-primary hover:bg-surface-container border-r border-primary transition-colors" type="button">
+            Combo
+          </button>
+<!-- Postre -->
+<button class="px-3 py-1.5 font-label-sm text-label-sm text-primary hover:bg-surface-container border-r border-primary transition-colors" type="button">
+            Postre
+          </button>
+<!-- Complemento -->
+<button class="px-3 py-1.5 font-label-sm text-label-sm text-primary hover:bg-surface-container transition-colors" type="button">
+            Complemento
+          </button>
+</div>
+</div>
+</section>
+<!-- 4. TABLA ADMINISTRATIVA CON 3 FILAS INACTIVAS -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<!-- Table Header -->
+<thead>
+<tr class="bg-surface-container border-b-2 border-primary text-primary font-label-md text-label-md">
+<th class="py-3 px-4 font-semibold">Ítem &amp; Metadatos</th>
+<th class="py-3 px-4 font-semibold">Clasificación &amp; Suministro</th>
+<th class="py-3 px-4 font-semibold">Estado adm.</th>
+<th class="py-3 px-4 font-semibold">Elegibilidad para venta</th>
+<th class="py-3 px-4 font-semibold text-right">Precio derivado / base</th>
+<th class="py-3 px-4 font-semibold text-right">Acciones administrativas</th>
+</tr>
+</thead>
+<!-- Table Body (3 Inactive Rows) -->
+<tbody class="divide-y divide-outline-variant font-body-sm text-body-sm">
+<!-- FILA 1 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<!-- Ítem & Metadatos -->
+<td class="py-4 px-4 align-top">
+<div class="font-label-lg text-label-lg text-primary font-bold">
+                Tacos de pescado · versión v1.9
+              </div>
+<div class="font-mono text-xs text-on-surface-variant mt-1 flex items-center gap-2 flex-wrap">
+<span class="bg-surface-container px-1.5 py-0.5 border border-outline-variant">ID: itm-pesc-01</span>
+<span class="bg-surface-container px-1.5 py-0.5 border border-outline-variant">v1.9.0</span>
+<span>·</span>
+<span class="text-on-surface">Categoría: <strong>Mariscos</strong></span>
+</div>
+</td>
+<!-- Clasificación & Suministro -->
+<td class="py-4 px-4 align-top">
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 border border-primary text-primary font-label-sm text-label-sm font-medium">Platillo</span>
+<span class="px-2 py-0.5 bg-surface-container-high border border-outline text-primary font-mono text-xs font-semibold">STOCKED</span>
+</div>
+</td>
+<!-- Estado adm. -->
+<td class="py-4 px-4 align-top">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-surface-container-lowest border border-primary text-primary font-mono text-xs font-bold">
+<span>■</span> INACTIVE
+              </span>
+</td>
+<!-- Elegibilidad para venta -->
+<td class="py-4 px-4 align-top max-w-xs"><p class="text-on-surface-variant font-body-sm leading-snug">Elegibilidad no evaluada en este apartado</p><span class="text-xs text-outline font-mono block mt-1">Estado administrativo en pausa</span></td>
+<!-- Precio derivado / base -->
+<td class="py-4 px-4 align-top text-right">
+<div class="font-label-lg text-label-lg font-bold text-primary font-mono">$168.00 MXN</div>
+<div class="text-xs text-on-surface-variant font-body-sm mt-0.5">1 variante base</div>
+</td>
+<!-- Acciones administrativas -->
+<td class="py-4 px-4 align-top text-right">
+<div class="inline-flex items-center gap-2">
+<button class="px-3 py-1.5 border border-primary bg-surface-container-lowest hover:bg-surface-container text-primary font-label-sm text-label-sm font-medium transition-colors" type="button">
+                  [Editar]
+                </button>
+<button class="px-3 py-1.5 bg-primary text-surface-container-lowest hover:bg-inverse-surface border border-primary font-label-sm text-label-sm font-semibold transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">play_arrow</span>
+<span>[Activar]</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- FILA 2 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<!-- Ítem & Metadatos -->
+<td class="py-4 px-4 align-top">
+<div class="font-label-lg text-label-lg text-primary font-bold">
+                Sopa de tortilla · versión v0.8
+              </div>
+<div class="font-mono text-xs text-on-surface-variant mt-1 flex items-center gap-2 flex-wrap">
+<span class="bg-surface-container px-1.5 py-0.5 border border-outline-variant">ID: itm-sp-tort-04</span>
+<span class="bg-surface-container px-1.5 py-0.5 border border-outline-variant">v0.8.4</span>
+<span>·</span>
+<span class="text-on-surface">Categoría: <strong>Entradas</strong></span>
+</div>
+</td>
+<!-- Clasificación & Suministro -->
+<td class="py-4 px-4 align-top">
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 border border-primary text-primary font-label-sm text-label-sm font-medium">Platillo</span>
+<span class="px-2 py-0.5 bg-surface-container-high border border-outline text-primary font-mono text-xs font-semibold">PREPARED</span>
+</div>
+</td>
+<!-- Estado adm. -->
+<td class="py-4 px-4 align-top">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-surface-container-lowest border border-primary text-primary font-mono text-xs font-bold">
+<span>■</span> INACTIVE
+              </span>
+</td>
+<!-- Elegibilidad para venta -->
+<td class="py-4 px-4 align-top max-w-xs"><p class="text-on-surface-variant font-body-sm leading-snug">Elegibilidad no evaluada en este apartado</p><span class="text-xs text-outline font-mono block mt-1">Estado administrativo en pausa</span></td>
+<!-- Precio derivado / base -->
+<td class="py-4 px-4 align-top text-right">
+<div class="font-label-lg text-label-lg font-bold text-primary font-mono">$95.00 MXN</div>
+<div class="text-xs text-on-surface-variant font-body-sm mt-0.5">Porción regular</div>
+</td>
+<!-- Acciones administrativas -->
+<td class="py-4 px-4 align-top text-right">
+<div class="inline-flex items-center gap-2">
+<button class="px-3 py-1.5 border border-primary bg-surface-container-lowest hover:bg-surface-container text-primary font-label-sm text-label-sm font-medium transition-colors" type="button">
+                  [Editar]
+                </button>
+<button class="px-3 py-1.5 bg-primary text-surface-container-lowest hover:bg-inverse-surface border border-primary font-label-sm text-label-sm font-semibold transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">play_arrow</span>
+<span>[Activar]</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- FILA 3 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<!-- Ítem & Metadatos -->
+<td class="py-4 px-4 align-top">
+<div class="font-label-lg text-label-lg text-primary font-bold">
+                Combo comida · versión v2.4
+              </div>
+<div class="font-mono text-xs text-on-surface-variant mt-1 flex items-center gap-2 flex-wrap">
+<span class="bg-surface-container px-1.5 py-0.5 border border-outline-variant">ID: itm-cmb-04</span>
+<span class="bg-surface-container px-1.5 py-0.5 border border-outline-variant">v2.4.1</span>
+<span>·</span>
+<span class="text-on-surface">Categoría: <strong>Paquetes</strong></span>
+</div>
+</td>
+<!-- Clasificación & Suministro -->
+<td class="py-4 px-4 align-top">
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 border border-primary text-primary font-label-sm text-label-sm font-medium">Combo</span>
+<span class="px-2 py-0.5 bg-surface-container-high border border-outline text-primary font-mono text-xs font-semibold">COMBO</span>
+</div>
+</td>
+<!-- Estado adm. -->
+<td class="py-4 px-4 align-top">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-surface-container-lowest border border-primary text-primary font-mono text-xs font-bold">
+<span>■</span> INACTIVE
+              </span>
+</td>
+<!-- Elegibilidad para venta -->
+<td class="py-4 px-4 align-top max-w-xs"><p class="text-on-surface-variant font-body-sm leading-snug">Elegibilidad no evaluada en este apartado</p><span class="text-xs text-outline font-mono block mt-1">Estado administrativo en pausa</span></td>
+<!-- Precio derivado / base -->
+<td class="py-4 px-4 align-top text-right">
+<div class="font-label-lg text-label-lg font-bold text-primary font-mono">$215.00 MXN</div>
+<div class="text-xs text-on-surface-variant font-body-sm mt-0.5">Precio base combo</div>
+</td>
+<!-- Acciones administrativas -->
+<td class="py-4 px-4 align-top text-right">
+<div class="inline-flex items-center gap-2">
+<button class="px-3 py-1.5 border border-primary bg-surface-container-lowest hover:bg-surface-container text-primary font-label-sm text-label-sm font-medium transition-colors" type="button">
+                  [Editar]
+                </button>
+<button class="px-3 py-1.5 bg-primary text-surface-container-lowest hover:bg-inverse-surface border border-primary font-label-sm text-label-sm font-semibold transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">play_arrow</span>
+<span>[Activar]</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Paginador Inferior -->
+<div class="p-space-md border-t border-primary bg-surface-container-low flex flex-col sm:flex-row justify-between items-center gap-space-sm"><div class="font-body-sm text-[12px] text-on-surface-variant">Mostrando <strong>3</strong> ítems en catálogo inactivo · Filtro de suministro: <span class="font-mono font-medium text-primary">TODOS</span></div><div class="inline-flex items-center gap-1"><button class="px-2.5 py-1 border border-primary bg-surface-container-lowest text-primary font-mono text-[12px] font-bold" disabled="" type="button">1</button><button class="px-2.5 py-1 border border-outline-variant bg-surface-container-lowest hover:bg-surface-container text-secondary font-mono text-[12px]" type="button">2</button><button class="px-2.5 py-1 border border-outline-variant bg-surface-container-lowest hover:bg-surface-container text-secondary font-mono text-[12px]" type="button">3</button><span class="px-1 text-secondary text-[12px]">...</span><button class="px-2.5 py-1 border border-outline-variant bg-surface-container-lowest hover:bg-surface-container text-secondary font-mono text-[12px]" type="button">4</button></div></div>
+<!-- 5. PANEL DE AYUDA / ESTADO DE ACCIÓN (Banner contextual para la acción Activar) -->
+<footer class="p-space-md bg-surface-container border-t-2 border-primary">
+<div class="border border-primary bg-surface-container-lowest p-space-md">
+<div class="flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[22px] shrink-0 mt-0.5">warning</span>
+<div class="space-y-1">
+<h4 class="font-label-lg text-label-lg text-primary font-bold">
+              Condición para activación
+            </h4>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">Activación sujeta a una configuración válida según Menu.</p>
+</div>
+</div>
+</div>
+<!-- Metadatos de ingeniería al pie -->
+<div class="mt-3 pt-2 border-t border-outline-variant flex flex-wrap justify-between items-center gap-2 font-mono text-[11px] text-on-surface-variant">
+<span>spec: POS-CORE-CATALOG-V04I</span>
+<span>schema_binding: INACTIVE_STATE_EVAL</span>
+<span>tenant_node: RFMAT_SALON_01</span>
+</div>
+</footer>
+</div>
+</body></html>

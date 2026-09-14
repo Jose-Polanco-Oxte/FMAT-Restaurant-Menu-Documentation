@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V01 · AssignedTablesView (Estado vacío - Sin mesas asignadas)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            surface: {
+              DEFAULT: '#f9f9f9',
+              dim: '#dadada',
+              bright: '#f9f9f9',
+              lowest: '#ffffff',
+              low: '#f3f3f4',
+              container: '#ebebeb',
+              high: '#e2e2e2'
+            },
+            outline: {
+              DEFAULT: '#75777b',
+              variant: '#c4c6cf'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface text-[#111111] font-sans antialiased min-h-screen p-8 flex flex-col justify-between selection:bg-black selection:text-white">
+
+  <!-- Contenedor Principal de la Vista (Escritorio / Tablet Horizontal) -->
+  <div class="max-w-7xl mx-auto w-full flex flex-col gap-6">
+
+    <!-- 1. ENCABEZADO -->
+    <header class="pb-6 border-b border-[#111111] flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-3xl font-bold tracking-tight text-[#111111]">Mesas asignadas</h1>
+          <span class="font-mono text-xs px-2 py-0.5 border border-[#111111] font-semibold bg-surface-lowest uppercase">V01</span>
+        </div>
+        <p class="text-sm text-neutral-600 mt-1 font-normal">No hay mesas asignadas en este momento</p>
+      </div>
+
+      <!-- Metadatos discretos de actor y fuente -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 border border-[#111111] bg-surface-lowest text-xs font-mono">
+          <span class="w-2 h-2 rounded-full bg-neutral-400 inline-block"></span>
+          <span class="text-neutral-500">Fuente:</span>
+          <span class="font-semibold text-[#111111]">Sala</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 border border-[#111111] bg-surface-lowest text-xs font-mono">
+          <span class="material-symbols-outlined text-[16px] text-neutral-700">person</span>
+          <span class="text-neutral-500">Actor:</span>
+          <span class="font-semibold text-[#111111]">Mesero</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. CONTEXTO Y CONTROLES DE FILTRADO -->
+    <section class="p-4 bg-surface-lowest border border-[#111111] rounded-none flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      
+      <!-- Indicador de conjunto recibido -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-8 h-8 border border-[#111111] bg-surface-low font-mono font-bold text-sm">
+          0
+        </div>
+        <div>
+          <div class="text-xs font-mono text-neutral-500 uppercase tracking-wider">Conjunto recibido:</div>
+          <div class="text-sm font-semibold text-[#111111] flex items-center gap-1.5">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-neutral-400"></span>
+            vacío
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros y Búsqueda -->
+      <div class="flex flex-wrap items-center gap-3 flex-1 justify-end">
+        <!-- Búsqueda por etiqueta -->
+        <div class="relative min-w-[260px] max-w-sm w-full">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 text-[18px]">search</span>
+          <input 
+            type="text" 
+            placeholder="Buscar por etiqueta (ej. 04)..." 
+            disabled
+            class="w-full pl-9 pr-3 py-2 border border-neutral-300 bg-neutral-100 text-neutral-400 text-sm font-sans placeholder:text-neutral-400 cursor-not-allowed select-none focus:outline-none"
+          />
+        </div>
+
+        <!-- Filtro de estado de mesas -->
+        <div class="inline-flex border border-[#111111] bg-surface-lowest p-0.5" role="group">
+          <!-- Todas (Activo) -->
+          <button 
+            type="button" 
+            class="px-4 py-1.5 text-xs font-semibold uppercase tracking-wider bg-[#111111] text-white transition-colors"
+          >
+            Todas (0)
+          </button>
+          <!-- Sin orden -->
+          <button 
+            type="button" 
+            class="px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-neutral-600 hover:text-black hover:bg-neutral-100 transition-colors"
+          >
+            Sin orden (0)
+          </button>
+          <!-- Con orden -->
+          <button 
+            type="button" 
+            class="px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-neutral-600 hover:text-black hover:bg-neutral-100 transition-colors"
+          >
+            Con orden (0)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. ESTADO PRINCIPAL: PANEL VACÍO -->
+    <main class="w-full min-h-[420px] bg-surface-lowest border border-[#111111] p-12 flex flex-col items-center justify-center text-center">
+      
+      <!-- Icono Lineal de Mesa -->
+      <div class="w-20 h-20 border border-[#111111] flex items-center justify-center mb-6 bg-surface-low">
+        <svg class="w-11 h-11 stroke-[#111111] fill-none stroke-[1.5]" viewBox="0 0 48 48" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Superficie elíptica de la mesa de comedor -->
+          <ellipse cx="24" cy="18" rx="18" ry="7" />
+          <!-- Patas de la mesa -->
+          <line x1="12" y1="23" x2="10" y2="40" />
+          <line x1="36" y1="23" x2="38" y2="40" />
+          <line x1="20" y1="25" x2="19" y2="41" />
+          <line x1="28" y1="25" x2="29" y2="41" />
+          <!-- Refuerzo transversal sutil -->
+          <line x1="11" y1="33" x2="37" y2="33" stroke-dasharray="2 2" stroke-opacity="0.4" />
+        </svg>
+      </div>
+
+      <!-- Títulos y Mensajes Canónicos -->
+      <h2 class="text-2xl font-bold tracking-tight text-[#111111] mb-2">No hay mesas asignadas</h2>
+      <p class="text-base text-neutral-700 max-w-md mx-auto mb-6">
+        Sala no entregó mesas para este mesero
+      </p>
+
+      <!-- Acción Primaria -->
+      <button 
+        type="button" 
+        class="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] text-white hover:bg-neutral-800 active:scale-[0.98] font-semibold text-sm tracking-wide uppercase transition-all shadow-none"
+      >
+        <span class="material-symbols-outlined text-[18px]">sync</span>
+        <span>Actualizar mesas</span>
+      </button>
+
+      <!-- Nota Secundaria Explicativa de Arquitectura / Comportamiento -->
+      <div class="mt-8 pt-6 border-t border-dashed border-neutral-300 max-w-xl text-center">
+        <p class="text-xs text-neutral-500 font-mono inline-flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px] text-neutral-400">info</span>
+          <span>Si el filtro estuviera ocultando resultados, el mensaje sería distinto</span>
+        </p>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- 4. PIE DE PÁGINA: BADGES Y METADATOS TÉCNICOS -->
+  <footer class="max-w-7xl mx-auto w-full mt-10 pt-4 border-t border-neutral-300 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-neutral-600">
+    
+    <div class="flex items-center gap-3">
+      <!-- Badge DERIVADO -->
+      <span class="px-2 py-0.5 border border-[#111111] bg-surface-lowest text-[#111111] font-bold tracking-wider uppercase text-[11px]">
+        DERIVADO
+      </span>
+      <span class="text-neutral-500">Estado visual:</span>
+      <span class="text-neutral-800 font-medium">EMPTY_RESULT_SET</span>
+      <span class="text-neutral-300">|</span>
+      <span class="text-neutral-500">Metadato UI:</span>
+      <span class="text-neutral-800">view_variant=empty_tables</span>
+    </div>
+
+    <!-- Aclaración arquitectónica estricta -->
+    <div class="flex items-center gap-2 text-right">
+      <span class="inline-block w-2 h-2 rounded-full bg-emerald-600"></span>
+      <span class="text-neutral-600">
+        El conjunto de asignación pertenece contractualmente a <strong class="text-[#111111] font-semibold">Sala</strong>, no a <strong class="text-neutral-500 font-normal line-through">Menu</strong>.
+      </span>
+    </div>
+  </footer>
+
+</body>
+</html>

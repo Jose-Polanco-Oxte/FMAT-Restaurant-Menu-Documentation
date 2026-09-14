@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>V06-C · Crear item de menú - Paso 2: Item y suministro (COMBO)</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "background": "#f9f9f9",
+            "on-background": "#1a1c1c",
+            "on-primary-container": "#858383",
+            "surface-container-lowest": "#ffffff",
+            "primary-container": "#1c1b1b",
+            "on-secondary-fixed-variant": "#474747",
+            "on-primary-fixed-variant": "#474646",
+            "error-container": "#ffdad6",
+            "on-surface": "#1a1c1c",
+            "on-secondary-fixed": "#1b1c1c",
+            "inverse-primary": "#c8c6c5",
+            "on-secondary-container": "#656464",
+            "secondary": "#5f5e5e",
+            "primary-fixed-dim": "#c8c6c5",
+            "on-primary-fixed": "#1c1b1b",
+            "on-tertiary-container": "#838484",
+            "primary": "#000000",
+            "inverse-on-surface": "#f0f1f1",
+            "secondary-fixed-dim": "#c8c6c6",
+            "on-tertiary-fixed-variant": "#464747",
+            "secondary-fixed": "#e4e2e2",
+            "on-error": "#ffffff",
+            "outline-variant": "#c4c7c7",
+            "error": "#ba1a1a",
+            "surface-container-low": "#f3f3f4",
+            "surface-tint": "#5f5e5e",
+            "surface-variant": "#e2e2e2",
+            "tertiary-fixed": "#e3e2e2",
+            "tertiary": "#000000",
+            "tertiary-container": "#1a1c1c",
+            "on-tertiary-fixed": "#1a1c1c",
+            "on-primary": "#ffffff",
+            "on-surface-variant": "#444748",
+            "on-error-container": "#93000a",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "surface-dim": "#dadada",
+            "surface": "#f9f9f9",
+            "primary-fixed": "#e5e2e1",
+            "inverse-surface": "#2f3131",
+            "on-tertiary": "#ffffff",
+            "on-secondary": "#ffffff",
+            "surface-container-highest": "#e2e2e2",
+            "outline": "#747878",
+            "surface-container-high": "#e8e8e8",
+            "surface-bright": "#f9f9f9",
+            "surface-container": "#eeeeee",
+            "secondary-container": "#e4e2e2"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "gutter": "1rem",
+            "space-xl": "2rem",
+            "space-xs": "0.25rem",
+            "margin": "1.5rem"
+          },
+          "fontFamily": {
+            "body-sm": ["Inter"],
+            "label-lg": ["Inter"],
+            "headline-sm": ["Inter"],
+            "label-sm": ["Inter"],
+            "label-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "headline-md": ["Inter"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          "fontSize": {
+            "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+            "label-lg": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+            "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+            "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+            "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+            "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+            "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+            "headline-md": ["22px", {"lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #c4c7c7;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #f3f3f4;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen p-3 md:p-6 flex justify-center items-start">
+<!-- Desktop Landscape Blueprint / Wireframe Container (Strict 3:2 Ratio Framing) -->
+<div class="w-full max-w-[1400px] bg-surface-container-lowest border-2 border-primary shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col">
+<!-- 1. Encabezado principal superior -->
+<header class="border-b-2 border-primary px-6 py-4 bg-surface-container-lowest flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="bg-primary text-on-primary font-mono text-[11px] font-bold px-2 py-0.5 rounded-[2px] tracking-wider uppercase">[CREATE]</span>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary">Crear item de menú · Item y suministro</h1>
+<span class="border border-primary text-primary font-mono text-[11px] font-semibold px-2 py-0.5 rounded-[2px] bg-surface-container-low">V06-C · Suministro COMBO</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary flex items-center gap-1.5 flex-wrap">
+<span>Restaurant r-fmat-01 / Menú principal</span>
+<span>•</span>
+<span class="font-medium text-on-surface">Configuración de slots y composición</span>
+<span>•</span>
+<span class="font-mono text-primary font-medium">Borrador local · aún no persistido</span>
+</p>
+</div>
+<!-- Bloque de especificación técnica superior derecho -->
+<div class="border border-outline-variant bg-surface-container-low p-2.5 rounded-[2px] font-mono text-[11px] leading-relaxed self-start lg:self-auto min-w-[280px]">
+<div class="flex justify-between items-center text-secondary border-b border-outline-variant/60 pb-1 mb-1">
+<span class="font-semibold text-primary">SPEC:</span>
+<span>POS-CORE-CATALOG-V06C-COMBO</span>
+</div>
+<div class="flex justify-between items-center text-secondary border-b border-outline-variant/60 pb-1 mb-1">
+<span class="font-semibold text-primary">SYNC STATUS:</span>
+<span class="text-primary font-bold">■ LOCAL_STAGED</span>
+</div>
+<div class="flex justify-between items-center text-secondary">
+<span class="font-semibold text-primary">SCHEMA:</span>
+<span>MenuItem.draft#02 · COMBO</span>
+</div>
+</div>
+</header>
+<!-- 2. Stepper horizontal (4 pasos) -->
+<nav aria-label="Progreso de creación" class="border-b border-primary bg-surface-container-low px-6 py-2.5">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+<!-- Paso 1 -->
+<div class="flex items-center gap-2 border border-outline bg-surface-container-lowest px-3 py-2 opacity-80">
+<span class="w-5 h-5 flex items-center justify-center bg-surface-container-highest text-primary font-mono text-[11px] font-bold border border-primary">✓</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold text-primary tracking-wide">1 CLASIFICACIÓN Y TIPO</span>
+<span class="font-mono text-[10px] text-secondary">[✓ COMPLETADO]</span>
+</div>
+</div>
+<!-- Paso 2 (ACTUAL) -->
+<div class="flex items-center gap-2 border-2 border-primary bg-surface-container-lowest px-3 py-2 relative">
+<span class="w-5 h-5 flex items-center justify-center bg-primary text-on-primary font-mono text-[11px] font-bold">2</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-bold text-primary tracking-wide">2 ITEM Y SUMINISTRO</span>
+<span class="font-mono text-[10px] text-primary font-semibold">● PASO ACTUAL</span>
+</div>
+<div class="absolute -bottom-[11px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-primary hidden md:block"></div>
+</div>
+<!-- Paso 3 -->
+<div class="flex items-center gap-2 border border-outline-variant bg-surface-container-low px-3 py-2 text-secondary">
+<span class="w-5 h-5 flex items-center justify-center border border-outline-variant text-secondary font-mono text-[11px]">3</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-medium">3 MODIFICADORES</span>
+<span class="font-mono text-[10px] text-on-secondary-container">[PENDIENTE]</span>
+</div>
+</div>
+<!-- Paso 4 -->
+<div class="flex items-center gap-2 border border-outline-variant bg-surface-container-low px-3 py-2 text-secondary">
+<span class="w-5 h-5 flex items-center justify-center border border-outline-variant text-secondary font-mono text-[11px]">4</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-medium">4 RESUMEN Y ACEPTACIÓN</span>
+<span class="font-mono text-[10px] text-on-secondary-container">[FINAL]</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas (Split Grid) -->
+<main class="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x-2 divide-primary min-h-[640px]">
+<!-- 3. Columna izquierda (Datos comerciales y metadatos del ítem) -->
+<section class="lg:col-span-5 p-6 flex flex-col gap-5 bg-surface-container-lowest">
+<!-- Header de sección -->
+<div class="flex items-center justify-between border-b border-primary pb-2">
+<h2 class="font-label-lg text-label-lg uppercase tracking-wider font-bold text-primary">DATOS COMERCIALES DEL ÍTEM</h2>
+<span class="font-mono text-[11px] text-secondary uppercase">DIMENSIÓN COMERCIAL &amp; METADATOS</span>
+</div>
+<!-- Banner de aviso operativo -->
+<div class="border border-primary bg-surface-container-low p-3 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-primary shrink-0 text-base" data-icon="info">info</span>
+<p class="font-body-sm text-body-sm leading-tight text-on-surface">
+<strong class="font-semibold text-primary">Aviso de modelado operativo:</strong> La clasificación COMBO agrupa opciones configurables distribuidas en slots predefinidos. La clasificación comercial y el tipo de suministro son dimensiones independientes.
+          </p>
+</div>
+<!-- Formulario principal -->
+<div class="flex flex-col gap-4">
+<!-- Campo Nombre del ítem -->
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md font-bold text-primary" for="item-name">Nombre del ítem *</label>
+<span class="font-mono text-[11px] text-secondary">menuItem.name [STAGED]</span>
+</div>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-2 border-primary rounded-[2px] px-3.5 py-2 font-body-lg text-body-lg font-semibold text-primary focus:outline-none focus:ring-0 focus:border-primary tracking-tight" id="item-name" type="text" value="Combo comida"/>
+</div>
+</div>
+<!-- Fila de Metadatos estructurados (Grid de 3) -->
+<div class="grid grid-cols-3 gap-2 border border-outline-variant p-3 bg-surface-container-low rounded-[2px]">
+<div class="flex flex-col gap-1">
+<span class="font-mono text-[10px] text-secondary uppercase tracking-wider">CLASIFICACIÓN</span>
+<div class="flex items-center gap-1.5 font-label-md text-label-md font-bold text-primary">
+<span class="material-symbols-outlined text-primary text-[17px]" data-icon="lunch_dining">lunch_dining</span>
+<span>Combo</span>
+</div>
+<span class="font-mono text-[10px] text-secondary">metadata: COMBO</span>
+</div>
+<div class="flex flex-col gap-1 border-x border-outline-variant px-2">
+<span class="font-mono text-[10px] text-secondary uppercase tracking-wider">CATEGORÍA EXT.</span>
+<span class="font-label-md text-label-md font-semibold text-primary truncate" title="Paquetes y Promociones">Paquetes / Promociones</span>
+<span class="font-mono text-[10px] text-secondary">cat-pkg-001</span>
+</div>
+<div class="flex flex-col gap-1 pl-1">
+<span class="font-mono text-[10px] text-secondary uppercase tracking-wider">ESTADO INICIAL</span>
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-label-sm font-bold text-primary">■ INACTIVE</span>
+</div>
+<span class="font-mono text-[9px] text-secondary leading-tight">Si se guarda incompleto</span>
+</div>
+</div>
+<!-- Descripción Gastronómica -->
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md font-bold text-primary" for="gastronomic-desc">DESCRIPCIÓN GASTRONÓMICA</label>
+<span class="font-mono text-[11px] text-secondary">menuItem.description</span>
+</div>
+<textarea class="w-full bg-surface-container-lowest border border-primary rounded-[2px] p-2.5 font-body-sm text-body-sm text-on-surface focus:outline-none focus:ring-0 focus:border-primary resize-none leading-relaxed" id="gastronomic-desc" rows="3">Combo personal que incluye platillo base o paquete con bebida refrescante y guarnición de acompañamiento a elección.</textarea>
+</div>
+<!-- Bloque de Suministro (Inmutable) -->
+<div class="border-2 border-primary bg-surface-container-lowest p-3.5 rounded-[2px] flex flex-col gap-2.5">
+<div class="flex justify-between items-center border-b border-outline-variant pb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-sm text-label-sm font-bold text-primary tracking-wide">TIPO DE SUMINISTRO: COMBO</span>
+</div>
+<span class="bg-surface-container-highest border border-primary font-mono text-[10px] font-bold px-2 py-0.5">[BLOQUEADO]</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface leading-normal">Definido en el Paso 1. Inmutable para este ítem. Los productos COMBO se resuelven mediante opciones y variantes de slots.</p>
+<div class="flex flex-wrap gap-2 pt-1 border-t border-outline-variant/60 font-mono text-[11px]">
+<span class="bg-surface-container-low px-2 py-0.5 border border-outline-variant text-primary font-medium">fulfillmentType: COMBO_AGGREGATED</span>
+<span class="bg-surface-container-low px-2 py-0.5 border border-outline-variant text-primary font-medium">supplyMode: SLOT_COMPOSITION</span>
+</div>
+</div>
+<!-- Bloque de Precio -->
+<div class="border border-primary bg-surface-container-low p-3.5 rounded-[2px] flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<span class="font-label-sm text-label-sm font-bold text-primary uppercase">PRECIO DE VENTA DE LA VARIANTE</span>
+<span class="font-mono text-[11px] font-semibold text-primary border border-outline px-1.5 bg-surface-container-lowest">PRECIO ABSOLUTO</span>
+</div>
+<div class="flex items-center justify-between bg-surface-container-lowest border-2 border-primary px-3 py-2">
+<div class="flex items-baseline gap-1.5">
+<span class="font-mono text-headline-sm font-bold text-primary">$215.00</span>
+<span class="font-mono text-label-sm text-secondary font-semibold">MXN</span>
+</div>
+<span class="font-mono text-[11px] text-secondary">unitPrice: 215.00</span>
+</div>
+<p class="font-body-sm text-[12px] text-secondary leading-tight italic"><strong class="font-medium not-italic text-on-surface">Nota de tarificación:</strong> Es el precio absoluto del combo ($215.00 MXN); no suma componentes ni calcula deltas de opciones base en esta etapa.</p>
+</div>
+</div>
+</section>
+<!-- 4. Columna derecha (Editor de Composición Administrativa / Slots) -->
+<section class="lg:col-span-7 p-6 flex flex-col gap-5 bg-surface-container-low custom-scroll overflow-y-auto">
+<!-- Header de sección -->
+<div class="flex items-center justify-between border-b border-primary pb-2">
+<div class="flex items-center gap-2">
+<h2 class="font-label-lg text-label-lg uppercase tracking-wider font-bold text-primary">COMPOSICIÓN DE SLOTS Y REGLAS DE OPCIONES</h2>
+<span class="material-symbols-outlined text-primary text-base" data-icon="layers">layers</span>
+</div>
+<span class="font-mono text-[11px] font-bold bg-primary text-on-primary px-2 py-0.5 rounded-[2px]">ADMIN_SLOTS (2)</span>
+</div>
+<!-- Panel de resumen de slots -->
+<div class="bg-surface-container-lowest border border-primary p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex items-center gap-2 font-mono text-[12px] text-primary">
+<span class="font-bold">CONFIGURACIÓN:</span>
+<span class="bg-surface-container px-2 py-0.5 border border-outline-variant font-medium">baseOptionIds: [BEB-01, ACC-01]</span>
+</div>
+<span class="font-body-sm text-[12px] text-secondary font-medium">Obligatorios en orden de comanda inicial</span>
+</div>
+<!-- Contenedor de Slots -->
+<div class="flex flex-col gap-5">
+<!-- SLOT 1: BEBIDA -->
+<div class="bg-surface-container-lowest border-2 border-primary rounded-[2px] overflow-hidden flex flex-col">
+<!-- Cabecera de Slot -->
+<div class="bg-surface-container-highest border-b-2 border-primary px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary font-bold" data-icon="local_bar">local_bar</span>
+<span class="font-label-lg text-label-lg font-bold text-primary tracking-wide">SLOT 1: BEBIDA</span>
+</div>
+<div class="flex items-center gap-2 font-mono text-[11px] text-primary flex-wrap">
+<span class="border border-outline bg-surface-container-lowest px-1.5 py-0.5">slotId: slt-bebida-01</span>
+<span class="border border-outline bg-surface-container-lowest px-1.5 py-0.5">min: 1 | max: 1</span>
+<span class="border border-outline bg-surface-container-lowest px-1.5 py-0.5">suppliedQty: 1</span>
+</div>
+</div>
+<!-- Tabla de Opciones Administrativas Slot 1 -->
+<div class="overflow-x-auto">
+<table class="w-full border-collapse text-left">
+<thead>
+<tr class="border-b border-primary bg-surface-container-low font-mono text-[11px] text-secondary">
+<th class="py-2 px-3 w-10 text-center font-bold text-primary">ESTADO</th>
+<th class="py-2 px-3 font-semibold text-primary">OPCIÓN &amp; METADATOS TÉCNICOS</th>
+<th class="py-2 px-3 text-center font-semibold text-primary">TIPO DE SELECCIÓN</th>
+<th class="py-2 px-3 text-right font-semibold text-primary w-24">CANTIDAD</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant font-body-sm">
+<!-- Opción 1 (Base / Default) -->
+<tr class="bg-surface-container/40 hover:bg-surface-container transition-colors">
+<td class="py-3 px-3 text-center">
+<input checked="" class="h-4 w-4 rounded-[2px] border-2 border-primary text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-3">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[11px] font-bold bg-primary text-on-primary px-1.5 py-0.2">BEB-01</span>
+<span class="font-label-md text-label-md font-bold text-primary">Agua fresca</span>
+</div>
+<div class="font-mono text-[10px] text-secondary flex items-center gap-2 flex-wrap mt-0.5">
+<span>menuItemId: itm-beb-af-01</span>
+<span>•</span>
+<span>version: v1.0</span>
+<span>•</span>
+<span>variantId: var-beb-af-reg</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3 text-center">
+<span class="border-2 border-primary bg-surface-container-lowest text-primary font-mono text-[10px] font-bold px-2 py-0.5 inline-flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-primary"></span>
+                        OPCIÓN BASE / DEFAULT
+                      </span>
+</td>
+<td class="py-3 px-3 text-right font-mono text-[12px] font-semibold text-primary">
+                      suppliedQty: 1
+                    </td>
+</tr>
+<!-- Opción 2 (Permitida) -->
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="py-3 px-3 text-center">
+<input checked="" class="h-4 w-4 rounded-[2px] border-2 border-primary text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-3">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[11px] font-bold bg-surface-container-highest border border-primary text-primary px-1.5 py-0.2">BEB-02</span>
+<span class="font-label-md text-label-md font-medium text-primary">Refresco</span>
+</div>
+<div class="font-mono text-[10px] text-secondary flex items-center gap-2 flex-wrap mt-0.5">
+<span>menuItemId: itm-beb-ref-02</span>
+<span>•</span>
+<span>version: v2.1</span>
+<span>•</span>
+<span>variantId: var-beb-ref-can</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3 text-center">
+<span class="border border-outline-variant bg-surface-container-low text-secondary font-mono text-[10px] font-medium px-2 py-0.5 inline-block">
+                        [OPCIÓN PERMITIDA]
+                      </span>
+</td>
+<td class="py-3 px-3 text-right font-mono text-[12px] font-semibold text-primary">
+                      suppliedQty: 1
+                    </td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- SLOT 2: ACOMPAÑAMIENTO -->
+<div class="bg-surface-container-lowest border-2 border-primary rounded-[2px] overflow-hidden flex flex-col">
+<!-- Cabecera de Slot -->
+<div class="bg-surface-container-highest border-b-2 border-primary px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary font-bold" data-icon="bakery_dining">bakery_dining</span>
+<span class="font-label-lg text-label-lg font-bold text-primary tracking-wide">SLOT 2: ACOMPAÑAMIENTO</span>
+</div>
+<div class="flex items-center gap-2 font-mono text-[11px] text-primary flex-wrap">
+<span class="border border-outline bg-surface-container-lowest px-1.5 py-0.5">slotId: slt-acomp-02</span>
+<span class="border border-outline bg-surface-container-lowest px-1.5 py-0.5">min: 1 | max: 1</span>
+<span class="border border-outline bg-surface-container-lowest px-1.5 py-0.5">suppliedQty: 1</span>
+</div>
+</div>
+<!-- Tabla de Opciones Administrativas Slot 2 -->
+<div class="overflow-x-auto">
+<table class="w-full border-collapse text-left">
+<thead>
+<tr class="border-b border-primary bg-surface-container-low font-mono text-[11px] text-secondary">
+<th class="py-2 px-3 w-10 text-center font-bold text-primary">ESTADO</th>
+<th class="py-2 px-3 font-semibold text-primary">OPCIÓN &amp; METADATOS TÉCNICOS</th>
+<th class="py-2 px-3 text-center font-semibold text-primary">TIPO DE SELECCIÓN</th>
+<th class="py-2 px-3 text-right font-semibold text-primary w-24">CANTIDAD</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant font-body-sm">
+<!-- Opción 1 (Base / Default) -->
+<tr class="bg-surface-container/40 hover:bg-surface-container transition-colors">
+<td class="py-3 px-3 text-center">
+<input checked="" class="h-4 w-4 rounded-[2px] border-2 border-primary text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-3">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[11px] font-bold bg-primary text-on-primary px-1.5 py-0.2">ACC-01</span>
+<span class="font-label-md text-label-md font-bold text-primary">Papas</span>
+</div>
+<div class="font-mono text-[10px] text-secondary flex items-center gap-2 flex-wrap mt-0.5">
+<span>menuItemId: itm-acc-pap-01</span>
+<span>•</span>
+<span>version: v1.2</span>
+<span>•</span>
+<span>variantId: var-acc-pap-rust</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3 text-center">
+<span class="border-2 border-primary bg-surface-container-lowest text-primary font-mono text-[10px] font-bold px-2 py-0.5 inline-flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-primary"></span>
+                        OPCIÓN BASE / DEFAULT
+                      </span>
+</td>
+<td class="py-3 px-3 text-right font-mono text-[12px] font-semibold text-primary">
+                      suppliedQty: 1
+                    </td>
+</tr>
+<!-- Opción 2 (Permitida) -->
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="py-3 px-3 text-center">
+<input checked="" class="h-4 w-4 rounded-[2px] border-2 border-primary text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-3">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[11px] font-bold bg-surface-container-highest border border-primary text-primary px-1.5 py-0.2">ACC-02</span>
+<span class="font-label-md text-label-md font-medium text-primary">Ensalada</span>
+</div>
+<div class="font-mono text-[10px] text-secondary flex items-center gap-2 flex-wrap mt-0.5">
+<span>menuItemId: itm-acc-ens-02</span>
+<span>•</span>
+<span>version: v1.0</span>
+<span>•</span>
+<span>variantId: var-acc-ens-mix</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3 text-center">
+<span class="border border-outline-variant bg-surface-container-low text-secondary font-mono text-[10px] font-medium px-2 py-0.5 inline-block">
+                        [OPCIÓN PERMITIDA]
+                      </span>
+</td>
+<td class="py-3 px-3 text-right font-mono text-[12px] font-semibold text-primary">
+                      suppliedQty: 1
+                    </td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Nota técnica inferior de slots -->
+<div class="mt-auto border border-dashed border-primary/60 bg-surface-container-lowest p-3 flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-sm mt-0.5" data-icon="terminal">terminal</span>
+<p class="font-mono text-[11px] text-on-surface leading-tight">
+<strong class="font-bold">Regla de catalogación:</strong> No se permiten cargos extra por opción en esta etapa administrativa; la composición establece las opciones intercambiables para sala y comanda.
+          </p>
+</div>
+</section>
+</main>
+<!-- 5. Footer inferior de acciones y estado -->
+<footer class="border-t-2 border-primary bg-surface-container-lowest px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<!-- Mensaje con icono de aviso -->
+<div class="flex items-center gap-2 text-secondary font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="cloud_off">cloud_off</span>
+<span class="text-on-surface font-medium">El borrador local se almacena en el cliente y no constituye un MenuItem persistido en el catálogo central.</span>
+</div>
+<!-- Botones alineados a la derecha -->
+<div class="flex items-center gap-3 justify-end flex-wrap">
+<!-- Botón Cancelar -->
+<button class="border border-primary bg-surface-container-lowest text-primary font-label-md text-label-md px-4 py-2 rounded-[2px] hover:bg-surface-container active:scale-[0.98] transition-transform duration-100" type="button">
+          Cancelar
+        </button>
+<!-- Botón Guardar borrador local -->
+<button class="border border-primary bg-surface-container-lowest text-primary font-label-md text-label-md px-4 py-2 rounded-[2px] flex items-center gap-2 hover:bg-surface-container active:scale-[0.98] transition-transform duration-100" type="button">
+<span class="material-symbols-outlined text-base" data-icon="save">save</span>
+<span>Guardar borrador local</span>
+</button>
+<!-- Botón Primario: Continuar a modificadores -->
+<button class="border-2 border-primary bg-primary text-on-primary font-label-md text-label-md font-bold px-5 py-2 rounded-[2px] flex items-center gap-2 hover:bg-surface-container-high hover:text-primary transition-colors duration-150 active:scale-[0.98]" type="button">
+<span>Continuar a modificadores</span>
+<span class="font-mono text-base font-bold">→</span>
+</button>
+</div>
+</footer>
+</div>
+<script>
+    // Lightweight micro-interactions for draft state & tactile buttons
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputs = document.querySelectorAll('input[type="checkbox"]');
+      inputs.forEach(input => {
+        input.addEventListener('change', () => {
+          const row = input.closest('tr');
+          if (row) {
+            if (input.checked) {
+              row.classList.remove('opacity-40');
+            } else {
+              row.classList.add('opacity-40');
+            }
+          }
+        });
+      });
+    });
+  </script>
+</body></html>

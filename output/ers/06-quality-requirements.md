@@ -10,15 +10,14 @@ Each block states one primary obligation. Enumerated attributes describe one fac
 ### QA-MENU-001 — Deterministic selection resolution
 
 **Requirement:**
-The system shall resolve permitted combo selections and variant modifier behavior from their explicit configurations without inferring size mappings or inherited modifier defaults during order taking.
+The system shall resolve permitted combo selections from explicit ComboConfiguration and ComboOption records and shall provide published leaf-variant modifier behavior without inferring default precedence during order taking.
 
 **Type:** Quality requirements
 
-**Source:** `docs/md/Modelo-Final.md` pp. 29–30, 46–50
+**Source:** `docs/md/Auditoria-4.md`, items 17 and 21–22, and `Modelo-Final.md` pp. 29–30.
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
-**Verification:** Analysis: Trace a selection to the explicit configuration that determines it. This requirement prescribes no O(1) or index plan; latency acceptance criteria are in QA-MENU-004 through QA-MENU-017.
+**Verification:** Analysis: Trace a combo selection to its ComboConfiguration and a leaf modifier to its published resolved projection. This requirement prescribes no O(1) or index plan; latency acceptance criteria are in QA-MENU-004 through QA-MENU-017.
 
 **Status:** Confirmed
 
@@ -34,7 +33,6 @@ The Orders service shall complete processing of a confirmed line using its persi
 
 **Source:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Confirm a line, archive its variant and change its recipe, then process and reverse an authorized movement using original quantities.
 
@@ -54,7 +52,6 @@ The Menu service shall prevent acceptance of variant configurations that violate
 
 **Source:** `docs/md/Modelo-Final.md` pp. 21
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Test: Attempt each prohibited configuration through catalog operations and verify rejection without accepting the invalid state. This is a consistency property over the referenced rules, not an additional rule or database mandate.
 
@@ -72,7 +69,6 @@ The system shall meet p95 <= 200 ms for search and category changes under the AD
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Measure the named class end to end with 40 clients, 30 requests/s for 30 min and the ADR-004 workload mix.
 
@@ -90,7 +86,6 @@ The system shall meet p95 <= 300 ms for projected availability queries under the
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Measure the named class end to end with 40 clients, 30 requests/s for 30 min and the ADR-004 workload mix.
 
@@ -108,7 +103,6 @@ The system shall meet p95 <= 300 ms for validation and price recalculation under
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Measure the named class end to end with 40 clients, 30 requests/s for 30 min and the ADR-004 workload mix.
 
@@ -126,7 +120,6 @@ The system shall meet p95 <= 300 ms for order line editing under the ADR-004 nom
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Measure the named class end to end with 40 clients, 30 requests/s for 30 min and the ADR-004 workload mix.
 
@@ -144,7 +137,6 @@ The system shall meet p99 <= 1 s for each operation class in QA-MENU-004 through
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Measure the named class end to end with 40 clients, 30 requests/s for 30 min and the ADR-004 workload mix.
 
@@ -162,7 +154,6 @@ The system shall meet p95 <= 500 ms for send-to-kitchen through Orders acknowled
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Measure the named class end to end with 40 clients, 30 requests/s for 30 min and the ADR-004 workload mix.
 
@@ -180,7 +171,6 @@ The system shall meet p99 <= 1 s for send-to-kitchen through Orders acknowledgem
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Measure the named class end to end with 40 clients, 30 requests/s for 30 min and the ADR-004 workload mix.
 
@@ -198,7 +188,6 @@ The system shall meet p95 <= 1 s for POS submission through KDS visibility under
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Measure the named class end to end with 40 clients, 30 requests/s for 30 min and the ADR-004 workload mix.
 
@@ -216,7 +205,6 @@ The system shall meet p99 <= 2 s for POS submission through KDS visibility under
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Measure the named class end to end with 40 clients, 30 requests/s for 30 min and the ADR-004 workload mix.
 
@@ -234,7 +222,6 @@ The system shall keep internal errors below 0.1% of offered requests under the A
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Count internal errors against offered nominal requests; deliberate invalid-input cases are separate.
 
@@ -252,7 +239,6 @@ The system shall withstand the ADR-004 burst of 100 requests/s for 60 seconds wi
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Reconcile every accepted request with persisted results and verify the named property; no nominal latency bound is claimed during burst.
 
@@ -270,7 +256,6 @@ The system shall withstand the ADR-004 burst of 100 requests/s for 60 seconds wi
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Reconcile every accepted request with persisted results and verify the named property; no nominal latency bound is claimed during burst.
 
@@ -288,7 +273,6 @@ The system shall withstand the ADR-004 burst of 100 requests/s for 60 seconds wi
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Reconcile every accepted request with persisted results and verify the named property; no nominal latency bound is claimed during burst.
 
@@ -306,7 +290,6 @@ The system shall withstand the ADR-004 burst of 100 requests/s for 60 seconds wi
 
 **Source:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Reconcile every accepted request with persisted results and verify the named property; no nominal latency bound is claimed during burst.
 

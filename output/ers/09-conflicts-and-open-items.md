@@ -2,7 +2,7 @@
 
 # Decision status
 
-The original Menu closure topics remain as documented; OPEN-010 is partial only for pending Inventory limits. This revision adds OPEN-011 through OPEN-019 for external projections required by the confirmed consumer UI. No UI decision is left open in those entries.
+The original Menu closure topics remain as documented; `Auditoria-4.md` closes the product/variant/modifier/combo model corrections but does not define missing external transport contracts. OPEN-010 is partial only for pending Inventory limits. OPEN-011 through OPEN-019 remain external projections required by the confirmed consumer UI. No UI decision is left open in those entries.
 
 ---
 
@@ -92,7 +92,7 @@ The original Menu closure topics remain as documented; OPEN-010 is partial only 
 
 **Status:** Closed
 
-**Decision:** Each accepted effective change generates an immutable per-identity revision with counter and timezone-qualified ISO8601 date. Product and recipe sequences are independent. Existing lines retain pinned versions; variants adopt recipe revisions explicitly.
+**Decision:** Each accepted effective change generates an immutable per-identity revision with counter and timezone-qualified ISO8601 date. `MenuItem` and recipe sequences are independent. Existing lines retain pinned versions; presentations adopt recipe revisions explicitly.
 
 **Closure source:** [ADR-006](../../docs/md/Decisiones-cierre-invariantes.md#adr-006)
 
@@ -116,13 +116,13 @@ The original Menu closure topics remain as documented; OPEN-010 is partial only 
 
 <a id="open-008"></a>
 
-### OPEN-008 — Variant lifecycle and displayed minimum
+### OPEN-008 — Sellable-unit eligibility and catalog price display
 
 **Evidence:** `docs/md/Modelo-Final.md` pp. 7–8, 18–19, 27
 
 **Status:** Closed
 
-**Decision:** The minimum uses only currently eligible variants; no candidates means no starting price. DEFAULT keeps its historical identity and is archived when new dimensioned variants are published, without an invalid intermediate commercial revision.
+**Decision:** For a leaf `MenuItem`, the catalog price uses only currently eligible `MenuItemVariant.unitPrice` values; for a COMBO `MenuItem`, it uses only currently eligible `ComboConfiguration.unitPrice` values. If the eligible values differ, the catalog displays `Desde $X` with the lowest value; if they are equal, it displays `$X`; if there are no eligible units, it displays no numeric price and marks the item unavailable. `DEFAULT` keeps its historical identity and is archived when explicit presentation-characteristic values are published, without an invalid intermediate commercial revision.
 
 **Closure source:** [ADR-008](../../docs/md/Decisiones-cierre-invariantes.md#adr-008)
 
@@ -136,11 +136,11 @@ The original Menu closure topics remain as documented; OPEN-010 is partial only 
 
 **Status:** Closed
 
-**Decision:** Fixed price without option charges; extras by quantity per unit; aggregated variant summary in E-16 retained by Orders.
+**Decision:** ComboConfiguration has an absolute unitPrice; ComboOption may add priceDelta; component base prices are not added. Modifier extras remain aggregated by quantity and personalized unit in E-16, and Orders retains the summary.
 
-**Closure source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
+**Closure source:** `docs/md/Auditoria-4.md`, items 26 and 31–32; prior price decisions remain the source for aggregation and snapshot behavior.
 
-**Affected documentation:** BR-MENU-008, BR-MENU-016, BR-MENU-017, INT-MENU-004, INT-MENU-020
+**Affected documentation:** BR-MENU-008, BR-MENU-016, BR-MENU-017, INT-MENU-004, INT-MENU-020, SUPERSEDED-020
 
 ---
 
@@ -197,9 +197,9 @@ The following items are open only because the referenced owning service or provi
 
 **Evidence:** Explicit UI clarification in the user request dated 2026-09-13; UI-OPEN-003 and section 3.6 of `output/ui-spec/ui-data-spec.md`.
 
-**Known Information:** The UI classification values and labels are confirmed: DISH/Platillo, BEVERAGE/Bebida, COMBO/Combo, DESSERT/Postre and COMPLEMENT/Complemento. `categoryId` and fulfillment type remain distinct.
+**Known Information:** The UI classification values and labels for leaf products are confirmed: DISH/Platillo, BEVERAGE/Bebida, DESSERT/Postre and COMPLEMENT/Complemento. COMBO is a product type, not a commercial classification. ItemCategory is shared by PREPARED/STOCKED products; ComboCategory is separate and applies to COMBO.
 
-**Missing Information:** Category catalog owner, category labels, mapping from `categoryId` to classification and versioning of category changes.
+**Missing Information:** Category catalog owner, category labels, external transport contract and versioning of category changes. The semantic mapping between leaf category and commercial classification is resolved by Auditoria-4.
 
 **Question to be Resolved:** Which external catalog supplies categories and how does it map each category identity to the confirmed visual classification?
 

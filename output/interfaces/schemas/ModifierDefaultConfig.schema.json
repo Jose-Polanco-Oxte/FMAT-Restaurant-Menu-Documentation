@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "priceDelta": {
+      "$ref": "Money.schema.json",
+      "description": "Ajuste de precio general de la opción de modificador."
+    },
+    "maxQuantity": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Máxima cantidad seleccionable de la opción en su comportamiento general. Cero impide elegirla por defecto."
+    },
+    "ingredientEffects": {
+      "type": "array",
+      "items": {
+        "$ref": "IngredientEffect.schema.json"
+      },
+      "description": "Efectos de ingrediente del comportamiento general de la opción."
+    }
+  },
+  "required": [
+    "priceDelta",
+    "maxQuantity",
+    "ingredientEffects"
+  ],
+  "additionalProperties": false
+}

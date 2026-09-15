@@ -2,7 +2,7 @@
 
 # Estado de decisiones
 
-Los asuntos originales de cierre de Menu permanecen documentados; OPEN-010 es parcial únicamente por límites de Inventory pendientes. Esta revisión agrega OPEN-011 a OPEN-019 para las proyecciones externas requeridas por las UI consumidoras confirmadas. Ninguna decisión de UI permanece abierta en esos registros.
+Los asuntos originales de cierre de Menu permanecen documentados; `Auditoria-4.md` cierra las correcciones del modelo de producto, variante, modificador y combo, pero no define contratos de transporte externos faltantes. OPEN-010 es parcial únicamente por límites de Inventory pendientes. OPEN-011 a OPEN-019 siguen siendo proyecciones externas requeridas por las UI consumidoras confirmadas. Ninguna decisión de UI permanece abierta en esos registros.
 
 ---
 
@@ -92,7 +92,7 @@ Los asuntos originales de cierre de Menu permanecen documentados; OPEN-010 es pa
 
 **Estado:** Cerrado
 
-**Decisión:** Cada cambio efectivo aceptado genera revisión inmutable por identidad con contador y fecha ISO8601 con zona. Producto y receta tienen secuencias independientes. Las líneas existentes conservan versiones fijadas; las variantes adoptan revisiones de receta explícitamente.
+**Decisión:** Cada cambio efectivo aceptado genera revisión inmutable por identidad con contador y fecha ISO8601 con zona. `MenuItem` y receta tienen secuencias independientes. Las líneas existentes conservan versiones fijadas; las presentaciones adoptan revisiones de receta explícitamente.
 
 **Fuente de cierre:** [ADR-006](../../docs/md/Decisiones-cierre-invariantes.md#adr-006)
 
@@ -116,13 +116,13 @@ Los asuntos originales de cierre de Menu permanecen documentados; OPEN-010 es pa
 
 <a id="open-008"></a>
 
-### OPEN-008 — Ciclo de variantes y mínimo mostrado
+### OPEN-008 — Elegibilidad de unidades vendibles y precio de catálogo
 
 **Evidencia:** `docs/md/Modelo-Final.md` pp. 7–8, 18–19, 27
 
 **Estado:** Cerrado
 
-**Decisión:** El mínimo usa solo variantes elegibles ahora; sin candidatas no se muestra precio desde. DEFAULT conserva su identidad histórica y se archiva al publicar nuevas variantes dimensionales, sin revisión comercial intermedia inválida.
+**Decisión:** Para un `MenuItem` hoja, el precio de catálogo usa solo valores `MenuItemVariant.unitPrice` actualmente elegibles; para un `MenuItem` COMBO, usa solo valores `ComboConfiguration.unitPrice` actualmente elegibles. Si los valores elegibles difieren, el catálogo muestra `Desde $X` con el menor valor; si son iguales, muestra `$X`; si no hay unidades elegibles, no muestra precio numérico y marca el item como no disponible. `DEFAULT` conserva su identidad histórica y se archiva al publicar valores explícitos de características de presentación, sin revisión comercial intermedia inválida.
 
 **Fuente de cierre:** [ADR-008](../../docs/md/Decisiones-cierre-invariantes.md#adr-008)
 
@@ -136,11 +136,11 @@ Los asuntos originales de cierre de Menu permanecen documentados; OPEN-010 es pa
 
 **Estado:** Cerrado
 
-**Decisión:** Precio fijo sin cargos por opciones; extras por cantidad en cada unidad; resumen agregado por variante en E-16, conservado por Orders.
+**Decisión:** ComboConfiguration tiene unitPrice absoluto; ComboOption puede agregar priceDelta; no se agregan precios base de componentes. Los extras de modificadores siguen agregándose por cantidad y unidad personalizada en E-16, y Orders conserva el resumen.
 
-**Fuente de cierre:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
+**Fuente de cierre:** `docs/md/Auditoria-4.md`, items 26 y 31–32; las decisiones previas de precio siguen siendo fuente para agregación y snapshot.
 
-**Documentación afectada:** BR-MENU-008, BR-MENU-016, BR-MENU-017, INT-MENU-004, INT-MENU-020
+**Documentación afectada:** BR-MENU-008, BR-MENU-016, BR-MENU-017, INT-MENU-004, INT-MENU-020, SUPERSEDED-020
 
 ---
 
@@ -197,9 +197,9 @@ Los siguientes asuntos están abiertos únicamente porque el servicio o proveedo
 
 **Evidencia:** Aclaración explícita de UI en la solicitud del 2026-09-13; UI-OPEN-003 y sección 3.6 de `output/ui-spec/ui-data-spec.md`.
 
-**Información conocida:** Los valores y etiquetas de clasificación de UI están confirmados: DISH/Platillo, BEVERAGE/Bebida, COMBO/Combo, DESSERT/Postre y COMPLEMENT/Complemento. `categoryId` y el tipo de suministro permanecen separados.
+**Información conocida:** Los valores y etiquetas de clasificación de UI para productos hoja están confirmados: DISH/Platillo, BEVERAGE/Bebida, DESSERT/Postre y COMPLEMENT/Complemento. COMBO es Tipo de producto, no clasificación comercial. ItemCategory se comparte por productos PREPARED/STOCKED; ComboCategory es separado y aplica a COMBO.
 
-**Información faltante:** Propietario del catálogo de categorías, etiquetas de categorías, mapeo de `categoryId` a clasificación y versionado de cambios.
+**Información faltante:** Propietario del catálogo de categorías, etiquetas de categorías, contrato externo de transporte y versionado de cambios. La semántica de la clasificación hoja quedó resuelta por Auditoria-4.
 
 **Pregunta por resolver:** ¿Qué catálogo externo proporciona las categorías y cómo relaciona cada identidad de categoría con la clasificación visual confirmada?
 

@@ -42,14 +42,14 @@
             ],
             "description": "Resumen del combo; null para STOCKED/PREPARED."
           },
-          "pendingVariantIds": {
+          "pendingConfigurationIds": {
             "type": "array",
             "items": {
               "type": "string",
-              "description": "Variante pendiente.",
+              "description": "ComboConfiguration pendiente.",
               "minLength": 1
             },
-            "description": "Vacío para elementos sin pendientes.",
+            "description": "Vacío para elementos sin pendientes; identifica configuraciones de COMBO.",
             "uniqueItems": true
           }
         },
@@ -58,18 +58,18 @@
           "name",
           "fulfillmentType",
           "reviewState",
-          "pendingVariantIds"
+          "pendingConfigurationIds"
         ],
         "allOf": [
           {
             "if": {"properties": {"fulfillmentType": {"const": "COMBO", "description": "Artículo de combo."}}},
             "then": {"properties": {"reviewState": {"type": "string", "description": "Todo combo tiene estado de revisión."}}},
-            "else": {"properties": {"reviewState": {"type": "null", "description": "No se revisan STOCKED/PREPARED."}, "pendingVariantIds": {"maxItems": 0, "description": "Sin variantes pendientes fuera de combos."}}}
+            "else": {"properties": {"reviewState": {"type": "null", "description": "No se revisan STOCKED/PREPARED."}, "pendingConfigurationIds": {"maxItems": 0, "description": "Sin configuraciones pendientes fuera de combos."}}}
           },
           {
             "if": {"properties": {"reviewState": {"const": "REVIEW_REQUIRED", "description": "Resumen pendiente."}}},
-            "then": {"properties": {"pendingVariantIds": {"minItems": 1, "description": "Identidades de las variantes afectadas."}}},
-            "else": {"properties": {"pendingVariantIds": {"maxItems": 0, "description": "No hay variantes pendientes."}}}
+            "then": {"properties": {"pendingConfigurationIds": {"minItems": 1, "description": "Identidades de las configuraciones afectadas."}}},
+            "else": {"properties": {"pendingConfigurationIds": {"maxItems": 0, "description": "No hay configuraciones pendientes."}}}
           }
         ],
         "additionalProperties": false

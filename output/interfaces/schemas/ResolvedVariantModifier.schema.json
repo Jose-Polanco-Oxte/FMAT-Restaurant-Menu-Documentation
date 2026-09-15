@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "variantId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Variante hoja para la que se materializó la configuración efectiva."
+    },
+    "configId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad estable de la configuración efectiva que puede usar el consumidor de selección."
+    },
+    "modifierOptionId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opción de modificador a la que corresponde la configuración efectiva."
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Indica si la opción es aplicable a la variante publicada."
+    },
+    "priceDelta": {
+      "$ref": "Money.schema.json",
+      "description": "Ajuste de precio efectivo de la opción para la variante publicada."
+    },
+    "maxQuantity": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Máxima cantidad efectiva seleccionable para la opción en la variante publicada."
+    },
+    "ingredientEffects": {
+      "type": "array",
+      "items": {
+        "$ref": "IngredientEffect.schema.json"
+      },
+      "description": "Efectos de ingrediente efectivos de la opción en la variante publicada."
+    }
+  },
+  "required": [
+    "variantId",
+    "configId",
+    "modifierOptionId",
+    "enabled",
+    "priceDelta",
+    "maxQuantity",
+    "ingredientEffects"
+  ],
+  "additionalProperties": false
+}

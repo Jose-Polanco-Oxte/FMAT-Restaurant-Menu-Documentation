@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024, height=768, initial-scale=1.0">
+  <title>Revisión de combos — Al día</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            surface: '#FFFFFF',
+            'surface-dim': '#F7F7F7',
+            'surface-low': '#FAFAFA',
+            'surface-container': '#F7F7F7',
+            'surface-active': '#EDEDED',
+            'surface-high': '#F0F0F0',
+            ink: '#111111',
+            slate: '#444444',
+            'slate-muted': '#777777',
+            border: '#1A1A1A',
+            'border-subtle': '#D9D9D9',
+            'border-divider': '#BDBDBD',
+            disabled: '#D9D9D9'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1024px;
+      height: 768px;
+      min-width: 1024px;
+      max-width: 1024px;
+      min-height: 768px;
+      max-height: 768px;
+      overflow: hidden;
+      background-color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom clean scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F7F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BDBDBD;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777777;
+    }
+  </style>
+</head>
+<body class="w-[1024px] h-[768px] max-w-[1024px] max-h-[768px] overflow-hidden bg-white text-[#111111] flex flex-col justify-between select-none">
+
+  
+  <!-- Encabezado de Revisión de Combos -->
+  <header class="w-full px-6 py-3.5 bg-white border-b border-[#BDBDBD] flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white border border-[#BDBDBD] hover:border-[#111111] rounded-lg text-[#111111] transition-colors">
+        <svg class="w-4 h-4 text-[#111111]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>Volver a catálogo</span>
+      </button>
+
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-xl font-bold tracking-tight text-[#111111]">Revisión de combos</h1>
+          <span class="px-2.5 py-0.5 text-xs font-semibold rounded bg-[#EDEDED] text-[#111111] border border-[#BDBDBD]">
+            Auditoría de dependencias
+          </span>
+        </div>
+        <p class="text-xs text-[#444444] mt-0.5">Verificación de cambios de precio y receta en productos referenciados por combos</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 text-xs text-[#444444]">
+      <span>Administrador: <strong>Admin Central</strong></span>
+    </div>
+  </header>
+
+  <main class="flex-1 p-6 flex gap-6 overflow-hidden">
+    
+    <!-- Panel Izquierdo: Lista de Combos -->
+    <aside class="w-80 bg-white border border-[#BDBDBD] rounded-xl flex flex-col justify-between shadow-xs overflow-hidden">
+      <div>
+        <div class="p-3.5 bg-[#F7F7F7] border-b border-[#BDBDBD]">
+          <h2 class="text-xs font-bold text-[#111111] uppercase tracking-wider">Combos para revisión</h2>
+          <span class="text-[11px] text-[#444444]">1 combo pendiente restante</span>
+        </div>
+
+        <div class="divide-y divide-[#BDBDBD] text-xs">
+          
+          <!-- Combo 1: Al día (Confirmado recién) -->
+          <div class="p-3.5 bg-[#FAFAFA] border-l-4 border-[#111111] cursor-pointer">
+            <div class="flex justify-between items-start">
+              <span class="font-bold text-[#111111] text-sm">Combo Pareja</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#111111] text-white">Al día</span>
+            </div>
+            <p class="text-[11px] text-[#444444] mt-1">Revisión confirmada exitosamente</p>
+            <div class="mt-2 text-[11px] font-semibold text-[#111111]">Precio venta: $349.00 MXN</div>
+          </div>
+
+          <!-- Combo 2: Siguiente pendiente -->
+          <div class="p-3.5 hover:bg-[#FAFAFA] cursor-pointer transition-colors">
+            <div class="flex justify-between items-start">
+              <span class="font-semibold text-[#111111]">Combo Familiar</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#EDEDED] text-[#444444]">Pendiente</span>
+            </div>
+            <p class="text-[11px] text-[#444444] mt-1">1 cambio en receta de alitas</p>
+            <div class="mt-2 text-[11px] text-[#777777]">Precio venta: $599.00 MXN</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="p-3 bg-[#F7F7F7] border-t border-[#BDBDBD] text-[11px] text-[#444444]">
+        Todos los cambios de este combo han sido conciliados.
+      </div>
+    </aside>
+
+    <!-- Panel Derecho: Estado Confirmado "Al día" -->
+    <section class="flex-1 bg-white border border-[#BDBDBD] rounded-xl flex flex-col justify-between shadow-xs overflow-hidden">
+      <div>
+        
+        <!-- Cabecera -->
+        <div class="p-5 bg-white border-b border-[#BDBDBD] flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-bold text-[#111111]">Combo Pareja</h2>
+              <span class="px-2.5 py-0.5 text-xs font-bold rounded bg-[#111111] text-white">
+                Al día
+              </span>
+            </div>
+            <p class="text-xs text-[#444444] mt-0.5">
+              Revisión completada el 14/09/2026 a las 12:40 por Administrador Central.
+            </p>
+          </div>
+
+          <div class="text-right">
+            <span class="text-xs text-[#444444] block">Precio de venta activo:</span>
+            <span class="text-xl font-bold text-[#111111]">$349.00 MXN</span>
+          </div>
+        </div>
+
+        <!-- Tarjeta de Confirmación de Revisión Exitosa -->
+        <div class="p-5">
+          <div class="p-4 bg-[#F7F7F7] border-2 border-[#1A1A1A] rounded-xl flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-[#111111] text-white flex items-center justify-center font-bold text-base flex-shrink-0">
+              ✓
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-[#111111]">Revisión administrativa conciliada</h3>
+              <p class="text-xs text-[#444444] mt-1 leading-relaxed">
+                Se confirmaron los cambios de precio en el refresco y la nueva versión de receta para la hamburguesa. El combo se encuentra habilitado para venta regular en el catálogo.
+              </p>
+            </div>
+          </div>
+
+          <!-- Resumen de Componentes Actualizados -->
+          <div class="mt-4 space-y-2 text-xs">
+            <span class="font-bold text-[#111111] block">Componentes reconocidos y al día:</span>
+            <div class="p-3 bg-white border border-[#BDBDBD] rounded-lg flex justify-between items-center">
+              <span>• Refresco Cola (355 ml) — Precio componente registrado ($35.00)</span>
+              <span class="font-semibold text-[#111111]">Conciliado</span>
+            </div>
+            <div class="p-3 bg-white border border-[#BDBDBD] rounded-lg flex justify-between items-center">
+              <span>• Hamburguesa Clásica — Receta Rev. 2 adoptada</span>
+              <span class="font-semibold text-[#111111]">Conciliado</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Barra Inferior -->
+      <div class="p-4 bg-[#F7F7F7] border-t border-[#BDBDBD] flex items-center justify-between">
+        <span class="text-xs text-[#444444]">¿Deseas continuar con la revisión del siguiente combo?</span>
+        <div class="flex items-center gap-3">
+          <button class="px-4 py-2 bg-white border border-[#BDBDBD] hover:border-[#111111] text-xs font-semibold text-[#111111] rounded-lg">
+            Volver a gestión de catálogo
+          </button>
+          <button class="px-5 py-2 bg-[#111111] hover:bg-[#222222] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-colors">
+            <span>Revisar siguiente combo pendiente</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  
+  <!-- Pie de Vista de Revisión -->
+  <footer class="w-full px-6 py-2.5 bg-white border-t border-[#BDBDBD] flex items-center justify-between text-xs text-[#444444]">
+    <div>
+      <span>Módulo de Integridad Comercial · Catálogo de Restaurante</span>
+    </div>
+    <div>
+      <span>Última verificación de dependencias: <strong>14/09/2026 12:40</strong></span>
+    </div>
+  </footer>
+</body>
+</html>

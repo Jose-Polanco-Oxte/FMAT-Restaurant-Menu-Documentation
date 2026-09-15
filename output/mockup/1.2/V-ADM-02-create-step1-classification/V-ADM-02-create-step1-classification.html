@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024, height=768, initial-scale=1.0">
+  <title>Alta de producto — Paso 1: Clasificación y tipo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            surface: '#FFFFFF',
+            'surface-dim': '#F7F7F7',
+            'surface-low': '#FAFAFA',
+            'surface-container': '#F7F7F7',
+            'surface-active': '#EDEDED',
+            'surface-high': '#F0F0F0',
+            ink: '#111111',
+            slate: '#444444',
+            'slate-muted': '#777777',
+            border: '#1A1A1A',
+            'border-subtle': '#D9D9D9',
+            'border-divider': '#BDBDBD',
+            disabled: '#D9D9D9'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1024px;
+      height: 768px;
+      min-width: 1024px;
+      max-width: 1024px;
+      min-height: 768px;
+      max-height: 768px;
+      overflow: hidden;
+      background-color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom clean scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F7F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BDBDBD;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777777;
+    }
+  </style>
+</head>
+<body class="w-[1024px] h-[768px] max-w-[1024px] max-h-[768px] overflow-hidden bg-white text-[#111111] flex flex-col justify-between select-none">
+
+  
+  <!-- Encabezado del Editor -->
+  <header class="w-full px-6 py-3 bg-white border-b border-[#BDBDBD] flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white border border-[#BDBDBD] hover:border-[#111111] rounded-lg text-[#111111] transition-colors">
+        <svg class="w-4 h-4 text-[#111111]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>Volver al catálogo</span>
+      </button>
+
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-xl font-bold tracking-tight text-[#111111]">Alta de producto</h1>
+          <span class="px-2.5 py-0.5 text-xs font-semibold rounded bg-[#EDEDED] text-[#111111] border border-[#BDBDBD]">
+            Alta de producto
+          </span>
+        </div>
+        <p class="text-xs text-[#444444] mt-0.5">Paso 1 de 4 · Configuración de catálogo comercial</p>
+      </div>
+    </div>
+
+    <!-- Stepper de Navegación -->
+    <div class="flex items-center gap-3">
+      
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-[#111111] text-white">
+              1
+            </div>
+            <span class="text-xs font-bold text-[#111111]">Clasificación</span>
+            <span class="text-[#BDBDBD] text-xs">―</span>
+          </div>
+        
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white border border-[#BDBDBD] text-[#777777]">
+              2
+            </div>
+            <span class="text-xs text-[#444444]">Datos y suministro</span>
+            <span class="text-[#BDBDBD] text-xs">―</span>
+          </div>
+        
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white border border-[#BDBDBD] text-[#777777]">
+              3
+            </div>
+            <span class="text-xs text-[#444444]">Modificadores</span>
+            <span class="text-[#BDBDBD] text-xs">―</span>
+          </div>
+        
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white border border-[#BDBDBD] text-[#777777]">
+              4
+            </div>
+            <span class="text-xs text-[#444444]">Resumen</span>
+            
+          </div>
+        
+    </div>
+  </header>
+
+  <!-- Contenido: Paso 1 Clasificación Comercial y Tipo de Suministro -->
+  <main class="flex-1 p-6 overflow-y-auto">
+    <div class="max-w-3xl mx-auto space-y-6">
+      
+      <!-- Sección 1: Clasificación Comercial -->
+      <div class="bg-white border border-[#BDBDBD] rounded-xl p-5 shadow-xs">
+        <h2 class="text-sm font-bold text-[#111111] mb-1">1. Clasificación comercial del producto</h2>
+        <p class="text-xs text-[#444444] mb-4">Selecciona la categoría comercial para la navegación y filtros de venta del menú.</p>
+        
+        <div class="grid grid-cols-5 gap-3">
+          
+            <label class="p-3 bg-white border-2 border-[#1A1A1A] bg-[#FAFAFA] rounded-lg flex flex-col justify-between cursor-pointer hover:border-[#111111] transition-colors">
+              <div>
+                <input type="radio" name="clasificacion" checked class="accent-[#111111] mb-2" />
+                <span class="font-bold text-[#111111] text-xs block">Platillo</span>
+              </div>
+              <span class="text-[10px] text-[#444444] mt-2">Comida principal</span>
+            </label>
+          
+            <label class="p-3 bg-white border border-[#BDBDBD] rounded-lg flex flex-col justify-between cursor-pointer hover:border-[#111111] transition-colors">
+              <div>
+                <input type="radio" name="clasificacion"  class="accent-[#111111] mb-2" />
+                <span class="font-bold text-[#111111] text-xs block">Bebida</span>
+              </div>
+              <span class="text-[10px] text-[#444444] mt-2">Refresco, agua o café</span>
+            </label>
+          
+            <label class="p-3 bg-white border border-[#BDBDBD] rounded-lg flex flex-col justify-between cursor-pointer hover:border-[#111111] transition-colors">
+              <div>
+                <input type="radio" name="clasificacion"  class="accent-[#111111] mb-2" />
+                <span class="font-bold text-[#111111] text-xs block">Combo</span>
+              </div>
+              <span class="text-[10px] text-[#444444] mt-2">Paquete de productos</span>
+            </label>
+          
+            <label class="p-3 bg-white border border-[#BDBDBD] rounded-lg flex flex-col justify-between cursor-pointer hover:border-[#111111] transition-colors">
+              <div>
+                <input type="radio" name="clasificacion"  class="accent-[#111111] mb-2" />
+                <span class="font-bold text-[#111111] text-xs block">Postre</span>
+              </div>
+              <span class="text-[10px] text-[#444444] mt-2">Repostería y dulces</span>
+            </label>
+          
+            <label class="p-3 bg-white border border-[#BDBDBD] rounded-lg flex flex-col justify-between cursor-pointer hover:border-[#111111] transition-colors">
+              <div>
+                <input type="radio" name="clasificacion"  class="accent-[#111111] mb-2" />
+                <span class="font-bold text-[#111111] text-xs block">Complemento</span>
+              </div>
+              <span class="text-[10px] text-[#444444] mt-2">Guarniciones y salsas</span>
+            </label>
+          
+        </div>
+      </div>
+
+      <!-- Sección 2: Tipo de Suministro Contractual -->
+      <div class="bg-white border border-[#BDBDBD] rounded-xl p-5 shadow-xs">
+        <div class="flex justify-between items-start mb-1">
+          <div>
+            <h2 class="text-sm font-bold text-[#111111]">2. Tipo de suministro del producto</h2>
+            <p class="text-xs text-[#444444]">Determina el tipo de editor en el siguiente paso. <strong>Es inmutable tras la creación.</strong></p>
+          </div>
+          <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-[#EDEDED] text-[#111111]">Obligatorio</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mt-4">
+          
+          <!-- Preparado en Cocina (Seleccionado por defecto) -->
+          <label class="p-4 bg-white border-2 border-[#1A1A1A] rounded-xl flex flex-col justify-between cursor-pointer shadow-2xs">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-[#111111] text-white">Recomendado</span>
+                <input type="radio" name="suministro" checked class="accent-[#111111]" />
+              </div>
+              <h3 class="font-bold text-[#111111] text-sm">Preparado en cocina</h3>
+              <p class="text-xs text-[#444444] mt-1 leading-relaxed">
+                El producto se elabora en cocina caliente o fría según una receta estandarizada y requiere estación de preparación.
+              </p>
+            </div>
+            <span class="text-[11px] font-semibold text-[#111111] mt-3 pt-2 border-t border-[#BDBDBD]">Habilita editor de recetas</span>
+          </label>
+
+          <!-- Abastecido de Almacén -->
+          <label class="p-4 bg-white border border-[#BDBDBD] hover:border-[#111111] rounded-xl flex flex-col justify-between cursor-pointer transition-colors">
+            <div>
+              <div class="flex justify-end mb-2">
+                <input type="radio" name="suministro" class="accent-[#111111]" />
+              </div>
+              <h3 class="font-bold text-[#111111] text-sm">Abastecido / Almacén</h3>
+              <p class="text-xs text-[#444444] mt-1 leading-relaxed">
+                Producto terminado que se entrega directamente desde almacén (refrescos en lata, cervezas empaquetadas o botellas).
+              </p>
+            </div>
+            <span class="text-[11px] text-[#444444] mt-3 pt-2 border-t border-[#BDBDBD]">Habilita vinculación a insumo</span>
+          </label>
+
+          <!-- Combo -->
+          <label class="p-4 bg-white border border-[#BDBDBD] hover:border-[#111111] rounded-xl flex flex-col justify-between cursor-pointer transition-colors">
+            <div>
+              <div class="flex justify-end mb-2">
+                <input type="radio" name="suministro" class="accent-[#111111]" />
+              </div>
+              <h3 class="font-bold text-[#111111] text-sm">Combo</h3>
+              <p class="text-xs text-[#444444] mt-1 leading-relaxed">
+                Agrupación comercial de platillos y bebidas con slots de opciones y precio cerrado.
+              </p>
+            </div>
+            <span class="text-[11px] text-[#444444] mt-3 pt-2 border-t border-[#BDBDBD]">Habilita configuración de slots</span>
+          </label>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  
+  <!-- Pie de Navegación del Asistente -->
+  <footer class="w-full px-6 py-3 bg-white border-t border-[#BDBDBD] flex items-center justify-between">
+    <div class="text-xs text-[#444444]">
+      Los cambios se almacenan localmente hasta completar la confirmación final.
+    </div>
+    <div class="flex items-center gap-3">
+      
+    <button class="px-4 py-2 bg-white border border-[#BDBDBD] hover:border-[#111111] text-xs font-semibold rounded-lg text-[#111111]">Cancelar</button>
+    <button class="px-5 py-2 bg-[#111111] hover:bg-[#222222] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-colors">
+      <span>Continuar al paso 2</span>
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  
+    </div>
+  </footer>
+</body>
+</html>

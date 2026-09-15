@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024, height=768, initial-scale=1.0">
+  <title>Alta de producto — Paso 4: Resumen y aceptación</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            surface: '#FFFFFF',
+            'surface-dim': '#F7F7F7',
+            'surface-low': '#FAFAFA',
+            'surface-container': '#F7F7F7',
+            'surface-active': '#EDEDED',
+            'surface-high': '#F0F0F0',
+            ink: '#111111',
+            slate: '#444444',
+            'slate-muted': '#777777',
+            border: '#1A1A1A',
+            'border-subtle': '#D9D9D9',
+            'border-divider': '#BDBDBD',
+            disabled: '#D9D9D9'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1024px;
+      height: 768px;
+      min-width: 1024px;
+      max-width: 1024px;
+      min-height: 768px;
+      max-height: 768px;
+      overflow: hidden;
+      background-color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom clean scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F7F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BDBDBD;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777777;
+    }
+  </style>
+</head>
+<body class="w-[1024px] h-[768px] max-w-[1024px] max-h-[768px] overflow-hidden bg-white text-[#111111] flex flex-col justify-between select-none">
+
+  
+  <!-- Encabezado del Editor -->
+  <header class="w-full px-6 py-3 bg-white border-b border-[#BDBDBD] flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white border border-[#BDBDBD] hover:border-[#111111] rounded-lg text-[#111111] transition-colors">
+        <svg class="w-4 h-4 text-[#111111]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>Volver al catálogo</span>
+      </button>
+
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-xl font-bold tracking-tight text-[#111111]">Alta de producto: Resumen y confirmación</h1>
+          <span class="px-2.5 py-0.5 text-xs font-semibold rounded bg-[#EDEDED] text-[#111111] border border-[#BDBDBD]">
+            Alta de producto
+          </span>
+        </div>
+        <p class="text-xs text-[#444444] mt-0.5">Paso 4 de 4 · Configuración de catálogo comercial</p>
+      </div>
+    </div>
+
+    <!-- Stepper de Navegación -->
+    <div class="flex items-center gap-3">
+      
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-[#EDEDED] text-[#111111] border border-[#111111]">
+              ✓
+            </div>
+            <span class="text-xs text-[#444444]">Clasificación</span>
+            <span class="text-[#BDBDBD] text-xs">―</span>
+          </div>
+        
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-[#EDEDED] text-[#111111] border border-[#111111]">
+              ✓
+            </div>
+            <span class="text-xs text-[#444444]">Datos y suministro</span>
+            <span class="text-[#BDBDBD] text-xs">―</span>
+          </div>
+        
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-[#EDEDED] text-[#111111] border border-[#111111]">
+              ✓
+            </div>
+            <span class="text-xs text-[#444444]">Modificadores</span>
+            <span class="text-[#BDBDBD] text-xs">―</span>
+          </div>
+        
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-[#111111] text-white">
+              4
+            </div>
+            <span class="text-xs font-bold text-[#111111]">Resumen</span>
+            
+          </div>
+        
+    </div>
+  </header>
+
+  <main class="flex-1 p-6 overflow-y-auto">
+    <div class="max-w-4xl mx-auto space-y-5">
+      
+      <!-- Ficha de Resumen Consolidado -->
+      <div class="bg-white border border-[#BDBDBD] rounded-xl p-5 shadow-xs space-y-4">
+        <div class="flex justify-between items-start pb-3 border-b border-[#BDBDBD]">
+          <div>
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-[#F7F7F7] text-[#111111] border border-[#BDBDBD]">
+              Platillo · Preparado en cocina
+            </span>
+            <h2 class="text-lg font-bold text-[#111111] mt-1">Hamburguesa Especial</h2>
+            <p class="text-xs text-[#444444]">Carne de res 150g sobre pan brioche con queso cheddar fundido y aderezo especial.</p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-[#444444] block">Precio base fijado:</span>
+            <span class="text-xl font-bold text-[#111111]">$168.00 MXN</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 text-xs">
+          <div class="p-3 bg-[#F7F7F7] border border-[#BDBDBD] rounded-lg">
+            <span class="font-bold text-[#111111] block mb-1">Receta asociada</span>
+            <span class="text-[#444444] block">Hamburguesa Clásica Artesanal</span>
+            <span class="text-[11px] text-[#777777]">Versión adoptada: Rev. 2</span>
+          </div>
+          <div class="p-3 bg-[#F7F7F7] border border-[#BDBDBD] rounded-lg">
+            <span class="font-bold text-[#111111] block mb-1">Modificadores</span>
+            <span class="text-[#444444] block">4 opciones configuradas</span>
+            <span class="text-[11px] text-[#777777]">Término, Extras, Omisiones</span>
+          </div>
+          <div class="p-3 bg-[#F7F7F7] border border-[#BDBDBD] rounded-lg">
+            <span class="font-bold text-[#111111] block mb-1">Destino operativo</span>
+            <span class="text-[#444444] block">Cocina caliente / Parrilla</span>
+            <span class="text-[11px] text-[#777777]">Estación de comandas 01</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Condición de Publicación y Estado Unificado (Sin contradicción!) -->
+      <div class="bg-white border-2 border-[#1A1A1A] rounded-xl p-5 shadow-xs">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-full bg-[#EDEDED] border border-[#1A1A1A] flex items-center justify-center flex-shrink-0 font-bold text-sm">
+            ℹ
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-bold text-[#111111]">Condición de publicación: Guardar como Inactivo</h3>
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-[#EDEDED] text-[#111111]">Política de catálogo</span>
+            </div>
+            <p class="text-xs text-[#444444] mt-1 leading-relaxed">
+              El producto se guardará con estado <strong>Inactivo</strong>. La política de operaciones requiere que cocina confirme la homologación de insumos de la receta antes de activar el producto para venta al público en las terminales de mesero.
+            </p>
+            <div class="mt-3 text-xs text-[#111111] font-semibold">
+              ✓ Podrás activar este producto desde la pantalla de Gestión de Catálogo en cuanto cocina reporte insumos listos.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  
+  <!-- Pie de Navegación del Asistente -->
+  <footer class="w-full px-6 py-3 bg-white border-t border-[#BDBDBD] flex items-center justify-between">
+    <div class="text-xs text-[#444444]">
+      Los cambios se almacenan localmente hasta completar la confirmación final.
+    </div>
+    <div class="flex items-center gap-3">
+      
+    <button class="px-4 py-2 bg-white border border-[#BDBDBD] hover:border-[#111111] text-xs font-semibold rounded-lg text-[#111111]">Volver a editar</button>
+    <button class="px-6 py-2 bg-[#111111] hover:bg-[#222222] text-white text-xs font-bold rounded-lg flex items-center gap-2 shadow-xs transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span>Guardar producto como Inactivo</span>
+    </button>
+  
+    </div>
+  </footer>
+</body>
+</html>

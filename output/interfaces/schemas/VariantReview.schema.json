@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
-    "variantId": {
+    "configurationId": {
       "type": "string",
-      "description": "Variante COMBO revisada.",
+      "description": "Alias de compatibilidad para una ComboConfiguration revisada.",
       "minLength": 1
     },
     "state": {
@@ -17,7 +17,7 @@
     },
     "reviewToken": {
       "type": "string",
-      "description": "Token opaco de cambios observados, ligado a restaurante, combo y variante.",
+      "description": "Token opaco de cambios observados, ligado a restaurante, combo y configuración.",
       "minLength": 1
     },
     "changes": {
@@ -44,7 +44,7 @@
     }
   },
   "required": [
-    "variantId",
+    "configurationId",
     "state",
     "reviewToken",
     "changes",

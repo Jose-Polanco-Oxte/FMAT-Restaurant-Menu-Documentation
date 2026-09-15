@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024, height=768, initial-scale=1.0">
+  <title>Modificar selección — Modal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            surface: '#FFFFFF',
+            'surface-dim': '#F7F7F7',
+            'surface-low': '#FAFAFA',
+            'surface-container': '#F7F7F7',
+            'surface-active': '#EDEDED',
+            'surface-high': '#F0F0F0',
+            ink: '#111111',
+            slate: '#444444',
+            'slate-muted': '#777777',
+            border: '#1A1A1A',
+            'border-subtle': '#D9D9D9',
+            'border-divider': '#BDBDBD',
+            disabled: '#D9D9D9'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1024px;
+      height: 768px;
+      min-width: 1024px;
+      max-width: 1024px;
+      min-height: 768px;
+      max-height: 768px;
+      overflow: hidden;
+      background-color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom clean scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F7F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BDBDBD;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777777;
+    }
+  </style>
+</head>
+<body class="w-[1024px] h-[768px] max-w-[1024px] max-h-[768px] overflow-hidden bg-white text-[#111111] flex flex-col justify-between select-none">
+
+  <!-- Fondo de Catálogo Atenuado (Contexto Realista) -->
+  <div class="relative w-full h-full bg-white flex flex-col justify-between select-none">
+    
+    <!-- Encabezado de Fondo -->
+    <header class="w-full px-6 py-3 bg-white border-b border-[#BDBDBD] flex items-center justify-between opacity-30 pointer-events-none">
+      <div class="flex items-center gap-3">
+        <h1 class="text-xl font-bold text-[#111111]">Nueva orden — Mesa 04</h1>
+        <span class="text-xs text-[#444444]">Selección de productos del catálogo</span>
+      </div>
+      <div class="w-64 h-8 bg-[#F7F7F7] border border-[#BDBDBD] rounded-md"></div>
+    </header>
+
+    <!-- Contenido de Fondo -->
+    <div class="flex-1 p-5 flex gap-5 opacity-25 pointer-events-none">
+      <div class="flex-1 grid grid-cols-2 gap-4">
+        <div class="h-44 bg-[#F7F7F7] border border-[#BDBDBD] rounded-xl"></div>
+        <div class="h-44 bg-[#F7F7F7] border border-[#BDBDBD] rounded-xl"></div>
+        <div class="h-44 bg-[#F7F7F7] border border-[#BDBDBD] rounded-xl"></div>
+        <div class="h-44 bg-[#F7F7F7] border border-[#BDBDBD] rounded-xl"></div>
+      </div>
+      <div class="w-80 bg-[#F7F7F7] border border-[#BDBDBD] rounded-xl"></div>
+    </div>
+
+    <!-- Pie de Fondo -->
+    <footer class="w-full px-6 py-2.5 bg-white border-t border-[#BDBDBD] opacity-30 pointer-events-none text-xs">
+      <span>Terminal POS Mesero</span>
+    </footer>
+
+    <!-- Overlay / Capa de Atenuación (Monocromático Estricto) -->
+    <div class="absolute inset-0 bg-[#111111]/40 flex items-center justify-center p-6 z-50">
+      
+      <!-- Ventana Modal de Configuración (Geometría Estricta 640px × 560px max) -->
+      <div class="w-[640px] max-h-[560px] bg-white border-2 border-[#1A1A1A] rounded-xl shadow-2xl flex flex-col justify-between overflow-hidden">
+        
+        <!-- Cabecera del Modal -->
+        <div class="px-6 py-4 bg-white border-b border-[#BDBDBD] flex items-start justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-[#111111]">Modificar selección: Hamburguesa Especial</h2>
+            <p class="text-xs text-[#444444] mt-0.5">Edición de producto antes de confirmar la orden en mesa</p>
+          </div>
+          <button class="w-8 h-8 rounded-lg bg-[#F7F7F7] border border-[#BDBDBD] hover:border-[#111111] text-xs font-bold text-[#111111] flex items-center justify-center transition-colors">
+            ✕
+          </button>
+        </div>
+
+        <!-- Cuerpo del Modal -->
+        <div class="px-6 py-5 overflow-y-auto flex-1 text-xs">
+          
+  <div class="space-y-4">
+    
+    <!-- Encabezado de Edición de Línea -->
+    <div class="flex justify-between items-start pb-3 border-b border-[#BDBDBD]">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-[#111111] text-white">
+            Modificar selección pendiente
+          </span>
+          <span class="text-xs text-[#444444]">Borrador de orden</span>
+        </div>
+        <h3 class="text-base font-bold text-[#111111] mt-1">Hamburguesa Especial</h3>
+        <p class="text-xs text-[#444444]">Puedes ajustar las opciones antes de enviar a cocina.</p>
+      </div>
+
+      <div class="text-right">
+        <span class="text-[11px] text-[#444444] block">Subtotal actual:</span>
+        <span class="text-base font-bold text-[#111111]">$376.00 MXN</span>
+      </div>
+    </div>
+
+    <!-- Opciones de Término -->
+    <div class="space-y-1.5">
+      <span class="font-bold text-[#111111] block">Término de la carne:</span>
+      <div class="grid grid-cols-3 gap-2">
+        <label class="p-2.5 bg-white border-2 border-[#1A1A1A] rounded-lg flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="edit-termino" checked class="accent-[#111111]" />
+          <span class="font-bold text-[#111111]">Término medio</span>
+        </label>
+        <label class="p-2.5 bg-white border border-[#BDBDBD] rounded-lg flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="edit-termino" class="accent-[#111111]" />
+          <span class="text-[#444444]">Tres cuartos</span>
+        </label>
+        <label class="p-2.5 bg-white border border-[#BDBDBD] rounded-lg flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="edit-termino" class="accent-[#111111]" />
+          <span class="text-[#444444]">Bien cocido</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Modificadores Seleccionados -->
+    <div class="space-y-1.5">
+      <span class="font-bold text-[#111111] block">Ingredientes y extras:</span>
+      
+      <div class="space-y-2">
+        <label class="p-2.5 bg-white border-2 border-[#1A1A1A] rounded-lg flex items-center justify-between cursor-pointer">
+          <div class="flex items-center gap-2.5">
+            <input type="checkbox" checked class="w-4 h-4 accent-[#111111]" />
+            <div>
+              <span class="font-bold text-[#111111] block">Sin cebolla morada</span>
+              <span class="text-[11px] text-[#444444]">Omitido</span>
+            </div>
+          </div>
+          <span class="text-[11px] text-[#444444]">Sin costo</span>
+        </label>
+
+        <label class="p-2.5 bg-white border-2 border-[#1A1A1A] rounded-lg flex items-center justify-between cursor-pointer">
+          <div class="flex items-center gap-2.5">
+            <input type="checkbox" checked class="w-4 h-4 accent-[#111111]" />
+            <div>
+              <span class="font-bold text-[#111111] block">Extra queso cheddar fundido</span>
+              <span class="text-[11px] text-[#444444]">Porción doble</span>
+            </div>
+          </div>
+          <span class="font-bold text-[#111111]">+$20.00 MXN</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Ajuste de Unidades -->
+    <div class="pt-3 border-t border-[#BDBDBD] flex items-center justify-between">
+      <div>
+        <span class="font-bold text-[#111111] block">Unidades de la línea:</span>
+        <span class="text-[11px] text-[#444444]">$188.00 MXN por unidad</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="flex items-center bg-white border border-[#BDBDBD] rounded-lg p-1">
+          <button class="w-8 h-8 bg-[#F7F7F7] border border-[#BDBDBD] rounded font-bold text-sm hover:border-[#111111]">-</button>
+          <span class="w-10 text-center font-bold text-sm">2</span>
+          <button class="w-8 h-8 bg-[#F7F7F7] border border-[#BDBDBD] rounded font-bold text-sm hover:border-[#111111]">+</button>
+        </div>
+        <div class="text-right">
+          <span class="text-[10px] text-[#444444] block">Total actualizado:</span>
+          <span class="text-base font-bold text-[#111111]">$376.00 MXN</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+        </div>
+
+        <!-- Pie de Acciones del Modal -->
+        <div class="px-6 py-3.5 bg-[#F7F7F7] border-t border-[#BDBDBD] flex items-center justify-between">
+          <div>
+            
+      <button class="text-xs font-semibold text-[#111111] hover:underline flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+        <span>Quitar de la selección</span>
+      </button>
+    
+          </div>
+          <div class="flex items-center gap-3">
+            <button class="px-4 py-2 bg-white border border-[#BDBDBD] hover:border-[#111111] text-xs font-semibold text-[#111111] rounded-lg transition-colors">
+              Descartar cambios
+            </button>
+            <button class="px-5 py-2 bg-[#111111] hover:bg-[#222222] text-white text-xs font-bold rounded-lg flex items-center gap-2 shadow-xs transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+              <span>Guardar cambios ($376.00)</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</html>

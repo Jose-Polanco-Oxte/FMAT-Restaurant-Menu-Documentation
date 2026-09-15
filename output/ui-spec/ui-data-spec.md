@@ -1,8 +1,8 @@
 # Especificación de vistas y datos para la UI de mockups
 
 **Sistema:** FMAT Restaurant — superficies de operación y administración de Menu  
-**Revisión:** 2  
-**Fecha:** 2026-09-13  
+**Revisión:** 3
+**Fecha:** 2026-09-15
 **Alcance:** datos visibles y estados de las vistas; no define el flujo de navegación.
 
 ## 1. Propósito y forma de lectura
@@ -21,7 +21,7 @@ Las vistas se registran independientemente del microservicio que posea cada dato
 
 ### 1.1 Fuentes normativas
 
-- ERS canónica: [`output/ers/`](../ers/index.md), revisión 8.
+- ERS canónica: [`output/ers/`](../ers/index.md), revisión 11.
 - Interfaces actuales: [`output/interfaces/`](../interfaces/index.md), incluyendo sus esquemas JSON.
 - La formalización normativa de las decisiones confirmadas de UI está en `REQ-UI-*`, `BR-UI-*` y `DATA-UI-*`; los contratos externos faltantes están en `OPEN-011` a `OPEN-019`.
 - La solicitud del usuario aporta las responsabilidades de las vistas de mesero, las vistas administrativas y la distinción CREATE/EDIT. Estas decisiones de UI se distinguen de los datos que la documentación técnica no define.
@@ -66,7 +66,7 @@ Las siguientes son vistas lógicas. Un estado o modo que cambia datos o controle
 | Dimensión | `dimensionId`, nombre y valores (`valueId`, nombre) | Elección como tamaño u otra dimensión definida por el producto. |
 | Estado de producto | `ACTIVE` o `INACTIVE` | Filtrado y acciones administrativas. No equivale a stock. |
 | Estado de variante | `ACTIVE`, `INACTIVE` o `ARCHIVED` | Disponibilidad administrativa de una presentación. `ARCHIVED` no se reactiva en esta versión. |
-| Tipo de suministro | `STOCKED`, `PREPARED` o `COMBO` | Determina el editor y la estructura de `fulfillment`. Es inmutable desde la creación. |
+| Tipo de `MenuItem` (`fulfillmentType`) | `STOCKED`, `PREPARED` o `COMBO` | Primera decisión del wizard; determina el editor y la estructura de `fulfillment`. Es inmutable desde la creación. |
 
 `categoryId` es una referencia de categoría cuyo catálogo y nombres provienen de una dependencia externa. La clasificación visual confirmada para la UI se detalla en la sección 3.6. `fulfillmentType` sí tiene las tres enumeraciones anteriores, pero no es equivalente a las etiquetas de negocio `Platillo`, `Bebida`, `Postre` o `Complemento`.
 
@@ -222,9 +222,9 @@ Sus tarjetas contienen:
 | `description` | `MENU` | Texto secundario o detalle. |
 | `imageRef` | `MENU` | Referencia; no contiene bytes de imagen. |
 | `categoryId` | `MENU` | Identidad de categoría. |
-| `classification` | `EXTERNO`/`UI` | Badge y filtro obligatorio con uno de los cinco valores confirmados. El proveedor y el mapeo desde `categoryId` son externos. |
+| `classification` | `EXTERNO`/`UI` | Badge y filtro obligatorio con uno de los cinco valores confirmados para items hoja; un COMBO se identifica por `fulfillmentType=COMBO` y no recibe una clasificación de item hoja. El proveedor y el mapeo desde `categoryId` son externos. |
 | `eligible` | `MENU` | Si es falso, la tarjeta no debe ofrecerse como seleccionable. |
-| `fromPrice` | `MENU` | Menor precio base entre variantes elegibles; `null` si no existe una. |
+| `fromPrice` | `MENU` | Para un item hoja, menor `MenuItemVariant.unitPrice` elegible; para un COMBO, menor `ComboConfiguration.unitPrice` elegible; `null` si no existe una unidad elegible. |
 
 E-02 solo devuelve `MenuItem ACTIVE`. Puede devolver un item no elegible con `eligible=false` y `fromPrice=null`; no divulga stock exacto.
 
@@ -235,7 +235,7 @@ E-02 solo devuelve `MenuItem ACTIVE`. Puede devolver un item no elegible con `el
 | Búsqueda por nombre | Respaldado por `query`, coincidencia parcial sin distinguir mayúsculas en E-02. |
 | Categoría | Respaldado por `categoryId` exacto en E-02. El catálogo de categorías y sus etiquetas no está definido. |
 | Tipo `STOCKED`, `PREPARED`, `COMBO` | Existe en el detalle de MenuItem, pero no en `MenuItemCard` de E-02. Requiere hidratar E-03, ampliar la respuesta o aceptar que no sea un filtro contractual. |
-| Clasificación `Platillo`, `Bebida`, `Combo`, `Postre`, `Complemento` | Confirmada como clasificación visual; valores estables y etiquetas están definidos en la sección 3.6. La fuente externa de categorías y el mapeo de `categoryId` permanecen en `ASSUMPTION-EXT-003`. |
+| Clasificación `Platillo`, `Bebida`, `Combo`, `Postre`, `Complemento` | Confirmada como clasificación visual; los items hoja usan `DISH`, `BEVERAGE`, `DESSERT` o `COMPLEMENT`, y `COMBO` se representa por su tipo contractual. La fuente externa de categorías y el mapeo de `categoryId` permanecen en `ASSUMPTION-EXT-003`. |
 
 No se debe presentar como hecho que `PREPARED=Platillo` o que `STOCKED=Bebida`; esa correspondencia no está establecida.
 
@@ -372,12 +372,12 @@ La separación semántica correcta según la documentación es:
 |---|---|---|
 | `ACTIVE` | MenuItems cuyo `status` es `ACTIVE` | `eligible=true`; un item activo puede no estar disponible. |
 | `INACTIVE` | MenuItems cuyo `status` es `INACTIVE` | `ARCHIVED`; no es un estado de producto archivado. |
-| `REVIEW_REQUIRED` | Combos con alguna variante pendiente | Estado de venta y estado de disponibilidad. |
+| `REVIEW_REQUIRED` | Combos con alguna `ComboConfiguration` pendiente | Estado de venta, `MenuItem.status` y estado de disponibilidad. |
 | `UP_TO_DATE` | Combos sin cambios de dependencia pendientes | Un estado global aplicable a STOCKED/PREPARED; esos items tienen `reviewState=null`. |
 | `ARCHIVED` | MenuItems retirados del catálogo activo y visibles en el apartado de archivados | `INACTIVE`; la eliminación de UI es suave y no equivale a borrado físico. |
 | Variantes archivadas | Variantes `ARCHIVED`, visibles en el detalle administrativo | Un item archivado completo; una variante archivada no se reactiva en esta versión. |
 
-`REVIEW_REQUIRED` es un filtro o indicador administrativo superpuesto al estado `ACTIVE/INACTIVE` del item, no un tercer estado del item. Solo se aplica a combos.
+`REVIEW_REQUIRED`/`UP_TO_DATE` son estados de revisión administrativa por `ComboConfiguration` y un agregado del combo, superpuestos al `MenuItem.status` `ACTIVE/INACTIVE`; no son estados adicionales de `MenuItem`, `MenuItemVariant` ni disponibilidad. Solo se aplican a combos.
 
 La UI solicitada incluye búsqueda, categoría y tipo también en administración, pero E-19 actualmente no los define como parámetros. Este hecho queda en `UI-OPEN-004`; no debe ocultarse suponiendo que la paginación administrativa permite filtrar localmente todo el catálogo.
 
@@ -423,7 +423,7 @@ Los pasos son una decisión de UI del usuario, no una secuencia impuesta por el 
 
 ### 10.2 Paso de clasificación y tipo
 
-El primer paso de creación debe permitir seleccionar la clasificación comercial confirmada para la UI y el `fulfillmentType` contractual que determina la estructura de edición.
+El primer paso de creación debe permitir seleccionar la clasificación comercial confirmada para la UI y el tipo contractual de `MenuItem` (`fulfillmentType`) que determina la estructura de edición. `COMBO` se elige como tipo contractual y no como clasificación de item hoja.
 
 La clasificación comercial se representa con estos valores y etiquetas:
 
@@ -455,7 +455,7 @@ La clasificación no reemplaza `categoryId` ni se debe mapear automáticamente a
 | `dimensions` | Editor de dimensiones y valores | Las variantes deben usar valores de sus propias dimensiones. |
 | `variants` | Lista/editor por presentación | Cada variante tiene precio, estado, suministro y configuraciones. |
 
-El tipo de suministro es inmutable después de crear el item. Cambiarlo no debe aparecer como una edición ordinaria sin confirmación de una decisión de reclasificación.
+El tipo de `MenuItem` (`fulfillmentType`) es inmutable después de crear el item. Cambiarlo no debe aparecer como una edición ordinaria sin confirmación de una decisión de reclasificación.
 
 ### 10.4 Editor de `STOCKED`
 
@@ -540,7 +540,7 @@ La UI puede ofrecer copiar configuraciones entre variantes, pero debe reflejar q
 El resumen debe ser de solo lectura y agrupar:
 
 - identidad y datos comerciales del item;
-- categoría y tipo de suministro;
+- categoría y tipo de `MenuItem`;
 - clasificación comercial;
 - dimensiones y variantes;
 - precio absoluto por variante;
@@ -684,39 +684,39 @@ Los siguientes requisitos son decisiones explícitas de la UI para esta especifi
 
 ### UI-REQ-004 — Catálogo de venta
 
-**Requisito:** La UI deberá permitir seleccionar productos `STOCKED`, `PREPARED` y `COMBO` desde el catálogo comercial de Menu.
+**Requisito:** La UI deberá permitir seleccionar `MenuItem` `STOCKED`, `PREPARED` y `COMBO` desde el catálogo comercial de Menu.
 
 **Origen:** Solicitud explícita del usuario y E-02/E-03.  
-**Verificación:** Demostración: cargar items de los tres tipos y comprobar que cada uno puede abrir su configuración correspondiente cuando sea elegible.  
+**Verificación:** Demostración: cargar `MenuItem` de los tres tipos y comprobar que cada uno puede abrir la configuración correspondiente cuando sea elegible.
 **Estado:** Confirmado para la UI; el tipo debe obtenerse del detalle o de una proyección ampliada.
 
 ### UI-REQ-005 — Filtros y búsqueda del catálogo
 
-**Requisito:** La UI deberá permitir buscar por nombre y filtrar el catálogo por categoría y por las clasificaciones visuales solicitadas.
+**Requisito:** La UI deberá permitir buscar por nombre y filtrar el catálogo por categoría, tipo de `MenuItem` y clasificación visual; la clasificación visual de un item hoja no se asigna automáticamente por su tipo contractual.
 
 **Origen:** Solicitud explícita del usuario, 2026-09-13.  
-**Verificación:** Demostración: aplicar cada filtro individualmente y en combinación, verificando que las tarjetas visibles corresponden al filtro.  
+**Verificación:** Demostración: aplicar cada filtro individualmente y en combinación, verificando que las tarjetas visibles corresponden al filtro y que los combos no reciben una clasificación de item hoja por inferencia.
 **Estado:** Confirmado para la UI; el catálogo externo y el mapeo de categorías se describen provisionalmente en `ASSUMPTION-EXT-003`.
 
 ### UI-REQ-006 — Cantidad y borrador local
 
-**Requisito:** La UI deberá permitir cambiar la cantidad, reconfigurar y quitar cada selección antes de confirmar la orden.
+**Requisito:** La UI deberá permitir cambiar la cantidad, reconfigurar y quitar cada `DraftOrderLine` antes de confirmar la orden.
 
 **Origen:** Solicitud explícita del usuario, 2026-09-13.  
-**Verificación:** Demostración: modificar una línea del borrador y comprobar que las líneas confirmadas y el catálogo no se alteran.  
+**Verificación:** Demostración: modificar una `DraftOrderLine`, recalcular su resolución y comprobar que las líneas confirmadas y el catálogo no se alteran.
 **Estado:** Confirmado como interacción local; la cantidad definitiva y el envío pertenecen a Orders.
 
 ### UI-REQ-007 — Configuración antes de agregar
 
-**Requisito:** La UI deberá permitir configurar las dimensiones, modificadores y componentes del item antes de agregar una línea al borrador.
+**Requisito:** La UI deberá permitir configurar, antes de agregar una línea al borrador, las características de presentación y personalizaciones de un item hoja, o los slots, opciones y personalizaciones de sus componentes cuando el item sea `COMBO`, conforme a la definición disponible de Menu.
 
 **Origen:** Solicitud explícita del usuario y modelos de `Selection`.  
-**Verificación:** Demostración: configurar un item simple y un combo, resolverlos y comprobar que el borrador conserva sus identificadores y cantidades.  
+**Verificación:** Demostración: configurar un item hoja y un combo, resolverlos con E-16 y comprobar que el borrador conserva `variantId`, identificadores y cantidades.
 **Estado:** Confirmado para la UI; la resolución autoritativa continúa siendo E-16.
 
 ### UI-REQ-008 — Gestión administrativa del catálogo
 
-**Requisito:** La UI deberá proporcionar una vista administrativa del catálogo con creación, edición, búsqueda y filtros equivalentes a los del catálogo de venta.
+**Requisito:** La UI deberá proporcionar una vista administrativa del catálogo con creación, edición, búsqueda y los mismos filtros de categoría, tipo y clasificación visual que el catálogo de venta.
 
 **Origen:** Solicitud explícita del usuario, 2026-09-13.  
 **Verificación:** Demostración: aplicar los filtros en ambas superficies y comprobar que la intención del filtro es la misma, aunque cada fuente tenga permisos distintos.  
@@ -724,26 +724,26 @@ Los siguientes requisitos son decisiones explícitas de la UI para esta especifi
 
 ### UI-REQ-009 — Separación de estados administrativos
 
-**Requisito:** La UI deberá presentar separadamente los items activos, inactivos, pendientes de revisión y archivados según la dimensión de estado a la que pertenezcan.
+**Requisito:** La UI deberá separar `MenuItem.status` (`ACTIVE`/`INACTIVE`), el estado de revisión del combo (`REVIEW_REQUIRED`/`UP_TO_DATE`) y `ARCHIVED` de una variante o del apartado externo de items archivados; no deberá presentar la revisión como un estado de MenuItem.
 
 **Origen:** Solicitud explícita del usuario y semántica actual de Menu.  
-**Verificación:** Inspección: comprobar que `REVIEW_REQUIRED` no se presenta como estado de STOCKED/PREPARED y que `ARCHIVED` se distingue de `INACTIVE`.  
+**Verificación:** Inspección: comprobar que el filtro de `MenuItem.status` solo usa `ACTIVE`/`INACTIVE`, que la revisión solo aparece para combos y que `ARCHIVED` se atribuye a la entidad correspondiente y se distingue de `INACTIVE`.
 **Estado:** Confirmado para la UI; el ciclo de vida y las operaciones de archivado del item son una dependencia externa descrita en `ASSUMPTION-EXT-005`.
 
 ### UI-REQ-010 — Acciones de archivo suave
 
-**Requisito:** La UI deberá permitir gestionar el apartado de items archivados mediante eliminación visual de un item, de varios items seleccionados o de todos los items incluidos en el alcance seleccionado.
+**Requisito:** La UI deberá permitir gestionar el apartado externo de items archivados mediante una acción de retiro suave sobre un item, varios items seleccionados o todos los items incluidos en el alcance seleccionado, sin presentarla como borrado físico.
 
 **Origen:** Solicitud explícita del usuario, 2026-09-13.  
-**Verificación:** Demostración: ejecutar los alcances individual, selección múltiple y todos, y comprobar que la UI refleja el resultado sin presentar la operación como borrado físico de la base de datos.  
+**Verificación:** Demostración: ejecutar los alcances individual, selección múltiple y todos, comprobar que la UI refleja el resultado y que no representa borrado físico del historial.
 **Estado:** Confirmado para la UI; la semántica de persistencia de archivado y eliminación suave está definida como supuesto externo en `ASSUMPTION-EXT-005`, porque no existe aún en la interfaz actual de Menu.
 
 ### UI-REQ-011 — Wizard de creación
 
-**Requisito:** La UI deberá representar la creación de un item mediante cuatro pasos: selección de la clasificación comercial y del tipo de suministro, configuración específica del item, configuración de modificadores y resumen con aceptación.
+**Requisito:** La UI deberá representar la creación de un `MenuItem` mediante cuatro pasos: (1) tipo de `MenuItem` y clasificación comercial cuando aplique, (2) configuración específica del item y su suministro, (3) configuración de modificadores y (4) resumen con aceptación.
 
 **Origen:** Solicitud explícita del usuario, 2026-09-13.  
-**Verificación:** Demostración: iniciar una creación con las clasificaciones y tipos de suministro relevantes, y comprobar que el resumen contiene la configuración completa antes de aceptar.  
+**Verificación:** Demostración: iniciar una creación de cada tipo, recorrer exactamente esos cuatro pasos y comprobar que el resumen contiene la configuración completa antes de aceptar.
 **Estado:** Confirmado como estructura visual; los contratos de persistencia siguen siendo E-07, E-11/E-13 y sus validaciones.
 
 ### UI-REQ-012 — Wizard de edición
@@ -756,7 +756,7 @@ Los siguientes requisitos son decisiones explícitas de la UI para esta especifi
 
 ### UI-REQ-013 — Distinción de creación y edición
 
-**Requisito:** La UI deberá distinguir visualmente las acciones de crear y editar mediante títulos, acciones primarias, estado inicial y datos precargados.
+**Requisito:** La UI deberá distinguir visualmente las acciones de crear y editar mediante títulos, acciones primarias, estado inicial del formulario y datos precargados.
 
 **Origen:** Solicitud explícita del usuario, 2026-09-13.  
 **Verificación:** Inspección: comparar las composiciones `CREATE` y `EDIT` y comprobar que no se presentan como la misma operación.  
@@ -764,10 +764,10 @@ Los siguientes requisitos son decisiones explícitas de la UI para esta especifi
 
 ### UI-REQ-014 — Revisión pendiente
 
-**Requisito:** La UI deberá presentar una variante visual de edición para un combo con revisión pendiente y deberá permitir confirmar la revisión desde el contexto de trabajo administrativo.
+**Requisito:** La UI deberá presentar en `V-ADM-03`, separado del editor ordinario `V-ADM-02`, un combo con revisión pendiente, sus `ComboConfiguration` afectadas y los cambios de dependencia observados, y deberá permitir confirmar la revisión desde ese contexto administrativo.
 
 **Origen:** Solicitud explícita del usuario y E-19/E-20/E-21.  
-**Verificación:** Demostración: cargar cambios pendientes, mostrar sus componentes afectados, confirmar las variantes observadas, refrescar el estado posterior y ocultar el indicador cuando Menu devuelva `UP_TO_DATE`. Si Menu devuelve nuevamente `REVIEW_REQUIRED` por cambios nuevos, conservar el indicador y explicar que la confirmación anterior sí fue aplicada.  
+**Verificación:** Demostración: cargar cambios pendientes, mostrar sus configuraciones/componentes afectados, confirmar las configuraciones seleccionadas con sus tokens, refrescar E-20 y ocultar el indicador solo cuando Menu devuelva `UP_TO_DATE`. Si Menu devuelve nuevamente `REVIEW_REQUIRED` por cambios nuevos, conservar el indicador y explicar que la confirmación anterior sí fue aplicada.
 **Estado:** Confirmado para la UI; el trabajo local y sus límites están en `ASSUMPTION-EXT-006`.
 
 ### UI-REQ-015 — Precio acumulado de preorden
@@ -915,7 +915,7 @@ Estos identificadores conservan el prefijo `UI-OPEN` por trazabilidad, pero no r
 
 ## 18. Decisiones activas incorporadas
 
-- El tipo de suministro es `STOCKED`, `PREPARED` o `COMBO` y no se cambia como una edición ordinaria.
+- El tipo de `MenuItem` (`fulfillmentType`) es `STOCKED`, `PREPARED` o `COMBO` y no se cambia como una edición ordinaria.
 - `MenuItemVariant` es la unidad vendible concreta y tiene precio absoluto.
 - `MenuItemVersion` y `recipeVersion` fijan definiciones; no se sustituyen silenciosamente.
 - E-16 resuelve la selección y devuelve un resumen monetario por unidad; no crea una orden.

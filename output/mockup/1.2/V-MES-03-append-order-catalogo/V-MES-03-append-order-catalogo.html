@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024, height=768, initial-scale=1.0">
+  <title>Agregar a orden actual — Catálogo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            surface: '#FFFFFF',
+            'surface-dim': '#F7F7F7',
+            'surface-low': '#FAFAFA',
+            'surface-container': '#F7F7F7',
+            'surface-active': '#EDEDED',
+            'surface-high': '#F0F0F0',
+            ink: '#111111',
+            slate: '#444444',
+            'slate-muted': '#777777',
+            border: '#1A1A1A',
+            'border-subtle': '#D9D9D9',
+            'border-divider': '#BDBDBD',
+            disabled: '#D9D9D9'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1024px;
+      height: 768px;
+      min-width: 1024px;
+      max-width: 1024px;
+      min-height: 768px;
+      max-height: 768px;
+      overflow: hidden;
+      background-color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom clean scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F7F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BDBDBD;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777777;
+    }
+  </style>
+</head>
+<body class="w-[1024px] h-[768px] max-w-[1024px] max-h-[768px] overflow-hidden bg-white text-[#111111] flex flex-col justify-between select-none">
+
+  
+  <!-- Encabezado de Catálogo y Selección -->
+  <header class="w-full px-6 py-3 bg-white border-b border-[#BDBDBD] flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white border border-[#BDBDBD] hover:border-[#111111] rounded-lg text-[#111111] transition-colors">
+        <svg class="w-4 h-4 text-[#111111]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>Volver a orden actual</span>
+      </button>
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-xl font-bold tracking-tight text-[#111111]">Agregar productos — Mesa 08</h1>
+        </div>
+        <p class="text-xs text-[#444444] mt-0.5">Orden activa #1042 · Las líneas confirmadas están bloqueadas y las nuevas selecciones se añaden al pedido</p>
+      </div>
+    </div>
+
+    <!-- Buscador Integrado -->
+    <div class="relative w-64">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#777777]">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <input type="text" value="" placeholder="Buscar platillo, bebida o combo..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-[#BDBDBD] rounded-md text-[#111111] placeholder-[#777777] focus:outline-none focus:border-[#111111]" />
+    </div>
+  </header>
+
+  <!-- Barra de Filtros por Clasificación Comercial -->
+  <div class="w-full px-6 py-2 bg-[#F7F7F7] border-b border-[#BDBDBD] flex items-center justify-between">
+    <div class="flex items-center gap-1.5 text-xs">
+      <span class="text-[#444444] font-medium mr-1">Clasificación:</span>
+      
+        <button class="px-3 py-1 font-semibold rounded-md transition-colors bg-[#111111] text-white">
+          Todas
+        </button>
+      
+        <button class="px-3 py-1 font-semibold rounded-md transition-colors bg-white border border-[#BDBDBD] text-[#444444] hover:text-[#111111]">
+          Platillo
+        </button>
+      
+        <button class="px-3 py-1 font-semibold rounded-md transition-colors bg-white border border-[#BDBDBD] text-[#444444] hover:text-[#111111]">
+          Bebida
+        </button>
+      
+        <button class="px-3 py-1 font-semibold rounded-md transition-colors bg-white border border-[#BDBDBD] text-[#444444] hover:text-[#111111]">
+          Combo
+        </button>
+      
+        <button class="px-3 py-1 font-semibold rounded-md transition-colors bg-white border border-[#BDBDBD] text-[#444444] hover:text-[#111111]">
+          Postre
+        </button>
+      
+        <button class="px-3 py-1 font-semibold rounded-md transition-colors bg-white border border-[#BDBDBD] text-[#444444] hover:text-[#111111]">
+          Complemento
+        </button>
+      
+    </div>
+
+    <div class="text-[11px] text-[#444444]">
+      Precios con IVA incluido (MXN)
+    </div>
+  </div>
+
+  <!-- Área Principal: Catálogo (Izquierda) + Panel de Append (Derecha) -->
+  <main class="flex-1 p-5 flex gap-5 overflow-hidden">
+    
+    <!-- Grid de Catálogo -->
+    <section class="flex-1 overflow-y-auto pr-1">
+      <div class="grid grid-cols-2 gap-4">
+        
+        <!-- Tarjeta 1: Papas Rústicas (Ya confirmada en orden previa) -->
+        <div class="bg-white border border-[#BDBDBD] rounded-xl p-4 flex flex-col justify-between shadow-xs">
+          <div>
+            <div class="flex justify-between items-start">
+              <span class="px-2 py-0.5 text-[11px] font-semibold rounded bg-[#F7F7F7] text-[#111111] border border-[#BDBDBD]">
+                Complemento · Preparado en cocina
+              </span>
+              <span class="text-sm font-bold text-[#111111]">$56.00</span>
+            </div>
+            <h3 class="text-base font-bold text-[#111111] mt-2">Papas Rústicas</h3>
+            <p class="text-xs text-[#444444] mt-1 line-clamp-2">
+              Porción normal con sal de mar y aderezo de ajo.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-[#BDBDBD] flex items-center justify-between">
+            <span class="text-[11px] text-[#444444]">En orden actual (1)</span>
+            <button class="px-3 py-1.5 bg-[#111111] hover:bg-[#222222] text-white text-xs font-semibold rounded-lg flex items-center gap-1">
+              <span>Añadir a la orden</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tarjeta 2: Tacos de Arrachera -->
+        <div class="bg-white border-2 border-[#1A1A1A] rounded-xl p-4 flex flex-col justify-between shadow-xs">
+          <div>
+            <div class="flex justify-between items-start">
+              <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-[#EDEDED] text-[#111111] border border-[#1A1A1A]">
+                Platillo · Seleccionado
+              </span>
+              <span class="text-sm font-bold text-[#111111]">$115.00</span>
+            </div>
+            <h3 class="text-base font-bold text-[#111111] mt-2">Tacos de Arrachera (3 pzas)</h3>
+            <p class="text-xs text-[#444444] mt-1 line-clamp-2">
+              Tres tacos de arrachera en tortilla de maíz con cebolla asada y cilantro.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-[#BDBDBD] flex items-center justify-between">
+            <span class="text-[11px] text-[#111111] font-semibold">Listo para añadir</span>
+            <button class="px-3 py-1.5 bg-[#111111] text-white text-xs font-semibold rounded-lg flex items-center gap-1">
+              <span>Añadir a la orden</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tarjeta 3: Postre Pastel de Chocolate -->
+        <div class="bg-white border border-[#BDBDBD] rounded-xl p-4 flex flex-col justify-between shadow-xs">
+          <div>
+            <div class="flex justify-between items-start">
+              <span class="px-2 py-0.5 text-[11px] font-semibold rounded bg-[#F7F7F7] text-[#111111] border border-[#BDBDBD]">
+                Postre · Abastecido
+              </span>
+              <span class="text-sm font-bold text-[#111111]">$75.00</span>
+            </div>
+            <h3 class="text-base font-bold text-[#111111] mt-2">Pastel de Chocolate</h3>
+            <p class="text-xs text-[#444444] mt-1 line-clamp-2">
+              Rebanada de pastel húmedo de chocolate con salsa de frutos rojos.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-[#BDBDBD] flex items-center justify-between">
+            <span class="text-[11px] text-[#444444]">Directo</span>
+            <button class="px-3 py-1.5 bg-[#111111] hover:bg-[#222222] text-white text-xs font-semibold rounded-lg flex items-center gap-1">
+              <span>Añadir a la orden</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tarjeta 4: Refresco Cola -->
+        <div class="bg-white border border-[#BDBDBD] rounded-xl p-4 flex flex-col justify-between shadow-xs">
+          <div>
+            <div class="flex justify-between items-start">
+              <span class="px-2 py-0.5 text-[11px] font-semibold rounded bg-[#F7F7F7] text-[#111111] border border-[#BDBDBD]">
+                Bebida · Abastecido
+              </span>
+              <span class="text-sm font-bold text-[#111111]">$35.00</span>
+            </div>
+            <h3 class="text-base font-bold text-[#111111] mt-2">Refresco Cola (Lata 355 ml)</h3>
+            <p class="text-xs text-[#444444] mt-1 line-clamp-2">
+              Refresco frío servido con vaso de hielo y rodaja de limón.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-[#BDBDBD] flex items-center justify-between">
+            <span class="text-[11px] text-[#444444]">En orden actual (2)</span>
+            <button class="px-3 py-1.5 bg-[#111111] hover:bg-[#222222] text-white text-xs font-semibold rounded-lg flex items-center gap-1">
+              <span>Añadir a la orden</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Panel Lateral: Distinción Estricta de Líneas Bloqueadas vs Nuevas Adiciones -->
+    <aside class="w-80 bg-white border border-[#BDBDBD] rounded-xl p-4 flex flex-col justify-between shadow-xs">
+      <div class="overflow-y-auto pr-1">
+        <h2 class="text-sm font-bold text-[#111111] pb-2 border-b border-[#BDBDBD]">
+          Orden Mesa 08 (#1042)
+        </h2>
+
+        <!-- Sección 1: Líneas Confirmadas Bloqueadas -->
+        <div class="mt-3">
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-[11px] font-bold text-[#444444] uppercase tracking-wider">Líneas confirmadas (3)</span>
+            <span class="px-1.5 py-0.2 rounded text-[10px] bg-[#EDEDED] text-[#111111] font-semibold">Bloqueadas</span>
+          </div>
+          <div class="space-y-1.5 bg-[#F7F7F7] border border-[#BDBDBD] rounded-lg p-2 text-xs">
+            <div class="flex justify-between text-[#444444]">
+              <span>2× Hamburguesa Clásica</span>
+              <span class="font-medium">$280.00</span>
+            </div>
+            <div class="flex justify-between text-[#444444]">
+              <span>1× Papas Rústicas</span>
+              <span class="font-medium">$56.00</span>
+            </div>
+            <div class="flex justify-between text-[#444444]">
+              <span>2× Refresco Cola</span>
+              <span class="font-medium">$70.00</span>
+            </div>
+            <div class="pt-1.5 border-t border-[#BDBDBD] flex justify-between text-[11px] text-[#111111] font-semibold">
+              <span>Subtotal confirmadas:</span>
+              <span>$406.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección 2: Nuevas Adiciones a la Orden -->
+        <div class="mt-4">
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-[11px] font-bold text-[#111111] uppercase tracking-wider">Nuevas adiciones (1)</span>
+            <span class="px-1.5 py-0.2 rounded text-[10px] bg-[#111111] text-white font-semibold">Editable</span>
+          </div>
+          <div class="p-2.5 bg-white border-2 border-[#1A1A1A] rounded-lg text-xs shadow-2xs">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="font-bold text-[#111111] block">Tacos de Arrachera</span>
+                <span class="text-[11px] text-[#444444]">3 pzas · Con cebolla asada</span>
+              </div>
+              <span class="font-bold text-[#111111]">$115.00</span>
+            </div>
+            <div class="mt-2 pt-2 border-t border-[#BDBDBD] flex items-center justify-between">
+              <div class="flex items-center gap-1">
+                <button class="w-6 h-6 bg-[#F7F7F7] border border-[#BDBDBD] rounded text-xs font-bold hover:border-[#111111]">-</button>
+                <span class="w-6 text-center text-xs font-bold">1</span>
+                <button class="w-6 h-6 bg-[#F7F7F7] border border-[#BDBDBD] rounded text-xs font-bold hover:border-[#111111]">+</button>
+              </div>
+              <button class="text-[11px] text-[#444444] hover:text-[#111111]">Quitar</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Resumen y Acción de Añadir a la Orden -->
+      <div class="pt-3 border-t border-[#BDBDBD] mt-3">
+        <div class="space-y-1 text-xs mb-3">
+          <div class="flex justify-between text-[#444444]">
+            <span>Nuevos productos:</span>
+            <span class="font-medium text-[#111111]">$115.00</span>
+          </div>
+          <div class="flex justify-between items-baseline pt-1 border-t border-[#BDBDBD]">
+            <span class="font-bold text-[#111111]">Total acumulado con orden:</span>
+            <span class="text-lg font-bold text-[#111111]">$521.00 MXN</span>
+          </div>
+        </div>
+
+        <button class="w-full py-2.5 bg-[#111111] hover:bg-[#222222] text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 shadow-xs transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span>Añadir a la orden ($115.00)</span>
+        </button>
+
+        <button class="w-full mt-1.5 py-1.5 text-xs text-[#444444] hover:text-[#111111] text-center">
+          Seguir agregando productos
+        </button>
+      </div>
+    </aside>
+
+  </main>
+
+  
+  <!-- Pie de Vista -->
+  <footer class="w-full px-6 py-2.5 bg-white border-t border-[#BDBDBD] flex items-center justify-between text-xs text-[#444444]">
+    <div>
+      <span>Catálogo comercial: <strong class="text-[#111111]">Menú Comedor Principal</strong></span>
+    </div>
+    <div>
+      <span>Terminal POS Mesero · Carlos M.</span>
+    </div>
+  </footer>
+</body>
+</html>

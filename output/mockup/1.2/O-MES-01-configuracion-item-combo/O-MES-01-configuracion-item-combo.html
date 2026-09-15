@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024, height=768, initial-scale=1.0">
+  <title>Configurar combo — Modal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            surface: '#FFFFFF',
+            'surface-dim': '#F7F7F7',
+            'surface-low': '#FAFAFA',
+            'surface-container': '#F7F7F7',
+            'surface-active': '#EDEDED',
+            'surface-high': '#F0F0F0',
+            ink: '#111111',
+            slate: '#444444',
+            'slate-muted': '#777777',
+            border: '#1A1A1A',
+            'border-subtle': '#D9D9D9',
+            'border-divider': '#BDBDBD',
+            disabled: '#D9D9D9'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1024px;
+      height: 768px;
+      min-width: 1024px;
+      max-width: 1024px;
+      min-height: 768px;
+      max-height: 768px;
+      overflow: hidden;
+      background-color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom clean scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F7F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BDBDBD;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777777;
+    }
+  </style>
+</head>
+<body class="w-[1024px] h-[768px] max-w-[1024px] max-h-[768px] overflow-hidden bg-white text-[#111111] flex flex-col justify-between select-none">
+
+  <!-- Fondo de Catálogo Atenuado (Contexto Realista) -->
+  <div class="relative w-full h-full bg-white flex flex-col justify-between select-none">
+    
+    <!-- Encabezado de Fondo -->
+    <header class="w-full px-6 py-3 bg-white border-b border-[#BDBDBD] flex items-center justify-between opacity-30 pointer-events-none">
+      <div class="flex items-center gap-3">
+        <h1 class="text-xl font-bold text-[#111111]">Nueva orden — Mesa 04</h1>
+        <span class="text-xs text-[#444444]">Selección de productos del catálogo</span>
+      </div>
+      <div class="w-64 h-8 bg-[#F7F7F7] border border-[#BDBDBD] rounded-md"></div>
+    </header>
+
+    <!-- Contenido de Fondo -->
+    <div class="flex-1 p-5 flex gap-5 opacity-25 pointer-events-none">
+      <div class="flex-1 grid grid-cols-2 gap-4">
+        <div class="h-44 bg-[#F7F7F7] border border-[#BDBDBD] rounded-xl"></div>
+        <div class="h-44 bg-[#F7F7F7] border border-[#BDBDBD] rounded-xl"></div>
+        <div class="h-44 bg-[#F7F7F7] border border-[#BDBDBD] rounded-xl"></div>
+        <div class="h-44 bg-[#F7F7F7] border border-[#BDBDBD] rounded-xl"></div>
+      </div>
+      <div class="w-80 bg-[#F7F7F7] border border-[#BDBDBD] rounded-xl"></div>
+    </div>
+
+    <!-- Pie de Fondo -->
+    <footer class="w-full px-6 py-2.5 bg-white border-t border-[#BDBDBD] opacity-30 pointer-events-none text-xs">
+      <span>Terminal POS Mesero</span>
+    </footer>
+
+    <!-- Overlay / Capa de Atenuación (Monocromático Estricto) -->
+    <div class="absolute inset-0 bg-[#111111]/40 flex items-center justify-center p-6 z-50">
+      
+      <!-- Ventana Modal de Configuración (Geometría Estricta 640px × 560px max) -->
+      <div class="w-[640px] max-h-[560px] bg-white border-2 border-[#1A1A1A] rounded-xl shadow-2xl flex flex-col justify-between overflow-hidden">
+        
+        <!-- Cabecera del Modal -->
+        <div class="px-6 py-4 bg-white border-b border-[#BDBDBD] flex items-start justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-[#111111]">Configurar combo: Combo Pareja</h2>
+            <p class="text-xs text-[#444444] mt-0.5">Combo con 2 platillos y 2 bebidas incluidas a precio paquete</p>
+          </div>
+          <button class="w-8 h-8 rounded-lg bg-[#F7F7F7] border border-[#BDBDBD] hover:border-[#111111] text-xs font-bold text-[#111111] flex items-center justify-center transition-colors">
+            ✕
+          </button>
+        </div>
+
+        <!-- Cuerpo del Modal -->
+        <div class="px-6 py-5 overflow-y-auto flex-1 text-xs">
+          
+  <div class="space-y-4">
+    
+    <!-- Encabezado de Combo -->
+    <div class="flex justify-between items-start pb-3 border-b border-[#BDBDBD]">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-[#111111] text-white">
+            Combo · Paquete completo
+          </span>
+          <span class="text-xs text-[#444444]">Precio fijo cerrado</span>
+        </div>
+        <h3 class="text-base font-bold text-[#111111] mt-1">Combo Pareja</h3>
+        <p class="text-xs text-[#444444]">Las opciones incluidas forman parte del paquete sin costos adicionales.</p>
+      </div>
+
+      <div class="text-right">
+        <span class="text-[11px] text-[#444444] block">Precio cerrado del combo:</span>
+        <span class="text-lg font-bold text-[#111111]">$349.00 MXN</span>
+      </div>
+    </div>
+
+    <!-- Grupo 1 de Componentes: Platillos Principales -->
+    <div class="space-y-1.5">
+      <div class="flex justify-between items-center">
+        <span class="font-bold text-[#111111]">1. Platillos principales (Selecciona 2 opciones):</span>
+        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#EDEDED] text-[#111111]">2 de 2 seleccionados</span>
+      </div>
+
+      <div class="space-y-2">
+        <label class="p-2.5 bg-white border-2 border-[#1A1A1A] rounded-lg flex items-center justify-between cursor-pointer">
+          <div class="flex items-center gap-2.5">
+            <input type="checkbox" checked class="w-4 h-4 accent-[#111111]" />
+            <div>
+              <span class="font-bold text-[#111111] block">1× Hamburguesa Clásica</span>
+              <span class="text-[11px] text-[#444444]">Término medio · Con queso</span>
+            </div>
+          </div>
+          <span class="text-[11px] font-semibold text-[#111111]">Incluido</span>
+        </label>
+
+        <label class="p-2.5 bg-white border-2 border-[#1A1A1A] rounded-lg flex items-center justify-between cursor-pointer">
+          <div class="flex items-center gap-2.5">
+            <input type="checkbox" checked class="w-4 h-4 accent-[#111111]" />
+            <div>
+              <span class="font-bold text-[#111111] block">1× Tacos de Arrachera</span>
+              <span class="text-[11px] text-[#444444]">Porción de 3 tacos con cebolla asada</span>
+            </div>
+          </div>
+          <span class="text-[11px] font-semibold text-[#111111]">Incluido</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Grupo 2 de Componentes: Bebidas -->
+    <div class="space-y-1.5">
+      <div class="flex justify-between items-center">
+        <span class="font-bold text-[#111111]">2. Bebidas de acompañamiento (Selecciona 2 opciones):</span>
+        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#EDEDED] text-[#111111]">2 de 2 seleccionadas</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <label class="p-2.5 bg-white border-2 border-[#1A1A1A] rounded-lg flex items-center justify-between cursor-pointer">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" checked class="w-4 h-4 accent-[#111111]" />
+            <span class="font-bold text-[#111111]">1× Refresco Cola (355 ml)</span>
+          </div>
+          <span class="text-[10px] text-[#444444]">Incluido</span>
+        </label>
+
+        <label class="p-2.5 bg-white border-2 border-[#1A1A1A] rounded-lg flex items-center justify-between cursor-pointer">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" checked class="w-4 h-4 accent-[#111111]" />
+            <span class="font-bold text-[#111111]">1× Agua Mineral (600 ml)</span>
+          </div>
+          <span class="text-[10px] text-[#444444]">Incluido</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Desglose Final del Combo -->
+    <div class="pt-3 border-t border-[#BDBDBD] flex items-center justify-between">
+      <div class="text-xs text-[#444444]">
+        Todos los componentes requeridos han sido completados.
+      </div>
+      <div class="text-right">
+        <span class="text-[10px] text-[#444444] block">Total a pagar:</span>
+        <span class="text-lg font-bold text-[#111111]">$349.00 MXN</span>
+      </div>
+    </div>
+
+  </div>
+        </div>
+
+        <!-- Pie de Acciones del Modal -->
+        <div class="px-6 py-3.5 bg-[#F7F7F7] border-t border-[#BDBDBD] flex items-center justify-between">
+          <div>
+            
+          </div>
+          <div class="flex items-center gap-3">
+            <button class="px-4 py-2 bg-white border border-[#BDBDBD] hover:border-[#111111] text-xs font-semibold text-[#111111] rounded-lg transition-colors">
+              Cancelar
+            </button>
+            <button class="px-5 py-2 bg-[#111111] hover:bg-[#222222] text-white text-xs font-bold rounded-lg flex items-center gap-2 shadow-xs transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+              <span>Añadir a la orden ($349.00)</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</html>

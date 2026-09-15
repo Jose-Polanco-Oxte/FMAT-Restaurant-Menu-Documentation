@@ -6,15 +6,15 @@
 | --- | --- | --- | --- |
 | [INT-MENU-024](./05-interfaces-integrations.md#int-menu-024) | Catálogo de ingredientes de Inventory | decisions.md — aclaración de Inventory | Confirmado |
 | [INT-MENU-025](./05-interfaces-integrations.md#int-menu-025) | Búsqueda del catálogo de Inventory | decisions.md — aclaración de Inventory | Confirmado |
-| [REQ-MENU-001](./02-functional-requirements.md#req-menu-001) | Definición del producto comercial | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-001](./02-functional-requirements.md#req-menu-001) | Definición del MenuItem comercial | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-002](./02-functional-requirements.md#req-menu-002) | Estado administrativo | 02-functional-requirements.md | Confirmado |
-| [REQ-MENU-003](./02-functional-requirements.md#req-menu-003) | Presentación vendible predeterminada | 02-functional-requirements.md | Confirmado |
-| [REQ-MENU-004](./02-functional-requirements.md#req-menu-004) | Definición de dimensiones | 02-functional-requirements.md | Confirmado |
-| [REQ-MENU-005](./02-functional-requirements.md#req-menu-005) | Definición de variantes vendibles | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-003](./02-functional-requirements.md#req-menu-003) | Presentación vendible de item hoja | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-004](./02-functional-requirements.md#req-menu-004) | Definición de característica de presentación | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-005](./02-functional-requirements.md#req-menu-005) | Definición de presentación vendible | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-006](./02-functional-requirements.md#req-menu-006) | Precio absoluto de la variante | 02-functional-requirements.md | Confirmado |
-| [REQ-MENU-007](./02-functional-requirements.md#req-menu-007) | Precio mínimo elegible | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-007](./02-functional-requirements.md#req-menu-007) | Presentación del precio de catálogo | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-008](./02-functional-requirements.md#req-menu-008) | Configuración de suministro almacenado | 02-functional-requirements.md | Confirmado |
-| [REQ-MENU-009](./02-functional-requirements.md#req-menu-009) | Configuración de suministro preparado | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-009](./02-functional-requirements.md#req-menu-009) | Receta de presentación preparada | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-010](./02-functional-requirements.md#req-menu-010) | Configuración de combo | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-011](./02-functional-requirements.md#req-menu-011) | Definición del espacio de selección | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-012](./02-functional-requirements.md#req-menu-012) | Definición de opciones de combo | 02-functional-requirements.md | Confirmado |
@@ -26,19 +26,18 @@
 | [REQ-MENU-018](./02-functional-requirements.md#req-menu-018) | Directiva de omisión de ingrediente | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-019](./02-functional-requirements.md#req-menu-019) | Personalización de preparación sin efectos sobre ingredientes | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-020](./02-functional-requirements.md#req-menu-020) | Definición de recetas | 02-functional-requirements.md | Confirmado |
-| [REQ-MENU-021](./02-functional-requirements.md#req-menu-021) | Revisiones de receta | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-021](./02-functional-requirements.md#req-menu-021) | Historial de versiones de receta | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-022](./02-functional-requirements.md#req-menu-022) | Publicación de catálogo | 02-functional-requirements.md | Confirmado |
-| [REQ-MENU-023](./02-functional-requirements.md#req-menu-023) | Clasificación de continuidad ante retiro | 02-functional-requirements.md | Reclasificado |
-| [REQ-MENU-024](./02-functional-requirements.md#req-menu-024) | Definición de valores de dimensión | 02-functional-requirements.md | Confirmado |
-| [REQ-MENU-025](./02-functional-requirements.md#req-menu-025) | Límite de cantidad de personalización por variante | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-024](./02-functional-requirements.md#req-menu-024) | Valor de característica de presentación | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-025](./02-functional-requirements.md#req-menu-025) | Máximo de cantidad de personalización | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-026](./02-functional-requirements.md#req-menu-026) | Copia de configuración de combo | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-027](./02-functional-requirements.md#req-menu-027) | Asignación múltiple de opciones de combo | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-028](./02-functional-requirements.md#req-menu-028) | Archivar variante | 02-functional-requirements.md | Confirmado |
-| [REQ-MENU-029](./02-functional-requirements.md#req-menu-029) | Guardar capacidad incompleta | 02-functional-requirements.md | Confirmado |
-| [REQ-MENU-030](./02-functional-requirements.md#req-menu-030) | Informar capacidad incompleta | 02-functional-requirements.md | Confirmado |
-| [REQ-MENU-031](./02-functional-requirements.md#req-menu-031) | Sin precio elegible | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-029](./02-functional-requirements.md#req-menu-029) | Guardar reglas de selección incompletas | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-030](./02-functional-requirements.md#req-menu-030) | Informar selecciones faltantes | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-031](./02-functional-requirements.md#req-menu-031) | Sin precio de catálogo elegible | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-032](./02-functional-requirements.md#req-menu-032) | Resolución neta de ingredientes | 02-functional-requirements.md | Confirmado |
-| [REQ-MENU-033](./02-functional-requirements.md#req-menu-033) | Revisión de producto | 02-functional-requirements.md | Confirmado |
+| [REQ-MENU-033](./02-functional-requirements.md#req-menu-033) | Revisión de MenuItem | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-034](./02-functional-requirements.md#req-menu-034) | Migración de variante predeterminada | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-035](./02-functional-requirements.md#req-menu-035) | Detección de revisión de combo | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-036](./02-functional-requirements.md#req-menu-036) | Visibilidad administrativa de revisión | 02-functional-requirements.md | Confirmado |
@@ -46,7 +45,7 @@
 | [REQ-MENU-038](./02-functional-requirements.md#req-menu-038) | Conservación de configuración revisada | 02-functional-requirements.md | Confirmado |
 | [REQ-MENU-039](./02-functional-requirements.md#req-menu-039) | Referencia visual del slot | 02-functional-requirements.md | Confirmado |
 | [BR-MENU-001](./03-business-rules.md#br-menu-001) | Variante universal | 03-business-rules.md | Confirmado |
-| [BR-MENU-002](./03-business-rules.md#br-menu-002) | Un valor por dimensión | 03-business-rules.md | Confirmado |
+| [BR-MENU-002](./03-business-rules.md#br-menu-002) | Un valor por característica de presentación | 03-business-rules.md | Confirmado |
 | [BR-MENU-003](./03-business-rules.md#br-menu-003) | Pertenencia de los valores de variante | 03-business-rules.md | Confirmado |
 | [BR-MENU-004](./03-business-rules.md#br-menu-004) | Combinación única | 03-business-rules.md | Confirmado |
 | [BR-MENU-005](./03-business-rules.md#br-menu-005) | Homogeneidad de suministro | 03-business-rules.md | Confirmado |
@@ -84,14 +83,14 @@
 | [BR-MENU-037](./03-business-rules.md#br-menu-037) | Adopción explícita de receta | 03-business-rules.md | Confirmado |
 | [BR-MENU-038](./03-business-rules.md#br-menu-038) | Identidad histórica predeterminada | 03-business-rules.md | Confirmado |
 | [BR-MENU-039](./03-business-rules.md#br-menu-039) | Capacidad cero de modificador | 03-business-rules.md | Confirmado |
-| [BR-MENU-040](./03-business-rules.md#br-menu-040) | Identidad dimensional de venta | 03-business-rules.md | Confirmado |
+| [BR-MENU-040](./03-business-rules.md#br-menu-040) | Identidad de presentación de venta | 03-business-rules.md | Confirmado |
 | [BR-MENU-041](./03-business-rules.md#br-menu-041) | Validación monetaria | 03-business-rules.md | Confirmado |
 | [BR-MENU-042](./03-business-rules.md#br-menu-042) | Positividad física | 03-business-rules.md | Confirmado |
-| [BR-MENU-043](./03-business-rules.md#br-menu-043) | Tipo de suministro inmutable | 03-business-rules.md | Confirmado |
+| [BR-MENU-043](./03-business-rules.md#br-menu-043) | Tipo contractual de MenuItem inmutable | 03-business-rules.md | Confirmado |
 | [BR-MENU-044](./03-business-rules.md#br-menu-044) | Nombres como etiquetas | 03-business-rules.md | Confirmado |
 | [DATA-MENU-001](./04-data-requirements.md#data-menu-001) | Menú | 04-data-requirements.md | Confirmado |
-| [DATA-MENU-002](./04-data-requirements.md#data-menu-002) | Producto comercial | 04-data-requirements.md | Confirmado |
-| [DATA-MENU-003](./04-data-requirements.md#data-menu-003) | Dimensión de variante | 04-data-requirements.md | Confirmado |
+| [DATA-MENU-002](./04-data-requirements.md#data-menu-002) | MenuItem comercial | 04-data-requirements.md | Confirmado |
+| [DATA-MENU-003](./04-data-requirements.md#data-menu-003) | Característica de presentación | 04-data-requirements.md | Confirmado |
 | [DATA-MENU-004](./04-data-requirements.md#data-menu-004) | Variante vendible | 04-data-requirements.md | Confirmado |
 | [DATA-MENU-005](./04-data-requirements.md#data-menu-005) | Definición de variante almacenada | 04-data-requirements.md | Confirmado |
 | [DATA-MENU-006](./04-data-requirements.md#data-menu-006) | Espacio de combo | 04-data-requirements.md | Confirmado |
@@ -99,7 +98,7 @@
 | [DATA-MENU-008](./04-data-requirements.md#data-menu-008) | Configuración de modificador por variante | 04-data-requirements.md | Confirmado |
 | [DATA-MENU-009](./04-data-requirements.md#data-menu-009) | Efecto sobre ingrediente | 04-data-requirements.md | Confirmado |
 | [DATA-MENU-010](./04-data-requirements.md#data-menu-010) | Identidad de receta | 04-data-requirements.md | Confirmado |
-| [DATA-MENU-011](./04-data-requirements.md#data-menu-011) | Valor de dimensión | 04-data-requirements.md | Confirmado |
+| [DATA-MENU-011](./04-data-requirements.md#data-menu-011) | Valor de característica de presentación | 04-data-requirements.md | Confirmado |
 | [DATA-MENU-012](./04-data-requirements.md#data-menu-012) | Definición de variante preparada | 04-data-requirements.md | Confirmado |
 | [DATA-MENU-013](./04-data-requirements.md#data-menu-013) | Referencia de opción de combo | 04-data-requirements.md | Confirmado |
 | [DATA-MENU-014](./04-data-requirements.md#data-menu-014) | Opción de modificador | 04-data-requirements.md | Confirmado |
@@ -229,3 +228,18 @@
 | [OPEN-017](./09-conflicts-and-open-items.md#open-017) | Proyección del selector de Inventory | 09-conflicts-and-open-items.md | Abierto — contrato externo |
 | [OPEN-018](./09-conflicts-and-open-items.md#open-018) | Proveedor de carga y previsualización de imágenes | 09-conflicts-and-open-items.md | Abierto — contrato externo |
 | [OPEN-019](./09-conflicts-and-open-items.md#open-019) | Ajustes finales de Billing | 09-conflicts-and-open-items.md | Abierto — contrato externo |
+| [SUPERSEDED-020](./08-superseded-decisions.md#superseded-020) | Opciones de combo con precio delta | 08-superseded-decisions.md | Histórico |
+| [SUPERSEDED-021](./08-superseded-decisions.md#superseded-021) | Combo modelado como MenuItemVariant | 08-superseded-decisions.md | Histórico |
+| [REQ-MENU-040](./02-functional-requirements.md#req-menu-040) | Proyección publicada de modificadores efectivos | 02-functional-requirements.md | Confirmado |
+| [DATA-MENU-027](./04-data-requirements.md#data-menu-027) | MenuItem COMBO | 04-data-requirements.md | Confirmado |
+| [DATA-MENU-028](./04-data-requirements.md#data-menu-028) | Configuración de combo | 04-data-requirements.md | Confirmado |
+| [DATA-MENU-029](./04-data-requirements.md#data-menu-029) | Configuración default de modificador | 04-data-requirements.md | Confirmado |
+| [DATA-MENU-030](./04-data-requirements.md#data-menu-030) | Modificador efectivo publicado | 04-data-requirements.md | Confirmado |
+| [DATA-MENU-031](./04-data-requirements.md#data-menu-031) | Referencia concreta de línea hoja | 04-data-requirements.md | Confirmado |
+| [DATA-MENU-032](./04-data-requirements.md#data-menu-032) | Líneas separadas por personalización | 04-data-requirements.md | Confirmado |
+| [INT-MENU-026](./05-interfaces-integrations.md#int-menu-026) | Publicación de modificadores efectivos | 05-interfaces-integrations.md | Confirmado |
+| [INT-MENU-027](./05-interfaces-integrations.md#int-menu-027) | Selección de configuración de combo | 05-interfaces-integrations.md | Confirmado |
+| [INT-MENU-028](./05-interfaces-integrations.md#int-menu-028) | Revalidación de línea de orden | 05-interfaces-integrations.md | Confirmado |
+| [INT-MENU-029](./05-interfaces-integrations.md#int-menu-029) | Separación de líneas personalizadas | 05-interfaces-integrations.md | Confirmado |
+| [CON-MENU-014](./07-constraints.md#con-menu-014) | Identidad separada de configuración de combo | 07-constraints.md | Confirmado |
+| [CON-MENU-015](./07-constraints.md#con-menu-015) | Repositorios separados de categorías | 07-constraints.md | Confirmado |

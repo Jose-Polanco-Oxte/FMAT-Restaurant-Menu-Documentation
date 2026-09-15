@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024, height=768, initial-scale=1.0">
+  <title>Editar producto — Paso 2: Modificadores</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            surface: '#FFFFFF',
+            'surface-dim': '#F7F7F7',
+            'surface-low': '#FAFAFA',
+            'surface-container': '#F7F7F7',
+            'surface-active': '#EDEDED',
+            'surface-high': '#F0F0F0',
+            ink: '#111111',
+            slate: '#444444',
+            'slate-muted': '#777777',
+            border: '#1A1A1A',
+            'border-subtle': '#D9D9D9',
+            'border-divider': '#BDBDBD',
+            disabled: '#D9D9D9'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1024px;
+      height: 768px;
+      min-width: 1024px;
+      max-width: 1024px;
+      min-height: 768px;
+      max-height: 768px;
+      overflow: hidden;
+      background-color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom clean scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F7F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BDBDBD;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777777;
+    }
+  </style>
+</head>
+<body class="w-[1024px] h-[768px] max-w-[1024px] max-h-[768px] overflow-hidden bg-white text-[#111111] flex flex-col justify-between select-none">
+
+  
+  <!-- Encabezado del Editor -->
+  <header class="w-full px-6 py-3 bg-white border-b border-[#BDBDBD] flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white border border-[#BDBDBD] hover:border-[#111111] rounded-lg text-[#111111] transition-colors">
+        <svg class="w-4 h-4 text-[#111111]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>Volver al catálogo</span>
+      </button>
+
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-xl font-bold tracking-tight text-[#111111]">Editar producto: Hamburguesa Especial</h1>
+          <span class="px-2.5 py-0.5 text-xs font-semibold rounded bg-[#EDEDED] text-[#111111] border border-[#BDBDBD]">
+            Edición de producto
+          </span>
+        </div>
+        <p class="text-xs text-[#444444] mt-0.5">Paso 2 de 3 · Configuración de catálogo comercial</p>
+      </div>
+    </div>
+
+    <!-- Stepper de Navegación -->
+    <div class="flex items-center gap-3">
+      
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-[#EDEDED] text-[#111111] border border-[#111111]">
+              ✓
+            </div>
+            <span class="text-xs text-[#444444]">Datos y suministro</span>
+            <span class="text-[#BDBDBD] text-xs">―</span>
+          </div>
+        
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-[#111111] text-white">
+              2
+            </div>
+            <span class="text-xs font-bold text-[#111111]">Modificadores</span>
+            <span class="text-[#BDBDBD] text-xs">―</span>
+          </div>
+        
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white border border-[#BDBDBD] text-[#777777]">
+              3
+            </div>
+            <span class="text-xs text-[#444444]">Confirmación</span>
+            
+          </div>
+        
+    </div>
+  </header>
+
+  <main class="flex-1 p-6 overflow-y-auto">
+    <div class="max-w-4xl mx-auto space-y-5">
+      
+      <!-- Aviso de Edición de Catálogo -->
+      <div class="p-3.5 bg-[#F7F7F7] border border-[#BDBDBD] rounded-xl flex items-center justify-between text-xs">
+        <div class="flex items-center gap-3">
+          <span class="px-2 py-0.5 font-bold rounded bg-[#111111] text-white text-[10px]">Modo edición</span>
+          <span class="text-[#444444]">Editando modificadores de la versión publicada (Rev. 3). El tipo de suministro es inmutable.</span>
+        </div>
+        <span class="text-[#111111] font-semibold">Preparado en cocina [Bloqueado]</span>
+      </div>
+
+      <div class="bg-white border border-[#BDBDBD] rounded-xl p-5 shadow-xs">
+        <div class="flex justify-between items-center pb-3 border-b border-[#BDBDBD] mb-4">
+          <div>
+            <h2 class="text-sm font-bold text-[#111111]">Modificadores habilitados</h2>
+            <p class="text-xs text-[#444444]">Ajusta precios adicionales o disponibilidad de opciones.</p>
+          </div>
+          <button class="px-3 py-1.5 bg-white border border-[#BDBDBD] hover:border-[#111111] text-[#111111] text-xs font-bold rounded-lg">
+            + Agregar modificador
+          </button>
+        </div>
+
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-[#FAFAFA] border-b border-[#BDBDBD] text-[11px] font-bold text-[#444444] uppercase">
+              <th class="py-2.5 px-3">Grupo</th>
+              <th class="py-2.5 px-3">Opción</th>
+              <th class="py-2.5 px-3">Efecto</th>
+              <th class="py-2.5 px-3 text-right">Precio adicional</th>
+              <th class="py-2.5 px-3 text-center">Cant. máxima</th>
+              <th class="py-2.5 px-3 text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#BDBDBD]">
+            <tr>
+              <td class="py-3 px-3 font-bold text-[#111111]">Término de cocción</td>
+              <td class="py-3 px-3 font-semibold text-[#111111]">Término medio</td>
+              <td class="py-3 px-3 text-[#444444]">Parrilla</td>
+              <td class="py-3 px-3 text-right font-medium text-[#444444]">$0.00</td>
+              <td class="py-3 px-3 text-center font-bold">1</td>
+              <td class="py-3 px-3 text-center">
+                <button class="text-xs text-[#111111] font-semibold hover:underline">Modificar</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="py-3 px-3 font-bold text-[#111111]">Ingredientes extra</td>
+              <td class="py-3 px-3 font-semibold text-[#111111]">Extra queso cheddar</td>
+              <td class="py-3 px-3 text-[#444444]">Agregar ingrediente</td>
+              <td class="py-3 px-3 text-right font-bold text-[#111111]">+$20.00</td>
+              <td class="py-3 px-3 text-center font-bold">2</td>
+              <td class="py-3 px-3 text-center">
+                <button class="text-xs text-[#111111] font-semibold hover:underline">Modificar</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="py-3 px-3 font-bold text-[#111111]">Omisiones</td>
+              <td class="py-3 px-3 font-semibold text-[#111111]">Sin cebolla morada</td>
+              <td class="py-3 px-3 text-[#444444]">Omitir ingrediente</td>
+              <td class="py-3 px-3 text-right font-medium text-[#444444]">$0.00</td>
+              <td class="py-3 px-3 text-center font-bold">1</td>
+              <td class="py-3 px-3 text-center">
+                <button class="text-xs text-[#111111] font-semibold hover:underline">Modificar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  
+  <!-- Pie de Navegación del Asistente -->
+  <footer class="w-full px-6 py-3 bg-white border-t border-[#BDBDBD] flex items-center justify-between">
+    <div class="text-xs text-[#444444]">
+      Los cambios se almacenan localmente hasta completar la confirmación final.
+    </div>
+    <div class="flex items-center gap-3">
+      
+    <button class="px-4 py-2 bg-white border border-[#BDBDBD] hover:border-[#111111] text-xs font-semibold rounded-lg text-[#111111]">Volver al paso 1</button>
+    <button class="px-5 py-2 bg-[#111111] hover:bg-[#222222] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-colors">
+      <span>Continuar a confirmación</span>
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  
+    </div>
+  </footer>
+</body>
+</html>

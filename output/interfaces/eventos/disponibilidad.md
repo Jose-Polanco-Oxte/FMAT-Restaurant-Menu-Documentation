@@ -2,7 +2,7 @@
 
 # Coherencia de disponibilidad
 
-Menu conserva la correspondencia entre clave opaca, definición plana y variante u opción suministrada. Inventory solo recibe insumos y unidades. Prepared transmite receta base; stocked su insumo; opción de combo incorpora suppliedQuantity en sus necesidades. Menu calcula disponibilidad del combo si cada slot cubre su mínimo con opciones elegibles. No se enumeran todas las combinaciones de extras y una evaluación no garantiza stock conjunto.
+Menu conserva la correspondencia entre clave opaca, definición plana y variante hoja u opción suministrada. Inventory solo recibe insumos y unidades. Prepared transmite receta base; stocked su insumo; opción de combo incorpora `itemVariantId` y `quantity` en sus necesidades. Menu calcula disponibilidad del combo si cada slot cubre su mínimo con opciones elegibles. No se enumeran todas las combinaciones de extras y una evaluación no garantiza stock conjunto.
 
 Nueva definición parte sin evaluación positiva. M-01 reemplaza la lista; M-02 incrementa revisión y conserva tombstone. M-03 de definición antigua se ignora. Retirada no puede resucitar por orden de entrega. Lista vacía solo resulta de una definición válida realmente sin consumo, nunca de un error de resolución.
 

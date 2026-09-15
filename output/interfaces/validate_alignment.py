@@ -18,11 +18,11 @@ def check(condition,label):
     if not condition: errors.append(label)
 def valid(name,value,expected,label): check(validator(name).is_valid(value)==expected,label)
 
-summary={'basePrice':'200.00','extrasTotal':'15.00','unitSubtotal':'215.00','currency':'MXN'}
+summary={'unitPrice':'200.00','extrasTotal':'15.00','unitSubtotal':'215.00','currency':'MXN'}
 valid('PriceSummary',summary,True,'aggregate summary accepted')
 for key in ['terms','slots','components','modifiers','pricingInputs']:
     valid('PriceSummary',{**summary,key:[]},False,'summary rejects '+key)
-for key in ['basePrice','extrasTotal','unitSubtotal']:
+for key in ['unitPrice','extrasTotal','unitSubtotal']:
     valid('PriceSummary',{**summary,key:'-1'},False,'negative '+key)
 valid('Money',{'amount':'0','currency':'MXN'},True,'zero price accepted')
 valid('Money',{'amount':'-0.01','currency':'MXN'},False,'negative adjustment rejected')
@@ -31,17 +31,17 @@ for quantity in ['0','0.000','-1']:
 for quantity in ['0.001','1','100.00']:
     valid('Ingredient',{'inventoryItemId':'i','quantity':quantity,'unit':'g'},True,'physical accepts '+quantity)
 valid('IngredientEffect',{'operation':'OMIT','inventoryItemId':'i','quantity':'1'},False,'OMIT has no quantity')
-option={'optionId':'o','enabled':True,'component':{'menuItemId':'mi','menuItemVersion':'1_2026-09-12T00:00:00Z','variantId':'v'},'suppliedQuantity':2}
-valid('ComboOption',option,True,'fixed-price option')
-valid('ComboOption',{**option,'priceDelta':{'amount':'10','currency':'MXN'}},False,'option adjustment removed')
+option={'optionId':'o','enabled':True,'itemVariantId':'v','quantity':2,'priceDelta':{'amount':'10','currency':'MXN'}}
+valid('ComboOption',option,True,'combo option with concrete leaf and price delta')
+valid('ComboOption',{**option,'suppliedQuantity':2},False,'legacy supplied quantity rejected')
 slot={'slotId':'s','name':'Choice','minSelections':1,'maxSelections':1,'options':[option],'baseOptionIds':['o']}
 valid('ComboSlot',slot,True,'administrative base selection')
 valid('ComboSlot',{**slot,'baseOptionIds':['o','o']},False,'duplicate base IDs rejected')
 valid('CommercialComboSlot',slot,False,'commercial slot rejects admin reference')
 commercial=copy.deepcopy(slot);commercial.pop('baseOptionIds')
 valid('CommercialComboSlot',commercial,True,'commercial slot without admin reference')
-valid('ReviewConfirmation',{'variants':[]},False,'confirmation cannot acknowledge implicit all')
-valid('ReviewConfirmation',{'variants':[{'variantId':'v','reviewToken':'seen'}],'state':'UP_TO_DATE'},False,'client cannot set review state')
+valid('ReviewConfirmation',{'configurations':[]},False,'confirmation cannot acknowledge implicit all')
+valid('ReviewConfirmation',{'configurations':[{'configurationId':'cfg','reviewToken':'seen'}],'state':'UP_TO_DATE'},False,'client cannot set review state')
 valid('PriceTerm',{},False,'retired price terms not accepted')
 
 # These are independent expected examples, not execution of the Menu service.
@@ -54,40 +54,40 @@ fixtures=[
  {'name':'free variant','base':'0','extras':[],'expected':'0'}]
 for f in fixtures:
     extra=sum((Decimal(e['pinned'])*e['quantity'] for e in f['extras']),Decimal(0))
-    example={'basePrice':f['base'],'extrasTotal':str(extra),'unitSubtotal':f['expected'],'currency':'MXN'}
+    example={'unitPrice':f['base'],'extrasTotal':str(extra),'unitSubtotal':f['expected'],'currency':'MXN'}
     valid('PriceSummary',example,True,f['name']+' schema')
     check(Decimal(f['base'])+extra==Decimal(f['expected']),f['name']+' expected arithmetic')
 
 contracts=json.loads((root/'contracts.json').read_text(encoding='utf-8'))
 review_example=copy.deepcopy(next(c for c in contracts if c['id']=='E-20')['responseExample'])
 valid('ComboReview',review_example,True,'pending review example')
-missing_expiry=copy.deepcopy(review_example);missing_expiry['variants'][0].pop('reviewTokenExpiresAt')
+missing_expiry=copy.deepcopy(review_example);missing_expiry['configurations'][0].pop('reviewTokenExpiresAt')
 valid('ComboReview',missing_expiry,False,'review observation requires explicit expiry')
-bad_expiry=copy.deepcopy(review_example);bad_expiry['variants'][0]['reviewTokenExpiresAt']='invalid'
+bad_expiry=copy.deepcopy(review_example);bad_expiry['configurations'][0]['reviewTokenExpiresAt']='invalid'
 valid('ComboReview',bad_expiry,False,'review expiry must be a timestamp')
 inconsistent=copy.deepcopy(review_example);inconsistent['state']='UP_TO_DATE'
 valid('ComboReview',inconsistent,False,'aggregate cannot hide pending variants')
-inconsistent=copy.deepcopy(review_example);inconsistent['variants'][0]['state']='UP_TO_DATE'
-valid('VariantReview',inconsistent['variants'][0],False,'updated variant cannot have pending changes')
-inconsistent=copy.deepcopy(review_example);inconsistent['variants'][0]['changes']=[]
-valid('VariantReview',inconsistent['variants'][0],False,'pending variant must expose pending changes')
-updated=copy.deepcopy(review_example);updated['state']='UP_TO_DATE';updated['variants'][0]['state']='UP_TO_DATE';updated['variants'][0]['changes']=[]
+inconsistent=copy.deepcopy(review_example);inconsistent['configurations'][0]['state']='UP_TO_DATE'
+valid('ConfigurationReview',inconsistent['configurations'][0],False,'updated configuration cannot have pending changes')
+inconsistent=copy.deepcopy(review_example);inconsistent['configurations'][0]['changes']=[]
+valid('ConfigurationReview',inconsistent['configurations'][0],False,'pending configuration must expose pending changes')
+updated=copy.deepcopy(review_example);updated['state']='UP_TO_DATE';updated['configurations'][0]['state']='UP_TO_DATE';updated['configurations'][0]['changes']=[]
 valid('ComboReview',updated,True,'acknowledgement can leave no pending changes')
 inconsistent=copy.deepcopy(updated);inconsistent['state']='REVIEW_REQUIRED'
 valid('ComboReview',inconsistent,False,'pending aggregate requires a pending variant')
 page=copy.deepcopy(next(c for c in contracts if c['id']=='E-19')['responseExample'])
 inconsistent=copy.deepcopy(page);inconsistent['items'][0]['fulfillmentType']='PREPARED'
 valid('AdminMenuItemPage',inconsistent,False,'PREPARED cannot receive combo review state')
-inconsistent=copy.deepcopy(page);inconsistent['items'][0]['pendingVariantIds']=[]
-valid('AdminMenuItemPage',inconsistent,False,'pending list item must identify affected variants')
-noncombo=copy.deepcopy(page);noncombo['items'][0].update(fulfillmentType='STOCKED',reviewState=None,pendingVariantIds=[])
+inconsistent=copy.deepcopy(page);inconsistent['items'][0]['pendingConfigurationIds']=[]
+valid('AdminMenuItemPage',inconsistent,False,'pending list item must identify affected configurations')
+noncombo=copy.deepcopy(page);noncombo['items'][0].update(fulfillmentType='STOCKED',reviewState=None,pendingConfigurationIds=[])
 valid('AdminMenuItemPage',noncombo,True,'noncombo has no review state')
 ids={c['id'] for c in contracts}
 check(ids=={f'E-{n:02}' for n in range(1,22) if n!=10},'active endpoint inventory')
 e16=next(c for c in contracts if c['id']=='E-16')['responseExample']
 check('pricingInputs' not in e16 and set(e16['pricing'])==set(summary),'E-16 actual example is aggregate only')
 combo=copy.deepcopy(e16)
-combo['menuItem']={'menuItemId':'mi-combo','menuItemVersion':'1_2026-09-12T00:00:00Z','variantId':'v-combo'}
+combo['menuItem']={'menuItemId':'mi-combo','menuItemVersion':'1_2026-09-12T00:00:00Z','configurationId':'cfg-combo'}
 component={'menuItemId':'mi-burger','menuItemVersion':'1_2026-09-12T00:00:00Z','variantId':'v-burger'}
 combo['selection']={'modifiers':[],'components':[{'slotId':'s','optionId':'o','units':[{'unitIndex':1,'modifiers':[{'configId':'cheese','quantity':1}]},{'unitIndex':2,'modifiers':[{'configId':'cheese','quantity':2}]}]}]}
 recipe={'recipeId':'recipe-burger','recipeVersion':'1_2026-09-12T00:00:00Z','name':'Hamburguesa','components':[{'inventoryItemId':'meat','quantity':'100','unit':'g'}]}

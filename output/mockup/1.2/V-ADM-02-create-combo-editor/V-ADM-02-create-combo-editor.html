@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024, height=768, initial-scale=1.0">
+  <title>Alta de producto — Paso 2: Combo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            surface: '#FFFFFF',
+            'surface-dim': '#F7F7F7',
+            'surface-low': '#FAFAFA',
+            'surface-container': '#F7F7F7',
+            'surface-active': '#EDEDED',
+            'surface-high': '#F0F0F0',
+            ink: '#111111',
+            slate: '#444444',
+            'slate-muted': '#777777',
+            border: '#1A1A1A',
+            'border-subtle': '#D9D9D9',
+            'border-divider': '#BDBDBD',
+            disabled: '#D9D9D9'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1024px;
+      height: 768px;
+      min-width: 1024px;
+      max-width: 1024px;
+      min-height: 768px;
+      max-height: 768px;
+      overflow: hidden;
+      background-color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom clean scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F7F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BDBDBD;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777777;
+    }
+  </style>
+</head>
+<body class="w-[1024px] h-[768px] max-w-[1024px] max-h-[768px] overflow-hidden bg-white text-[#111111] flex flex-col justify-between select-none">
+
+  
+  <!-- Encabezado del Editor -->
+  <header class="w-full px-6 py-3 bg-white border-b border-[#BDBDBD] flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white border border-[#BDBDBD] hover:border-[#111111] rounded-lg text-[#111111] transition-colors">
+        <svg class="w-4 h-4 text-[#111111]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>Volver al catálogo</span>
+      </button>
+
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-xl font-bold tracking-tight text-[#111111]">Alta de producto: Combo Pareja</h1>
+          <span class="px-2.5 py-0.5 text-xs font-semibold rounded bg-[#EDEDED] text-[#111111] border border-[#BDBDBD]">
+            Alta de producto
+          </span>
+        </div>
+        <p class="text-xs text-[#444444] mt-0.5">Paso 2 de 4 · Configuración de catálogo comercial</p>
+      </div>
+    </div>
+
+    <!-- Stepper de Navegación -->
+    <div class="flex items-center gap-3">
+      
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-[#EDEDED] text-[#111111] border border-[#111111]">
+              ✓
+            </div>
+            <span class="text-xs text-[#444444]">Clasificación</span>
+            <span class="text-[#BDBDBD] text-xs">―</span>
+          </div>
+        
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-[#111111] text-white">
+              2
+            </div>
+            <span class="text-xs font-bold text-[#111111]">Datos y suministro</span>
+            <span class="text-[#BDBDBD] text-xs">―</span>
+          </div>
+        
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white border border-[#BDBDBD] text-[#777777]">
+              3
+            </div>
+            <span class="text-xs text-[#444444]">Modificadores</span>
+            <span class="text-[#BDBDBD] text-xs">―</span>
+          </div>
+        
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white border border-[#BDBDBD] text-[#777777]">
+              4
+            </div>
+            <span class="text-xs text-[#444444]">Resumen</span>
+            
+          </div>
+        
+    </div>
+  </header>
+
+  <main class="flex-1 p-6 overflow-y-auto">
+    <div class="max-w-4xl mx-auto grid grid-cols-2 gap-6">
+      
+      <!-- Columna Izquierda: Datos del Combo -->
+      <div class="bg-white border border-[#BDBDBD] rounded-xl p-5 shadow-xs space-y-4">
+        <h2 class="text-sm font-bold text-[#111111] pb-2 border-b border-[#BDBDBD]">Datos del combo</h2>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#111111] mb-1">Nombre comercial *</label>
+          <input type="text" value="Combo Pareja" class="w-full px-3 py-2 text-xs bg-white border border-[#BDBDBD] rounded-md text-[#111111]" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#111111] mb-1">Descripción</label>
+          <textarea rows="3" class="w-full px-3 py-2 text-xs bg-white border border-[#BDBDBD] rounded-md text-[#111111]">Paquete para dos comensales. Incluye 2 platillos a elegir y 2 bebidas de lata a precio cerrado.</textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-[#111111] mb-1">Clasificación</label>
+            <input type="text" value="Combo" disabled class="w-full px-3 py-2 text-xs bg-[#F7F7F7] border border-[#BDBDBD] rounded-md text-[#444444]" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-[#111111] mb-1">Precio total cerrado (MXN) *</label>
+            <input type="text" value="$349.00" class="w-full px-3 py-2 text-xs bg-white border border-[#1A1A1A] font-bold rounded-md text-[#111111]" />
+          </div>
+        </div>
+
+        <p class="text-[11px] text-[#777777] italic">
+          Nota normativa: Los componentes incluidos en los slots no generan cargos monetarios adicionales sobre el precio del combo.
+        </p>
+      </div>
+
+      <!-- Columna Derecha: Configuración de Slots y Opciones -->
+      <div class="bg-white border border-[#BDBDBD] rounded-xl p-5 shadow-xs space-y-4">
+        <div class="flex justify-between items-center pb-2 border-b border-[#BDBDBD]">
+          <h2 class="text-sm font-bold text-[#111111]">Grupos de selección (Slots)</h2>
+          <button class="text-xs font-bold text-[#111111] hover:underline">+ Agregar grupo</button>
+        </div>
+
+        <!-- Slot 1: Platillos Principales -->
+        <div class="p-3 bg-[#FAFAFA] border border-[#BDBDBD] rounded-lg space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-xs text-[#111111]">Grupo 1: Platillos principales</span>
+            <span class="text-[10px] font-semibold text-[#444444]">Min: 2 · Max: 2 selecciones</span>
+          </div>
+          <div class="space-y-1.5 text-xs text-[#444444]">
+            <div class="flex justify-between items-center bg-white p-2 border border-[#BDBDBD] rounded">
+              <span>Hamburguesa Clásica (150g)</span>
+              <span class="text-[11px] font-semibold text-[#111111]">Habilitado</span>
+            </div>
+            <div class="flex justify-between items-center bg-white p-2 border border-[#BDBDBD] rounded">
+              <span>Tacos de Arrachera (3 pzas)</span>
+              <span class="text-[11px] font-semibold text-[#111111]">Habilitado</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slot 2: Bebidas -->
+        <div class="p-3 bg-[#FAFAFA] border border-[#BDBDBD] rounded-lg space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-xs text-[#111111]">Grupo 2: Bebidas de lata</span>
+            <span class="text-[10px] font-semibold text-[#444444]">Min: 2 · Max: 2 selecciones</span>
+          </div>
+          <div class="space-y-1.5 text-xs text-[#444444]">
+            <div class="flex justify-between items-center bg-white p-2 border border-[#BDBDBD] rounded">
+              <span>Refresco Cola (Lata 355 ml)</span>
+              <span class="text-[11px] font-semibold text-[#111111]">Habilitado</span>
+            </div>
+            <div class="flex justify-between items-center bg-white p-2 border border-[#BDBDBD] rounded">
+              <span>Agua Mineral (600 ml)</span>
+              <span class="text-[11px] font-semibold text-[#111111]">Habilitado</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  
+  <!-- Pie de Navegación del Asistente -->
+  <footer class="w-full px-6 py-3 bg-white border-t border-[#BDBDBD] flex items-center justify-between">
+    <div class="text-xs text-[#444444]">
+      Los cambios se almacenan localmente hasta completar la confirmación final.
+    </div>
+    <div class="flex items-center gap-3">
+      
+    <button class="px-4 py-2 bg-white border border-[#BDBDBD] hover:border-[#111111] text-xs font-semibold rounded-lg text-[#111111]">Volver al paso 1</button>
+    <button class="px-5 py-2 bg-[#111111] hover:bg-[#222222] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-colors">
+      <span>Continuar a modificadores</span>
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  
+    </div>
+  </footer>
+</body>
+</html>

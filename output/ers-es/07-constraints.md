@@ -19,9 +19,42 @@ El servicio Menu deberá mantener sus datos sin relaciones de clave foránea hac
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 19
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Inspección: Comparar el modelo de dominio y los contratos pertinentes con el límite o representación indicados.
+
+**Estado:** Confirmado
+
+---
+
+<a id="con-menu-014"></a>
+### CON-MENU-014 — Identidad separada de configuración de combo
+
+**Requisito:**
+El modelo de dominio de Menu deberá representar las configuraciones vendibles de COMBO con ComboConfiguration, sin reutilizar MenuItemVariant.
+
+**Tipo:** Restricciones de arquitectura y diseño
+
+**Fuente:** `docs/md/Auditoria-4.md`, items 23 y 29–32.
+
+
+**Verificación:** Inspección: las definiciones COMBO contienen ComboConfiguration y ComboOption referencia variantes hoja.
+
+**Estado:** Confirmado
+
+---
+
+<a id="con-menu-015"></a>
+### CON-MENU-015 — Repositorios separados de categorías
+
+**Requisito:**
+El modelo de dominio de Menu deberá usar `ItemCategory` para `MenuItem` PREPARED/STOCKED y `ComboCategory` para `MenuItem` COMBO.
+
+**Tipo:** Restricciones de arquitectura y diseño
+
+**Fuente:** `docs/md/Auditoria-4.md`, items 33–38.
+
+
+**Verificación:** Inspección: un `MenuItem` hoja no usa `ComboCategory` y un `MenuItem` COMBO no usa `ItemCategory` ni clasificación comercial de hoja.
 
 **Estado:** Confirmado
 
@@ -37,7 +70,6 @@ El modelo de dominio de Menu deberá separar Menu, MenuItem y Recipe en raíces 
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 21–23
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Inspección: Comparar el modelo de dominio y los contratos pertinentes con el límite o representación indicados.
 
@@ -49,13 +81,12 @@ El modelo de dominio de Menu deberá separar Menu, MenuItem y Recipe en raíces 
 ### CON-MENU-003 — Configuración explícita de modificadores
 
 **Requisito:**
-El modelo de dominio de Menu deberá situar los parámetros de ejecución de modificadores específicos de variante en VariantModifierConfig en lugar de una sobrescritura opcional de valores predeterminados de ModifierOption.
+El modelo de dominio de Menu deberá definir el comportamiento general en ModifierOption.defaultConfig y representar solo las diferencias específicas de variante en registros VariantModifierConfig opcionales.
 
 **Tipo:** Restricciones de arquitectura y diseño
 
-**Fuente:** `docs/md/Modelo-Final.md` pp. 41–44, 51–52
+**Fuente:** `docs/md/Auditoria-4.md`, items 14–18.
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Inspección: Comparar el modelo de dominio y los contratos pertinentes con el límite o representación indicados.
 
@@ -67,13 +98,12 @@ El modelo de dominio de Menu deberá situar los parámetros de ejecución de mod
 ### CON-MENU-004 — Precio autoritativo por variante
 
 **Requisito:**
-El modelo de dominio de Menu deberá utilizar MenuItemVariant.unitPrice como único precio base autoritativo del producto.
+El modelo de dominio de Menu deberá utilizar `MenuItemVariant.unitPrice` como precio unitario autoritativo de `MenuItem` hoja PREPARED/STOCKED y `ComboConfiguration.unitPrice` como precio unitario autoritativo de `MenuItem` COMBO.
 
 **Tipo:** Restricciones de arquitectura y diseño
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 26–28
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Inspección: Comparar el modelo de dominio y los contratos pertinentes con el límite o representación indicados.
 
@@ -85,13 +115,12 @@ El modelo de dominio de Menu deberá utilizar MenuItemVariant.unitPrice como ún
 ### CON-MENU-005 — Referencia vendible universal
 
 **Requisito:**
-El contrato de comandas deberá identificar la MenuItemVariant concreta de cada producto pedido, incluidos los productos sin dimensiones seleccionables.
+El contrato de comandas deberá identificar una MenuItemVariant concreta para cada línea PREPARED/STOCKED y una ComboConfiguration para cada línea COMBO.
 
 **Tipo:** Restricciones de arquitectura y diseño
 
-**Fuente:** `docs/md/Modelo-Final.md` pp. 7–8
+**Fuente:** `docs/md/Auditoria-4.md`, items 1–5 y 43.
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Inspección: Comparar el modelo de dominio y los contratos pertinentes con el límite o representación indicados.
 
@@ -109,7 +138,6 @@ El modelo de dominio de Menu deberá excluir entidades de Inventory y relaciones
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 19–21
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Inspección: Comparar el modelo de dominio y los contratos pertinentes con el límite o representación indicados.
 
@@ -127,7 +155,6 @@ El servicio Menu deberá ser propietario de las definiciones de recetas culinari
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 20–23
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Inspección: Comparar el modelo de dominio y los contratos pertinentes con el límite o representación indicados.
 
@@ -139,13 +166,12 @@ El servicio Menu deberá ser propietario de las definiciones de recetas culinari
 ### CON-MENU-008 — Retención histórica
 
 **Requisito:**
-El servicio Menu deberá conservar sin depuración física las revisiones históricas de productos, variantes, recetas y configuraciones en el alcance de esta versión.
+El servicio Menu deberá conservar sin depuración física las revisiones históricas de `MenuItem`, presentaciones, recetas y configuraciones en el alcance de esta versión.
 
 **Tipo:** CON
 
 **Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Intentar borrado físico y verificar rechazo; los datos archivados siguen consultables.
 
@@ -159,13 +185,12 @@ El servicio Menu deberá conservar sin depuración física las revisiones histó
 ### CON-MENU-009 — Lenguaje de inventario
 
 **Requisito:**
-El servicio Inventory deberá interpretar las necesidades recibidas únicamente como insumos, cantidades y unidades, usando claves opacas sin semántica de producto o variante.
+El servicio Inventory deberá interpretar las necesidades recibidas únicamente como insumos, cantidades y unidades, usando claves opacas sin semántica de `MenuItem` o presentación.
 
 **Tipo:** CON
 
 **Fuente:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Inspeccionar que Inventory no reciba reglas de resolución de recetas, modificadores o combos.
 
@@ -183,7 +208,6 @@ La integración Menu-Inventory deberá intercambiar cambios de necesidades y eva
 
 **Fuente:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Inspeccionar ambos sentidos; ningún bucle republica disponibilidad como necesidades.
 
@@ -201,7 +225,6 @@ El servicio Orders deberá persistir el snapshot de la solicitud de confirmació
 
 **Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Fallar antes y después del commit; no hay entrega sin snapshot y el trabajo confirmado puede reintentarse.
 
@@ -219,7 +242,6 @@ El servicio Menu deberá aplicar las convenciones aprobadas de autorización, á
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Inspeccionar D-01–D-09, permisos HTTP, ETags y canales lógicos; verificar vencimiento a siete días, conservación de auditoría y cambios pendientes, y rechazo de resultados vencidos según OPEN-010 aprobado. Sin imponer broker/almacenamiento.
 
@@ -237,7 +259,6 @@ El servicio Menu deberá persistir atómicamente sus cambios efectivos y trabajo
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Inspeccionar M-01 y convenciones; distinguir outbox Orders CON-MENU-011.
 

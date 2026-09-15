@@ -36,11 +36,16 @@
             "type": "string",
             "minLength": 1,
             "description": "Nombre visible del recurso o configuración. No se utiliza para adivinar identidad ni correspondencias."
+          },
+          "defaultConfig": {
+            "$ref": "ModifierDefaultConfig.schema.json",
+            "description": "Comportamiento general de la opción, usado cuando una variante no declara una excepción."
           }
         },
         "required": [
           "optionId",
-          "name"
+          "name",
+          "defaultConfig"
         ],
         "additionalProperties": false
       },

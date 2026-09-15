@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "created_files",
+    "modified_files",
+    "deleted_files",
+    "verified_files",
+    "applied_decisions",
+    "skipped_operations",
+    "blockers",
+    "notes"
+  ],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["COMPLETED", "BLOCKED"]
+    },
+    "created_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "modified_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "deleted_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verified_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "applied_decisions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "skipped_operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "reason"],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

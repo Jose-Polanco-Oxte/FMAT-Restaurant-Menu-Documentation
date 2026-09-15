@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "configurationId": {
+      "type": "string",
+      "description": "Configuración de combo revisada.",
+      "minLength": 1
+    },
+    "state": {
+      "type": "string",
+      "description": "Estado administrativo de revisión, independiente de disponibilidad y estado de venta.",
+      "enum": ["UP_TO_DATE", "REVIEW_REQUIRED"]
+    },
+    "reviewToken": {
+      "type": "string",
+      "description": "Token opaco de cambios observados, ligado a restaurante, combo y configuración.",
+      "minLength": 1
+    },
+    "changes": {
+      "type": "array",
+      "items": {"$ref": "ReviewChange.schema.json"},
+      "description": "Cambios pendientes; vacío si la configuración está actualizada."
+    },
+    "slotPrices": {
+      "type": "array",
+      "items": {"$ref": "SlotPriceReference.schema.json"},
+      "description": "Referencia visual administrativa por slot; no se envía en E-16."
+    },
+    "reviewTokenExpiresAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+      "description": "Caducidad UTC del token; no elimina cambios pendientes."
+    }
+  },
+  "required": ["configurationId", "state", "reviewToken", "changes", "slotPrices", "reviewTokenExpiresAt"],
+  "allOf": [
+    {
+      "if": {"properties": {"state": {"const": "UP_TO_DATE", "description": "Configuración sin cambios pendientes."}}},
+      "then": {"properties": {"changes": {"maxItems": 0, "description": "No hay cambios pendientes."}}},
+      "else": {"properties": {"changes": {"minItems": 1, "description": "Debe describir los cambios pendientes."}}}
+    }
+  ],
+  "additionalProperties": false
+}

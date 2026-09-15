@@ -2,7 +2,7 @@
 
 # Frontera de Menu
 
-Menu posee Menu, MenuItem, MenuItemVariant, modificadores, combos y Recipe. Resuelve una selección de su catálogo con versiones fijadas y expone insumos netos e información de preparación. No crea líneas de Orders, no confirma ventas, no descuenta existencias y no despacha trabajos de Cocina.
+Menu posee Menu, MenuItem, MenuItemVariant para PREPARED/STOCKED, ComboConfiguration para COMBO, modificadores, categorías y Recipe. Resuelve una selección de su catálogo con versiones fijadas y expone insumos netos e información de preparación. No crea líneas de Orders, no confirma ventas, no descuenta existencias y no despacha trabajos de Cocina.
 
 | Interlocutor | Punto de anclaje de Menu |
 | --- | --- |
@@ -16,8 +16,8 @@ D-01 actualizado por acuerdo: mensajería para disponibilidad e invalidaciones. 
 
 D-02: ningún endpoint de salida HTTP requerido. No se elige broker ni almacenamiento. Canales lógicos versionados se enlazarán a la topología del broker al implementar.
 
-D-03: usar MenuItem en rutas, campos, tipos y eventos. Se conserva restaurantId como referencia de ámbito, sin exponer administración de restaurantes. availability-definitions son definiciones calculadas propiedad de Menu, no recursos de Inventory.
+D-03: usar MenuItem en rutas, campos, tipos y eventos. Se conserva restaurantId como referencia de ámbito, sin exponer administración de restaurantes. availability-definitions son definiciones calculadas propiedad de Menu, no recursos de Inventory. La clasificación comercial y ItemCategory solo pertenecen a MenuItem hoja; COMBO usa ComboCategory.
 
 D-04: efectos externos posteriores al resultado de resolución se describen solo como contexto. Menu calcula el subtotal unitario, pero no adopta reglas externas de cobro de Orders, un ledger de movimientos ni un esquema de snapshot de Orders. Tampoco condiciona este contrato a endpoints de otros servicios.
 
-Base: CON-MENU-001/002/006/007/009/010; INT-MENU-003/008/009; REQ-MENU-032.
+Base: CON-MENU-001/002/006/007/009/010/014/015; INT-MENU-003/008/009/026; REQ-MENU-032/040; DATA-MENU-027/028/029/030.

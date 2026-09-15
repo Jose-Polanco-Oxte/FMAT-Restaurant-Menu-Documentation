@@ -2,39 +2,37 @@
 
 # Requisitos funcionales
 
-Cada bloque establece una obligación primaria. Los atributos enumerados describen un mismo dato u operación; no son pasos independientes. Las verificaciones son criterios propuestos, no pruebas de software ejecutadas. Los términos del modelo identifican conceptos del dominio, no tecnologías exigidas.
+Cada bloque establece una obligación primaria. Las verificaciones son criterios propuestos, no pruebas de software ejecutadas. El lenguaje del dominio usa `MenuItem` para un item del catálogo, `MenuItemVariant` para una presentación vendible concreta de un item hoja y `ComboConfiguration` para una configuración vendible concreta de un combo. `Auditoria-4.md` es la fuente activa para el modelo corregido.
 
 ---
 
 <a id="req-menu-001"></a>
-### REQ-MENU-001 — Definición del producto comercial
+
+### REQ-MENU-001 — Definición del MenuItem comercial
 
 **Requisito:**
-El servicio Menu deberá registrar un producto comercial con su nombre, descripción, referencia de imagen, categoría, menú al que pertenece y clasificación de suministro (almacenado, preparado o combo).
+El servicio Menu deberá crear un `MenuItem` con nombre, descripción, referencia de imagen, `Menu` propietario, un tipo de `MenuItem` (`PREPARED`, `STOCKED` o `COMBO`) y un estado administrativo inicial (`ACTIVE` o `INACTIVE`).
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 36–37
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Demostración: Registrar un producto y comparar la información registrada con la definición proporcionada.
+**Verificación:** Demostración: Registrar un `MenuItem` con cada tipo y estado inicial permitido y comparar la información registrada con la definición proporcionada.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-002"></a>
+
 ### REQ-MENU-002 — Estado administrativo
 
 **Requisito:**
-El servicio Menu deberá permitir cambiar el estado comercial de un producto entre activo e inactivo.
+El servicio Menu deberá permitir cambiar el estado administrativo de un `MenuItem` entre `ACTIVE` e `INACTIVE`.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 18–19
-
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Prueba: Ejecutar ambas transiciones e inspeccionar el estado resultante.
 
@@ -43,72 +41,68 @@ El servicio Menu deberá permitir cambiar el estado comercial de un producto ent
 ---
 
 <a id="req-menu-003"></a>
-### REQ-MENU-003 — Presentación vendible predeterminada
+
+### REQ-MENU-003 — Presentación vendible de item hoja
 
 **Requisito:**
-El servicio Menu deberá proporcionar una presentación vendible predeterminada para un producto sin dimensiones de variante seleccionables por el cliente.
+El servicio Menu deberá proporcionar al menos una `MenuItemVariant` vendible concreta para cada `MenuItem` hoja cuyo tipo sea `PREPARED` o `STOCKED`.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 7–8
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Prueba: Definir un producto sin dimensiones y comprobar que dispone de una presentación vendible sin exigir al cliente una elección de variante.
+**Verificación:** Prueba: Definir un `MenuItem` PREPARED o STOCKED y comprobar que dispone de al menos una presentación vendible concreta, incluso cuando no se muestra una elección de presentación al cliente.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-004"></a>
-### REQ-MENU-004 — Definición de dimensiones
+
+### REQ-MENU-004 — Definición de dimensión de variante
 
 **Requisito:**
-El servicio Menu deberá permitir definir una dimensión de variación con nombre para un producto comercial.
+El servicio Menu deberá permitir definir una dimensión de variante con nombre para un `MenuItem` hoja.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 21, 36–37
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Demostración: Definir una dimensión y verificar su nombre y producto asociado.
+**Verificación:** Demostración: Definir una característica como tamaño, verificar su nombre y comprobar que pertenece al `MenuItem` hoja seleccionado.
 
 **Estado:** Confirmado
 
-**Relacionado:** REQ-MENU-024
+**Relacionado:** REQ-MENU-023
 
 ---
 
 <a id="req-menu-005"></a>
+
 ### REQ-MENU-005 — Definición de variantes vendibles
 
 **Requisito:**
-El servicio Menu deberá permitir definir una variante vendible mediante su combinación de valores de dimensiones de un producto, sujeta a BR-MENU-002 a BR-MENU-004.
+El servicio Menu deberá permitir definir una `MenuItemVariant` vendible asociándole valores de dimensiones de variante pertenecientes a su `MenuItem` hoja, como máximo un valor por característica y sin repetir la misma combinación, conforme a BR-MENU-002 a BR-MENU-004.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 21
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Prueba: Registrar una combinación válida e intentar las combinaciones contradictorias, de otro producto y duplicadas que prohíben las reglas referidas.
+**Verificación:** Prueba: Registrar una presentación válida e intentar dos valores para una característica, un valor de otro `MenuItem` y una presentación duplicada.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-006"></a>
+
 ### REQ-MENU-006 — Precio absoluto de la variante
 
 **Requisito:**
-El servicio Menu deberá permitir asignar un precio de venta absoluto a cada variante vendible.
+El servicio Menu deberá permitir asignar un precio de venta absoluto a cada `MenuItemVariant` vendible.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 26–28
-
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Prueba: Asignar precios distintos a dos variantes y comprobar cada precio de forma independiente.
 
@@ -117,204 +111,189 @@ El servicio Menu deberá permitir asignar un precio de venta absoluto a cada var
 ---
 
 <a id="req-menu-007"></a>
-### REQ-MENU-007 — Precio mínimo elegible
+
+### REQ-MENU-007 — Presentación del precio de catálogo
 
 **Requisito:**
-El servicio Menu deberá mostrar como precio desde el mínimo de los precios de variantes elegibles para una venta nueva según BR-MENU-023.
+El servicio Menu deberá mostrar el precio de catálogo a partir de las unidades vendibles elegibles de un `MenuItem`: para un item hoja usará `MenuItemVariant.unitPrice`; para un combo usará `ComboConfiguration.unitPrice`. Mostrará `Desde $X` cuando esas unidades tengan precios distintos, `$X` cuando todas tengan el mismo precio y ningún precio numérico cuando no haya unidades elegibles.
 
-**Tipo:** REQ
+**Tipo:** Funcional
 
-**Fuente:** [ADR-008](../../docs/md/Decisiones-cierre-invariantes.md#adr-008)
+**Fuente:** [ADR-008 — Elegibilidad, precio de catálogo y presentación predeterminada](../../docs/md/Decisiones-cierre-invariantes.md#adr-008), junto con `docs/md/Auditoria-4.md`, items 8–10 y 23–32.
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
-
-**Verificación:** Comparar variantes activas disponibles, inactivas, archivadas y agotadas; solo las elegibles participan en el mínimo.
+**Verificación:** Mostrar un item del catálogo con dos unidades vendibles elegibles de precios distintos, luego con precios iguales y finalmente sin unidades elegibles; comprobar respectivamente `Desde $X`, `$X` y ausencia de precio numérico.
 
 **Estado:** Confirmado
 
 ---
 
----
-
 <a id="req-menu-008"></a>
+
 ### REQ-MENU-008 — Configuración de suministro almacenado
 
 **Requisito:**
 El servicio Menu deberá permitir especificar el artículo de inventario y la cantidad de retiro que suministran una variante vendible almacenada.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 8–9, 37
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Prueba: Configurar referencias y cantidades distintas para dos presentaciones y verificar su recuperación independiente.
+**Verificación:** Prueba: Archivar una variante con órdenes históricas, comprobar conservación y exclusión de ofertas nuevas y comprobar el rechazo o la exigencia de desactivación cuando una configuración activa dependiente ya no pueda cumplir sus mínimos.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-009"></a>
-### REQ-MENU-009 — Configuración de suministro preparado
+
+### REQ-MENU-009 — Receta de presentación preparada
 
 **Requisito:**
-El servicio Menu deberá permitir seleccionar la receta utilizada para elaborar una variante vendible de un producto preparado.
+El servicio Menu deberá permitir asociar cada `MenuItemVariant` `PREPARED` con una revisión concreta de receta que contenga los ingredientes, cantidades y unidades usados para elaborar esa presentación.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
-**Fuente:** `docs/md/Modelo-Final.md` pp. 8–9, 35–37
+**Fuente:** `docs/md/Modelo-Final.md` pp. 8–9, 35–37; `docs/md/Auditoria-4.md`, items 11–13
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Prueba: Asignar recetas a dos tamaños y verificar la receta de cada uno. No se exige una receta distinta si ambos utilizan la misma fórmula.
+**Verificación:** Prueba: Definir dos presentaciones PREPARED, asociar cada una con una revisión de receta y comprobar que cada presentación expone su lista de ingredientes. Se puede usar la misma revisión cuando ambas presentaciones usan los mismos ingredientes y cantidades.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-010"></a>
+
 ### REQ-MENU-010 — Configuración de combo
 
 **Requisito:**
-El servicio Menu deberá permitir definir los espacios de selección de cada variante vendible de combo.
+El servicio Menu deberá permitir definir una o más `ComboConfiguration` para un `MenuItem` COMBO, cada una con nombre, precio unitario absoluto y uno o más `ComboSlot` de selección.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 9–10, 37
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Demostración: Definir espacios distintos para dos variantes de combo y verificar cada configuración.
+**Verificación:** Demostración: Definir espacios distintos para dos registros ComboConfiguration y verificar cada configuración.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-011"></a>
-### REQ-MENU-011 — Definición del espacio de selección
+
+### REQ-MENU-011 — Definición del espacio de selección de
 
 **Requisito:**
-El servicio Menu deberá permitir configurar un espacio de selección de combo con un nombre y límites mínimo y máximo de selecciones.
+El servicio Menu deberá permitir configurar cada `ComboSlot` con un nombre y los límites enteros `minSelections` y `maxSelections` de opciones que el cliente puede seleccionar, cumpliendo `0 <= minSelections <= maxSelections` conforme a BR-MENU-024.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 10
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Demostración: Configurar un espacio con nombre y comparar los límites registrados con los proporcionados.
+**Verificación:** Demostración: Configurar un espacio con nombre, elegir su mínimo y máximo de opciones y comprobar que ambos límites aparecen en la configuración del combo.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-012"></a>
+
 ### REQ-MENU-012 — Definición de opciones de combo
 
 **Requisito:**
-El servicio Menu deberá permitir configurar una opción de un espacio con una variante vendible concreta STOCKED o PREPARED y cantidad suministrada, sin ajuste de precio por opción.
+El servicio Menu deberá agregar a un espacio de combo una opción que apunte a una `MenuItemVariant` hoja concreta, conserve una cantidad incluida positiva y conserve un `priceDelta` explícito.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
-**Fuente:** [ALIGN-002](../../docs/reviews/ers-interfaces-alignment/decisions.md); sustituye `docs/md/Modelo-Final.md` pp. 10, 31–32 respecto al precio de opción.
+**Fuente:** `docs/md/Auditoria-4.md`, items 23–32; sustituye la interpretación de precio fijo de opción del paquete de alineación anterior.
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Prueba: Configurar cantidades suministradas distintas en dos slots; las elecciones incluidas nunca cambian el precio base fijo del combo.
+**Verificación:** Prueba: Configurar opciones con cantidades incluidas y `priceDelta` distintos; comprobar que cambiar solo la cantidad no cambia `ComboConfiguration.unitPrice`, mientras que el subtotal cambia únicamente por los deltas configurados y los modificadores seleccionados de productos hoja, nunca por `unitPrice` del componente.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-013"></a>
-### REQ-MENU-013 — Definición de grupos de personalización
+
+### REQ-MENU-013 — Definición de grupos de modificadores
 
 **Requisito:**
-El servicio Menu deberá permitir definir un grupo de personalización con nombre para un producto y límites mínimo y máximo de selecciones.
+El servicio Menu deberá permitir definir un `ModifierGroup` directamente en un `MenuItem` PREPARED o STOCKED conforme a BR-MENU-024. El grupo es compartido por las variantes hoja del item y no se adjunta a un COMBO.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
-**Fuente:** `docs/md/Modelo-Final.md` pp. 12–13, 48
+**Fuente:** `docs/md/Modelo-Final.md` pp. 12–13, 48; `docs/md/Auditoria-4.md`, items 14–20
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Demostración: Definir un grupo y verificar su producto, nombre y límites de selección.
+**Verificación:** Demostración: Definir un `ModifierGroup` en un `MenuItem` PREPARED o STOCKED, comprobar el item propietario y el nombre, y comprobar sus límites `minSelections` y `maxSelections`.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-014"></a>
-### REQ-MENU-014 — Definición de opciones de personalización
+
+### REQ-MENU-014 — Definición de opciones de modificadores
 
 **Requisito:**
-El servicio Menu deberá permitir definir una opción de personalización con nombre dentro de un grupo de personalización de un producto.
+El servicio Menu deberá permitir definir una `ModifierOption` con nombre dentro de un `ModifierGroup` del mismo `MenuItem` PREPARED o STOCKED y una configuración general `generalConfig` (configuración de un modificador que aplica a todas las variantes) para sus variantes.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
-**Fuente:** `docs/md/Modelo-Final.md` pp. 42–44
+**Fuente:** `docs/md/Modelo-Final.md` pp. 42–44; `docs/md/Auditoria-4.md`, items 14–18
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Demostración: Definir una opción y verificar su nombre y grupo.
+**Verificación:** Demostración: Definir una `ModifierOption` en un `MenuItem` hoja, comprobar su nombre y `ModifierGroup` propietario, y comprobar que tiene `generalConfig`.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-015"></a>
-### REQ-MENU-015 — Precio de personalización por variante
+
+### REQ-MENU-015 — Precio de modificador por variante
 
 **Requisito:**
-El servicio Menu deberá permitir configurar el ajuste relativo de precio de una opción de personalización para una variante vendible específica.
+El servicio Menu deberá permitir definir el `priceDelta` de `ModifierOption.generalConfig` y, cuando el comportamiento efectivo de una presentación difiera del general, una `VariantModifierConfig` para esa `MenuItemVariant` hoja con el ajuste específico.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
-**Fuente:** `docs/md/Modelo-Final.md` pp. 42–47
+**Fuente:** `docs/md/Modelo-Final.md` pp. 42–47; `docs/md/Auditoria-4.md`, items 14–18
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Prueba: Configurar ajustes distintos para una misma opción en dos tamaños y verificar cada valor.
+**Verificación:** Prueba: Definir un ajuste general, agregar una excepción para una presentación hoja y comprobar que las presentaciones sin excepción usan el valor general y que la excepción usa su propio valor.
 
 **Estado:** Confirmado
-
-**Relacionado:** REQ-MENU-025
 
 ---
 
 <a id="req-menu-016"></a>
-### REQ-MENU-016 — Copia de configuraciones de personalización
+
+### REQ-MENU-016 — Copia de configuraciones de modificadores
 
 **Requisito:**
-El servicio Menu deberá permitir copiar configuraciones de personalización seleccionadas, incluidos sus ajustes de precio, límites de cantidad y efectos sobre ingredientes, de una variante origen a una variante destino.
+El servicio Menu deberá permitir copiar, mediante E-17, excepciones de modificadores seleccionadas —incluidos sus ajustes de precio, límites de cantidad y efectos sobre ingredientes— desde una `MenuItemVariant` hoja origen hacia una o más variantes hoja destino del mismo `MenuItem`, aplicando la política `FAIL` o `REPLACE` solicitada.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 45–46
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Prueba: Copiar una configuración seleccionada y comparar los tres grupos de parámetros del destino con el origen. E-17 define FAIL/REPLACE para destinos existentes.
+**Verificación:** Prueba: Ejecutar E-17 en `dryRun` y después en modo de aplicación, comparar los parámetros copiados con el origen y comprobar que un conflicto `FAIL` no deja efectos parciales.
 
 **Estado:** Confirmado
 
-**Relacionado:** REQ-MENU-026
+**Relacionado:** REQ-MENU-024
 
 **Contrato activo:** [E-17](../interfaces/apis/entrada/E-17.md); [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
 ---
 
 <a id="req-menu-017"></a>
+
 ### REQ-MENU-017 — Directiva de adición de ingrediente
 
 **Requisito:**
-El servicio Menu deberá permitir configurar una adición de ingrediente para una personalización de una variante específica, identificando el artículo de inventario, la cantidad añadida y la unidad de medida.
+El servicio Menu deberá permitir configurar una adición de ingrediente en `ModifierOption.generalConfig` o en `VariantModifierConfig`, identificando el artículo de Inventory, la cantidad añadida y la unidad de medida.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 34, 42–43
-
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Prueba: Configurar adiciones de cantidades distintas para la misma opción en dos variantes y verificar cada efecto.
 
@@ -323,16 +302,15 @@ El servicio Menu deberá permitir configurar una adición de ingrediente para un
 ---
 
 <a id="req-menu-018"></a>
+
 ### REQ-MENU-018 — Directiva de omisión de ingrediente
 
 **Requisito:**
-El servicio Menu deberá permitir configurar una omisión de ingrediente para una personalización de una variante específica mediante la identificación del artículo de inventario que se omitirá en la preparación.
+El servicio Menu deberá permitir configurar una omisión de ingrediente en `ModifierOption.generalConfig` o en `VariantModifierConfig` mediante la identificación del artículo de Inventory que se omitirá en la preparación.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 33–34, 46
-
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Prueba: Configurar una omisión y verificar el ingrediente identificado y la directiva de omisión.
 
@@ -341,16 +319,15 @@ El servicio Menu deberá permitir configurar una omisión de ingrediente para un
 ---
 
 <a id="req-menu-019"></a>
-### REQ-MENU-019 — Personalización de preparación sin efectos sobre ingredientes
+
+### REQ-MENU-019 — Modificadores de preparación sin efectos sobre ingredientes
 
 **Requisito:**
-El servicio Menu deberá permitir definir una personalización de preparación para una variante sin efectos asociados sobre ingredientes.
+El servicio Menu deberá permitir definir un modificador de preparación para un `MenuItem` hoja sin efectos asociados sobre ingredientes.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Problema-Inicial.md` pp. 108–110; `docs/md/Modelo-Final.md` pp. 42
-
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Prueba: Definir una instrucción de cocción sin efectos sobre ingredientes y verificar que la configuración se acepta.
 
@@ -359,274 +336,223 @@ El servicio Menu deberá permitir definir una personalización de preparación p
 ---
 
 <a id="req-menu-020"></a>
+
 ### REQ-MENU-020 — Definición de recetas
 
 **Requisito:**
-El servicio Menu deberá permitir definir una receta culinaria con nombre, versión y composición de ingredientes que especifique cada artículo de inventario, cantidad requerida y unidad de medida.
+El servicio Menu deberá permitir definir una receta culinaria con nombre y composición de ingredientes que especifique cada artículo de Inventory, cantidad requerida y unidad de medida; Menu deberá asignar la revisión inicial de la receta.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 20–23, 37–38
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Demostración: Definir una receta con varios componentes y comparar su composición registrada con la definición proporcionada.
+**Verificación:** Demostración: Definir una receta con varios componentes, comprobar su `recipeId` y `recipeVersion` asignados por Menu y comparar su composición registrada con la definición proporcionada.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-021"></a>
-### REQ-MENU-021 — Revisiones de receta
+
+### REQ-MENU-021 — Historial de versiones de receta
 
 **Requisito:**
-El servicio Menu deberá crear una revisión inmutable nueva de una receta cuando se acepte un cambio de su nombre o composición.
+El servicio Menu deberá conservar cada cambio aceptado al nombre o a la lista de ingredientes de una receta como una nueva revisión inmutable de esa receta.
 
-**Tipo:** REQ
+**Tipo:** Funcional
 
-**Fuente:** [ADR-006](../../docs/md/Decisiones-cierre-invariantes.md#adr-006)
+**Fuente:** [ADR-006 — Versiones de MenuItem y receta](../../docs/md/Decisiones-cierre-invariantes.md#adr-006).
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
-
-**Verificación:** Cambiar composición y nombre por separado y verificar revisiones nuevas sin alterar las anteriores.
+**Verificación:** Cambiar el nombre de una receta y después su lista de ingredientes; comprobar que cada cambio aceptado crea una revisión nueva y que las anteriores no cambian. Este requisito trata del historial de recetas; la revisión de combos se especifica por separado en REQ-MENU-033 a REQ-MENU-037.
 
 **Estado:** Confirmado
 
 ---
 
----
-
 <a id="req-menu-022"></a>
+
 ### REQ-MENU-022 — Publicación de catálogo
 
 **Requisito:**
-El servicio Menu deberá exponer definiciones de catálogo e invalidar vistas consumidoras ante cambios efectivos comerciales o de disponibilidad.
+El servicio Menu deberá exponer las definiciones vigentes mediante E-01 a E-03 y publicar las invalidaciones M-07 para cambios comerciales efectivos y M-08 para cambios efectivos de disponibilidad, para que las vistas consumidoras puedan actualizarse.
 
-**Tipo:** REQ
+**Tipo:** Funcional
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
-
-**Verificación:** Inspeccionar E-01–E-03 y M-07/M-08; stock no crea revisión comercial.
+**Verificación:** Demostración: publicar un cambio de precio y un cambio de disponibilidad, comprobar que los consumidores reciben la definición o disponibilidad actualizada y comprobar que un cambio solo de disponibilidad no crea una revisión comercial nueva de `MenuItem`.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-023"></a>
-### REQ-MENU-023 — Clasificación de continuidad ante retiro
+
+### REQ-MENU-023 — Valor de dimensión de variante
 
 **Requisito:**
-La obligación de continuidad se consolida en QA-MENU-002 y su restricción de diseño en CON-MENU-008. Se conserva este identificador para trazabilidad, sin duplicar la obligación.
+El servicio Menu deberá permitir definir valores con nombre, como Pequeño o Grande, dentro de una dimensión de variante de un `MenuItem` hoja.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
-**Fuente:** `docs/md/Auditoria-3.md` pp. 8–9
+**Fuente:** `docs/md/Modelo-Final.md` pp. 21, 36–37
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
+**Verificación:** Demostración: Definir dos valores para una dimensión de variante y comprobar que ambos pertenecen al `MenuItem` hoja seleccionado.
 
-**Verificación:** Inspección: Consultar QA-MENU-002.
-
-**Estado:** Reclasificado
+**Estado:** Confirmado
 
 ---
 
 <a id="req-menu-024"></a>
-### REQ-MENU-024 — Definición de valores de dimensión
+
+### REQ-MENU-024 — Copia de configuración de combo
 
 **Requisito:**
-El servicio Menu deberá permitir definir valores con nombre dentro de una dimensión de variación de un producto.
+El servicio Menu deberá permitir copiar, mediante E-17, los `ComboSlot` y sus `ComboOption` desde una `ComboConfiguration` origen a una `ComboConfiguration` destino del mismo `MenuItem` COMBO, generando nuevas identidades en el destino.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
-**Fuente:** `docs/md/Modelo-Final.md` pp. 21, 36–37
+**Fuente:** `docs/md/Modelo-Final.md` pp. 30–31
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Demostración: Definir dos valores y verificar su asociación con la dimensión seleccionada.
+**Verificación:** Prueba: Ejecutar la copia en `dryRun` y en modo de aplicación, comparar slots y opciones resultantes con el origen y comprobar que un conflicto `FAIL` no deja una configuración parcial.
 
 **Estado:** Confirmado
+
+**Contrato activo:** [E-17](../interfaces/apis/entrada/E-17.md); [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
 ---
 
 <a id="req-menu-025"></a>
-### REQ-MENU-025 — Límite de cantidad de personalización por variante
+
+### REQ-MENU-025 — Asignación múltiple de opciones de combo
 
 **Requisito:**
-El servicio Menu deberá permitir configurar la cantidad máxima seleccionable de una opción de personalización para una variante vendible específica.
+El servicio Menu deberá permitir aplicar, mediante E-17 y usando los IDs explícitos de cada destino, un conjunto seleccionado de `ComboOption` a varias `ComboConfiguration` del mismo `MenuItem` COMBO en una operación administrativa atómica.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
-**Fuente:** `docs/md/Modelo-Final.md` pp. 47–48
+**Fuente:** `docs/md/Modelo-Final.md` pp. 31
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Prueba: Configurar límites distintos para dos tamaños y verificar cada límite independientemente del precio.
+**Verificación:** Demostración: Aplicar un conjunto seleccionado a dos registros `ComboConfiguration` y verificar asociaciones por `configurationId` y `slotId`, sin efectos parciales si un destino falla.
 
 **Estado:** Confirmado
+
+**Contrato activo:** [E-17](../interfaces/apis/entrada/E-17.md); [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
 ---
 
 <a id="req-menu-026"></a>
-### REQ-MENU-026 — Copia de configuración de combo
+
+### REQ-MENU-026 — Archivar variante
 
 **Requisito:**
-El servicio Menu deberá permitir copiar los espacios de selección y sus opciones desde una variante de combo origen a una variante de combo destino.
+El servicio Menu deberá permitir archivar una `MenuItemVariant` conservando sus referencias históricas y excluyéndola de nuevas ventas. Las `ComboOption` que la referencien dejarán de ser elegibles. Menu deberá reevaluar las `ComboConfiguration` dependientes y marcar como inelegibles aquellas cuyos `ComboSlot` ya no puedan satisfacer sus mínimos, además de señalarlas para revisión administrativa.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
-**Fuente:** `docs/md/Modelo-Final.md` pp. 30–31
+**Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Prueba: Copiar una configuración de combo y comparar los espacios y definiciones de opciones resultantes con el origen.
+**Verificación:** Archivar una variante con órdenes históricas, comprobar conservación y exclusión de ofertas nuevas y comprobar el rechazo o la exigencia de desactivación cuando una configuración activa dependiente ya no pueda cumplir sus mínimos.
 
 **Estado:** Confirmado
-
-**Contrato activo:** [E-17](../interfaces/apis/entrada/E-17.md); [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
 ---
 
 <a id="req-menu-027"></a>
-### REQ-MENU-027 — Asignación múltiple de opciones de combo
+
+### REQ-MENU-027 — Guardar reglas de selección incompletas
 
 **Requisito:**
-El servicio Menu deberá permitir aplicar un conjunto seleccionado de opciones de componentes a varias variantes de combo seleccionadas en una operación administrativa.
+El servicio Menu deberá permitir guardar una definición incompleta cuando el contexto que contiene la regla esté `INACTIVE`: para un `ModifierGroup`, el contexto puede ser su `MenuItem` o la `MenuItemVariant` hoja correspondiente; para un `ComboSlot`, es el `MenuItem` COMBO porque `ComboConfiguration` no tiene estado propio. La capacidad será inferior a `minSelections` cuando, para `ModifierGroup`, sea menor la suma de `maxQuantity` de sus `ModifierOption` habilitadas o, para `ComboSlot`, sea menor el número de `ComboOption` habilitadas cuyo `MenuItemVariant` componente está `ACTIVE`.
 
-**Tipo:** Requisitos funcionales
+**Tipo:** Funcional
 
-**Fuente:** `docs/md/Modelo-Final.md` pp. 31
+**Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
-
-**Verificación:** Demostración: Aplicar un conjunto seleccionado a dos variantes de combo y verificar asociaciones por IDs explícitos de slot según E-17.
+**Verificación:** Guardar un `MenuItem` hoja `INACTIVE` con un grupo cuyo mínimo sea 2 y capacidad calculada 1, guardar una `MenuItemVariant` hoja `INACTIVE` con la misma insuficiencia y guardar un `MenuItem` COMBO `INACTIVE` con un slot cuyo mínimo sea 2 y una sola opción habilitada con componente `ACTIVE`; comprobar que se guardan con advertencia identificable y no se ofrecen como `ACTIVE`.
 
 **Estado:** Confirmado
-
-**Contrato activo:** [E-17](../interfaces/apis/entrada/E-17.md); [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
 ---
 
 <a id="req-menu-028"></a>
-### REQ-MENU-028 — Archivar variante
+
+### REQ-MENU-028 — Informar selecciones faltantes
 
 **Requisito:**
-El servicio Menu deberá permitir retirar una variante mediante su transición a ARCHIVED, sujeta a la validez de las configuraciones activas dependientes.
+El servicio Menu deberá incluir, al guardar un `MenuItem` o `MenuItemVariant` `INACTIVE`, en la advertencia de capacidad incompleta la identidad y el tipo de cada `ModifierGroup` o `ComboSlot` que no pueda cumplir su `minSelections`, junto con el mínimo y la capacidad calculada: suma de `maxQuantity` para un grupo o número de opciones habilitadas con componente `ACTIVE` para un slot.
 
-**Tipo:** REQ
+**Tipo:** Funcional
 
-**Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
+**Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
-
-**Verificación:** Archivar una variante con órdenes históricas y verificar conservación y exclusión de ofertas nuevas.
+**Verificación:** Comprobar que cada advertencia exponga la identidad, el tipo (`ModifierGroup` o `ComboSlot`), `minSelections` y la capacidad calculada correspondiente.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-029"></a>
-### REQ-MENU-029 — Guardar capacidad incompleta
+
+### REQ-MENU-029 — Sin precio de catálogo elegible
 
 **Requisito:**
-El servicio Menu deberá permitir guardar una configuración INACTIVE con capacidad de selección incompleta.
+Cuando un MenuItem no tenga ninguna `MenuItemVariant` o `ComboConfiguration` elegible, el servicio Menu deberá excluirlo de nuevas selecciones de venta y no deberá exponer un precio de catálogo numérico.
 
-**Tipo:** REQ
+**Tipo:** Funcional
 
-**Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
+**Fuente:** Decisión de usuario.
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
-
-**Verificación:** Guardar inactivo un grupo de mínimo 2 sin opciones y verificar persistencia.
+**Verificación:** Prueba: Configurar un item hoja sin variantes elegibles y un combo sin configuraciones elegibles; comprobar que ambos no se exponen para nuevas órdenes y que no muestran precio de catálogo numérico.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-030"></a>
-### REQ-MENU-030 — Informar capacidad incompleta
+
+### REQ-MENU-030 — Resolución neta de ingredientes
 
 **Requisito:**
-El servicio Menu deberá informar qué grupo o espacio tiene capacidad insuficiente al guardar una configuración incompleta.
+El servicio Menu deberá calcular la lista de ingredientes de una línea de orden a partir de la revisión de receta fijada para cada `MenuItemVariant` PREPARED, del artículo y cantidad de retiro de cada `MenuItemVariant` STOCKED, de la cantidad física `ComboOption.quantity` de cada componente seleccionado de un combo y de las personalizaciones ADD u OMIT seleccionadas en el componente propietario.
 
-**Tipo:** REQ
+**Tipo:** Funcional
 
-**Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
+**Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
-
-**Verificación:** Verificar que la advertencia identifique grupo o espacio, mínimo exigido y capacidad disponible.
+**Verificación:** Resolver una línea PREPARED, una línea STOCKED y una línea COMBO; comprobar receta y retiro respectivos, multiplicación física por `ComboOption.quantity`, aplicación de OMIT antes de ADD y confinamiento de cada efecto al componente que lo declaró.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-031"></a>
-### REQ-MENU-031 — Sin precio elegible
+
+### REQ-MENU-031 — Revisión de MenuItem
 
 **Requisito:**
-El servicio Menu deberá presentar el producto como no disponible sin precio desde numérico cuando no tenga variantes elegibles.
+El servicio Menu deberá crear una revisión inmutable nueva de un `MenuItem` por cada cambio aceptado de su definición comercial, incluidos cambios de estado administrativo, presentación hoja, referencia de receta, configuración de combo, opción de combo o configuración de modificador.
 
-**Tipo:** REQ
+**Tipo:** Funcional
 
-**Fuente:** [ADR-008](../../docs/md/Decisiones-cierre-invariantes.md#adr-008)
+**Fuente:** [ADR-006 — Versiones de MenuItem y receta](../../docs/md/Decisiones-cierre-invariantes.md#adr-006).
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
-
-**Verificación:** Hacer inelegibles todas las variantes y verificar ausencia de precio cero sustitutivo o precio archivado.
+**Verificación:** Cambiar el precio de una presentación hoja, la referencia de receta, una opción de combo y una configuración de modificador; comprobar que cada cambio aceptado crea una revisión nueva de `MenuItem` y que la anterior no cambia. Una actualización derivada solo de disponibilidad no crea una revisión de `MenuItem`.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-032"></a>
-### REQ-MENU-032 — Resolución neta de ingredientes
+
+### REQ-MENU-032 — Migración de variante predeterminada
 
 **Requisito:**
-El servicio Menu deberá resolver los insumos netos de una línea seleccionada a partir de las versiones fijadas de producto y recetas y las cantidades de componentes y modificadores.
+El servicio Menu deberá reemplazar, en un `MenuItem` hoja, la `MenuItemVariant` técnica `DEFAULT` por `MenuItemVariant` con valores de presentación explícitos como una sola revisión de `MenuItem`.
 
-**Tipo:** REQ
+**Tipo:** Funcional
 
-**Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
-
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
-
-**Verificación:** Usar ingrediente base 30 g, OMIT base y ADD 10 g dos veces; resultado 20 g limitado al componente.
-
-**Estado:** Confirmado
-
----
-
-<a id="req-menu-033"></a>
-### REQ-MENU-033 — Revisión de producto
-
-**Requisito:**
-El servicio Menu deberá crear una revisión inmutable nueva del producto por cada cambio aceptado de su definición comercial o ejecutable.
-
-**Tipo:** REQ
-
-**Fuente:** [ADR-006](../../docs/md/Decisiones-cierre-invariantes.md#adr-006)
-
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
-
-**Verificación:** Cambiar precio de variante o configuración de modificador; la versión anterior no cambia. La disponibilidad derivada no es una edición de definición.
-
-**Estado:** Confirmado
-
----
-
-<a id="req-menu-034"></a>
-### REQ-MENU-034 — Migración de variante predeterminada
-
-**Requisito:**
-El servicio Menu deberá aplicar la sustitución comercial de DEFAULT por variantes con dimensiones como una única revisión de producto.
-
-**Tipo:** REQ
-
-**Fuente:** [ADR-008](../../docs/md/Decisiones-cierre-invariantes.md#adr-008)
-
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
+**Fuente:** [ADR-008 — Elegibilidad, precio de catálogo y presentación predeterminada](../../docs/md/Decisiones-cierre-invariantes.md#adr-008).
 
 **Verificación:** Intentar migración incompleta y después publicar una válida; no se expone una revisión vendible parcial.
 
@@ -634,93 +560,161 @@ El servicio Menu deberá aplicar la sustitución comercial de DEFAULT por varian
 
 ---
 
-<a id="req-menu-035"></a>
-### REQ-MENU-035 — Detección de revisión de combo
+<a id="req-menu-033"></a>
+
+### REQ-MENU-033 — Detección de revisión de combo
 
 **Requisito:**
-El servicio Menu deberá marcar una variante de combo para revisión cuando una variante componente configurada tenga un cambio relevante de precio, composición, modificadores o estado no atendido.
+El servicio Menu deberá marcar una `ComboConfiguration` como `REVIEW_REQUIRED` cuando una `ComboOption` configurada —incluida una opción deshabilitada— apunte a una `MenuItemVariant` hoja cuyo cambio no atendido tenga uno o más motivos `PRICE`, `COMPOSITION`, `MODIFIERS` o `STATUS`; deberá ignorar cambios cosméticos, de stock y de variantes no referenciadas, y no deberá generar aviso por una nueva revisión de receta hasta que la variante la adopte explícitamente.
 
-**Tipo:** REQ
+**Tipo:** Funcional
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
+**Verificación:** Consultar E-20 después de cada caso y comprobar que los motivos anteriores generan `REVIEW_REQUIRED`, mientras que una opción deshabilitada sigue siendo dependiente, los cambios cosméticos/stock/variantes ajenas no generan aviso y una receta nueva solo lo genera después de su adopción por la variante.
 
-**Verificación:** Incluir opciones deshabilitadas; ignorar cosmética, stock y variantes ajenas; receta solo tras adopción.
+**Estado:** Confirmado
+
+---
+
+<a id="req-menu-034"></a>
+
+### REQ-MENU-034 — Visibilidad administrativa de revisión
+
+**Requisito:**
+El servicio Menu deberá exponer en E-19 y E-20 las `ComboConfiguration` con estado de revisión `REVIEW_REQUIRED` y un estado agregado por `MenuItem` COMBO; este estado de revisión deberá permanecer separado de `MenuItem.status`, del estado de cada `MenuItemVariant` y de la disponibilidad.
+
+**Tipo:** Funcional
+
+**Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
+
+**Verificación:** Inspeccionar E-19/E-20, comprobar el estado por configuración y el agregado del combo y comprobar que un `MenuItem` no COMBO no recibe estado de revisión de combo.
+
+**Estado:** Confirmado
+
+---
+
+<a id="req-menu-035"></a>
+
+### REQ-MENU-035 — Confirmación de revisión observada
+
+**Requisito:**
+El servicio Menu deberá confirmar únicamente los `changeId` identificados por cada `reviewToken` observado enviado junto con el `configurationId` de las `ComboConfiguration` seleccionadas explícitamente en E-21; los cambios posteriores a la observación deberán permanecer pendientes.
+
+**Tipo:** Funcional
+
+**Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
+
+**Verificación:** Confirmar una o varias configuraciones con sus tokens observados, comprobar que el intento “todas” enumera explícitamente las configuraciones mostradas y comprobar que cambios nuevos concurrentes permanecen pendientes.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-036"></a>
-### REQ-MENU-036 — Visibilidad administrativa de revisión
+
+### REQ-MENU-036 — Conservación de configuración revisada
 
 **Requisito:**
-El servicio Menu deberá exponer variantes pendientes y un indicador agregado de revisión por combo en lecturas administrativas.
+El servicio Menu deberá permitir confirmar el `reviewToken` de una `ComboConfiguration` sin modificar su `unitPrice`, sus `ComboSlot`, sus `ComboOption` ni el estado de las opciones retiradas; la confirmación solo registra los cambios observados como atendidos.
 
-**Tipo:** REQ
+**Tipo:** Funcional
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
-
-**Verificación:** Inspeccionar E-19/E-20; no combos carecen de estado de revisión.
+**Verificación:** Confirmar una revisión y comparar antes y después `unitPrice`, slots, opciones y estados; comprobar que no se crea revisión comercial, no se reactiva una opción retirada y que el recibo identifica los `changeId` atendidos.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-037"></a>
-### REQ-MENU-037 — Confirmación de revisión observada
+
+### REQ-MENU-037 — Referencia visual del slot
 
 **Requisito:**
-El servicio Menu deberá atender únicamente cambios de dependencias identificados por tokens observados enviados para variantes de combo seleccionadas explícitamente.
+El servicio Menu deberá exponer, para cada `ComboSlot` y sus `baseOptionIds` administrativos, la suma `saved` de los `MenuItemVariant.unitPrice` fijados multiplicados por `ComboOption.quantity`, la suma `current` de esos mismos componentes con sus precios actuales y la diferencia firmada `current - saved`; estos datos serán solo referencia administrativa y no modificarán el precio de venta del combo.
 
-**Tipo:** REQ
+**Tipo:** Funcional
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
-
-**Verificación:** Confirmar una, varias o todas las mostradas; cambios nuevos concurrentes permanecen pendientes.
+**Verificación:** Consultar E-20 con una selección base de varias opciones, comprobar el uso de `itemVariantId` y `ComboOption.quantity` en `saved` y `current`, verificar `difference = current - saved` y comprobar que `ComboConfiguration.unitPrice` no cambia.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-038"></a>
-### REQ-MENU-038 — Conservación de configuración revisada
+
+### REQ-MENU-038 — Proyección publicada de modificadores efectivos
 
 **Requisito:**
-El servicio Menu deberá permitir confirmar revisión sin cambiar precio ni composición fijada del combo.
+El servicio Menu deberá materializar, para cada `MenuItemVariant` hoja publicada y cada `ModifierOption` aplicable, una `ResolvedVariantModifier` con `enabled`, `priceDelta`, `maxQuantity` e `ingredientEffects`, aplicando la `VariantModifierConfig` cuando exista y `ModifierOption.generalConfig` en caso contrario.
 
-**Tipo:** REQ
+**Tipo:** Funcional
 
-**Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
+**Fuente:** `docs/md/Auditoria-4.md`, items 14–18 y 21–22.
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
-
-**Verificación:** Confirmar conservando referencia: sin revisión comercial ni reactivación de opción retirada.
+**Verificación:** Inspección: publicar un item con una opción default y una excepción de variante y comprobar una proyección `ResolvedVariantModifier` por variante/opción con los cuatro campos efectivos y la herencia correcta cuando no existe excepción.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-menu-039"></a>
-### REQ-MENU-039 — Referencia visual del slot
+
+### REQ-MENU-039 — Elegibilidad de variante hoja
 
 **Requisito:**
-El servicio Menu deberá exponer sumas de precios componentes guardados y actuales y su diferencia para cada selección base administrativa de slot.
+El servicio Menu deberá considerar una MenuItemVariant PREPARED o STOCKED elegible para nuevas ventas únicamente cuando:
 
-**Tipo:** REQ
+- su MenuItem propietario esté ACTIVE;
+- la variante esté activa y no ARCHIVED;
+- posea una configuración completa y válida para su tipo;
+- sus reglas comerciales obligatorias puedan satisfacerse.
 
-**Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
+La disponibilidad temporal derivada de Inventory no determinará su elegibilidad.
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
+**Tipo:** Funcional
 
-**Verificación:** Multiplicar por cantidades suministradas; referencias nunca sobrescriben precio de venta.
+**Fuente:** Decisión de usuario.
 
-**Estado:** Confirmado
+**Verificación:** Demostración: mostrar un item con variantes elegibles y no elegibles, comprobar que solo las elegibles se ofrecen para nuevas órdenes y que la disponibilidad temporal no afecta la elegibilidad.
+
+\*Estado:\*\* Confirmado
+
+---
+
+<a id="req-menu-040"></a>
+
+### REQ-MENU-040 — Elegibilidad de configuración de combo
+
+**Requisito:**
+El servicio Menu deberá considerar una ComboConfiguration elegible para nuevas ventas únicamente cuando su MenuItem COMBO esté ACTIVE y cada ComboSlot pueda satisfacer su minSelections mediante ComboOption habilitadas que referencien MenuItemVariant hoja elegibles.
+
+**Tipo:** Funcional
+
+**Fuente:** Decisión de usuario.
+
+**Verificación:** Demostración: mostrar un combo con configuraciones elegibles y no elegibles, comprobar que solo las elegibles se ofrecen para nuevas órdenes y que la disponibilidad temporal de los componentes no afecta la elegibilidad.
+
+_Estado:_ Confirmado
+
+---
+
+<a id="req-menu-041"></a>
+
+### REQ-MENU-041 — Disponibilidad operacional
+
+**Requisito:**
+El servicio Menu deberá determinar y publicar por separado la disponibilidad operacional de una unidad vendible elegible a partir de las condiciones actuales de Inventory. Un cambio exclusivamente de disponibilidad no deberá cambiar su estado administrativo, su elegibilidad estructural ni generar una nueva revisión comercial del MenuItem.
+
+**Tipo:** Funcional
+
+**Fuente:** Decisión de usuario.
+
+**Verificación:** Demostración: mostrar un item con disponibilidad operacional y sin disponibilidad, comprobar que la elegibilidad estructural no cambia y que no se genera una nueva revisión comercial.
 
 ---
 
@@ -729,16 +723,15 @@ El servicio Menu deberá exponer sumas de precios componentes guardados y actual
 Los siguientes requisitos formalizan las obligaciones confirmadas de UI solicitadas para las superficies de mesero y administrador. No transfieren a Menu la propiedad de datos externos; sus proyecciones externas faltantes se registran en OPEN-011 a OPEN-019.
 
 <a id="req-ui-001"></a>
+
 ### REQ-UI-001 — Conjunto de mesas asignadas
 
 **Requisito:**
 La UI de orden deberá mostrar únicamente las mesas incluidas en la proyección autorizada de asignación de mesas para el mesero actual.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-001 en `output/ui-spec/ui-data-spec.md`.
-
-**Justificación:** El mesero recibe de Sala un conjunto limitado de mesas y no debe recibir mesas fuera de su asignación.
 
 **Verificación:** Demostración: cargar una proyección con mesas asignadas y no asignadas y comprobar que solo se muestran las asignadas.
 
@@ -747,16 +740,15 @@ La UI de orden deberá mostrar únicamente las mesas incluidas en la proyección
 ---
 
 <a id="req-ui-002"></a>
+
 ### REQ-UI-002 — Distinción de orden en mesa
 
 **Requisito:**
 La UI de orden deberá distinguir una mesa con una orden asociada de una mesa sin una orden asociada.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-002 en `output/ui-spec/ui-data-spec.md`.
-
-**Justificación:** La distinción determina si el mesero inicia una orden o agrega productos a una orden existente.
 
 **Verificación:** Demostración: mostrar ambos estados de mesa y comprobar que cada uno tiene una indicación visual distinta.
 
@@ -765,16 +757,15 @@ La UI de orden deberá distinguir una mesa con una orden asociada de una mesa si
 ---
 
 <a id="req-ui-003"></a>
+
 ### REQ-UI-003 — Agregado a orden existente
 
 **Requisito:**
-La UI de orden deberá permitir preparar productos adicionales para la orden asociada con una mesa que ya tiene una orden.
+La UI de orden deberá permitir preparar selecciones adicionales de `MenuItem` para la orden asociada con una mesa que ya tiene una orden.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-003 en `output/ui-spec/ui-data-spec.md`.
-
-**Justificación:** Una mesa con una orden existente debe poder recibir productos nuevos.
 
 **Verificación:** Demostración: abrir una orden existente, crear líneas nuevas de borrador y comprobar que las líneas confirmadas siguen identificables y sin cambios.
 
@@ -783,88 +774,83 @@ La UI de orden deberá permitir preparar productos adicionales para la orden aso
 ---
 
 <a id="req-ui-004"></a>
+
 ### REQ-UI-004 — Tipos del catálogo vendible
 
 **Requisito:**
-La UI de orden deberá permitir seleccionar items del catálogo con tipo de suministro STOCKED, PREPARED o COMBO.
+La UI de orden deberá permitir seleccionar `MenuItem` del catálogo por su tipo (`STOCKED`, `PREPARED` o `COMBO`).
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-004 en `output/ui-spec/ui-data-spec.md`.
 
-**Justificación:** El mesero puede ordenar cada tipo de suministro de Menu soportado desde el mismo catálogo.
-
-**Verificación:** Demostración: mostrar un item elegible de cada tipo de suministro y comprobar que cada uno abre su configuración aplicable.
+**Verificación:** Demostración: mostrar un `MenuItem` elegible de cada tipo y comprobar que cada uno abre la configuración que corresponde a su tipo.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-ui-005"></a>
+
 ### REQ-UI-005 — Búsqueda y filtros del catálogo
 
 **Requisito:**
-Las UI de orden y administrativa deberán proporcionar búsqueda por nombre y filtros por categoría y clasificación comercial.
+Las UI de orden y administrativa deberán proporcionar búsqueda por nombre, filtro por categoría y filtro por clasificación visual; en un `MenuItem` hoja la clasificación se toma de su clasificación comercial y un `COMBO` se identifica por su tipo, no como una clasificación de item hoja.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-005 en `output/ui-spec/ui-data-spec.md`.
 
-**Justificación:** Las vistas de catálogo de mesero y administrador requieren las mismas dimensiones de descubrimiento.
-
-**Verificación:** Demostración: aplicar cada filtro por separado y combinado y comprobar que las tarjetas visibles satisfacen los criterios seleccionados.
+**Verificación:** Demostración: aplicar cada filtro por separado y combinado y comprobar que las tarjetas visibles satisfacen los criterios, sin asignar a un `COMBO` una clasificación propia de item hoja.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-ui-006"></a>
+
 ### REQ-UI-006 — Edición local del borrador de orden
 
 **Requisito:**
-La UI de orden deberá permitir cambiar la cantidad, reconfigurar y quitar cada producto seleccionado antes de confirmar la orden.
+La UI de orden deberá permitir cambiar la cantidad, reconfigurar y quitar cada `DraftOrderLine` antes de confirmar la orden.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-006 en `output/ui-spec/ui-data-spec.md`.
 
-**Justificación:** Estas interacciones gestionan la composición local de preorden del mesero y no son operaciones CRUD individuales del backend.
-
-**Verificación:** Demostración: cambiar, reconfigurar y quitar una línea de borrador y comprobar que las líneas confirmadas y el catálogo no se alteran.
+**Verificación:** Demostración: cambiar, reconfigurar y quitar una `DraftOrderLine`, recalcular su resolución y comprobar que las líneas confirmadas y el catálogo no se alteran.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-ui-007"></a>
+
 ### REQ-UI-007 — Configuración de item antes de agregar
 
 **Requisito:**
-La UI de orden deberá permitir configurar las dimensiones, modificadores, slots y opciones de combo aplicables antes de agregar un item al borrador de orden.
+La UI de orden deberá permitir configurar, antes de agregar un `MenuItem` al borrador, las dimensiones de variantes y los `ModifierGroup`/`ModifierOption` de un item hoja, o los `ComboSlot`/`ComboOption` y las personalizaciones de sus componentes cuando el item sea `COMBO`, usando la definición de Menu disponible para esa selección.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-007 en `output/ui-spec/ui-data-spec.md`.
 
-**Justificación:** La línea seleccionada debe conservar la configuración concreta del cliente antes de incorporarse a la preorden.
-
-**Verificación:** Demostración: configurar un item preparado y un combo, agregarlos al borrador y comprobar que conservan selecciones y cantidades.
+**Verificación:** Demostración: configurar un item hoja y un combo, resolver ambos con E-16, agregarlos al borrador y comprobar que conservan `variantId`, selecciones y cantidades.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-ui-008"></a>
+
 ### REQ-UI-008 — Gestión administrativa del catálogo
 
 **Requisito:**
-La UI administrativa deberá proporcionar creación, edición, búsqueda por nombre y filtros por categoría y clasificación comercial del catálogo.
+La UI administrativa deberá proporcionar creación, edición, búsqueda por nombre y los mismos filtros de categoría, clasificación visual y tipo de `MenuItem` definidos para el catálogo de venta.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-008 en `output/ui-spec/ui-data-spec.md`.
-
-**Justificación:** El administrador requiere las mismas capacidades de descubrimiento del catálogo que el mesero además de acciones de gestión.
 
 **Verificación:** Demostración: abrir el catálogo administrativo, aplicar los filtros confirmados y abrir las acciones de crear y editar.
 
@@ -873,70 +859,66 @@ La UI administrativa deberá proporcionar creación, edición, búsqueda por nom
 ---
 
 <a id="req-ui-009"></a>
+
 ### REQ-UI-009 — Apartados del ciclo de vida administrativo
 
 **Requisito:**
-La UI administrativa deberá presentar como apartados o filtros distinguibles los items activos, inactivos, pendientes de revisión y archivados.
+La UI administrativa deberá presentar por separado el `MenuItem.status` (`ACTIVE` o `INACTIVE`), el estado de revisión de un `COMBO` (`REVIEW_REQUIRED` o `UP_TO_DATE`) y el estado `ARCHIVED` de una `MenuItemVariant` o del apartado externo de items archivados; `REVIEW_REQUIRED` no es un `MenuItem.status` y `ARCHIVED` no es `INACTIVE`.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13 y semántica vigente del ciclo de vida de Menu; consolidada como UI-REQ-009 en `output/ui-spec/ui-data-spec.md`.
 
-**Justificación:** Estado administrativo, estado de revisión y archivado son dimensiones distintas de presentación.
-
-**Verificación:** Inspección: comprobar que cada item aparece según la dimensión correcta y que REVIEW_REQUIRED y ARCHIVED no se muestran como un INACTIVE ordinario.
+**Verificación:** Inspección: comprobar que el filtro de `MenuItem.status` solo usa `ACTIVE`/`INACTIVE`, que `REVIEW_REQUIRED`/`UP_TO_DATE` solo se muestra para combos y que `ARCHIVED` se distingue de `INACTIVE` y se atribuye a la entidad correspondiente.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-ui-010"></a>
+
 ### REQ-UI-010 — Retiro suave del apartado archivado
 
 **Requisito:**
-La UI administrativa deberá permitir retirar un item archivado, items archivados seleccionados o todos los items archivados dentro del alcance de resultados seleccionado como una operación de retiro suave.
+La UI administrativa deberá permitir gestionar el apartado externo de items archivados mediante una acción de retiro suave sobre un item, varios items seleccionados o todos los items incluidos en el alcance seleccionado, sin presentarla como borrado físico.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-010 en `output/ui-spec/ui-data-spec.md`.
 
-**Justificación:** Las acciones solicitadas de “eliminar” retiran items del conjunto visible de gestión sin borrado físico de la base de datos.
-
-**Verificación:** Demostración: ejecutar las acciones de un item, items seleccionados y todos los resultados y comprobar que la UI no representa borrado físico ni destrucción de historia.
+**Verificación:** Demostración: ejecutar los alcances individual, selección múltiple y todos, comprobar que la UI refleja el resultado y comprobar que no envía ni representa la operación como borrado físico de historial.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-ui-011"></a>
+
 ### REQ-UI-011 — Wizard de creación de item
 
 **Requisito:**
-La UI administrativa deberá representar la creación de un item en cuatro pasos: clasificación comercial y tipo de suministro, configuración específica del item, configuración de modificadores y resumen de configuración con aceptación.
+La UI administrativa deberá representar la creación de un `MenuItem` en cuatro pasos: (1) tipo de `MenuItem` y clasificación comercial cuando aplique, (2) configuración específica del item y su suministro, (3) configuración de modificadores y (4) resumen con aceptación.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-011 en `output/ui-spec/ui-data-spec.md`.
 
-**Justificación:** La creación cambia sus controles según la clasificación, el tipo de suministro y la configuración seleccionada.
-
-**Verificación:** Demostración: iniciar la creación de cada tipo de suministro, inspeccionar los cuatro pasos y comprobar el resumen final antes de aceptar.
+**Verificación:** Demostración: iniciar una creación de cada tipo, recorrer exactamente esos cuatro pasos y comprobar que el resumen contiene la configuración completa antes de aceptar.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-ui-012"></a>
+
 ### REQ-UI-012 — Wizard de edición de item
 
 **Requisito:**
 La UI administrativa deberá representar la edición de un item en tres pasos: configuración del item, configuración de modificadores y confirmación.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-012 en `output/ui-spec/ui-data-spec.md`.
-
-**Justificación:** Editar un item existente no requiere seleccionar nuevamente el tipo de nuevo item y debe comenzar con datos precargados.
 
 **Verificación:** Demostración: abrir un item existente, comprobar sus datos precargados y verificar que el editor expone exactamente los tres pasos de edición.
 
@@ -945,16 +927,15 @@ La UI administrativa deberá representar la edición de un item en tres pasos: c
 ---
 
 <a id="req-ui-013"></a>
+
 ### REQ-UI-013 — Distinción entre crear y editar
 
 **Requisito:**
-La UI administrativa deberá distinguir las acciones de crear y editar mediante su título, acción primaria, estado inicial y presencia de datos precargados.
+La UI administrativa deberá distinguir las acciones de crear y editar mediante su título, acción primaria, estado inicial del formulario y presencia de datos precargados.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13; consolidada como UI-REQ-013 en `output/ui-spec/ui-data-spec.md`.
-
-**Justificación:** Crear y editar tienen distinta intención y estado de datos aunque utilicen controles relacionados.
 
 **Verificación:** Inspección: comparar las composiciones CREATE y EDIT y comprobar que no se representan como la misma operación.
 
@@ -963,16 +944,15 @@ La UI administrativa deberá distinguir las acciones de crear y editar mediante 
 ---
 
 <a id="req-ui-014"></a>
+
 ### REQ-UI-014 — Presentación de revisión pendiente
 
 **Requisito:**
-La UI administrativa deberá presentar un combo pendiente de revisión en un contexto de edición distinto que identifique sus variantes afectadas y cambios de dependencias.
+La UI administrativa deberá presentar en `V-ADM-03`, separado del editor ordinario `V-ADM-02`, un `COMBO` pendiente de revisión que identifique sus `ComboConfiguration` afectadas y los cambios de dependencia observados.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13 y contratos de revisión E-19/E-20; consolidada como UI-REQ-014 en `output/ui-spec/ui-data-spec.md`.
-
-**Justificación:** El administrador debe identificar qué cambió antes de confirmar la revisión.
 
 **Verificación:** Demostración: cargar un combo pendiente y comprobar un estado de revisión distinto, variantes afectadas y cambios observados.
 
@@ -981,34 +961,32 @@ La UI administrativa deberá presentar un combo pendiente de revisión en un con
 ---
 
 <a id="req-ui-015"></a>
+
 ### REQ-UI-015 — Confirmación de revisión pendiente
 
 **Requisito:**
-La UI administrativa deberá permitir confirmar las variantes de combo pendientes seleccionadas y ocultar el indicador de revisión únicamente después de que un estado actualizado de Menu informe UP_TO_DATE.
+La UI administrativa deberá permitir confirmar en E-21 las `ComboConfiguration` pendientes seleccionadas con sus `reviewToken` y ocultar el indicador únicamente después de que una lectura actualizada de E-20 informe `UP_TO_DATE` para el combo; los cambios nuevos deben conservar `REVIEW_REQUIRED`.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Decisión explícita de UI en la solicitud del 2026-09-13 y contratos de revisión E-20/E-21; consolidada como UI-REQ-014 en `output/ui-spec/ui-data-spec.md`.
 
-**Justificación:** La UI no debe declarar verificación solo porque el administrador pulsó Guardar; el estado resultante de Menu es autoritativo.
-
-**Verificación:** Demostración: confirmar una o más variantes, actualizar el estado de revisión y comprobar que REVIEW_REQUIRED permanece cuando hay cambios nuevos pendientes.
+**Verificación:** Demostración: confirmar una o más configuraciones con sus tokens, actualizar E-20 y comprobar que `REVIEW_REQUIRED` permanece cuando hay cambios nuevos pendientes.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="req-ui-016"></a>
+
 ### REQ-UI-016 — Costo acumulado de preorden
 
 **Requisito:**
 La UI de orden deberá mostrar el costo acumulado de la preorden como la suma de los costos de sus líneas configuradas, tratando los ajustes posteriores de Billing como externos a ese acumulado mostrado.
 
-**Tipo:** Funcional — UI consumidora
+**Tipo:** Funcional
 
 **Fuente:** Aclaración explícita de precio en la solicitud del 2026-09-13 y resumen monetario de E-16; consolidada como UI-REQ-015 en `output/ui-spec/ui-data-spec.md`.
-
-**Justificación:** El precio del catálogo es el costo de ordenar el item configurado; la UI debe mostrar la suma de los costos seleccionados sin esperar a Billing final.
 
 **Verificación:** Demostración: cambiar cantidades y configuraciones y comprobar `preorderTotal = Σ(quantity × resolvedUnitSubtotal)`; los ajustes posteriores de Billing no cambian el significado del acumulado mostrado.
 

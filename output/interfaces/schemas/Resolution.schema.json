@@ -8,8 +8,8 @@
       "description": "Identidad de consulta elegida por Orders en E-16 y devuelta por Menu. No crea una orden ni evita recalcular elegibilidad."
     },
     "menuItem": {
-      "$ref": "MenuItemRef.schema.json",
-      "description": "Referencia o definición del artículo comercial indicado por el esquema del contexto."
+      "$ref": "SellableRef.schema.json",
+      "description": "Referencia vendible: variantId para PREPARED/STOCKED o configurationId para COMBO."
     },
     "selection": {
       "$ref": "Selection.schema.json",
@@ -47,7 +47,7 @@
     },
     "pricing": {
       "$ref": "PriceSummary.schema.json",
-      "description": "Único resumen monetario de la variante solicitada; nunca precios por componente, slot u opción."
+      "description": "Único resumen monetario de la referencia solicitada; incluye los priceDelta de ComboOption y modificadores, nunca precios base de componentes."
     }
   },
   "required": [

@@ -39,9 +39,9 @@ The domain model contemplated introducing a separate entity and hierarchy (`Prep
 The initial model placed fulfillment definitions (`StockedDefinition`, `PreparedDefinition`, `ComboDefinition`) directly on `MenuItem`, treating `MenuItemVariant` merely as a pricing and display tag.
 
 **Original Source:** `docs/md/Problema-Inicial.md` pp. 111–115; `docs/md/Modelo-Final.md` pp. 1–5
-**Superseded By:** Retaining `fulfillmentType` as an invariant product classification on `MenuItem`, while migrating all concrete fulfillment configurations (`StockedVariantDefinition`, `PreparedVariantDefinition`, `ComboVariantDefinition`) to `MenuItemVariant`.
-**Superseding Source:** `docs/md/Problema-Inicial.md` pp. 116–119; `docs/md/Modelo-Final.md` pp. 6–9, 23–24; `docs/md/Auditoria-3.md` pp. 1–2
-**Impact:** See [REQ-MENU-008](./02-functional-requirements.md#req-menu-008), [REQ-MENU-009](./02-functional-requirements.md#req-menu-009), [REQ-MENU-010](./02-functional-requirements.md#req-menu-010).
+**Superseded By:** Retaining PREPARED and STOCKED as leaf product types with concrete fulfillment configurations on `MenuItemVariant`, while representing COMBO as a composition of `ComboConfiguration`, `ComboSlot` and `ComboOption`.
+**Superseding Source:** `docs/md/Auditoria-4.md`, items 1, 11 and 23–32
+**Impact:** See [REQ-MENU-008](./02-functional-requirements.md#req-menu-008), [REQ-MENU-009](./02-functional-requirements.md#req-menu-009), [REQ-MENU-010](./02-functional-requirements.md#req-menu-010), [CON-MENU-014](./07-constraints.md#con-menu-014).
 
 ---
 
@@ -91,9 +91,9 @@ Iteration 2 proposed calculating product prices as `MenuItem.basePrice + MenuIte
 The model previously placed `priceDelta`, `maxQuantity`, and `IngredientEffect[]` directly within `ModifierOption`, implying that customization prices and quantities were identical across all variant presentations.
 
 **Original Source:** `docs/md/Problema-Inicial.md` p. 106, 126; `docs/md/Modelo-Final.md` pp. 15–16, 36–37
-**Superseded By:** Creating the explicit associative entity `VariantModifierConfig(variantId, modifierOptionId, priceDelta, maxQuantity)` which owns the `IngredientEffect[]` array, leaving `ModifierOption` as a purely descriptive concept.
-**Superseding Source:** `docs/md/Modelo-Final.md` pp. 40–52; `docs/md/Auditoria-3.md` pp. 6–8
-**Impact:** See [REQ-MENU-015](./02-functional-requirements.md#req-menu-015), [REQ-MENU-025](./02-functional-requirements.md#req-menu-025), [DATA-MENU-008](./04-data-requirements.md#data-menu-008).
+**Superseded By:** Keeping the general/default `priceDelta`, `maxQuantity` and `IngredientEffect[]` on `ModifierOption.defaultConfig`, with optional `VariantModifierConfig` records only for variant-specific exceptions.
+**Superseding Source:** `docs/md/Auditoria-4.md`, items 14–18
+**Impact:** See [REQ-MENU-015](./02-functional-requirements.md#req-menu-015), [REQ-MENU-025](./02-functional-requirements.md#req-menu-025), [DATA-MENU-008](./04-data-requirements.md#data-menu-008), [DATA-MENU-029](./04-data-requirements.md#data-menu-029).
 
 ---
 
@@ -104,9 +104,9 @@ The model previously placed `priceDelta`, `maxQuantity`, and `IngredientEffect[]
 An external consultant suggested an optional override entity (`VariantModifierOverride`) that would hold overrides only when a variant differed from default values in `ModifierOption`.
 
 **Original Source:** `docs/md/Auditoria-3.md` p. 6
-**Superseded By:** Explicit normalized associative configuration (`VariantModifierConfig`) for all applicable combinations, eliminating runtime `COALESCE` queries and fallback logic.
-**Superseding Source:** `docs/md/Modelo-Final.md` pp. 41–44; `docs/md/Auditoria-3.md` pp. 6–8
-**Impact:** See [CON-MENU-003](./07-constraints.md#con-menu-003).
+**Superseded By:** `VariantModifierConfig` is optional and stores only an exception. Publication resolves the exception over `ModifierOption.defaultConfig` into an effective per-variant projection.
+**Superseding Source:** `docs/md/Auditoria-4.md`, items 16–22
+**Impact:** See [CON-MENU-003](./07-constraints.md#con-menu-003), [REQ-MENU-040](./02-functional-requirements.md#req-menu-040) and [DATA-MENU-030](./04-data-requirements.md#data-menu-030).
 
 ---
 
@@ -138,6 +138,32 @@ The review briefly considered introducing a `scaleFactor` attribute in `Prepared
 
 
 Proportional scaling is outside the current scope, not prohibited for future explicit needs; duplicating a shared recipe is not mandatory.
+
+---
+
+<a id="superseded-020"></a>
+### SUPERSEDED-020 — Fixed-price combo options
+
+**Previous Decision:**
+The interface alignment package treated ComboOption as a fixed-price inclusion and prohibited an option price adjustment.
+
+**Original Source:** `docs/reviews/ers-interfaces-alignment/decisions.md` and the prior v8 ERS/interface package.
+**Superseded By:** Each ComboOption may carry a priceDelta. The combo subtotal still starts from ComboConfiguration.unitPrice and does not add component base prices.
+**Superseding Source:** `docs/md/Auditoria-4.md`, items 26 and 31–32.
+**Impact:** See [REQ-MENU-012](./02-functional-requirements.md#req-menu-012), [BR-MENU-016](./03-business-rules.md#br-menu-016) and [DATA-MENU-013](./04-data-requirements.md#data-menu-013).
+
+---
+
+<a id="superseded-021"></a>
+### SUPERSEDED-021 — Combo modeled as MenuItemVariant
+
+**Previous Decision:**
+The active v8 model represented the sellable configurations of a combo as MenuItemVariant records with combo fulfillment.
+
+**Original Source:** `docs/md/Modelo-Final.md` pp. 6–10 and the prior v8 ERS/interface package.
+**Superseded By:** A combo owns one or more ComboConfiguration records with an absolute unitPrice and ComboSlot records; ItemVariant remains the shared sellable unit only for PREPARED and STOCKED leaf products.
+**Superseding Source:** `docs/md/Auditoria-4.md`, items 1–2 and 23–32.
+**Impact:** See [DATA-MENU-027](./04-data-requirements.md#data-menu-027), [DATA-MENU-028](./04-data-requirements.md#data-menu-028), [CON-MENU-014](./07-constraints.md#con-menu-014) and [INT-MENU-027](./05-interfaces-integrations.md#int-menu-027).
 <a id="superseded-011"></a>
 ### SUPERSEDED-011 — Ambiguous MenuItem.availability Flag
 

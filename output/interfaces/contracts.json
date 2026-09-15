@@ -38,7 +38,10 @@
           "name": "Agua",
           "description": "Agua embotellada",
           "imageRef": null,
-          "categoryId": "bebidas",
+          "fulfillmentType": "STOCKED",
+          "itemCategoryId": "bebidas",
+          "comboCategoryId": null,
+          "commercialClassification": "BEVERAGE",
           "eligible": true,
           "fromPrice": {
             "amount": "25.00",
@@ -67,7 +70,9 @@
         "name": "Agua",
         "description": "Agua embotellada",
         "imageRef": null,
-        "categoryId": "bebidas",
+        "itemCategoryId": "bebidas",
+        "comboCategoryId": null,
+        "commercialClassification": "BEVERAGE",
         "status": "ACTIVE",
         "fulfillmentType": "STOCKED",
         "dimensions": [],
@@ -87,13 +92,16 @@
               "quantity": "1",
               "unit": "unit"
             },
-            "modifierConfigs": []
+            "resolvedModifiers": []
           }
-        ]
+        ],
+        "comboConfigurations": [],
+        "defaultConfigurationId": null
       },
-      "availabilityByVariant": [
+      "availabilityBySellable": [
         {
           "variantId": "v-agua",
+          "configurationId": null,
           "availability": {
             "eligible": true,
             "reason": "AVAILABLE",
@@ -179,7 +187,9 @@
       "name": "Agua",
       "description": "Agua embotellada",
       "imageRef": null,
-      "categoryId": "bebidas",
+      "itemCategoryId": "bebidas",
+      "comboCategoryId": null,
+      "commercialClassification": "BEVERAGE",
       "status": "INACTIVE",
       "fulfillmentType": "STOCKED",
       "dimensions": [],
@@ -201,7 +211,9 @@
           },
           "modifierConfigs": []
         }
-      ]
+      ],
+      "comboConfigurations": [],
+      "defaultConfigurationId": null
     },
     "responseExample": {
       "definition": {
@@ -211,7 +223,9 @@
         "name": "Agua",
         "description": "Agua embotellada",
         "imageRef": null,
-        "categoryId": "bebidas",
+        "itemCategoryId": "bebidas",
+        "comboCategoryId": null,
+        "commercialClassification": "BEVERAGE",
         "status": "INACTIVE",
         "fulfillmentType": "STOCKED",
         "dimensions": [],
@@ -233,7 +247,9 @@
             },
             "modifierConfigs": []
           }
-        ]
+        ],
+        "comboConfigurations": [],
+        "defaultConfigurationId": null
       },
       "warnings": []
     },
@@ -255,7 +271,9 @@
       "name": "Agua",
       "description": "Agua embotellada",
       "imageRef": null,
-      "categoryId": "bebidas",
+      "itemCategoryId": "bebidas",
+      "comboCategoryId": null,
+      "commercialClassification": "BEVERAGE",
       "status": "INACTIVE",
       "fulfillmentType": "STOCKED",
       "dimensions": [],
@@ -277,7 +295,9 @@
           },
           "modifierConfigs": []
         }
-      ]
+      ],
+      "comboConfigurations": [],
+      "defaultConfigurationId": null
     },
     "document": "apis/entrada/E-08.md"
   },
@@ -294,7 +314,9 @@
       "name": "Agua",
       "description": "Agua embotellada",
       "imageRef": null,
-      "categoryId": "bebidas",
+      "itemCategoryId": "bebidas",
+      "comboCategoryId": null,
+      "commercialClassification": "BEVERAGE",
       "status": "INACTIVE",
       "fulfillmentType": "STOCKED",
       "dimensions": [],
@@ -316,7 +338,9 @@
           },
           "modifierConfigs": []
         }
-      ]
+      ],
+      "comboConfigurations": [],
+      "defaultConfigurationId": null
     },
     "responseExample": {
       "definition": {
@@ -326,7 +350,9 @@
         "name": "Agua",
         "description": "Agua embotellada",
         "imageRef": null,
-        "categoryId": "bebidas",
+        "itemCategoryId": "bebidas",
+        "comboCategoryId": null,
+        "commercialClassification": "BEVERAGE",
         "status": "INACTIVE",
         "fulfillmentType": "STOCKED",
         "dimensions": [],
@@ -348,7 +374,9 @@
             },
             "modifierConfigs": []
           }
-        ]
+        ],
+        "comboConfigurations": [],
+        "defaultConfigurationId": null
       },
       "warnings": []
     },
@@ -457,7 +485,9 @@
       "name": "Agua",
       "description": "Agua embotellada",
       "imageRef": null,
-      "categoryId": "bebidas",
+      "itemCategoryId": "bebidas",
+      "comboCategoryId": null,
+      "commercialClassification": "BEVERAGE",
       "status": "INACTIVE",
       "fulfillmentType": "STOCKED",
       "dimensions": [],
@@ -479,7 +509,9 @@
           },
           "modifierConfigs": []
         }
-      ]
+      ],
+      "comboConfigurations": [],
+      "defaultConfigurationId": null
     },
     "document": "apis/entrada/E-14.md"
   },
@@ -518,6 +550,7 @@
       "requestId": "resolve-1",
       "menuItemVersion": "1_2026-09-11T15:47:26-06:00",
       "variantId": "v-agua",
+      "configurationId": null,
       "selection": {
         "modifiers": [],
         "components": []
@@ -564,7 +597,7 @@
       },
       "resolvedAt": "2026-09-11T16:00:01-06:00",
       "pricing": {
-        "basePrice": "25.00",
+        "unitPrice": "25.00",
         "extrasTotal": "0",
         "unitSubtotal": "25.00",
         "currency": "MXN"
@@ -645,8 +678,8 @@
           "name": "Combo",
           "fulfillmentType": "COMBO",
           "reviewState": "REVIEW_REQUIRED",
-          "pendingVariantIds": [
-            "v-combo"
+          "pendingConfigurationIds": [
+            "cfg-combo"
           ]
         }
       ],
@@ -667,9 +700,9 @@
       "menuItemId": "mi-combo",
       "menuItemVersion": "1_2026-09-11T15:47:26-06:00",
       "state": "REVIEW_REQUIRED",
-      "variants": [
+      "configurations": [
         {
-          "variantId": "v-combo",
+          "configurationId": "cfg-combo",
           "state": "REVIEW_REQUIRED",
           "reviewToken": "review-observed-1",
       "reviewTokenExpiresAt": "2026-09-19T16:00:00Z",
@@ -678,11 +711,7 @@
               "changeId": "change-1",
               "slotId": "slot-1",
               "optionId": "option-1",
-              "component": {
-                "menuItemId": "mi-agua",
-                "menuItemVersion": "1_2026-09-11T15:47:26-06:00",
-                "variantId": "v-agua"
-              },
+              "itemVariantId": "v-agua",
               "observedVersion": "2_2026-09-12T15:47:26-06:00",
               "reasons": [
                 "PRICE"
@@ -720,9 +749,9 @@
     "requestSchema": "ReviewConfirmation",
     "responseSchema": "ReviewReceipt",
     "requestExample": {
-      "variants": [
+      "configurations": [
         {
-          "variantId": "v-combo",
+          "configurationId": "cfg-combo",
           "reviewToken": "review-observed-1"
         }
       ]
@@ -732,9 +761,9 @@
       "reviewId": "review-1",
       "actorId": "admin-1",
       "reviewedAt": "2026-09-12T16:00:00Z",
-      "variants": [
+      "configurations": [
         {
-          "variantId": "v-combo",
+          "configurationId": "cfg-combo",
           "acknowledgedChangeIds": [
             "change-1"
           ],

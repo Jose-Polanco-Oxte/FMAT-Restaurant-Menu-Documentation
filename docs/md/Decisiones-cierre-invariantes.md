@@ -80,13 +80,13 @@ Orders fija la versión del producto al crear la línea y conserva esa definici�
 
 <a id="adr-008"></a>
 
-## ADR-008 — Elegibilidad, mínimo y variante predeterminada
+## ADR-008 — Elegibilidad, precio de catálogo y presentación predeterminada
 
 **Base:** Modelo-Final pp. 7–8, 18–19, 27; Consultoria-2 p. 9 introduce archivado. La consultoría no resolvía el mínimo ni la transición de DEFAULT: las siguientes son elecciones nuevas dentro del encargo del usuario.
 
-El mínimo mostrado es el precio mínimo entre las variantes elegibles ahora para una venta nueva (producto y variante ACTIVE, configuración válida, disponibilidad vigente positiva según ADR-001). Las variantes INACTIVE, ARCHIVED, agotadas o sin evaluación vigente quedan fuera. Sin candidatas, Menu muestra el producto no disponible y no muestra un precio «desde» numérico. No se usa cero como precio de reemplazo.
+Para un `MenuItem` hoja, el precio de catálogo mostrado es el menor `unitPrice` entre sus `MenuItemVariant` elegibles ahora para una venta nueva (`MenuItem` y presentación ACTIVE, configuración válida y disponibilidad vigente positiva según ADR-001). Para un `MenuItem` COMBO, se aplica la misma regla a sus `ComboConfiguration.unitPrice` elegibles. Las presentaciones o configuraciones INACTIVE, ARCHIVED, agotadas o sin evaluación vigente quedan fuera. Si hay precios elegibles distintos, Menu muestra `Desde $X` usando el menor; si todos son iguales, muestra `$X`; si no hay candidatas, muestra el `MenuItem` no disponible y no muestra precio numérico. No se usa cero como precio de reemplazo.
 
-Al añadir dimensiones a un producto que tiene variante predeterminada, el administrador crea nuevas variantes INACTIVE con nuevas identidades y combinaciones explícitas. La variante predeterminada conserva su significado histórico y no se convierte silenciosamente en un tamaño. Mientras existan dimensiones seleccionables, una variante sin combinación no es elegible para nuevas ventas. La transición comercial se aplica como una nueva revisión del producto: archiva DEFAULT y activa las nuevas variantes válidas sin exponer una revisión parcialmente migrada. Si falta configuración vendible, el producto puede conservarse INACTIVE como trabajo incompleto. Las referencias de combos a DEFAULT deben corregirse o desactivarse antes de publicar la transición; las órdenes existentes conservan la identidad original.
+Al añadir características de presentación a un `MenuItem` hoja que tiene presentación predeterminada, el administrador crea nuevas presentaciones INACTIVE con nuevas identidades y combinaciones explícitas. La presentación predeterminada conserva su significado histórico y no se convierte silenciosamente en un tamaño. Mientras existan características seleccionables, una presentación sin combinación no es elegible para nuevas ventas. La transición comercial se aplica como una nueva revisión del `MenuItem`: archiva DEFAULT y activa las nuevas presentaciones válidas sin exponer una revisión parcialmente migrada. Si falta configuración vendible, el `MenuItem` puede conservarse INACTIVE como trabajo incompleto. Las referencias de combos a DEFAULT deben corregirse o desactivarse antes de publicar la transición; las órdenes existentes conservan la identidad original.
 
 **Cierre:** OPEN-008.
 

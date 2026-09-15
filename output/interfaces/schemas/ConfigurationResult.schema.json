@@ -29,7 +29,7 @@
           "variantId": {
             "type": "string",
             "minLength": 1,
-            "description": "Identidad de la presentación vendible, incluso DEFAULT cuando no hay dimensiones."
+            "description": "Identidad de la presentación vendible, incluso DEFAULT cuando no hay características de presentación seleccionables."
           }
         },
         "required": [

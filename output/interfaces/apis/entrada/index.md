@@ -29,12 +29,12 @@ Todos los endpoints pertenecen a Menu. Cada ficha incluye autorización, paráme
 
 ## Reglas de escritura de MenuItem
 
-Validar siempre pertenencia de valores, una combinación única por variante, suministro homogéneo, grupos propios y ausencia de combos anidados. Capacidad incompleta se admite solo INACTIVE y devuelve warnings con grupo/slot, mínimo y capacidad. Activación exige al menos una variante ACTIVE y capacidad válida de todas las que quedan ACTIVE. Desactivar/archivar componentes está permitido: excluir opciones retiradas de la elegibilidad y marcar combos para revisión; conservar venta con otras selecciones válidas. ARCHIVED no se reactiva. No existe borrado físico de historial.
+Validar siempre pertenencia de valores, una combinación única por variante, suministro homogéneo, grupos propios y ausencia de combos anidados. Capacidad incompleta se admite solo en un contexto `INACTIVE` —`MenuItem` o `MenuItemVariant` para un `ModifierGroup`; `MenuItem` COMBO para un `ComboSlot`, porque `ComboConfiguration` no tiene estado propio— y devuelve warnings con `entityId`, `entityType`, `minSelections` y `capacity`: en un `ModifierGroup`, `capacity` es la suma de `maxQuantity` de sus opciones habilitadas; en un `ComboSlot`, es el número de `ComboOption` habilitadas cuyo componente está `ACTIVE`. Activación exige al menos una variante ACTIVE y capacidad válida de todas las que quedan ACTIVE. Desactivar/archivar componentes está permitido: excluir opciones retiradas de la elegibilidad y marcar combos para revisión; conservar venta con otras selecciones válidas. ARCHIVED no se reactiva. No existe borrado físico de historial.
 
-La versión se genera en Menu como contador y fecha con zona. Recipe y MenuItem tienen secuencias independientes. Añadir dimensiones crea identidades nuevas y archiva DEFAULT en el mismo cambio comercial. No se deduce un tamaño a partir del nombre DEFAULT.
+La versión se genera en Menu como contador y fecha con zona. Recipe y MenuItem tienen secuencias independientes. Añadir características de presentación crea identidades nuevas y archiva DEFAULT en el mismo cambio comercial. No se deduce un tamaño a partir del nombre DEFAULT.
 
 [Semántica de copias](./configuraciones.md). [Tipos y reglas de resolución](../../03-tipos.md).
 
 E-10 fue retirado: no hay una necesidad de comprobación previa independiente. E-09 conserva toda la validación al guardar. [Guía de campos y headers](../../04-guia-de-campos.md).
 
-[Revisión administrativa](../../05-revision-combos.md). El tipo de suministro es inmutable desde la creación.
+[Revisión administrativa](../../05-revision-combos.md). El tipo contractual de `MenuItem` (`fulfillmentType`) es inmutable desde la creación.

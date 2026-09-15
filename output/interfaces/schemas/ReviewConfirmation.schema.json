@@ -2,14 +2,14 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
-    "variants": {
+    "configurations": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "variantId": {
+          "configurationId": {
             "type": "string",
-            "description": "Variante que se confirma.",
+            "description": "Configuración de combo que se confirma.",
             "minLength": 1
           },
           "reviewToken": {
@@ -19,17 +19,17 @@
           }
         },
         "required": [
-          "variantId",
+          "configurationId",
           "reviewToken"
         ],
         "additionalProperties": false
       },
-      "description": "Una, varias o todas las variantes mostradas; no existe comodín de cambios futuros.",
+      "description": "Una, varias o todas las configuraciones mostradas; no existe comodín de cambios futuros.",
       "minItems": 1
     }
   },
   "required": [
-    "variants"
+    "configurations"
   ],
   "additionalProperties": false
 }

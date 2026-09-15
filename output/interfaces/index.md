@@ -1,6 +1,6 @@
 # Interfaces del microservicio Menu
 
-Contrato aprobado v4. Alcance exclusivo: **Menu**. Fuente: [ERS](../ers/index.md). El vocabulario de transporte es Menu, MenuItem, MenuItemVariant y Recipe. La propuesta anterior queda sustituida por esta revisión.
+Contrato aprobado v5. Alcance exclusivo: **Menu**. Fuentes: [ERS](../ers/index.md) y [Auditoria-4](../../docs/md/Auditoria-4.md). El vocabulario de transporte distingue MenuItemVariant para MenuItem PREPARED/STOCKED y ComboConfiguration para MenuItem COMBO. La propuesta anterior queda sustituida por esta revisión.
 
 | Sección | Qué contiene |
 | --- | --- |
@@ -15,7 +15,7 @@ Contrato aprobado v4. Alcance exclusivo: **Menu**. Fuente: [ERS](../ers/index.md
 | [Trazabilidad](./trazabilidad.md) | Cobertura y decisiones aprobadas |
 | [Verificación](./verificacion.md) | Esquemas, ejemplos, enlaces y renderizado Mermaid |
 
-Cada ficha HTTP incluye su endpoint completo versionado. Los esquemas por tipo en schemas son parte de los contratos. Orders obtiene resolución por E-16 con resumen monetario único por variante. Esta revisión actualiza ambas ERS y cierra OPEN-002/007/009; OPEN-010 conserva pendientes técnicos. No se incorporan contratos externos de movimientos ni envío directo Menu–Cocina.
+Cada ficha HTTP incluye su endpoint completo versionado. Los esquemas por tipo en schemas son parte de los contratos. Orders obtiene resolución por E-16 con resumen monetario único por referencia vendible: variante hoja o ComboConfiguration. La publicación de Menu materializa la configuración efectiva de modificadores por variante hoja. Esta revisión actualiza ambas ERS y cierra OPEN-002/007/009; OPEN-010 conserva pendientes técnicos. No se incorporan contratos externos de movimientos ni envío directo Menu–Cocina.
 
 
 Contexto separado: [flujo conceptual de ordenar](../../docs/diagrams/flujo-ordenar.md). E-10 y M-05/M-06 se retiraron conforme a la revisión discutida; se conservan los IDs restantes.

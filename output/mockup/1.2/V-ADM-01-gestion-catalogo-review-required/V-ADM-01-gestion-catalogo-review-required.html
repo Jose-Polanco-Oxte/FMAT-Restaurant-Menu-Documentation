@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024, height=768, initial-scale=1.0">
+  <title>Gestión de catálogo — Revisión requerida</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            surface: '#FFFFFF',
+            'surface-dim': '#F7F7F7',
+            'surface-low': '#FAFAFA',
+            'surface-container': '#F7F7F7',
+            'surface-active': '#EDEDED',
+            'surface-high': '#F0F0F0',
+            ink: '#111111',
+            slate: '#444444',
+            'slate-muted': '#777777',
+            border: '#1A1A1A',
+            'border-subtle': '#D9D9D9',
+            'border-divider': '#BDBDBD',
+            disabled: '#D9D9D9'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1024px;
+      height: 768px;
+      min-width: 1024px;
+      max-width: 1024px;
+      min-height: 768px;
+      max-height: 768px;
+      overflow: hidden;
+      background-color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom clean scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F7F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BDBDBD;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777777;
+    }
+  </style>
+</head>
+<body class="w-[1024px] h-[768px] max-w-[1024px] max-h-[768px] overflow-hidden bg-white text-[#111111] flex flex-col justify-between select-none">
+
+  <!-- Encabezado Principal de Administración de Catálogo -->
+  <header class="w-full px-6 py-3.5 bg-white border-b border-[#BDBDBD] flex items-center justify-between">
+    <div>
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-bold tracking-tight text-[#111111]">Administración de catálogo</h1>
+        <span class="px-2.5 py-0.5 text-xs font-semibold rounded bg-[#EDEDED] text-[#111111] border border-[#BDBDBD]">
+          Módulo de Catálogo y Menú
+        </span>
+      </div>
+      <p class="text-xs text-[#444444] mt-0.5">Gestión de productos comerciales, tipos de suministro, modificadores y combos</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="px-3 py-1.5 bg-[#F7F7F7] border border-[#BDBDBD] rounded-lg text-xs font-medium text-[#111111]">
+        Administrador: <strong>Admin Central</strong>
+      </div>
+      <button class="px-4 py-2 bg-[#111111] hover:bg-[#222222] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span>Nuevo producto</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Pestañas de Estado Base y Acceso a Revisión -->
+  <div class="w-full px-6 bg-[#FAFAFA] border-b border-[#BDBDBD] flex items-center justify-between">
+    <div class="flex items-center gap-6">
+      <button class="py-2.5 text-xs font-bold border-b-2 transition-colors border-transparent text-[#444444] hover:text-[#111111]">
+        Activos (24)
+      </button>
+      <button class="py-2.5 text-xs font-bold border-b-2 transition-colors border-transparent text-[#444444] hover:text-[#111111]">
+        Inactivos (6)
+      </button>
+      <button class="py-2.5 text-xs font-bold border-b-2 transition-colors border-transparent text-[#444444] hover:text-[#111111]">
+        Archivados (12)
+      </button>
+    </div>
+
+    <!-- Indicador / Filtro de Revisión de Combos Requerida -->
+    <div class="flex items-center gap-2">
+      <button class="px-3 py-1 text-xs font-bold rounded-md flex items-center gap-2 transition-colors bg-[#111111] text-white">
+        <span class="w-2 h-2 rounded-full bg-white"></span>
+        <span>Revisión de combos requerida (2)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros y Búsqueda de Tabla -->
+  <div class="w-full px-6 py-2.5 bg-[#F7F7F7] border-b border-[#BDBDBD] flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3 flex-1">
+      <div class="relative w-64">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#777777]">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+        <input type="text" placeholder="Buscar por nombre o descripción..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-[#BDBDBD] rounded-md text-[#111111] placeholder-[#777777] focus:outline-none focus:border-[#111111]" />
+      </div>
+
+      <!-- Filtro Clasificación -->
+      <select class="px-3 py-1.5 text-xs bg-white border border-[#BDBDBD] rounded-md text-[#111111] focus:outline-none focus:border-[#111111]">
+        <option>Todas las clasificaciones</option>
+        <option>Platillo</option>
+        <option>Bebida</option>
+        <option>Combo</option>
+        <option>Postre</option>
+        <option>Complemento</option>
+      </select>
+
+      <!-- Filtro Tipo de Suministro -->
+      <select class="px-3 py-1.5 text-xs bg-white border border-[#BDBDBD] rounded-md text-[#111111] focus:outline-none focus:border-[#111111]">
+        <option>Todos los suministros</option>
+        <option>Abastecido / Almacén</option>
+        <option>Preparado en cocina</option>
+        <option>Combo</option>
+      </select>
+    </div>
+
+    <!-- Barra de Acciones Masivas (Opcional) -->
+    
+  </div>
+
+  <!-- Contenedor de la Tabla Principal (Reutilizado en las 4 variantes) -->
+  <main class="flex-1 px-6 py-4 flex flex-col justify-between overflow-hidden">
+    <div class="flex-1 bg-white border border-[#BDBDBD] rounded-xl flex flex-col overflow-hidden shadow-xs">
+      
+      <!-- Aviso Contextual (si aplica) -->
+      
+      <div class="p-3 bg-[#F7F7F7] border-b border-[#BDBDBD] flex items-center justify-between text-xs text-[#111111]">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-[#111111]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <span><strong>Filtro activo:</strong> Mostrando combos que requieren confirmación administrativa por cambios en sus componentes referenciados.</span>
+        </div>
+        <button class="text-xs text-[#444444] hover:text-[#111111] underline">Ver todo el catálogo</button>
+      </div>
+    
+
+      <div class="flex-1 overflow-y-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-[#FAFAFA] border-b border-[#BDBDBD] text-[11px] font-bold text-[#444444] uppercase tracking-wider">
+              <th class="py-2.5 px-4 w-8">
+                <input type="checkbox" class="accent-[#111111] rounded" />
+              </th>
+              <th class="py-2.5 px-4">Producto</th>
+              <th class="py-2.5 px-4">Clasificación</th>
+              <th class="py-2.5 px-4">Tipo de suministro</th>
+              <th class="py-2.5 px-4">Estado</th>
+              <th class="py-2.5 px-4 text-right">Precio base</th>
+              <th class="py-2.5 px-4 text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#BDBDBD] text-xs">
+            
+    <!-- Fila 1 Combo con Revisión Pendiente -->
+    <tr class="hover:bg-[#FAFAFA] transition-colors bg-[#FAFAFA]">
+      <td class="py-3 px-4"><input type="checkbox" class="accent-[#111111]" /></td>
+      <td class="py-3 px-4">
+        <div class="font-bold text-[#111111] text-sm">Combo Pareja</div>
+        <div class="text-[11px] text-[#444444]">2 variantes afectadas por cambios en precio de refresco y receta de hamburguesa</div>
+      </td>
+      <td class="py-3 px-4">
+        <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-[#111111] text-white">
+          Combo
+        </span>
+      </td>
+      <td class="py-3 px-4 text-[#444444]">Combo</td>
+      <td class="py-3 px-4">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-bold bg-[#EDEDED] text-[#111111] border border-[#1A1A1A]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#111111]"></span>
+          Revisión requerida
+        </span>
+      </td>
+      <td class="py-3 px-4 text-right font-bold text-[#111111]">$349.00 MXN</td>
+      <td class="py-3 px-4 text-center">
+        <button class="px-3 py-1 bg-[#111111] hover:bg-[#222222] text-white rounded font-bold text-xs shadow-2xs">
+          Revisar combo
+        </button>
+      </td>
+    </tr>
+
+    <!-- Fila 2 Combo con Revisión Pendiente -->
+    <tr class="hover:bg-[#FAFAFA] transition-colors bg-[#FAFAFA]">
+      <td class="py-3 px-4"><input type="checkbox" class="accent-[#111111]" /></td>
+      <td class="py-3 px-4">
+        <div class="font-bold text-[#111111] text-sm">Combo Familiar</div>
+        <div class="text-[11px] text-[#444444]">1 variante afectada por actualización de receta en alitas de pollo</div>
+      </td>
+      <td class="py-3 px-4">
+        <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-[#111111] text-white">
+          Combo
+        </span>
+      </td>
+      <td class="py-3 px-4 text-[#444444]">Combo</td>
+      <td class="py-3 px-4">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-bold bg-[#EDEDED] text-[#111111] border border-[#1A1A1A]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#111111]"></span>
+          Revisión requerida
+        </span>
+      </td>
+      <td class="py-3 px-4 text-right font-bold text-[#111111]">$599.00 MXN</td>
+      <td class="py-3 px-4 text-center">
+        <button class="px-3 py-1 bg-[#111111] hover:bg-[#222222] text-white rounded font-bold text-xs shadow-2xs">
+          Revisar combo
+        </button>
+      </td>
+    </tr>
+  
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación de Tabla -->
+      <div class="px-4 py-2.5 bg-[#FAFAFA] border-t border-[#BDBDBD] flex items-center justify-between text-xs text-[#444444]">
+        <span>Mostrando 1 a 4 de resultados</span>
+        <div class="flex items-center gap-1">
+          <button class="px-2.5 py-1 bg-white border border-[#BDBDBD] rounded font-semibold text-[#111111] hover:border-[#111111] disabled:opacity-40" disabled>Anterior</button>
+          <span class="px-2.5 py-1 bg-[#EDEDED] border border-[#1A1A1A] rounded font-bold text-[#111111]">1</span>
+          <button class="px-2.5 py-1 bg-white border border-[#BDBDBD] rounded font-semibold text-[#111111] hover:border-[#111111]">Siguiente</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Pie de Vista -->
+  <footer class="w-full px-6 py-2 bg-white border-t border-[#BDBDBD] flex items-center justify-between text-[11px] text-[#444444]">
+    <div>
+      <span>Catálogo comercial activo: <strong>Restaurante Central (Menú Principal)</strong></span>
+    </div>
+    <div>
+      <span>Última modificación registrada: <strong>14/09/2026 12:35</strong></span>
+    </div>
+  </footer>
+</body>
+</html>

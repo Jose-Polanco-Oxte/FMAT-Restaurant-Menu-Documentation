@@ -6,15 +6,18 @@
       "$ref": "CommercialMenuItemDefinition.schema.json",
       "description": "Contenido completo de una definición de MenuItem retornada por Menu."
     },
-    "availabilityByVariant": {
+    "availabilityBySellable": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "variantId": {
-            "type": "string",
-            "minLength": 1,
-            "description": "Identidad de la presentación vendible, incluso DEFAULT cuando no hay dimensiones."
+            "anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}],
+            "description": "Identidad de MenuItemVariant para PREPARED/STOCKED; null para COMBO."
+          },
+          "configurationId": {
+            "anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}],
+            "description": "Identidad de ComboConfiguration para COMBO; null para PREPARED/STOCKED."
           },
           "availability": {
             "$ref": "Availability.schema.json",
@@ -23,11 +26,20 @@
         },
         "required": [
           "variantId",
+          "configurationId",
           "availability"
+        ],
+        "allOf": [
+          {
+            "oneOf": [
+              {"properties": {"variantId": {"type": "string", "description": "Referencia de MenuItemVariant hoja."}, "configurationId": {"type": "null", "description": "No aplica a un MenuItem hoja."}}},
+              {"properties": {"variantId": {"type": "null", "description": "No aplica a un COMBO."}, "configurationId": {"type": "string", "description": "Referencia de ComboConfiguration."}}}
+            ]
+          }
         ],
         "additionalProperties": false
       },
-      "description": "Resultados separados por variante, para no confundir el estado de una presentación con otra."
+      "description": "Resultados separados por referencia vendible, para no confundir una MenuItemVariant con una ComboConfiguration."
     },
     "fromPrice": {
       "anyOf": [
@@ -38,12 +50,12 @@
           "type": "null"
         }
       ],
-      "description": "Menor precio base entre variantes elegibles; null si no hay ninguna. No usar cero como reemplazo."
+      "description": "Menor unitPrice entre unidades vendibles elegibles: MenuItemVariant para un item hoja o ComboConfiguration para COMBO; null si no hay ninguna. No usar cero como reemplazo. La UI antepone Desde solo cuando las unidades elegibles tienen precios distintos."
     }
   },
   "required": [
     "definition",
-    "availabilityByVariant",
+    "availabilityBySellable",
     "fromPrice"
   ],
   "additionalProperties": false

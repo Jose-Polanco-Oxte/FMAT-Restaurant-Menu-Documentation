@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "change_id",
+    "objective",
+    "decisions",
+    "invariants",
+    "affected_files",
+    "unaffected_files",
+    "blockers"
+  ],
+  "properties": {
+    "change_id": {
+      "type": "string"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "decision", "reason"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "affected_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "operation", "reason", "changes"],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string",
+            "enum": ["CREATE", "MODIFY", "DELETE", "VERIFY"]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["target", "instruction", "acceptance_criteria"],
+              "properties": {
+                "target": {
+                  "type": "string"
+                },
+                "instruction": {
+                  "type": "string"
+                },
+                "acceptance_criteria": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "unaffected_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "reason"],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -20,26 +20,26 @@
         "REVIEW_REQUIRED"
       ]
     },
-    "variants": {
+    "configurations": {
       "type": "array",
       "items": {
-        "$ref": "VariantReview.schema.json",
+        "$ref": "ConfigurationReview.schema.json",
         "description": "Revisión individual."
       },
-      "description": "Todas las variantes de combo, incluidas las archivadas."
+      "description": "Todas las ComboConfiguration del combo, incluidas las archivadas."
     }
   },
   "required": [
     "menuItemId",
     "menuItemVersion",
     "state",
-    "variants"
+    "configurations"
   ],
   "allOf": [
     {
       "if": {"properties": {"state": {"const": "REVIEW_REQUIRED", "description": "Resumen pendiente."}}},
-      "then": {"properties": {"variants": {"description": "Existe una variante pendiente.", "contains": {"properties": {"state": {"const": "REVIEW_REQUIRED", "description": "Variante pendiente."}}, "required": ["state"]}}}},
-      "else": {"properties": {"variants": {"description": "Ninguna variante está pendiente.", "items": {"properties": {"state": {"const": "UP_TO_DATE", "description": "Variante sin pendientes."}}}}}}
+      "then": {"properties": {"configurations": {"description": "Existe una configuración pendiente.", "contains": {"properties": {"state": {"const": "REVIEW_REQUIRED", "description": "Configuración pendiente."}}, "required": ["state"]}}}},
+      "else": {"properties": {"configurations": {"description": "Ninguna configuración está pendiente.", "items": {"properties": {"state": {"const": "UP_TO_DATE", "description": "Configuración sin pendientes."}}}}}}
     }
   ],
   "additionalProperties": false

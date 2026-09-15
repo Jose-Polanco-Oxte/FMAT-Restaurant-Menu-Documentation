@@ -5,7 +5,7 @@
     "variantId": {
       "type": "string",
       "minLength": 1,
-      "description": "Identidad de la presentación vendible, incluso DEFAULT cuando no hay dimensiones."
+      "description": "Identidad de la presentación vendible, incluso DEFAULT cuando no hay características de presentación seleccionables."
     },
     "status": {
       "type": "string",
@@ -26,18 +26,18 @@
     },
     "unitPrice": {
       "$ref": "Money.schema.json",
-      "description": "Precio base absoluto de la variante, antes de ajustes por personalización."
+      "description": "Precio unitario absoluto de la variante, antes de ajustes por personalización."
     },
     "fulfillment": {
       "$ref": "CommercialFulfillment.schema.json",
       "description": "Definición concreta de suministro de la variante. Debe coincidir con la clasificación del MenuItem."
     },
-    "modifierConfigs": {
+    "resolvedModifiers": {
       "type": "array",
       "items": {
-        "$ref": "ModifierConfig.schema.json"
+        "$ref": "ResolvedVariantModifier.schema.json"
       },
-      "description": "Configuraciones explícitas de opciones para una variante, con precio, capacidad y efectos propios."
+      "description": "Configuraciones efectivas publicadas para la variante; no contiene la diferencia entre default y excepción."
     }
   },
   "required": [
@@ -46,7 +46,7 @@
     "dimensionValueIds",
     "unitPrice",
     "fulfillment",
-    "modifierConfigs"
+    "resolvedModifiers"
   ],
   "additionalProperties": false
 }

@@ -4,11 +4,11 @@
   "apiEntries": 20,
   "outboundHttpApis": 0,
   "messageContracts": 6,
-  "schemas": 53,
+  "schemas": 59,
   "schemaValidatedExamples": 35,
   "negativeExamples": 4,
   "formattedJsonExamples": 35,
   "mermaidBlocks": 3,
-  "localLinks": 260,
+  "localLinks": 266,
   "errors": []
 }

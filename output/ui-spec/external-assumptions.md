@@ -1,6 +1,6 @@
 # Supuestos externos para los mockups
 
-**Revisión:** 2 — 2026-09-13  
+**Revisión:** 3 — 2026-09-15
 **Estado:** Supuestos de diseño para poder construir la UI; no son contratos aprobados ni modifican automáticamente la ERS o las interfaces de Menu.
 
 ## 1. Propósito
@@ -143,7 +143,7 @@ ActiveOrderProjection
 | `imageRef` | Menu | Imagen o estado sin imagen. |
 | `categoryId` / `categoryLabel` | Menu + catálogo de categorías | Filtro y badge. |
 | `classification` | Clasificación confirmada de UI; mapeo externo | Filtro y badge. |
-| `fulfillmentType` | Menu | Tipo de suministro. |
+| `fulfillmentType` | Menu | Tipo contractual de `MenuItem`: `STOCKED`, `PREPARED` o `COMBO`. |
 | `status` | Menu | `ACTIVE` o `INACTIVE`, y `ARCHIVED` si se adopta la extensión de ciclo de vida. |
 | `reviewState` | Menu, solo combos | `UP_TO_DATE` o `REVIEW_REQUIRED`. |
 | `pendingVariantIds` | Menu, solo combos | Indicador de variantes afectadas. |

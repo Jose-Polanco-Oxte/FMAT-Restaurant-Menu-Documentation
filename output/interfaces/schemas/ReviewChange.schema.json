@@ -17,9 +17,10 @@
       "description": "Opción afectada, incluso deshabilitada.",
       "minLength": 1
     },
-    "component": {
-      "$ref": "MenuItemRef.schema.json",
-      "description": "Referencia fijada en el combo."
+    "itemVariantId": {
+      "type": "string",
+      "description": "Identidad de la variante hoja fijada en la opción del combo.",
+      "minLength": 1
     },
     "observedVersion": {
       "type": "string",
@@ -47,7 +48,7 @@
     "changeId",
     "slotId",
     "optionId",
-    "component",
+    "itemVariantId",
     "observedVersion",
     "reasons"
   ],

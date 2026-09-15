@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "configurationId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identidad de una configuración vendible propia del COMBO."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nombre visible de la configuración, por ejemplo Individual o Familiar."
+    },
+    "unitPrice": {
+      "$ref": "Money.schema.json",
+      "description": "Precio absoluto de la configuración del combo."
+    },
+    "slots": {
+      "type": "array",
+      "items": {
+        "$ref": "CommercialComboSlot.schema.json"
+      },
+      "minItems": 1,
+      "description": "Slots de selección visibles para el consumidor."
+    }
+  },
+  "required": [
+    "configurationId",
+    "name",
+    "unitPrice",
+    "slots"
+  ],
+  "additionalProperties": false
+}

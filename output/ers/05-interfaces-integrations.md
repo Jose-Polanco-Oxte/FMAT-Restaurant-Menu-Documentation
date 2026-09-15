@@ -2,7 +2,7 @@
 
 # Integration obligations
 
-Each block states one primary obligation. Enumerated attributes describe one fact or operation, not independent steps. Verification entries are proposed acceptance criteria, not executed software tests. Model names identify domain concepts, not required technologies.
+Each block states one primary obligation. Enumerated attributes describe one fact or operation, not independent steps. Verification entries are proposed acceptance criteria, not executed software tests. Model names identify domain concepts, not required technologies. `Auditoria-4.md` is the active source for the corrected combo, modifier and order-line contracts.
 
 ---
 
@@ -19,7 +19,6 @@ The Menu service shall expose catalog reads through E-01–E-03 and invalidation
 
 **Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
 **Verification:** Inspect complete endpoint/event contracts and authorization.
 
@@ -37,7 +36,6 @@ The Orders service shall deliver preparation information resolved by Menu to Kit
 
 **Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
 **Verification:** Inspect E-16 as the Menu boundary; no direct Menu–Kitchen contract.
 
@@ -55,7 +53,6 @@ The Menu service shall identify externally owned inventory items through logical
 
 **Source:** `docs/md/Modelo-Final.md` pp. 19–21, 37–38
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Inspection: Verify that the three kinds of reference identify Inventory-owned items without importing their internal entity model.
 
@@ -67,15 +64,14 @@ The Menu service shall identify externally owned inventory items through logical
 ### INT-MENU-004 — Immutable unit price summary
 
 **Requirement:**
-The Orders service shall retain the resolved base price, aggregated extras, unit subtotal and currency for the selected sellable variant when creating its line.
+The Orders service shall retain the resolved unitPrice, aggregated modifier extras, unit subtotal and currency for the selected sellable leaf variant or ComboConfiguration when creating its line.
 
 **Type:** INT
 
 **Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
-**Verification:** Change catalog prices and verify the stored summary is unchanged; individual modifier prices are not required.
+**Verification:** Change catalog prices and verify the stored summary is unchanged; the summary contains the selected sellable unit price and aggregate, not a component price breakdown.
 
 **Status:** Confirmed
 
@@ -91,7 +87,6 @@ The Menu service shall expose same-MenuItem atomic copy and assignment operation
 
 **Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
 **Verification:** Inspect configuraciones.md; test conflicting destinations and zero partial writes.
 
@@ -109,7 +104,6 @@ The Orders service shall preserve versioned selection references with its resolv
 
 **Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
 **Verification:** Verify references are not used to reconstruct charged values from current catalog.
 
@@ -127,7 +121,6 @@ The Orders service shall retain unconfigured customer preparation instructions a
 
 **Source:** `docs/md/Problema-Inicial.md` pp. 109–111
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record a freeform instruction on one order item and verify its association with that item.
 
@@ -145,7 +138,6 @@ The Menu service shall publish changes and withdrawals of flat inventory require
 
 **Source:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Edit a recipe binding or stocked quantity; verify changed requirements, not an echoed availability result.
 
@@ -163,7 +155,6 @@ The Inventory service shall emit availability of received requirements with thei
 
 **Source:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Verify the result carries every correlation and freshness field.
 
@@ -181,7 +172,6 @@ The Menu service shall ignore availability evaluations for another definition re
 
 **Source:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Deliver new then old evaluation and a mismatched definition; neither stale result replaces current state.
 
@@ -199,7 +189,6 @@ The Menu service shall present a variant as unavailable without a current positi
 
 **Source:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Test missing, expired, negative results and detected outage; recovery requires fresh positive evaluation.
 
@@ -217,7 +206,6 @@ The Orders service shall send Inventory the persisted line movement content with
 
 **Source:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Change projection before delivery; sent quantities match the stored movement.
 
@@ -235,7 +223,6 @@ The Inventory service shall apply each movement identity at most once.
 
 **Source:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Deliver identical movement twice and verify one stock effect.
 
@@ -253,7 +240,6 @@ The Inventory service shall reject reuse of a movement identity with different c
 
 **Source:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Retry the same identity with changed quantity; verify rejection and unchanged stock.
 
@@ -271,7 +257,6 @@ The Inventory service shall limit an authorized reversal to the inventory items 
 
 **Source:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Reject reversal before application and over-reversal; a valid reversal uses original quantities.
 
@@ -289,7 +274,6 @@ The Orders service shall preserve the product version selected when an existing 
 
 **Source:** [ADR-006](../../docs/md/Decisiones-cierre-invariantes.md#adr-006)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Create line on v1, publish v2, verify unchanged existing line.
 
@@ -307,7 +291,6 @@ The Inventory service shall accept a deduction only if it can apply the complete
 
 **Source:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Two requests compete for last stock; no partial deduction or oversell based on the availability projection.
 
@@ -325,7 +308,6 @@ The Orders service shall confirm a line request only after receiving Inventory a
 
 **Source:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Delay response: line stays pending; rejection prevents confirmation; repeated acceptance does not duplicate confirmation.
 
@@ -337,13 +319,12 @@ The Orders service shall confirm a line request only after receiving Inventory a
 ### INT-MENU-019 — Combo availability
 
 **Requirement:**
-The Menu service shall consider a combo available only if each slot can satisfy its minimum with options eligible for their supplied quantity.
+The Menu service shall consider a ComboConfiguration available only if each slot can satisfy its minimum with eligible leaf variants for their configured quantities.
 
 **Type:** INT
 
 **Source:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Required slot without options blocks; optional empty slot does not; aggregate stock is rechecked at confirmation.
 
@@ -355,15 +336,14 @@ The Menu service shall consider a combo available only if each slot can satisfy 
 ### INT-MENU-020 — Minimal unit price response
 
 **Requirement:**
-The Menu service shall return only basePrice, extrasTotal, unitSubtotal and currency in the pricing section of E-16 for the requested sellable variant unit.
+The Menu service shall return only unitPrice, extrasTotal, unitSubtotal and currency in the pricing section of E-16 for the requested sellable unit.
 
 **Type:** INT
 
 **Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
-**Verification:** Closed PriceSummary schema rejects component/slot/modifier price terms; preparation remains separate.
+**Verification:** Closed PriceSummary schema rejects component/slot/modifier price terms; ComboOption.priceDelta is included in unitSubtotal but is not returned as a separate term.
 
 **Status:** Confirmed
 
@@ -379,7 +359,6 @@ The Menu service shall preserve withdrawal revisions so delayed evaluations cann
 
 **Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
 **Verification:** Inspect M-02/M-03 and deliver a delayed positive after withdrawal.
 
@@ -397,7 +376,6 @@ The Menu service shall treat identical evaluation revisions with different conte
 
 **Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
 **Verification:** M-03 identical duplicate ignored; changed duplicate rejected/quarantined.
 
@@ -415,7 +393,6 @@ The Menu service shall require a fresh valid evaluation matching the pending ree
 
 **Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
 **Verification:** Old response and expired positive never unlock recovery; inspect M-04/M-03/E-18.
 
@@ -433,7 +410,6 @@ The Inventory service shall provide a catalog of items usable as ingredients or 
 
 **Source:** [Inventory clarification](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Inventory owns the selectable item references and their units; Menu does not prescribe an independent unit catalog.
 
 **Verification:** Inspect the Inventory contract when available; each selectable item includes the three required data elements. Quantity limits and conversion rules remain OPEN-010.
 
@@ -451,8 +427,75 @@ The Inventory service shall provide search over the catalog used to select ingre
 
 **Source:** [Inventory clarification](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** The administrator needs to find items without browsing the complete inventory catalog.
 
 **Verification:** Demonstrate searching the supplied catalog and selecting an item by its identifier and unit. Search matching, route and pagination await the Inventory contract.
+
+**Status:** Confirmed
+
+---
+
+<a id="int-menu-026"></a>
+### INT-MENU-026 — Effective modifier publication
+
+**Requirement:**
+The Menu service shall expose a resolved modifier projection for each published leaf variant so that POS and KDS can consume effective applicability, priceDelta, maxQuantity and ingredientEffects without resolving a default and exception at order time.
+
+**Type:** INT
+
+**Source:** `docs/md/Auditoria-4.md`, items 14–18 and 21–22.
+
+
+**Verification:** Inspect a published leaf catalog response containing one default-only variant and one exception variant; each exposes its effective configuration.
+
+**Status:** Confirmed
+
+---
+
+<a id="int-menu-027"></a>
+### INT-MENU-027 — Combo configuration selection
+
+**Requirement:**
+The Menu service shall expose ComboConfiguration identities as the sellable selection reference for COMBO products and MenuItemVariant identities as the sellable selection reference for PREPARED and STOCKED products.
+
+**Type:** INT
+
+**Source:** `docs/md/Auditoria-4.md`, items 1–5, 23–32 and 43.
+
+
+**Verification:** Inspect ResolutionRequest and Resolution examples for one leaf and one combo; the leaf uses variantId and the combo uses configurationId.
+
+**Status:** Confirmed
+
+---
+
+<a id="int-menu-028"></a>
+### INT-MENU-028 — Order-line variant revalidation
+
+**Requirement:**
+The Orders service shall revalidate price, availability, effective modifiers and inventory effects when an existing leaf order line changes its selected variant.
+
+**Type:** INT
+
+**Source:** `docs/md/Auditoria-4.md`, items 43–45.
+
+
+**Verification:** Demonstration: edit a line from one leaf variant to another and verify that all four listed domains are evaluated before accepting the edited line.
+
+**Status:** Confirmed
+
+---
+
+<a id="int-menu-029"></a>
+### INT-MENU-029 — Personalized order-line separation
+
+**Requirement:**
+The Orders service shall represent different modifier selections for the same leaf item and variant as different order lines.
+
+**Type:** INT
+
+**Source:** `docs/md/Auditoria-4.md`, items 43–46.
+
+
+**Verification:** Submit two selections with the same item and variant and different modifiers; verify that they remain two distinct lines.
 
 **Status:** Confirmed

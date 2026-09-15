@@ -7,10 +7,15 @@
       "minLength": 1,
       "description": "Identidad de la configuración de una opción en una variante. La selección usa este ID para recuperar sus reglas."
     },
-    "optionId": {
+    "variantId": {
       "type": "string",
       "minLength": 1,
-      "description": "Identidad de una opción dentro de un grupo o slot. La variante referida no sustituye esta identidad."
+      "description": "Variante hoja a la que pertenece esta excepción."
+    },
+    "modifierOptionId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opción de modificador cuya configuración se especializa para la variante."
     },
     "enabled": {
       "type": "boolean",
@@ -25,21 +30,22 @@
       "minimum": 0,
       "description": "Máxima cantidad seleccionable de una opción de modificador en una variante. Cero impide elegirla."
     },
-    "effects": {
+    "ingredientEffects": {
       "type": "array",
       "items": {
         "$ref": "IngredientEffect.schema.json"
       },
-      "description": "Consecuencias sobre ingredientes de la personalización, separadas del ajuste de precio."
+      "description": "Consecuencias ADD u OMIT sobre ingredientes de la personalización, separadas del ajuste de precio."
     }
   },
   "required": [
     "configId",
-    "optionId",
+    "variantId",
+    "modifierOptionId",
     "enabled",
     "priceDelta",
     "maxQuantity",
-    "effects"
+    "ingredientEffects"
   ],
   "additionalProperties": false
 }

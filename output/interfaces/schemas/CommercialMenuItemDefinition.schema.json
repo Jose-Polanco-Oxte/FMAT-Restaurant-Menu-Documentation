@@ -38,10 +38,29 @@
       ],
       "description": "Referencia de imagen del artículo, o null si no hay imagen; no contiene los bytes de la imagen."
     },
-    "categoryId": {
-      "type": "string",
-      "minLength": 1,
-      "description": "Referencia de la categoría usada para organizar y filtrar el catálogo."
+    "itemCategoryId": {
+      "anyOf": [
+        {"type": "string", "minLength": 1},
+        {"type": "null"}
+      ],
+      "description": "Referencia a ItemCategory; se usa solo para PREPARED y STOCKED."
+    },
+    "comboCategoryId": {
+      "anyOf": [
+        {"type": "string", "minLength": 1},
+        {"type": "null"}
+      ],
+      "description": "Referencia a ComboCategory; se usa solo para COMBO."
+    },
+    "commercialClassification": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": ["DISH", "BEVERAGE", "DESSERT", "COMPLEMENT"]
+        },
+        {"type": "null"}
+      ],
+      "description": "Clasificación comercial de un MenuItem hoja; null para COMBO."
     },
     "status": {
       "type": "string",
@@ -68,7 +87,7 @@
           "dimensionId": {
             "type": "string",
             "minLength": 1,
-            "description": "Identidad de una dimensión elegible, por ejemplo tamaño."
+            "description": "Identidad técnica de una característica de presentación elegible, por ejemplo tamaño."
           },
           "name": {
             "type": "string",
@@ -83,7 +102,7 @@
                 "valueId": {
                   "type": "string",
                   "minLength": 1,
-                  "description": "Identidad de un valor dentro de una dimensión, independiente de su etiqueta."
+                  "description": "Identidad de un valor dentro de una característica de presentación, independiente de su etiqueta."
                 },
                 "name": {
                   "type": "string",
@@ -97,7 +116,7 @@
               ],
               "additionalProperties": false
             },
-            "description": "Valores posibles de una dimensión."
+            "description": "Valores posibles de una característica de presentación."
           }
         },
         "required": [
@@ -107,7 +126,7 @@
         ],
         "additionalProperties": false
       },
-      "description": "Dimensiones y valores definidos por el artículo comercial."
+      "description": "Características de presentación y valores definidos por el MenuItem."
     },
     "modifierGroups": {
       "type": "array",
@@ -122,6 +141,20 @@
         "$ref": "CommercialMenuItemVariant.schema.json"
       },
       "description": "Presentaciones configuradas de un MenuItem."
+    },
+    "comboConfigurations": {
+      "type": "array",
+      "items": {
+        "$ref": "CommercialComboConfiguration.schema.json"
+      },
+      "description": "Configuraciones vendibles propias de un COMBO."
+    },
+    "defaultConfigurationId": {
+      "anyOf": [
+        {"type": "string", "minLength": 1},
+        {"type": "null"}
+      ],
+      "description": "Referencia opcional a la configuración de combo preferida para UX; no sustituye unitPrice."
     }
   },
   "required": [
@@ -131,12 +164,47 @@
     "name",
     "description",
     "imageRef",
-    "categoryId",
+    "itemCategoryId",
+    "comboCategoryId",
+    "commercialClassification",
     "status",
     "fulfillmentType",
     "dimensions",
     "modifierGroups",
-    "variants"
+    "variants",
+    "comboConfigurations",
+    "defaultConfigurationId"
+  ],
+  "allOf": [
+    {
+      "if": {"properties": {"fulfillmentType": {"enum": ["PREPARED", "STOCKED"], "description": "Tipo de MenuItem hoja."}}},
+      "then": {
+        "required": ["itemCategoryId", "commercialClassification"],
+        "properties": {
+          "itemCategoryId": {"type": "string", "description": "ItemCategory obligatoria para un MenuItem hoja."},
+          "comboCategoryId": {"type": "null", "description": "COMBO no usa ItemCategory."},
+          "commercialClassification": {"type": "string", "description": "Clasificación comercial obligatoria para un MenuItem hoja."},
+          "variants": {"minItems": 1, "description": "Todo PREPARED/STOCKED tiene al menos una variante vendible."},
+          "comboConfigurations": {"maxItems": 0, "description": "Los MenuItem hoja no tienen configuraciones de combo."},
+          "defaultConfigurationId": {"type": "null", "description": "No hay configuración de combo para un MenuItem hoja."}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"fulfillmentType": {"const": "COMBO", "description": "Tipo de MenuItem combo."}}},
+      "then": {
+        "required": ["comboCategoryId"],
+        "properties": {
+          "itemCategoryId": {"type": "null", "description": "COMBO no usa ItemCategory."},
+          "comboCategoryId": {"type": "string", "description": "ComboCategory obligatoria para un combo."},
+          "commercialClassification": {"type": "null", "description": "COMBO no usa clasificación comercial de MenuItem hoja."},
+          "dimensions": {"maxItems": 0, "description": "COMBO no genera MenuItemVariant por características de presentación."},
+          "modifierGroups": {"maxItems": 0, "description": "Los modificadores pertenecen a los MenuItem hoja seleccionados."},
+          "variants": {"maxItems": 0, "description": "COMBO no usa MenuItemVariant como unidad vendible."},
+          "comboConfigurations": {"minItems": 1, "description": "Todo COMBO tiene al menos una configuración vendible."}
+        }
+      }
+    }
   ],
   "additionalProperties": false
 }

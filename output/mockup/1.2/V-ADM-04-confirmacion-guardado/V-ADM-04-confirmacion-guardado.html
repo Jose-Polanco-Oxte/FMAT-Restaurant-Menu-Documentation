@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024, height=768, initial-scale=1.0">
+  <title>Confirmación de guardado — Producto registrado</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            surface: '#FFFFFF',
+            'surface-dim': '#F7F7F7',
+            'surface-low': '#FAFAFA',
+            'surface-container': '#F7F7F7',
+            'surface-active': '#EDEDED',
+            'surface-high': '#F0F0F0',
+            ink: '#111111',
+            slate: '#444444',
+            'slate-muted': '#777777',
+            border: '#1A1A1A',
+            'border-subtle': '#D9D9D9',
+            'border-divider': '#BDBDBD',
+            disabled: '#D9D9D9'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1024px;
+      height: 768px;
+      min-width: 1024px;
+      max-width: 1024px;
+      min-height: 768px;
+      max-height: 768px;
+      overflow: hidden;
+      background-color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom clean scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F7F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BDBDBD;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777777;
+    }
+  </style>
+</head>
+<body class="w-[1024px] h-[768px] max-w-[1024px] max-h-[768px] overflow-hidden bg-white text-[#111111] flex flex-col justify-between select-none">
+
+  <!-- Encabezado -->
+  <header class="w-full px-6 py-3.5 bg-white border-b border-[#BDBDBD] flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <h1 class="text-xl font-bold tracking-tight text-[#111111]">Administración de catálogo</h1>
+      <span class="px-2.5 py-0.5 text-xs font-semibold rounded bg-[#EDEDED] text-[#111111] border border-[#BDBDBD]">
+        Confirmación de operación
+      </span>
+    </div>
+    <span class="text-xs text-[#444444]">14/09/2026 · 12:45</span>
+  </header>
+
+  <!-- Contenido Central: Ficha Concreta de Guardado Exitoso -->
+  <main class="flex-1 p-6 flex items-center justify-center">
+    <div class="w-[620px] bg-white border-2 border-[#1A1A1A] rounded-xl p-8 text-center flex flex-col items-center shadow-lg">
+      
+      <!-- Icono de Éxito Monocromático -->
+      <div class="w-16 h-16 rounded-full bg-[#111111] text-white flex items-center justify-center mb-4">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+
+      <h2 class="text-2xl font-bold text-[#111111] mb-1">Producto registrado exitosamente</h2>
+      <p class="text-xs text-[#444444] mb-6">
+        El producto ha sido guardado y registrado en el catálogo comercial del restaurante.
+      </p>
+
+      <!-- Ficha de Datos Registrados -->
+      <div class="w-full bg-[#FAFAFA] border border-[#BDBDBD] rounded-xl p-5 text-left mb-6 text-xs space-y-3">
+        <div class="flex justify-between items-center pb-2 border-b border-[#BDBDBD]">
+          <div>
+            <span class="text-[10px] font-bold text-[#777777] uppercase block">Nombre comercial</span>
+            <span class="text-sm font-bold text-[#111111]">Hamburguesa Especial</span>
+          </div>
+          <span class="px-2.5 py-0.5 text-xs font-bold rounded bg-[#111111] text-white">Activo</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <span class="text-[#777777] block text-[11px]">Clasificación comercial:</span>
+            <span class="font-semibold text-[#111111]">Platillo</span>
+          </div>
+          <div>
+            <span class="text-[#777777] block text-[11px]">Tipo de suministro:</span>
+            <span class="font-semibold text-[#111111]">Preparado en cocina</span>
+          </div>
+          <div>
+            <span class="text-[#777777] block text-[11px]">Precio de venta registrado:</span>
+            <span class="font-bold text-[#111111]">$168.00 MXN</span>
+          </div>
+          <div>
+            <span class="text-[#777777] block text-[11px]">Receta vinculada:</span>
+            <span class="font-semibold text-[#111111]">Hamburguesa Clásica (Rev. 2)</span>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-[#BDBDBD] flex justify-between text-[11px] text-[#777777]">
+          <span>Versión registrada: <strong>Revisión 3</strong></span>
+          <span>Modificadores: <strong>4 opciones habilitadas</strong></span>
+        </div>
+      </div>
+
+      <!-- Acciones de Navegación -->
+      <div class="flex gap-3">
+        <button class="px-6 py-2.5 bg-[#111111] hover:bg-[#222222] text-white text-xs font-bold rounded-lg transition-colors">
+          Ver en gestión de catálogo
+        </button>
+        <button class="px-5 py-2.5 bg-white border border-[#BDBDBD] hover:border-[#111111] text-xs font-semibold text-[#111111] rounded-lg transition-colors">
+          Dar de alta otro producto
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="w-full px-6 py-2.5 bg-white border-t border-[#BDBDBD] flex items-center justify-between text-xs text-[#444444]">
+    <span>Módulo de Administración de Catálogo</span>
+    <span>Operación confirmada</span>
+  </footer>
+</body>
+</html>

@@ -2,7 +2,7 @@
 
 # Data requirements
 
-Each block states one primary obligation. Enumerated attributes describe one fact or operation, not independent steps. Verification entries are proposed acceptance criteria, not executed software tests. Model names identify domain concepts, not required technologies.
+Each block states one primary obligation. Enumerated attributes describe one fact or operation, not independent steps. Verification entries are proposed acceptance criteria, not executed software tests. Model names identify domain concepts, not required technologies. `Auditoria-4.md` is the active source for the corrected data model.
 
 ---
 
@@ -16,7 +16,6 @@ The Menu service shall retain a menu by its identifier, restaurant reference, na
 
 **Source:** `docs/md/Modelo-Final.md` pp. 22
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -25,16 +24,15 @@ The Menu service shall retain a menu by its identifier, restaurant reference, na
 ---
 
 <a id="data-menu-002"></a>
-### DATA-MENU-002 — Commercial product
+### DATA-MENU-002 — Commercial MenuItem
 
 **Requirement:**
-The Menu service shall retain a product by its identifier, parent menu reference, name, description, image reference, category reference, administrative status and fulfillment classification.
+The Menu service shall retain a `MenuItem` by its identifier, parent `Menu` reference, name, description, image reference, product type and administrative status, with an `ItemCategory` and commercial classification for leaf items or a `ComboCategory` for COMBO items.
 
 **Type:** Data requirements
 
 **Source:** `docs/md/Modelo-Final.md` pp. 36–37
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -43,16 +41,15 @@ The Menu service shall retain a product by its identifier, parent menu reference
 ---
 
 <a id="data-menu-003"></a>
-### DATA-MENU-003 — Variant dimension
+### DATA-MENU-003 — Presentation characteristic
 
 **Requirement:**
-The Menu service shall retain a variant dimension by its identifier, name and owning product.
+The Menu service shall retain a named presentation characteristic by its identifier, name and owning leaf `MenuItem`.
 
 **Type:** Data requirements
 
 **Source:** `docs/md/Modelo-Final.md` pp. 21, 36–37
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -64,13 +61,12 @@ The Menu service shall retain a variant dimension by its identifier, name and ow
 ### DATA-MENU-004 — Sellable variant
 
 **Requirement:**
-The Menu service shall retain a sellable variant by its identifier, owning product, absolute selling price and selected dimension values.
+The Menu service shall retain a sellable `MenuItemVariant` by its identifier, owning PREPARED or STOCKED `MenuItem`, absolute `unitPrice` and selected presentation characteristic values.
 
 **Type:** Data requirements
 
 **Source:** `docs/md/Modelo-Final.md` pp. 21, 26–28, 36–37
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -82,13 +78,12 @@ The Menu service shall retain a sellable variant by its identifier, owning produ
 ### DATA-MENU-005 — Stocked variant definition
 
 **Requirement:**
-The Menu service shall retain a stocked variant fulfillment definition by its variant reference, inventory item reference and withdrawal quantity.
+The Menu service shall retain a stocked variant fulfillment definition by its variant reference, Inventory item reference, withdrawal quantity, and measurement unit.
 
 **Type:** Data requirements
 
 **Source:** `docs/md/Modelo-Final.md` pp. 8–9, 37
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -100,13 +95,12 @@ The Menu service shall retain a stocked variant fulfillment definition by its va
 ### DATA-MENU-006 — Combo slot
 
 **Requirement:**
-The Menu service shall retain a combo slot by its identifier, owning combo variant, name and minimum and maximum selection counts.
+The Menu service shall retain a combo slot by its identifier, owning ComboConfiguration, name and minimum and maximum selection counts.
 
 **Type:** Data requirements
 
 **Source:** `docs/md/Modelo-Final.md` pp. 9–10, 30–31
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -118,13 +112,12 @@ The Menu service shall retain a combo slot by its identifier, owning combo varia
 ### DATA-MENU-007 — Modifier group
 
 **Requirement:**
-The Menu service shall retain a modifier group by its identifier, owning product, name and minimum and maximum selection counts.
+The Menu service shall retain a modifier group by its identifier, owning PREPARED or STOCKED `MenuItem`, name and minimum and maximum selection counts.
 
 **Type:** Data requirements
 
 **Source:** `docs/md/Modelo-Final.md` pp. 12–13, 48
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -136,13 +129,12 @@ The Menu service shall retain a modifier group by its identifier, owning product
 ### DATA-MENU-008 — Variant modifier configuration
 
 **Requirement:**
-The Menu service shall retain a modifier configuration for a variant-option pair by its price adjustment, maximum selectable quantity and associated ingredient effects.
+The Menu service shall retain an optional VariantModifierConfig exception for a leaf variant and modifier option by its applicability, priceDelta, maximum selectable quantity and associated ingredient effects.
 
 **Type:** Data requirements
 
 **Source:** `docs/md/Modelo-Final.md` pp. 42–47
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -154,13 +146,12 @@ The Menu service shall retain a modifier configuration for a variant-option pair
 ### DATA-MENU-009 — Ingredient effect
 
 **Requirement:**
-The Menu service shall retain an ingredient effect by its owning variant modifier configuration, inventory item reference, addition or omission type and the quantity and measurement unit when applicable under BR-MENU-013 and BR-MENU-019.
+The Menu service shall retain an ingredient effect by its owning default or variant-specific modifier behavior, inventory item reference, addition or omission type and the quantity and measurement unit when applicable under BR-MENU-013 and BR-MENU-019.
 
 **Type:** Data requirements
 
 **Source:** `docs/md/Modelo-Final.md` pp. 34, 42–46
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -178,7 +169,6 @@ The Menu service shall retain a recipe by its identifier, name and version.
 
 **Source:** `docs/md/Modelo-Final.md` pp. 23, 37–38
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -187,16 +177,15 @@ The Menu service shall retain a recipe by its identifier, name and version.
 ---
 
 <a id="data-menu-011"></a>
-### DATA-MENU-011 — Dimension value
+### DATA-MENU-011 — Presentation characteristic value
 
 **Requirement:**
-The Menu service shall retain a dimension value by its identifier, name and parent dimension.
+The Menu service shall retain a named presentation characteristic value by its identifier, name and parent presentation characteristic.
 
 **Type:** Data requirements
 
 **Source:** `docs/md/Modelo-Final.md` pp. 21, 36–37
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -214,7 +203,6 @@ The Menu service shall retain a prepared variant fulfillment definition by its v
 
 **Source:** `docs/md/Modelo-Final.md` pp. 8–9, 37
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -226,15 +214,14 @@ The Menu service shall retain a prepared variant fulfillment definition by its v
 ### DATA-MENU-013 — Combo option reference
 
 **Requirement:**
-The Menu service shall retain each combo option identity, parent slot, exact component MenuItem version and variant, enabled state and supplied quantity without an option price adjustment.
+The Menu service shall retain each combo option identity, parent slot, concrete itemVariantId, enabled state, positive quantity and priceDelta.
 
 **Type:** DATA
 
-**Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
+**Source:** `docs/md/Auditoria-4.md`, items 23–32
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
-**Verification:** Inspect ComboOption; reject priceDelta and nested COMBO references.
+**Verification:** Inspect ComboOption; require itemVariantId, positive quantity and priceDelta, and reject a COMBO component.
 
 **Status:** Confirmed
 
@@ -244,13 +231,12 @@ The Menu service shall retain each combo option identity, parent slot, exact com
 ### DATA-MENU-014 — Modifier option
 
 **Requirement:**
-The Menu service shall retain a modifier option by its identifier, name and owning modifier group.
+The Menu service shall retain a modifier option by its identifier, name, owning modifier group and general/default configuration.
 
 **Type:** Data requirements
 
-**Source:** `docs/md/Modelo-Final.md` pp. 42–44, 50
+**Source:** `docs/md/Auditoria-4.md`, items 14–16
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -268,7 +254,6 @@ The Menu service shall retain a recipe component by its parent recipe, inventory
 
 **Source:** `docs/md/Modelo-Final.md` pp. 20–21, 37–38
 
-**Rationale:** Preserves the cited source fact or behavior within its stated scope without imposing an additional mechanism.
 
 **Verification:** Demonstration: Record the described fact and retrieve it, comparing each listed datum and association. No storage type, default or deletion cascade is prescribed.
 
@@ -286,7 +271,6 @@ The Menu service shall retain the INACTIVE, ACTIVE or ARCHIVED state of each var
 
 **Source:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Record and retrieve all specified information without changing history.
 
@@ -298,13 +282,12 @@ The Menu service shall retain the INACTIVE, ACTIVE or ARCHIVED state of each var
 ### DATA-MENU-017 — Immutable definition version
 
 **Requirement:**
-The Menu service shall retain each immutable product and recipe revision with identity, version, timezone-qualified timestamp and definition content.
+The Menu service shall retain each immutable `MenuItem` and recipe revision with identity, version, timezone-qualified timestamp and definition content.
 
 **Type:** DATA
 
 **Source:** [ADR-006](../../docs/md/Decisiones-cierre-invariantes.md#adr-006)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Record and retrieve all specified information without changing history.
 
@@ -322,7 +305,6 @@ The Menu service shall retain the exact recipe identity and version referenced b
 
 **Source:** [ADR-006](../../docs/md/Decisiones-cierre-invariantes.md#adr-006)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Record and retrieve all specified information without changing history.
 
@@ -340,7 +322,6 @@ The Menu service shall retain the mapping of each variant or supplied option to 
 
 **Source:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Record and retrieve all specified information without changing history.
 
@@ -358,7 +339,6 @@ The Menu service shall retain the latest accepted evaluation per key with defini
 
 **Source:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Record and retrieve all specified information without changing history.
 
@@ -376,7 +356,6 @@ The Menu service shall retain the enablement state of each modifier configuratio
 
 **Source:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Record and retrieve all specified information without changing history.
 
@@ -394,7 +373,6 @@ The Orders service shall retain per line and revision its net inventory item lis
 
 **Source:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Change the live catalog after capture; retained line data stays identical.
 
@@ -412,7 +390,6 @@ The Orders service shall retain each movement with a unique identity per line, r
 
 **Source:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Rationale:** Closure decision adopted under user delegation; the cited decision records its basis, limits and alternatives.
 
 **Verification:** Two lines of one order have distinct movement identities; a reversal references its original.
 
@@ -430,7 +407,6 @@ The Menu service shall enforce root IDs generated by Menu, new nested IDs propos
 
 **Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
 **Verification:** Inspect D-07 and E-17 mappings; new nested IDs unique within restaurant.
 
@@ -448,7 +424,6 @@ The Menu service shall retain acknowledgement actor, timestamp, variant identiti
 
 **Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
 **Verification:** Client cannot write state; no M-07 from acknowledgement; idempotent receipt.
 
@@ -460,15 +435,116 @@ The Menu service shall retain acknowledgement actor, timestamp, variant identiti
 ### DATA-MENU-026 — Administrative base selection
 
 **Requirement:**
-The Menu service shall retain a unique selection of own enabled option IDs within slot bounds as its administrative price-reference base.
+The Menu service shall retain a unique selection of own enabled option IDs within slot bounds as the administrative price-reference base of each ComboConfiguration slot.
 
 **Type:** DATA
 
 **Source:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Rationale:** Explicit user decision in ALIGN; supersedes incompatible earlier wording.
 
-**Verification:** INACTIVE incomplete base warns; ACTIVE requires valid base; not a customer default.
+**Verification:** INACTIVE incomplete base warns; ACTIVE requires valid base; the base belongs to a ComboConfiguration slot and is not a customer default.
+
+**Status:** Confirmed
+
+---
+
+<a id="data-menu-027"></a>
+### DATA-MENU-027 — COMBO MenuItem
+
+**Requirement:**
+The Menu service shall retain a COMBO `MenuItem` with its single `ComboCategory` reference and one or more `ComboConfiguration` records, without using `MenuItemVariant` as the combo configuration type.
+
+**Type:** Data requirements
+
+**Source:** `docs/md/Auditoria-4.md`, items 1, 23 and 29–37.
+
+
+**Verification:** Inspection: Verify that a combo has a ComboCategory and ComboConfiguration records, while its variants and leaf ItemCategory/classification fields are not used.
+
+**Status:** Confirmed
+
+---
+
+<a id="data-menu-028"></a>
+### DATA-MENU-028 — Combo configuration
+
+**Requirement:**
+The Menu service shall retain each ComboConfiguration by its identifier, visible name, absolute unitPrice and selection slots, with an optional combo-level default configuration reference.
+
+**Type:** Data requirements
+
+**Source:** `docs/md/Auditoria-4.md`, items 23–32.
+
+
+**Verification:** Demonstration: Record one default configuration and several named configurations; verify each price and slot composition independently.
+
+**Status:** Confirmed
+
+---
+
+<a id="data-menu-029"></a>
+### DATA-MENU-029 — Modifier default configuration
+
+**Requirement:**
+The Menu service shall retain the default priceDelta, maxQuantity and ingredientEffects of each ModifierOption.
+
+**Type:** Data requirements
+
+**Source:** `docs/md/Auditoria-4.md`, items 14–16.
+
+
+**Verification:** Demonstration: Retrieve a modifier option without variant exceptions and verify its default behavior is complete.
+
+**Status:** Confirmed
+
+---
+
+<a id="data-menu-030"></a>
+### DATA-MENU-030 — Published resolved modifier
+
+**Requirement:**
+The Menu service shall retain or publish an effective modifier projection per leaf variant containing modifierOptionId, enabled, priceDelta, maxQuantity and ingredientEffects.
+
+**Type:** Data requirements
+
+**Source:** `docs/md/Auditoria-4.md`, items 17 and 21–22.
+
+
+**Verification:** Analysis: Compare the published projection for a variant with and without an exception against the default and exception inputs.
+
+**Status:** Confirmed
+
+---
+
+<a id="data-menu-031"></a>
+### DATA-MENU-031 — Concrete leaf order reference
+
+**Requirement:**
+The Orders service shall retain a non-null `variantId` on every order line that represents a PREPARED or STOCKED `MenuItem`.
+
+**Type:** Data requirements
+
+**Source:** `docs/md/Auditoria-4.md`, item 43.
+
+
+**Verification:** Inspection: Attempt to persist a leaf order line without variantId and verify rejection.
+
+**Status:** Confirmed
+
+---
+
+<a id="data-menu-032"></a>
+### DATA-MENU-032 — Distinct personalized order lines
+
+**Requirement:**
+The Orders service shall retain separate order lines for different customizations of the same MenuItem and MenuItemVariant.
+
+**Type:** Data requirements
+
+**Source:** `docs/md/Auditoria-4.md`, items 44–46.
+
+
+**Verification:** Demonstration: Add two different modifier selections for the same item and variant and verify that two order lines remain distinguishable.
 
 **Status:** Confirmed
 
@@ -488,7 +564,6 @@ The ordering UI shall represent an assigned-table context with a table identifie
 
 **Source:** Explicit UI decision in the user request dated 2026-09-13; consolidated in `output/ui-spec/ui-data-spec.md`, V-MES-01 and V-MES-02.
 
-**Rationale:** These fields are required to select only assigned tables and to distinguish creating an order from adding to an existing order.
 
 **Verification:** Inspection: compare a rendered table context with the supplied assigned-table and active-order projection.
 
@@ -506,7 +581,6 @@ The ordering UI shall represent confirmed order lines separately from local draf
 
 **Source:** Explicit UI decision in the user request dated 2026-09-13; consolidated in `output/ui-spec/ui-data-spec.md`, V-MES-02 and V-MES-03.
 
-**Rationale:** The waiter must be able to add, edit or remove new selections without misrepresenting already confirmed order data.
 
 **Verification:** Demonstration: display an existing order with a local draft and verify that confirmed and draft identities and values remain distinguishable.
 
@@ -518,13 +592,12 @@ The ordering UI shall represent confirmed order lines separately from local draf
 ### DATA-UI-003 — Commercial visual classification vocabulary
 
 **Requirement:**
-The ordering and administrative UIs shall represent the commercial visual classification values DISH, BEVERAGE, COMBO, DESSERT and COMPLEMENT with the labels Platillo, Bebida, Combo, Postre and Complemento, respectively.
+The ordering and administrative UIs shall represent the leaf commercial classification values DISH, BEVERAGE, DESSERT and COMPLEMENT with the labels Platillo, Bebida, Postre and Complemento, respectively, and shall represent COMBO as a `MenuItem` type.
 
 **Type:** Data — Consumer UI
 
 **Source:** Explicit UI clarification in the user request dated 2026-09-13; consolidated in `output/ui-spec/ui-data-spec.md`, section 3.6.
 
-**Rationale:** The five labels are confirmed UI data and are not an unresolved assumption.
 
 **Verification:** Inspection: verify the five stable values and their Spanish labels in catalog filters, badges and the creation editor.
 
@@ -536,13 +609,12 @@ The ordering and administrative UIs shall represent the commercial visual classi
 ### DATA-UI-004 — Administrative lifecycle projection
 
 **Requirement:**
-The administrative UI shall represent each catalog item with its identity, name, category, commercial classification, fulfillment type, administrative status, review state when applicable, affected variant references when pending and local selection state.
+The administrative UI shall represent each catalog `MenuItem` with its identity, name, `ItemCategory` or `ComboCategory` as applicable, leaf commercial classification when applicable, `MenuItem` type, administrative status, review state when applicable, affected variant or configuration references when pending and local selection state.
 
 **Type:** Data — Consumer UI
 
 **Source:** Explicit UI decision in the user request dated 2026-09-13; consolidated in `output/ui-spec/ui-data-spec.md`, V-ADM-01.
 
-**Rationale:** These fields support management cards, separate active/inactive/review-required/archived sections and soft-removal selection.
 
 **Verification:** Demonstration: render items in each administrative section and verify that the card fields and selection state support the specified actions.
 
@@ -554,13 +626,12 @@ The administrative UI shall represent each catalog item with its identity, name,
 ### DATA-UI-005 — Pending review work item
 
 **Requirement:**
-The administrative UI shall represent pending combo review with the combo identity, affected variant identity, review token and expiry, change identity, slot and option location, component reference, observed version, reasons and local verification state.
+The administrative UI shall represent pending combo review with the combo identity, affected ComboConfiguration identity, review token and expiry, change identity, slot and option location, itemVariantId component reference, observed version, reasons and local verification state.
 
 **Type:** Data — Consumer UI
 
 **Source:** Explicit UI decision in the user request dated 2026-09-13 and E-19/E-20/E-21; consolidated in `output/ui-spec/ui-data-spec.md`, V-ADM-03.
 
-**Rationale:** The administrator needs the observed change context while the contractual confirmation remains at variant level.
 
 **Verification:** Demonstration: load a pending review and verify every listed identity, reason and local state without sending local verification state as a Menu field.
 
@@ -578,7 +649,6 @@ The ordering UI shall represent the resolved unit subtotal, line quantity, line 
 
 **Source:** Explicit price clarification in the user request dated 2026-09-13 and E-16; consolidated in `output/ui-spec/ui-data-spec.md`, section 6.3.
 
-**Rationale:** The catalog price is the cost of ordering the configured item, while final Billing may apply later adjustments.
 
 **Verification:** Demonstration: change quantity and configuration and verify the displayed line cost and pre-order accumulation; verify that a later Billing adjustment is not represented as part of that pre-order accumulation.
 

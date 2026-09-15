@@ -31,7 +31,24 @@
     },
     "details": {
       "type": "object",
-      "description": "Datos que explican el problema, como mínimo requerido y capacidad encontrada. No incluye información interna sensible."
+      "properties": {
+        "entityType": {
+          "type": "string",
+          "enum": ["ModifierGroup", "ComboSlot"],
+          "description": "Tipo de entidad cuya capacidad de selección está incompleta, cuando aplica."
+        },
+        "minSelections": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Mínimo configurado que debe poder satisfacerse, cuando aplica."
+        },
+        "capacity": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Capacidad calculada: suma de maxQuantity habilitados para un ModifierGroup o conteo de opciones habilitadas con componente ACTIVE para un ComboSlot."
+        }
+      },
+      "description": "Datos que explican el problema. En una advertencia de capacidad incompleta debe incluir entityType, minSelections y capacity; no incluye información interna sensible."
     }
   },
   "required": [

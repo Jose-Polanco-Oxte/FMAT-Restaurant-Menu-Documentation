@@ -19,9 +19,76 @@ El servicio Menu deberá exponer lecturas de catálogo mediante E-01–E-03 e in
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Inspeccionar contratos completos y autorización.
+
+**Estado:** Confirmado
+
+---
+
+<a id="int-menu-026"></a>
+### INT-MENU-026 — Publicación de modificadores efectivos
+
+**Requisito:**
+El servicio Menu deberá publicar, junto con la definición comercial, la proyección efectiva de modificadores por variante hoja, aplicando la excepción de variante o el default general.
+
+**Tipo:** INT
+
+**Fuente:** `docs/md/Auditoria-4.md`, items 14–22.
+
+
+**Verificación:** Inspección: una variante sin excepción coincide con defaultConfig y una con excepción coincide con VariantModifierConfig.
+
+**Estado:** Confirmado
+
+---
+
+<a id="int-menu-027"></a>
+### INT-MENU-027 — Selección de configuración de combo
+
+**Requisito:**
+El contrato de resolución deberá aceptar variantId no nulo para PREPARED/STOCKED y configurationId para COMBO, sin usar MenuItemVariant como identidad de combo.
+
+**Tipo:** INT
+
+**Fuente:** `docs/md/Auditoria-4.md`, items 23–32.
+
+
+**Verificación:** Validar que no se acepta una resolución combo con variantId ni una resolución hoja sin variantId.
+
+**Estado:** Confirmado
+
+---
+
+<a id="int-menu-028"></a>
+### INT-MENU-028 — Revalidación de línea de orden
+
+**Requisito:**
+Al editar una línea de orden, el consumidor deberá revalidar la variante o ComboConfiguration seleccionada, su precio, disponibilidad, modificadores y efectos de inventario antes de confirmar el cambio.
+
+**Tipo:** INT
+
+**Fuente:** `docs/md/Auditoria-4.md`, items 43–45.
+
+
+**Verificación:** Inspección: un cambio de variante invalida o recalcula precio, disponibilidad, configuración efectiva y efectos.
+
+**Estado:** Confirmado
+
+---
+
+<a id="int-menu-029"></a>
+### INT-MENU-029 — Separación de líneas personalizadas
+
+**Requisito:**
+Orders deberá conservar líneas separadas para personalizaciones distintas del mismo MenuItem y MenuItemVariant, aunque sus identidades de producto coincidan.
+
+**Tipo:** INT
+
+**Fuente:** `docs/md/Auditoria-4.md`, items 44–46.
+
+
+**Verificación:** Persistir dos configuraciones distintas y comprobar que cada una conserva su propio snapshot y costo.
 
 **Estado:** Confirmado
 
@@ -37,7 +104,6 @@ El servicio Orders deberá entregar a Cocina la información de preparación res
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Inspeccionar E-16 como frontera Menu; sin contrato directo Menu–Cocina.
 
@@ -55,7 +121,6 @@ El servicio Menu deberá identificar los artículos de inventario de propiedad e
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 19–21, 37–38
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Inspección: Verificar que los tres tipos de referencia identifiquen artículos de Inventory sin incorporar su modelo interno de entidades.
 
@@ -67,13 +132,12 @@ El servicio Menu deberá identificar los artículos de inventario de propiedad e
 ### INT-MENU-004 — Resumen monetario unitario inmutable
 
 **Requisito:**
-El servicio Orders deberá conservar precio base, extras agregados, subtotal unitario y moneda resueltos para la variante vendible seleccionada al crear su línea.
+El servicio Orders deberá conservar unitPrice resuelto, extras agregados, subtotal unitario y moneda para la MenuItemVariant hoja o ComboConfiguration seleccionada al crear su línea.
 
 **Tipo:** INT
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Cambiar precios del catálogo y verificar resumen conservado; no se exigen precios individuales de modificadores.
 
@@ -91,7 +155,6 @@ El servicio Menu deberá exponer por E-17 copias y asignaciones atómicas del mi
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Inspeccionar configuraciones.md; probar destinos en conflicto y ausencia de escrituras parciales.
 
@@ -109,7 +172,6 @@ El servicio Orders deberá conservar referencias versionadas de selección junto
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Verificar que no se reconstruyan importes cobrados desde el catálogo actual.
 
@@ -127,7 +189,6 @@ El servicio Orders deberá conservar las instrucciones de preparación no precon
 
 **Fuente:** `docs/md/Problema-Inicial.md` pp. 109–111
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Demostración: Registrar una instrucción libre en un artículo de comanda y verificar su asociación con ese artículo.
 
@@ -145,7 +206,6 @@ El servicio Menu deberá publicar cambios y retiradas de necesidades planas de i
 
 **Fuente:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Editar referencia de receta o cantidad almacenada; verificar necesidades cambiadas, no eco de disponibilidad.
 
@@ -163,7 +223,6 @@ El servicio Inventory deberá emitir disponibilidad de las necesidades recibidas
 
 **Fuente:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Verificar correlación y campos de vigencia.
 
@@ -181,7 +240,6 @@ El servicio Menu deberá ignorar evaluaciones de disponibilidad de otra revisió
 
 **Fuente:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Entregar evaluación nueva, luego antigua y de definición distinta; ninguna obsoleta sustituye el estado.
 
@@ -199,7 +257,6 @@ El servicio Menu deberá presentar como no disponible una variante sin evaluaci�
 
 **Fuente:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Probar ausencia, vencimiento, negativo y caída detectada; recuperación exige evaluación positiva vigente.
 
@@ -217,7 +274,6 @@ El servicio Orders deberá enviar a Inventory el contenido del movimiento persis
 
 **Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Cambiar proyección antes de entregar; cantidades enviadas coinciden con movimiento persistido.
 
@@ -235,7 +291,6 @@ El servicio Inventory deberá aplicar como máximo una vez cada identidad de mov
 
 **Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Entregar dos veces el movimiento idéntico y verificar un solo efecto.
 
@@ -253,7 +308,6 @@ El servicio Inventory deberá rechazar reutilizar una identidad de movimiento co
 
 **Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Reintentar identidad con otra cantidad; verificar rechazo e inventario sin cambio.
 
@@ -271,7 +325,6 @@ El servicio Inventory deberá limitar una reversión autorizada a los insumos y 
 
 **Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Rechazar reversión anterior a aplicación y exceso; una válida usa cantidades originales.
 
@@ -289,7 +342,6 @@ El servicio Orders deberá conservar la versión de producto seleccionada al cre
 
 **Fuente:** [ADR-006](../../docs/md/Decisiones-cierre-invariantes.md#adr-006)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Crear línea en v1, publicar v2 y verificar línea existente sin cambio.
 
@@ -307,7 +359,6 @@ El servicio Inventory deberá aceptar un descuento solo si puede aplicar íntegr
 
 **Fuente:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Dos solicitudes compiten por último stock; sin descuento parcial ni sobreventa por la proyección.
 
@@ -325,7 +376,6 @@ El servicio Orders deberá confirmar la solicitud de línea solo después de rec
 
 **Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Demorar respuesta mantiene pendiente; rechazo impide confirmar; aceptación repetida no duplica confirmación.
 
@@ -337,13 +387,12 @@ El servicio Orders deberá confirmar la solicitud de línea solo después de rec
 ### INT-MENU-019 — Disponibilidad de combo
 
 **Requisito:**
-El servicio Menu deberá considerar disponible un combo solo si cada espacio puede satisfacer su mínimo con opciones elegibles para su cantidad suministrada.
+El servicio Menu deberá considerar disponible una ComboConfiguration solo si cada slot puede satisfacer su mínimo con opciones elegibles para su quantity positiva.
 
 **Tipo:** INT
 
 **Fuente:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Espacio obligatorio vacío bloquea; opcional vacío no; stock conjunto se revalida al confirmar.
 
@@ -355,13 +404,12 @@ El servicio Menu deberá considerar disponible un combo solo si cada espacio pue
 ### INT-MENU-020 — Respuesta monetaria unitaria mínima
 
 **Requisito:**
-El servicio Menu deberá devolver únicamente basePrice, extrasTotal, unitSubtotal y currency en la sección pricing de E-16 para la unidad de variante vendible solicitada.
+El servicio Menu deberá devolver únicamente unitPrice, extrasTotal, unitSubtotal y currency en la sección pricing de E-16 para la referencia vendible solicitada; en COMBO incluye priceDelta de opciones, no precios base de componentes.
 
 **Tipo:** INT
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Schema cerrado PriceSummary rechaza términos monetarios de componentes/slots/modificadores; preparación separada.
 
@@ -379,7 +427,6 @@ El servicio Menu deberá conservar revisiones de retirada para impedir que evalu
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Inspeccionar M-02/M-03 y entregar positivo tardío tras retirada.
 
@@ -397,7 +444,6 @@ El servicio Menu deberá tratar revisiones de evaluación iguales con contenido 
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** M-03 duplicado idéntico ignorado; duplicado distinto rechazado/en cuarentena.
 
@@ -415,7 +461,6 @@ El servicio Menu deberá exigir una evaluación válida nueva con reevaluationRe
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Respuesta antigua y positivo vencido no desbloquean recuperación; inspeccionar M-04/M-03/E-18.
 
@@ -433,7 +478,6 @@ El servicio Inventory deberá proporcionar un catálogo de artículos utilizable
 
 **Fuente:** [Aclaración de Inventory](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Inventory posee las referencias seleccionables y sus unidades; Menu no prescribe un catálogo independiente de unidades.
 
 **Verificación:** Inspeccionar el contrato de Inventory cuando exista; cada artículo seleccionable incluye los tres datos requeridos. Límites de cantidades y conversiones permanecen en OPEN-010.
 
@@ -451,7 +495,6 @@ El servicio Inventory deberá proporcionar búsqueda sobre el catálogo utilizad
 
 **Fuente:** [Aclaración de Inventory](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** El administrador necesita encontrar artículos sin recorrer todo el catálogo de inventario.
 
 **Verificación:** Demostrar búsqueda en el catálogo suministrado y selección por identificador y unidad. Coincidencias, ruta y paginación esperan el contrato de Inventory.
 

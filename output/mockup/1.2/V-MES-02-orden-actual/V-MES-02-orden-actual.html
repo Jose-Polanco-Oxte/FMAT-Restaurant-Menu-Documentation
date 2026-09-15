@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024, height=768, initial-scale=1.0">
+  <title>Mesa 08 — Orden actual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            surface: '#FFFFFF',
+            'surface-dim': '#F7F7F7',
+            'surface-low': '#FAFAFA',
+            'surface-container': '#F7F7F7',
+            'surface-active': '#EDEDED',
+            'surface-high': '#F0F0F0',
+            ink: '#111111',
+            slate: '#444444',
+            'slate-muted': '#777777',
+            border: '#1A1A1A',
+            'border-subtle': '#D9D9D9',
+            'border-divider': '#BDBDBD',
+            disabled: '#D9D9D9'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1024px;
+      height: 768px;
+      min-width: 1024px;
+      max-width: 1024px;
+      min-height: 768px;
+      max-height: 768px;
+      overflow: hidden;
+      background-color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom clean scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F7F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BDBDBD;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777777;
+    }
+  </style>
+</head>
+<body class="w-[1024px] h-[768px] max-w-[1024px] max-h-[768px] overflow-hidden bg-white text-[#111111] flex flex-col justify-between select-none">
+
+  
+  <!-- Encabezado de Orden Actual -->
+  <header class="w-full px-6 py-4 bg-white border-b border-[#BDBDBD] flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white border border-[#BDBDBD] hover:border-[#111111] rounded-lg text-[#111111] transition-colors">
+        <svg class="w-4 h-4 text-[#111111]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>Volver a mesas</span>
+      </button>
+
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl font-bold tracking-tight text-[#111111]">Mesa 08</h1>
+          <span class="px-2.5 py-0.5 text-xs font-bold rounded bg-[#111111] text-white">
+            En atención
+          </span>
+          <span class="text-xs text-[#444444] font-medium">Orden #1042</span>
+        </div>
+        <p class="text-xs text-[#444444] mt-0.5">4 comensales · Mesero asignado: <strong>Carlos M.</strong> · Abierta hace 15 min</p>
+      </div>
+    </div>
+
+    <!-- Indicador de Mesa / Estado -->
+    <div class="flex items-center gap-2">
+      <div class="px-3 py-1.5 bg-[#F7F7F7] border border-[#BDBDBD] rounded-lg text-xs text-[#444444]">
+        Servicio: <strong class="text-[#111111]">Comedor Principal</strong>
+      </div>
+    </div>
+  </header>
+
+  <!-- Cuerpo de la Vista: 2 Columnas -->
+  <main class="flex-1 p-6 flex gap-6 overflow-hidden">
+    
+    <!-- Columna Izquierda: Tabla de Líneas Confirmadas (Solo Lectura) -->
+    <section class="flex-1 bg-white border border-[#BDBDBD] rounded-xl flex flex-col overflow-hidden shadow-xs">
+      <div class="p-4 bg-[#F7F7F7] border-b border-[#BDBDBD] flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-[#111111]">Líneas confirmadas (3)</h2>
+          <p class="text-xs text-[#444444]">Productos ya solicitados y confirmados en cocina. Se encuentran bloqueados para edición.</p>
+        </div>
+        <span class="px-2.5 py-1 text-xs font-semibold rounded bg-[#EDEDED] text-[#111111] border border-[#BDBDBD]">
+          Bloqueadas
+        </span>
+      </div>
+
+      <!-- Tabla de Líneas -->
+      <div class="flex-1 overflow-y-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-[#FAFAFA] border-b border-[#BDBDBD] text-[11px] font-semibold text-[#444444] uppercase tracking-wider">
+              <th class="py-2.5 px-4">Cant.</th>
+              <th class="py-2.5 px-4">Producto y especificación</th>
+              <th class="py-2.5 px-4 text-right">Precio unitario</th>
+              <th class="py-2.5 px-4 text-right">Subtotal</th>
+              <th class="py-2.5 px-4 text-center">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#BDBDBD] text-xs">
+            
+            <!-- Fila 1 -->
+            <tr class="hover:bg-[#FAFAFA] transition-colors">
+              <td class="py-3 px-4 font-bold text-center w-12 text-[#111111]">2×</td>
+              <td class="py-3 px-4">
+                <div class="font-bold text-[#111111] text-sm">Hamburguesa Clásica</div>
+                <div class="text-[#444444] mt-0.5">• Término medio</div>
+                <div class="text-[#444444]">• Con queso cheddar</div>
+              </td>
+              <td class="py-3 px-4 text-right text-[#444444] font-medium">$140.00</td>
+              <td class="py-3 px-4 text-right font-bold text-[#111111]">$280.00</td>
+              <td class="py-3 px-4 text-center">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F7F7F7] text-[#111111] border border-[#BDBDBD]">
+                  Confirmada
+                </span>
+              </td>
+            </tr>
+
+            <!-- Fila 2 -->
+            <tr class="hover:bg-[#FAFAFA] transition-colors">
+              <td class="py-3 px-4 font-bold text-center w-12 text-[#111111]">1×</td>
+              <td class="py-3 px-4">
+                <div class="font-bold text-[#111111] text-sm">Papas Rústicas</div>
+                <div class="text-[#444444] mt-0.5">• Porción normal con sal de mar</div>
+              </td>
+              <td class="py-3 px-4 text-right text-[#444444] font-medium">$56.00</td>
+              <td class="py-3 px-4 text-right font-bold text-[#111111]">$56.00</td>
+              <td class="py-3 px-4 text-center">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F7F7F7] text-[#111111] border border-[#BDBDBD]">
+                  Confirmada
+                </span>
+              </td>
+            </tr>
+
+            <!-- Fila 3 -->
+            <tr class="hover:bg-[#FAFAFA] transition-colors">
+              <td class="py-3 px-4 font-bold text-center w-12 text-[#111111]">2×</td>
+              <td class="py-3 px-4">
+                <div class="font-bold text-[#111111] text-sm">Refresco Cola</div>
+                <div class="text-[#444444] mt-0.5">• Lata 355 ml (con hielo y limón)</div>
+              </td>
+              <td class="py-3 px-4 text-right text-[#444444] font-medium">$35.00</td>
+              <td class="py-3 px-4 text-right font-bold text-[#111111]">$70.00</td>
+              <td class="py-3 px-4 text-center">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F7F7F7] text-[#111111] border border-[#BDBDBD]">
+                  Confirmada
+                </span>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Aviso informativo de bloqueo normativo -->
+      <div class="p-3 bg-[#F7F7F7] border-t border-[#BDBDBD] flex items-center gap-2 text-xs text-[#444444]">
+        <svg class="w-4 h-4 text-[#111111] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+        <span>Las líneas confirmadas están bloqueadas para garantizar consistencia con cocina. Para agregar más productos presiona "Agregar productos".</span>
+      </div>
+    </section>
+
+    <!-- Columna Derecha: Panel de Resumen y Acción Única de Continuación -->
+    <aside class="w-80 bg-white border border-[#BDBDBD] rounded-xl p-5 flex flex-col justify-between shadow-xs">
+      <div>
+        <h2 class="text-base font-bold text-[#111111] pb-3 border-b border-[#BDBDBD]">
+          Resumen de orden
+        </h2>
+
+        <div class="mt-4 space-y-3 text-xs">
+          <div class="flex justify-between text-[#444444]">
+            <span>Líneas confirmadas (3)</span>
+            <span class="font-medium text-[#111111]">$406.00</span>
+          </div>
+          <div class="flex justify-between text-[#444444]">
+            <span>IVA incluido (16%)</span>
+            <span class="font-medium text-[#111111]">$56.00</span>
+          </div>
+
+          <div class="pt-3 border-t border-[#BDBDBD] flex justify-between items-baseline">
+            <span class="text-sm font-bold text-[#111111]">Total de preorden</span>
+            <span class="text-2xl font-bold text-[#111111] tracking-tight">$406.00</span>
+          </div>
+          <span class="text-[11px] text-[#777777] block text-right">Moneda nacional (MXN)</span>
+        </div>
+
+        <div class="mt-6 p-3.5 bg-[#F7F7F7] border border-[#BDBDBD] rounded-lg">
+          <span class="text-xs font-bold text-[#111111] block mb-1">¿Deseas agregar más productos?</span>
+          <p class="text-xs text-[#444444] leading-relaxed">
+            Podrás explorar el catálogo comercial y configurar nuevas selecciones manteniendo estas líneas confirmadas como referencia.
+          </p>
+        </div>
+      </div>
+
+      <!-- Única Acción de Continuación según UI Spec -->
+      <div class="space-y-2 mt-6">
+        <button class="w-full py-3 bg-[#111111] hover:bg-[#222222] text-white text-sm font-bold rounded-lg flex items-center justify-center gap-2 shadow-xs transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span>Agregar productos</span>
+        </button>
+
+        <button class="w-full py-2 bg-white border border-[#BDBDBD] hover:border-[#111111] text-xs font-semibold text-[#111111] rounded-lg transition-colors">
+          Solicitar cuenta / Imprimir precuenta
+        </button>
+      </div>
+    </aside>
+
+  </main>
+
+  
+  <!-- Pie de Vista -->
+  <footer class="w-full px-6 py-2.5 bg-white border-t border-[#BDBDBD] flex items-center justify-between text-xs text-[#444444]">
+    <div>
+      <span>Estado de la orden: <strong class="text-[#111111]">En preparación de cocina</strong></span>
+    </div>
+    <div>
+      <span>Terminal POS Mesero · Mesa 08</span>
+    </div>
+  </footer>
+</body>
+</html>

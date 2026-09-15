@@ -33,10 +33,25 @@
       ],
       "description": "Referencia de imagen del artículo, o null si no hay imagen; no contiene los bytes de la imagen."
     },
-    "categoryId": {
+    "fulfillmentType": {
       "type": "string",
-      "minLength": 1,
-      "description": "Referencia de la categoría usada para organizar y filtrar el catálogo."
+      "enum": ["STOCKED", "PREPARED", "COMBO"],
+      "description": "Tipo administrativo del MenuItem: STOCKED, PREPARED o COMBO. No es una clasificación comercial."
+    },
+    "itemCategoryId": {
+      "anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}],
+      "description": "Referencia a ItemCategory para MenuItem PREPARED o STOCKED; null para COMBO."
+    },
+    "comboCategoryId": {
+      "anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}],
+      "description": "Referencia a ComboCategory para MenuItem COMBO; null para MenuItem hoja."
+    },
+    "commercialClassification": {
+      "anyOf": [
+        {"type": "string", "enum": ["DISH", "BEVERAGE", "DESSERT", "COMPLEMENT"]},
+        {"type": "null"}
+      ],
+      "description": "Clasificación comercial de un MenuItem hoja; null para COMBO."
     },
     "eligible": {
       "type": "boolean",
@@ -51,7 +66,7 @@
           "type": "null"
         }
       ],
-      "description": "Menor precio base entre variantes elegibles; null si no hay ninguna. No usar cero como reemplazo."
+      "description": "Precio unitario mínimo entre unidades vendibles elegibles: MenuItemVariant para un item hoja o ComboConfiguration para COMBO; null si no hay ninguna. La UI antepone Desde solo cuando las unidades elegibles tienen precios distintos."
     }
   },
   "required": [
@@ -60,9 +75,34 @@
     "name",
     "description",
     "imageRef",
-    "categoryId",
+    "fulfillmentType",
+    "itemCategoryId",
+    "comboCategoryId",
+    "commercialClassification",
     "eligible",
     "fromPrice"
+  ],
+  "allOf": [
+    {
+      "if": {"properties": {"fulfillmentType": {"enum": ["PREPARED", "STOCKED"], "description": "Tipo de MenuItem hoja."}}},
+      "then": {
+        "properties": {
+          "itemCategoryId": {"type": "string", "description": "ItemCategory de un MenuItem hoja."},
+          "comboCategoryId": {"type": "null", "description": "Un MenuItem hoja no tiene ComboCategory."},
+          "commercialClassification": {"type": "string", "description": "Clasificación comercial de un MenuItem hoja."}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"fulfillmentType": {"const": "COMBO", "description": "Tipo de MenuItem combo."}}},
+      "then": {
+        "properties": {
+          "itemCategoryId": {"type": "null", "description": "COMBO no tiene ItemCategory."},
+          "comboCategoryId": {"type": "string", "description": "ComboCategory de un COMBO."},
+          "commercialClassification": {"type": "null", "description": "COMBO no tiene clasificación comercial de MenuItem hoja."}
+        }
+      }
+    }
   ],
   "additionalProperties": false
 }

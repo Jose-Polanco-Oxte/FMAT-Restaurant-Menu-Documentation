@@ -15,7 +15,12 @@
     "variantId": {
       "type": "string",
       "minLength": 1,
-      "description": "Identidad de la presentación vendible, incluso DEFAULT cuando no hay dimensiones."
+      "description": "Identidad obligatoria de la presentación vendible para PREPARED o STOCKED; nunca se usa para identificar un COMBO."
+    },
+    "configurationId": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "description": "Identidad obligatoria de ComboConfiguration para COMBO; null para MenuItem hoja."
     },
     "selection": {
       "$ref": "Selection.schema.json",
@@ -26,7 +31,26 @@
     "requestId",
     "menuItemVersion",
     "variantId",
+    "configurationId",
     "selection"
+  ],
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "variantId": {"type": "string", "description": "Referencia de la presentación hoja."},
+            "configurationId": {"type": "null", "description": "No se usa configuración de combo para un MenuItem hoja."}
+          }
+        },
+        {
+          "properties": {
+            "variantId": {"type": "null", "description": "COMBO no usa MenuItemVariant como referencia raíz."},
+            "configurationId": {"type": "string", "description": "Referencia de la ComboConfiguration solicitada."}
+          }
+        }
+      ]
+    }
   ],
   "additionalProperties": false
 }

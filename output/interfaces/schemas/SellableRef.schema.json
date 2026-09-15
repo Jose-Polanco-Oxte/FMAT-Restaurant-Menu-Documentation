@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "menuItemId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identidad estable del MenuItem comercial."
+        },
+        "menuItemVersion": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Revisión comercial exacta seleccionada."
+        },
+        "variantId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identidad de la presentación vendible de un MenuItem PREPARED o STOCKED."
+        }
+      },
+      "required": ["menuItemId", "menuItemVersion", "variantId"],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "menuItemId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identidad estable del MenuItem COMBO."
+        },
+        "menuItemVersion": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Revisión comercial exacta seleccionada."
+        },
+        "configurationId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identidad de la ComboConfiguration vendible."
+        }
+      },
+      "required": ["menuItemId", "menuItemVersion", "configurationId"],
+      "additionalProperties": false
+    }
+  ]
+}

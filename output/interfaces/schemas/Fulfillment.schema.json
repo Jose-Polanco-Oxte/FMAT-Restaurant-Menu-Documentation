@@ -49,27 +49,6 @@
         "recipe"
       ],
       "additionalProperties": false
-    },
-    {
-      "type": "object",
-      "properties": {
-        "type": {
-          "const": "COMBO",
-          "description": "Nombre del mensaje, incluido su versionado. En fulfillment indica si se suministra desde stock, receta o combo."
-        },
-        "slots": {
-          "type": "array",
-          "items": {
-            "$ref": "ComboSlot.schema.json"
-          },
-          "description": "Espacios de selección configurados para una variante de combo."
-        }
-      },
-      "required": [
-        "type",
-        "slots"
-      ],
-      "additionalProperties": false
     }
   ]
 }

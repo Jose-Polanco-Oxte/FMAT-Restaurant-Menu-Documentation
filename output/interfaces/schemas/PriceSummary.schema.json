@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
-    "basePrice": {
+    "unitPrice": {
       "type": "string",
-      "description": "Precio fijo de una unidad de la variante vendible solicitada.",
+      "description": "Precio absoluto de una unidad de la referencia vendible solicitada: MenuItemVariant para MenuItem hoja o ComboConfiguration para COMBO.",
       "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
     },
     "extrasTotal": {
@@ -14,7 +14,7 @@
     },
     "unitSubtotal": {
       "type": "string",
-      "description": "basePrice más extrasTotal, antes de cantidades de línea y reglas externas de Orders.",
+      "description": "unitPrice más extrasTotal, antes de cantidades de línea y reglas externas de Orders.",
       "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
     },
     "currency": {
@@ -24,7 +24,7 @@
     }
   },
   "required": [
-    "basePrice",
+    "unitPrice",
     "extrasTotal",
     "unitSubtotal",
     "currency"

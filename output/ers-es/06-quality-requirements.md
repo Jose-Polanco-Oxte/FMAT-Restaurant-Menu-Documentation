@@ -10,13 +10,12 @@ Cada bloque establece una obligación primaria. Los atributos enumerados describ
 ### QA-MENU-001 — Resolución determinista de selecciones
 
 **Requisito:**
-El sistema deberá resolver las selecciones de combo permitidas y el comportamiento de modificadores por variante a partir de sus configuraciones explícitas sin inferir correspondencias de tamaños ni valores heredados de modificadores durante la toma de órdenes.
+El sistema deberá resolver las selecciones de combo permitidas y el comportamiento de modificadores por variante a partir de ComboConfiguration, ComboOption y la proyección publicada de modificadores efectivos, sin inferir correspondencias de tamaños ni resolver defaults durante la toma de órdenes.
 
 **Tipo:** Requisitos de calidad
 
-**Fuente:** `docs/md/Modelo-Final.md` pp. 29–30, 46–50
+**Fuente:** `docs/md/Auditoria-4.md`, items 14–22 y 23–32.
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Análisis: Rastrear una selección hasta la configuración explícita que la determina. Este requisito no prescribe O(1) ni plan de índices; los criterios de aceptación de latencia están en QA-MENU-004 a QA-MENU-017.
 
@@ -34,7 +33,6 @@ El servicio Orders deberá completar el procesamiento de una línea confirmada u
 
 **Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Confirmar una línea, archivar su variante y cambiar su receta; procesar y revertir un movimiento autorizado usando cantidades originales.
 
@@ -54,7 +52,6 @@ El servicio Menu deberá impedir aceptar configuraciones de variantes que infrin
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 21
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Prueba: Intentar cada configuración prohibida mediante operaciones de catálogo y verificar su rechazo sin aceptar el estado inválido. Es una propiedad de consistencia de las reglas referidas, no una regla adicional ni mandato de base de datos.
 
@@ -72,7 +69,6 @@ El sistema deberá cumplir p95 <= 200 ms para búsqueda y cambio de categoría b
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Medir la clase de extremo a extremo con 40 clientes, 30 solicitudes/s durante 30 min y la mezcla ADR-004.
 
@@ -90,7 +86,6 @@ El sistema deberá cumplir p95 <= 300 ms para consulta de disponibilidad proyect
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Medir la clase de extremo a extremo con 40 clientes, 30 solicitudes/s durante 30 min y la mezcla ADR-004.
 
@@ -108,7 +103,6 @@ El sistema deberá cumplir p95 <= 300 ms para validación y recálculo de precio
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Medir la clase de extremo a extremo con 40 clientes, 30 solicitudes/s durante 30 min y la mezcla ADR-004.
 
@@ -126,7 +120,6 @@ El sistema deberá cumplir p95 <= 300 ms para edición de línea de comanda bajo
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Medir la clase de extremo a extremo con 40 clientes, 30 solicitudes/s durante 30 min y la mezcla ADR-004.
 
@@ -144,7 +137,6 @@ El sistema deberá cumplir p99 <= 1 s para cada clase de operación de QA-MENU-0
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Medir la clase de extremo a extremo con 40 clientes, 30 solicitudes/s durante 30 min y la mezcla ADR-004.
 
@@ -162,7 +154,6 @@ El sistema deberá cumplir p95 <= 500 ms para envío a cocina hasta acuse de Ord
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Medir la clase de extremo a extremo con 40 clientes, 30 solicitudes/s durante 30 min y la mezcla ADR-004.
 
@@ -180,7 +171,6 @@ El sistema deberá cumplir p99 <= 1 s para envío a cocina hasta acuse de Orders
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Medir la clase de extremo a extremo con 40 clientes, 30 solicitudes/s durante 30 min y la mezcla ADR-004.
 
@@ -198,7 +188,6 @@ El sistema deberá cumplir p95 <= 1 s para envío desde POS hasta visibilidad en
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Medir la clase de extremo a extremo con 40 clientes, 30 solicitudes/s durante 30 min y la mezcla ADR-004.
 
@@ -216,7 +205,6 @@ El sistema deberá cumplir p99 <= 2 s para envío desde POS hasta visibilidad en
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Medir la clase de extremo a extremo con 40 clientes, 30 solicitudes/s durante 30 min y la mezcla ADR-004.
 
@@ -234,7 +222,6 @@ El sistema deberá mantener errores internos por debajo de 0.1% de solicitudes o
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Contar errores internos contra solicitudes nominales ofrecidas; entradas inválidas deliberadas se ensayan aparte.
 
@@ -252,7 +239,6 @@ El sistema deberá soportar la ráfaga ADR-004 de 100 solicitudes/s durante 60 s
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Conciliar cada solicitud aceptada con resultados persistidos y verificar la propiedad; no se exige latencia nominal durante ráfaga.
 
@@ -270,7 +256,6 @@ El sistema deberá soportar la ráfaga ADR-004 de 100 solicitudes/s durante 60 s
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Conciliar cada solicitud aceptada con resultados persistidos y verificar la propiedad; no se exige latencia nominal durante ráfaga.
 
@@ -288,7 +273,6 @@ El sistema deberá soportar la ráfaga ADR-004 de 100 solicitudes/s durante 60 s
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Conciliar cada solicitud aceptada con resultados persistidos y verificar la propiedad; no se exige latencia nominal durante ráfaga.
 
@@ -306,7 +290,6 @@ El sistema deberá soportar la ráfaga ADR-004 de 100 solicitudes/s durante 60 s
 
 **Fuente:** [ADR-004](../../docs/md/Decisiones-cierre-invariantes.md#adr-004)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Conciliar cada solicitud aceptada con resultados persistidos y verificar la propiedad; no se exige latencia nominal durante ráfaga.
 

@@ -32,7 +32,7 @@
                 "unitIndex": {
                   "type": "integer",
                   "minimum": 1,
-                  "description": "Posición de una unidad suministrada dentro de una opción de combo: 1 hasta suppliedQuantity."
+                  "description": "Posición de una unidad física indicada por ComboOption.quantity, comenzando en 1."
                 },
                 "modifiers": {
                   "type": "array",
@@ -48,7 +48,7 @@
               ],
               "additionalProperties": false
             },
-            "description": "Unidades físicas de la opción, para permitir personalizaciones distintas de cada una."
+            "description": "Unidades físicas de la opción, para permitir personalizaciones distintas de cada una; su cardinalidad debe coincidir con ComboOption.quantity."
           }
         },
         "required": [

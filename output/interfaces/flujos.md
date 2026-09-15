@@ -60,7 +60,7 @@ Los mensajes usan líneas separadas y evitan punto y coma literal en etiquetas. 
 
 El flujo completo entre UI, Orders, Menu, Inventory y Kitchen está separado en [diagrama conceptual de ordenar](../../docs/diagrams/flujo-ordenar.md).
 
-La respuesta E-16 contiene un único resumen pricing de la variante vendible: basePrice, extrasTotal, unitSubtotal y currency. Las unidades de preparación no contienen desglose monetario.
+La respuesta E-16 contiene un único resumen pricing de la referencia vendible: unitPrice, extrasTotal, unitSubtotal y currency. Para COMBO, unitPrice corresponde a ComboConfiguration y unitSubtotal incorpora priceDelta de opciones y modificadores, nunca precios base de componentes. Las unidades de preparación no contienen desglose monetario.
 
 ## Revisión administrativa
 

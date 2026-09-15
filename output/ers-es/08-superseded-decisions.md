@@ -39,9 +39,9 @@ El modelo contempló introducir una jerarquía independiente (`PreparationInstru
 El modelo original situó las definiciones de fulfillment (`StockedDefinition`, `PreparedDefinition`, `ComboDefinition`) directamente en `MenuItem`, relegando a `MenuItemVariant` a un rol puramente visual y de precios.
 
 **Origen Inicial:** `docs/md/Problema-Inicial.md` págs. 111–115; `docs/md/Modelo-Final.md` págs. 1–5
-**Sustituida Por:** Mantener `fulfillmentType` como clasificación invariable en `MenuItem`, pero trasladar las configuraciones concretas (`StockedVariantDefinition`, `PreparedVariantDefinition`, `ComboVariantDefinition`) al nivel de `MenuItemVariant`.
-**Fuente Sustitutoria:** `docs/md/Problema-Inicial.md` págs. 116–119; `docs/md/Modelo-Final.md` págs. 6–9, 23–24; `docs/md/Auditoria-3.md` págs. 1–2
-**Impacto:** Véanse [REQ-MENU-008](./02-functional-requirements.md#req-menu-008), [REQ-MENU-009](./02-functional-requirements.md#req-menu-009), [REQ-MENU-010](./02-functional-requirements.md#req-menu-010).
+**Sustituida Por:** Mantener PREPARED y STOCKED como tipos de producto hoja con configuraciones concretas en `MenuItemVariant`, y representar COMBO como composición de `ComboConfiguration`, `ComboSlot` y `ComboOption`.
+**Fuente Sustitutoria:** `docs/md/Auditoria-4.md`, items 1, 11 y 23–32
+**Impacto:** Véanse [REQ-MENU-008](./02-functional-requirements.md#req-menu-008), [REQ-MENU-009](./02-functional-requirements.md#req-menu-009), [REQ-MENU-010](./02-functional-requirements.md#req-menu-010), [CON-MENU-014](./07-constraints.md#con-menu-014).
 
 ---
 
@@ -91,9 +91,9 @@ La segunda iteración propuso calcular los precios de los productos sumando `Men
 El modelo ubicó inicialmente `priceDelta`, `maxQuantity` e `IngredientEffect[]` directamente en `ModifierOption`, asumiendo que el costo y consumo de insumos eran idénticos para todos los tamaños del ítem.
 
 **Origen Inicial:** `docs/md/Problema-Inicial.md` pág. 106, 126; `docs/md/Modelo-Final.md` págs. 15–16, 36–37
-**Sustituida Por:** Creación de la entidad asociativa `VariantModifierConfig(variantId, modifierOptionId, priceDelta, maxQuantity)` que posee la lista de `IngredientEffect`, dejando a `ModifierOption` como un concepto descriptivo.
-**Fuente Sustitutoria:** `docs/md/Modelo-Final.md` págs. 40–52; `docs/md/Auditoria-3.md` págs. 6–8
-**Impacto:** Véanse [REQ-MENU-015](./02-functional-requirements.md#req-menu-015), [REQ-MENU-025](./02-functional-requirements.md#req-menu-025), [DATA-MENU-008](./04-data-requirements.md#data-menu-008).
+**Sustituida Por:** Mantener el `priceDelta`, `maxQuantity` e `IngredientEffect[]` general/default en `ModifierOption.defaultConfig`, con registros `VariantModifierConfig` opcionales solo para excepciones de variante.
+**Fuente Sustitutoria:** `docs/md/Auditoria-4.md`, items 14–18
+**Impacto:** Véanse [REQ-MENU-015](./02-functional-requirements.md#req-menu-015), [REQ-MENU-025](./02-functional-requirements.md#req-menu-025), [DATA-MENU-008](./04-data-requirements.md#data-menu-008), [DATA-MENU-029](./04-data-requirements.md#data-menu-029).
 
 ---
 
@@ -104,9 +104,9 @@ El modelo ubicó inicialmente `priceDelta`, `maxQuantity` e `IngredientEffect[]`
 Un consultor externo propuso usar una entidad opcional `VariantModifierOverride` que actuaría solo cuando los valores de una variante difirieran de los valores por defecto almacenados en `ModifierOption`.
 
 **Origen Inicial:** `docs/md/Auditoria-3.md` pág. 6
-**Sustituida Por:** Configuración asociativa normalizada y explícita (`VariantModifierConfig`) para cada relación aplicable, evitando lógica condicional de fallback y `COALESCE` en consultas.
-**Fuente Sustitutoria:** `docs/md/Modelo-Final.md` págs. 41–44; `docs/md/Auditoria-3.md` págs. 6–8
-**Impacto:** Véanse [CON-MENU-003](./07-constraints.md#con-menu-003).
+**Sustituida Por:** `VariantModifierConfig` es opcional y guarda solo una excepción. La publicación resuelve la excepción sobre `ModifierOption.defaultConfig` en una proyección efectiva por variante.
+**Fuente Sustitutoria:** `docs/md/Auditoria-4.md`, items 16–22
+**Impacto:** Véanse [CON-MENU-003](./07-constraints.md#con-menu-003), [REQ-MENU-040](./02-functional-requirements.md#req-menu-040) y [DATA-MENU-030](./04-data-requirements.md#data-menu-030).
 
 ---
 
@@ -242,6 +242,30 @@ El modelo conceptual inicial insinuaba que `Menu` encapsulaba todos los ítems, 
 **Sustituida por:** E-09 valida ediciones; E-16 resuelve selecciones interactivas. E-10/M-05/M-06 permanecen retirados sin reutilizar IDs.
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md); interfaces v3 como antecedente histórico.
+
+---
+
+<a id="superseded-020"></a>
+### SUPERSEDED-020 — Opciones de combo con precio delta
+
+**Decisión Anterior:**
+El paquete de alineación de interfaces trataba ComboOption como inclusión de precio fijo y prohibía un ajuste de precio de opción.
+
+**Sustituida Por:** Cada ComboOption puede llevar priceDelta. El subtotal comienza en ComboConfiguration.unitPrice y no agrega precios base de componentes.
+**Fuente Sustitutoria:** `docs/md/Auditoria-4.md`, items 26 y 31–32.
+**Impacto:** Véanse [REQ-MENU-012](./02-functional-requirements.md#req-menu-012), [BR-MENU-016](./03-business-rules.md#br-menu-016) y [DATA-MENU-013](./04-data-requirements.md#data-menu-013).
+
+---
+
+<a id="superseded-021"></a>
+### SUPERSEDED-021 — Combo modelado como MenuItemVariant
+
+**Decisión Anterior:**
+El modelo activo v8 representaba las configuraciones vendibles de un combo como MenuItemVariant con fulfillment COMBO.
+
+**Sustituida Por:** Un combo posee una o más ComboConfiguration con unitPrice absoluto y ComboSlot; MenuItemVariant sigue siendo la unidad vendible compartida solo por productos hoja PREPARED y STOCKED.
+**Fuente Sustitutoria:** `docs/md/Auditoria-4.md`, items 1–2 y 23–32.
+**Impacto:** Véanse [DATA-MENU-027](./04-data-requirements.md#data-menu-027), [DATA-MENU-028](./04-data-requirements.md#data-menu-028), [CON-MENU-014](./07-constraints.md#con-menu-014) e [INT-MENU-027](./05-interfaces-integrations.md#int-menu-027).
 
 
 ---

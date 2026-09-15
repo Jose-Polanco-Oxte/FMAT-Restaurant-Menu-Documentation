@@ -10,72 +10,68 @@ Las obligaciones de Orders/comandas se identifican como responsabilidades extern
 ---
 
 <a id="br-menu-001"></a>
-### BR-MENU-001 — Variante universal
+### BR-MENU-001 — Al menos una presentación hoja
 
 **Requisito:**
-El sistema deberá exigir al menos una variante vendible para cada producto comercial.
+El sistema deberá exigir al menos una `MenuItemVariant` vendible para cada `MenuItem` PREPARED o STOCKED; un COMBO deberá tener al menos una `ComboConfiguration`.
 
 **Tipo:** Reglas de negocio
 
-**Fuente:** `docs/md/Modelo-Final.md` pp. 7–8
+**Fuente:** `docs/md/Auditoria-4.md`, items 1–4
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
-**Verificación:** Prueba: Intentar definir un producto sin variante vendible.
+**Verificación:** Prueba: Intentar guardar un `MenuItem` PREPARED o STOCKED sin una presentación vendible y un `MenuItem` COMBO sin una `ComboConfiguration`.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="br-menu-002"></a>
-### BR-MENU-002 — Un valor por dimensión
+### BR-MENU-002 — Un valor por característica de presentación
 
 **Requisito:**
-El sistema deberá impedir que una variante seleccione más de un valor de la misma dimensión.
+El sistema deberá impedir que una `MenuItemVariant` seleccione más de un valor de la misma característica de presentación.
 
 **Tipo:** Reglas de negocio
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 21
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
-**Verificación:** Prueba: Intentar seleccionar dos tamaños en una variante.
+**Verificación:** Prueba: Intentar seleccionar dos valores de la misma característica de presentación en una `MenuItemVariant`.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="br-menu-003"></a>
-### BR-MENU-003 — Pertenencia de los valores de variante
+### BR-MENU-003 — Pertenencia de los valores de presentación
 
 **Requisito:**
-El sistema deberá permitir asociar valores de dimensiones a una variante solo cuando pertenezcan a dimensiones del mismo producto.
+El sistema deberá permitir asociar valores de características de presentación a una `MenuItemVariant` solo cuando pertenezcan a características del mismo `MenuItem` hoja.
 
 **Tipo:** Reglas de negocio
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 21
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
-**Verificación:** Prueba: Intentar asociar un valor de otro producto.
+**Verificación:** Prueba: Intentar asociar un valor de presentación de otro `MenuItem`.
 
 **Estado:** Confirmado
 
 ---
 
 <a id="br-menu-004"></a>
-### BR-MENU-004 — Combinación única
+### BR-MENU-004 — Presentación única
 
 **Requisito:**
-El sistema deberá impedir que dos variantes del mismo producto tengan el mismo conjunto de valores de dimensiones.
+El sistema deberá impedir que dos `MenuItemVariant` del mismo `MenuItem` hoja tengan el mismo conjunto de valores de características de presentación.
 
 **Tipo:** Reglas de negocio
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 21
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
-**Verificación:** Prueba: Intentar registrar dos veces la misma combinación, incluidos valores reordenados.
+**Verificación:** Prueba: Intentar registrar dos veces la misma presentación, incluidos valores de características reordenados.
 
 **Estado:** Confirmado
 
@@ -85,15 +81,14 @@ El sistema deberá impedir que dos variantes del mismo producto tengan el mismo 
 ### BR-MENU-005 — Homogeneidad de suministro
 
 **Requisito:**
-El sistema deberá exigir que la clasificación de suministro de cada variante coincida con la de su producto.
+El sistema deberá exigir que la clasificación de suministro de cada `MenuItemVariant` coincida con el tipo PREPARED o STOCKED de su `MenuItem`.
 
 **Tipo:** Reglas de negocio
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 6–9
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
-**Verificación:** Prueba: Intentar asignar suministro almacenado a una variante de producto preparado.
+**Verificación:** Prueba: Intentar asignar suministro almacenado a una presentación de un `MenuItem` PREPARED.
 
 **Estado:** Confirmado
 
@@ -103,15 +98,14 @@ El sistema deberá exigir que la clasificación de suministro de cada variante c
 ### BR-MENU-006 — Prohibición de combos anidados
 
 **Requisito:**
-El sistema deberá permitir que una opción de combo haga referencia únicamente a una variante de producto almacenado o preparado.
+El sistema deberá permitir que una opción de combo haga referencia únicamente a una `MenuItemVariant` hoja STOCKED o PREPARED.
 
 **Tipo:** Reglas de negocio
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 11
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
-**Verificación:** Prueba: Intentar configurar una variante de combo como opción componente.
+**Verificación:** Prueba: Intentar configurar una ComboConfiguration como opción componente.
 
 **Estado:** Confirmado
 
@@ -121,15 +115,14 @@ El sistema deberá permitir que una opción de combo haga referencia únicamente
 ### BR-MENU-007 — Alcance de personalización del combo
 
 **Requisito:**
-El sistema deberá impedir que una personalización del combo modifique los ingredientes de sus productos componentes.
+El sistema deberá impedir que un `MenuItem` COMBO posea `ModifierGroup` propios; las personalizaciones y sus efectos pertenecerán a los componentes hoja seleccionados.
 
 **Tipo:** Reglas de negocio
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 14–15
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
-**Verificación:** Prueba: Intentar aplicar una omisión del paquete a un ingrediente de un producto hijo.
+**Verificación:** Prueba: Intentar aplicar una omisión del paquete a un ingrediente de un `MenuItem` hoja seleccionado.
 
 **Estado:** Confirmado
 
@@ -139,13 +132,12 @@ El sistema deberá impedir que una personalización del combo modifique los ingr
 ### BR-MENU-008 — Subtotal unitario resuelto
 
 **Requisito:**
-El servicio Menu deberá calcular el subtotal de una unidad de variante vendible como su precio base fijo más las contribuciones agregadas de modificadores seleccionados.
+El servicio Menu deberá calcular el subtotal de una unidad de combo como `ComboConfiguration.unitPrice + SUM(ComboOption.priceDelta) + SUM(modificadores de MenuItem hoja)`, sin sumar precios base de componentes.
 
 **Tipo:** BR
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Combo 200 con extras por unidad de 5 y 10 resuelve 215; cambiar solo opciones incluidas mantiene 200.
 
@@ -157,13 +149,12 @@ El servicio Menu deberá calcular el subtotal de una unidad de variante vendible
 ### BR-MENU-009 — Aplicabilidad de modificador habilitado
 
 **Requisito:**
-El servicio Orders deberá permitir seleccionar un modificador solo si existe una configuración habilitada para la variante seleccionada.
+El servicio Orders deberá permitir seleccionar un modificador solo si la configuración efectiva publicada para la variante seleccionada está habilitada; esa configuración usa la excepción de variante o el default general.
 
 **Tipo:** BR
 
 **Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Comparar configuraciones ausentes, deshabilitadas y habilitadas; siguen aplicando límites de cantidad.
 
@@ -183,7 +174,6 @@ El sistema de comandas deberá impedir seleccionar una cantidad de modificador s
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 47–48
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Prueba: Seleccionar el máximo configurado y después una cantidad superior.
 
@@ -201,7 +191,6 @@ El servicio Orders deberá aceptar la selección de un grupo de modificadores so
 
 **Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Mínimo 2: una opción dos veces cumple si su máximo es 2; cantidades 1 y 3 fallan con límites 2..2.
 
@@ -212,16 +201,15 @@ El servicio Orders deberá aceptar la selección de un grupo de modificadores so
 ---
 
 <a id="br-menu-012"></a>
-### BR-MENU-012 — Capacidad configurada del grupo
+### BR-MENU-012 — Mínimo del grupo de personalización
 
 **Requisito:**
-El servicio Menu deberá considerar vendible un grupo para una variante solo cuando la suma de maxQuantity de sus configuraciones habilitadas sea al menos minSelections.
+El servicio Menu deberá considerar utilizable un `ModifierGroup` de un `MenuItem` hoja solo cuando la suma de las cantidades máximas permitidas por sus opciones habilitadas sea al menos `minSelections`, usando una excepción de variante cuando exista y el valor general de la opción en caso contrario.
 
 **Tipo:** BR
 
 **Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Una opción habilitada de máximo 2 satisface mínimo 2; deshabilitarla elimina su aportación.
 
@@ -241,7 +229,6 @@ El servicio Menu deberá exigir una cantidad de ingrediente y una unidad de medi
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 14, 34, 42–43
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Prueba: Intentar una adición sin cantidad y después sin unidad. Los rangos numéricos están en OPEN-010.
 
@@ -253,15 +240,14 @@ El servicio Menu deberá exigir una cantidad de ingrediente y una unidad de medi
 ### BR-MENU-014 — Propiedad exclusiva de modificadores
 
 **Requisito:**
-El servicio Menu deberá impedir que una definición de personalización perteneciente a un producto se comparta con otro producto.
+El servicio Menu deberá impedir que una definición de personalización perteneciente a un `MenuItem` hoja se comparta con otro `MenuItem` hoja.
 
 **Tipo:** Reglas de negocio
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 12–13, 32–33
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
-**Verificación:** Prueba: Intentar reutilizar la identidad de un grupo u opción en otro producto; las copias independientes son definiciones distintas.
+**Verificación:** Prueba: Intentar reutilizar la identidad de un grupo u opción en otro `MenuItem` hoja; las copias independientes son definiciones distintas.
 
 **Estado:** Confirmado
 
@@ -271,15 +257,14 @@ El servicio Menu deberá impedir que una definición de personalización pertene
 ### BR-MENU-015 — Habilitación comercial de venta
 
 **Requisito:**
-El sistema de comandas deberá permitir vender un producto solo cuando su estado administrativo sea activo.
+El sistema de comandas deberá permitir vender un `MenuItem` solo cuando su estado administrativo sea ACTIVE.
 
 **Tipo:** Reglas de negocio
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 18–19
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
-**Verificación:** Prueba: Intentar una venta nueva de un producto inactivo. No se especifica el tiempo de propagación.
+**Verificación:** Prueba: Intentar una venta nueva de un `MenuItem` INACTIVE. No se especifica el tiempo de propagación.
 
 **Estado:** Confirmado
 
@@ -289,13 +274,12 @@ El sistema de comandas deberá permitir vender un producto solo cuando su estado
 ### BR-MENU-016 — Precio fijo de combo
 
 **Requisito:**
-El servicio Menu deberá excluir precios individuales y elecciones de opciones incluidas de los cambios al precio base configurado del combo.
+El servicio Menu deberá calcular el precio de una ComboConfiguration desde su unitPrice absoluto y permitir que cada ComboOption aporte su priceDelta, sin agregar el precio base individual de los componentes.
 
 **Tipo:** BR
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Comparar selecciones y precios componentes actualizados con la misma base configurada.
 
@@ -307,13 +291,12 @@ El servicio Menu deberá excluir precios individuales y elecciones de opciones i
 ### BR-MENU-017 — Multiplicidad de modificadores
 
 **Requisito:**
-El servicio Menu deberá calcular cada contribución de modificador como cantidad seleccionada por ajuste configurado fijado para su unidad personalizada individual.
+El servicio Menu deberá calcular cada contribución de modificador como cantidad seleccionada por el priceDelta efectivo fijado para su unidad personalizada individual.
 
 **Tipo:** BR
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Dos unidades, queso de 5 en una: extras 5, no 10; ambas: 10.
 
@@ -325,13 +308,12 @@ El servicio Menu deberá calcular cada contribución de modificador como cantida
 ### BR-MENU-018 — Multiplicidad de adición de ingredientes
 
 **Requisito:**
-El sistema deberá calcular la cantidad añadida por un modificador seleccionado como su cantidad seleccionada multiplicada por la cantidad de adición de ingrediente configurada para la variante seleccionada.
+El sistema deberá calcular la cantidad añadida por un modificador seleccionado como su cantidad seleccionada multiplicada por la cantidad de adición de ingrediente efectiva, tomada del default o de la excepción de variante.
 
 **Tipo:** Reglas de negocio
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 15–16, 42–43
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Prueba: Comparar la cantidad de ingrediente añadida para una y dos selecciones del mismo modificador.
 
@@ -349,7 +331,6 @@ El servicio Menu deberá representar una omisión de ingrediente sin ajuste cuan
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 33–34, 46
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Prueba: Inspeccionar una omisión y verificar que sea una directiva de exclusión y no una resta de gramos.
 
@@ -361,13 +342,12 @@ El servicio Menu deberá representar una omisión de ingrediente sin ajuste cuan
 ### BR-MENU-020 — Pertenencia al espacio del combo
 
 **Requisito:**
-El sistema de comandas deberá aceptar una variante componente seleccionada para un espacio de combo solo cuando esté configurada como opción de ese espacio para la variante de combo seleccionada.
+El sistema de comandas deberá aceptar una variante hoja seleccionada para un espacio solo cuando esté configurada como ComboOption de ese espacio para la ComboConfiguration seleccionada.
 
 **Tipo:** Reglas de negocio
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 29
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Prueba: Probar una opción configurada y otra configurada solo para otro tamaño o espacio.
 
@@ -379,15 +359,14 @@ El sistema de comandas deberá aceptar una variante componente seleccionada para
 ### BR-MENU-021 — Límites de grupo comunes
 
 **Requisito:**
-El servicio Menu deberá utilizar los mismos límites de selección del grupo en las variantes del producto al que pertenece el grupo.
+El servicio Menu deberá mantener `ModifierGroup.minSelections` y `ModifierGroup.maxSelections` a nivel del `MenuItem` hoja propietario; esos límites no se especializan por presentación.
 
 **Tipo:** Reglas de negocio
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 47–48
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
-**Verificación:** Prueba: Inspeccionar un producto con varias variantes y verificar que todas remitan a los mismos límites de grupo.
+**Verificación:** Prueba: Inspeccionar un `MenuItem` hoja con varias presentaciones y verificar que todas remitan a los mismos límites de grupo.
 
 **Estado:** Confirmado
 
@@ -403,7 +382,6 @@ El servicio Menu deberá restringir los efectos sobre ingredientes a operaciones
 
 **Fuente:** `docs/md/Modelo-Final.md` pp. 33–35
 
-**Justificación:** Conserva el hecho o comportamiento de la fuente citada dentro de su alcance, sin imponer un mecanismo adicional.
 
 **Verificación:** Prueba: Intentar configurar un efecto de retiro cuantitativo o asignación de cantidad.
 
@@ -415,13 +393,12 @@ El servicio Menu deberá restringir los efectos sobre ingredientes a operaciones
 ### BR-MENU-023 — Elegibilidad de venta
 
 **Requisito:**
-El servicio Menu deberá considerar elegible una variante solo si producto y variante están ACTIVE, su configuración es válida y tiene disponibilidad positiva vigente para la revisión actual.
+El servicio Menu deberá considerar elegible una `MenuItemVariant` hoja o una `ComboConfiguration` solo si su `MenuItem` propietario está ACTIVE, la definición vendible es válida y tiene disponibilidad positiva vigente para la revisión actual.
 
 **Tipo:** BR
 
 **Fuente:** [ADR-001](../../docs/md/Decisiones-cierre-invariantes.md#adr-001)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Omitir cada condición por separado.
 
@@ -439,7 +416,6 @@ El servicio Menu deberá exigir límites enteros de selección que satisfagan 0 
 
 **Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Rechazar límites negativos, fraccionarios e invertidos.
 
@@ -457,7 +433,6 @@ El servicio Orders deberá exigir cantidades enteras de modificador entre cero y
 
 **Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Probar cero, máximo, máximo+1, negativo y fraccionario.
 
@@ -469,13 +444,12 @@ El servicio Orders deberá exigir cantidades enteras de modificador entre cero y
 ### BR-MENU-026 — Conteo de espacio
 
 **Requisito:**
-El servicio Orders deberá contar una selección por cada ComboOption elegida, independientemente de su cantidad suministrada.
+El servicio Orders deberá contar una selección por cada ComboOption elegida, independientemente de su `quantity` física.
 
 **Tipo:** BR
 
 **Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Una opción que suministra seis unidades cuenta una vez.
 
@@ -493,7 +467,6 @@ El servicio Orders deberá impedir elegir la misma ComboOption más de una vez p
 
 **Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Rechazar identidad repetida; dos opciones configuradas pueden referir la misma variante.
 
@@ -511,7 +484,6 @@ El servicio Orders deberá aceptar un espacio solo cuando su número de opciones
 
 **Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Probar debajo, en y sobre los límites.
 
@@ -529,7 +501,6 @@ El servicio Menu deberá considerar vendible un espacio solo si su número de op
 
 **Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Opciones deshabilitadas y componentes archivados aportan capacidad cero.
 
@@ -538,16 +509,15 @@ El servicio Menu deberá considerar vendible un espacio solo si su número de op
 ---
 
 <a id="br-menu-030"></a>
-### BR-MENU-030 — Validación de activación
+### BR-MENU-030 — Validación de activación de MenuItem
 
 **Requisito:**
-El servicio Menu deberá rechazar activar un producto si no queda al menos una variante ACTIVE o alguna variante que quedará ACTIVE tiene un grupo o espacio no vendible.
+El servicio Menu deberá rechazar activar un `MenuItem` si no queda al menos una presentación hoja ACTIVE o alguna presentación que quedará ACTIVE tiene un grupo de personalización o espacio de combo no utilizable.
 
 **Tipo:** BR
 
 **Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Probar conjunto activo vacío y variante con grupo o espacio insuficiente.
 
@@ -559,13 +529,12 @@ El servicio Menu deberá rechazar activar un producto si no queda al menos una v
 ### BR-MENU-031 — Elegibilidad de opciones retiradas
 
 **Requisito:**
-El servicio Menu deberá excluir opciones de componentes inactivos o archivados de nuevas selecciones permitiendo elegibilidad de combos con otras selecciones válidas.
+El servicio Menu deberá excluir opciones de componentes inactivos o archivados de nuevas selecciones permitiendo elegibilidad de combos con otras selecciones válidas; la opción debe referenciar una variante hoja concreta.
 
 **Tipo:** BR
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Retirar pollo: res sigue elegible; sin alternativas en slot obligatorio el combo no está disponible.
 
@@ -583,7 +552,6 @@ El servicio Menu deberá impedir reactivar una variante ARCHIVED en esta versió
 
 **Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Intentar pasar de ARCHIVED a ACTIVE o INACTIVE.
 
@@ -595,13 +563,12 @@ El servicio Menu deberá impedir reactivar una variante ARCHIVED en esta versió
 ### BR-MENU-033 — Cantidad suministrada
 
 **Requisito:**
-El servicio Menu deberá exigir cantidad suministrada entera y mayor que cero para cada ComboOption.
+El servicio Menu deberá exigir `quantity` entera y mayor que cero para cada ComboOption.
 
 **Tipo:** BR
 
 **Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Rechazar cantidades cero, negativas y fraccionarias.
 
@@ -619,7 +586,6 @@ El servicio Menu deberá excluir mediante OMIT solo la aportación base del ingr
 
 **Fuente:** [ADR-003](../../docs/md/Decisiones-cierre-invariantes.md#adr-003)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Base 30, OMIT y ADD 10 producen 10; componentes hermanos no cambian.
 
@@ -631,15 +597,14 @@ El servicio Menu deberá excluir mediante OMIT solo la aportación base del ingr
 ### BR-MENU-035 — Secuencia de revisiones
 
 **Requisito:**
-El servicio Menu deberá asignar versiones con formato `<contador>_<fecha ISO8601 con zona>`, empezando en 1 e incrementando en uno por cambio efectivo aceptado dentro de cada identidad de producto o receta.
+El servicio Menu deberá asignar versiones con formato `<contador>_<fecha ISO8601 con zona>`, empezando en 1 e incrementando en uno por cambio efectivo aceptado dentro de cada identidad de `MenuItem` o receta.
 
 **Tipo:** BR
 
 **Fuente:** [ADR-006](../../docs/md/Decisiones-cierre-invariantes.md#adr-006)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
-**Verificación:** Verificar inicio 1, siguiente 2, zona y contadores independientes.
+**Verificación:** Verificar inicio 1, siguiente 2, zona y contadores independientes de `MenuItem` y receta.
 
 **Estado:** Confirmado
 
@@ -655,7 +620,6 @@ El servicio Menu deberá conservar la versión cuando se reintente el mismo camb
 
 **Fuente:** [ADR-006](../../docs/md/Decisiones-cierre-invariantes.md#adr-006)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Repetir un cambio y un guardado idéntico; no se crea otra revisión.
 
@@ -667,15 +631,14 @@ El servicio Menu deberá conservar la versión cuando se reintente el mismo camb
 ### BR-MENU-037 — Adopción explícita de receta
 
 **Requisito:**
-El servicio Menu deberá conservar la referencia de revisión de receta de una variante hasta que una edición explícita del producto adopte otra revisión.
+El servicio Menu deberá conservar la referencia de revisión de receta de una presentación hasta que una edición explícita del `MenuItem` adopte otra revisión.
 
 **Tipo:** BR
 
 **Fuente:** [ADR-006](../../docs/md/Decisiones-cierre-invariantes.md#adr-006)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
-**Verificación:** Publicar receta v2 con producto fijado a v1; permanece v1 hasta editar el producto.
+**Verificación:** Publicar receta v2 con una presentación fijada a v1; permanece v1 hasta editar el `MenuItem`.
 
 **Estado:** Confirmado
 
@@ -685,13 +648,12 @@ El servicio Menu deberá conservar la referencia de revisión de receta de una v
 ### BR-MENU-038 — Identidad histórica predeterminada
 
 **Requisito:**
-El servicio Menu deberá conservar la identidad histórica de DEFAULT al crear nuevas identidades para las variantes con dimensiones que la sustituyan.
+El servicio Menu deberá conservar la identidad histórica de DEFAULT al crear nuevas identidades para las presentaciones con características de presentación que la sustituyan.
 
 **Tipo:** BR
 
 **Fuente:** [ADR-008](../../docs/md/Decisiones-cierre-invariantes.md#adr-008)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Verificar que órdenes existentes sigan identificando DEFAULT tras migrar.
 
@@ -709,7 +671,6 @@ El servicio Menu deberá admitir maxQuantity entero mayor o igual que cero en un
 
 **Fuente:** [ADR-005](../../docs/md/Decisiones-cierre-invariantes.md#adr-005)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
 **Verificación:** Cero no aporta capacidad ni permite selección; negativos y fraccionarios fallan.
 
@@ -718,18 +679,17 @@ El servicio Menu deberá admitir maxQuantity entero mayor o igual que cero en un
 ---
 
 <a id="br-menu-040"></a>
-### BR-MENU-040 — Identidad dimensional de venta
+### BR-MENU-040 — Identidad de presentación vendible
 
 **Requisito:**
-El servicio Menu deberá excluir variantes sin combinación de dimensiones de nuevas ventas cuando el producto tenga dimensiones seleccionables.
+El servicio Menu deberá excluir presentaciones hoja sin el conjunto completo de valores de presentación de nuevas ventas cuando el `MenuItem` tenga características de presentación seleccionables por el cliente.
 
 **Tipo:** BR
 
 **Fuente:** [ADR-008](../../docs/md/Decisiones-cierre-invariantes.md#adr-008)
 
-**Justificación:** Decisión de cierre adoptada por delegación del usuario; véanse fundamento, límites y alternativas en la decisión citada.
 
-**Verificación:** Al introducir dimensiones, DEFAULT no puede seguir ofertada como tamaño indefinido.
+**Verificación:** Al introducir características de presentación, DEFAULT no puede seguir ofertada como una presentación sin definir.
 
 **Estado:** Confirmado
 
@@ -745,7 +705,6 @@ El servicio Menu deberá rechazar precios o ajustes negativos, monedas incompati
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Aceptar cero; rechazar precisión excedente, incluidos ceros sobrantes, sin redondear. Inspeccionar el contrato monetario externo aprobado en ALIGN: moneda elegida al alta, minorUnit derivado de ISO 4217, revisión aceptada conservada y compartida con Orders, sin consulta externa por venta ni sustitución ordinaria de moneda. Sin configuración aceptada se bloquean escrituras monetarias y resolución; una caída del proveedor no invalida la configuración aceptada.
 
@@ -763,7 +722,6 @@ El servicio Menu deberá rechazar cantidades físicas no positivas en suministro
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Omisión usa OMIT; neto cero se omite; rechazar cantidades de entrada negativas/cero.
 
@@ -772,16 +730,15 @@ El servicio Menu deberá rechazar cantidades físicas no positivas en suministro
 ---
 
 <a id="br-menu-043"></a>
-### BR-MENU-043 — Tipo de suministro inmutable
+### BR-MENU-043 — Tipo contractual de MenuItem inmutable
 
 **Requisito:**
-El servicio Menu deberá rechazar cambiar el tipo de suministro de un MenuItem existente.
+El servicio Menu deberá rechazar cambiar el tipo contractual (`fulfillmentType`) de un `MenuItem` existente.
 
 **Tipo:** BR
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
 **Verificación:** Intentar STOCKED a PREPARED aun antes de activar; requiere nueva identidad.
 
@@ -799,9 +756,8 @@ El servicio Menu deberá permitir nombres visibles repetidos para entidades con 
 
 **Fuente:** [ALIGN](../../docs/reviews/ers-interfaces-alignment/decisions.md)
 
-**Justificación:** Decisión explícita del usuario en ALIGN; sustituye formulaciones incompatibles anteriores.
 
-**Verificación:** Etiquetas repetidas aceptadas; combinaciones dimensionales repetidas rechazadas.
+**Verificación:** Etiquetas repetidas aceptadas; combinaciones de presentación repetidas rechazadas.
 
 **Estado:** Confirmado
 
@@ -819,7 +775,6 @@ La UI de orden deberá calcular el costo acumulado mostrado de la preorden como 
 
 **Fuente:** Aclaración explícita de precio en la solicitud del 2026-09-13 y E-16; consolidada en `output/ui-spec/ui-data-spec.md`, sección 6.3.
 
-**Justificación:** El precio del catálogo es el costo de ordenar el item configurado. Los ajustes posteriores de Billing pertenecen al importe final y no cambian el significado del acumulado de preorden.
 
 **Aplicación:** Recalcular el acumulado local cuando cambie la cantidad o configuración y mostrarlo separado del total de la orden existente y del importe final de Billing.
 

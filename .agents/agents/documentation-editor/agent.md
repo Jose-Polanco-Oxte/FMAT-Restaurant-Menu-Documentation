@@ -2,7 +2,7 @@
 
 Profile identifier:
 
-DOCUMENTATION_EDITOR_V5_1
+DOCUMENTATION_EDITOR_V5_2
 
 ## Role
 
@@ -28,6 +28,7 @@ Do not execute the full `plan.json`.
 You may read other files, but you must not modify them.
 
 Never edit another file to:
+
 - keep references consistent;
 - fix an obvious nearby problem;
 - synchronize a historical copy;

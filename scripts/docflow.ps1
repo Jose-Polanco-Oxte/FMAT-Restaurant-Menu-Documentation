@@ -1,3 +1,5 @@
+#requires -Version 7.0
+
 param(
     [string]$Request,
     [string[]]$RequestFile,
@@ -29,7 +31,7 @@ param(
 
     [string]$BaselineRef = "HEAD",
 
-    # A V5.1 run always starts from the committed baseline.
+    # A V5.2 run always starts from the committed baseline.
     # This switch only suppresses the safety refusal when main contains
     # non-workflow uncommitted documentation/application changes.
     [switch]$AllowDirtyBaseline,
@@ -42,7 +44,7 @@ param(
     [switch]$ForceNewRun
 )
 
-Set-StrictMode -Version Latest
+Set-StrictMode -Version 3.0
 $ErrorActionPreference = "Stop"
 
 $Utf8NoBom = [System.Text.UTF8Encoding]::new($false)
@@ -61,7 +63,7 @@ $EditorModel = "gemini-3.8-flash-high"
 $AuditorModel = "gpt-5.6-luna"
 $AuditorReasoning = "max"
 
-$EditorProfileIdentifier = "DOCUMENTATION_EDITOR_V5_1"
+$EditorProfileIdentifier = "DOCUMENTATION_EDITOR_V5_2"
 
 # ============================================================
 # PATHS
@@ -530,10 +532,11 @@ function Assert-MainBaselineClean {
             ':(exclude)scripts/**' `
             ':(exclude)AGENTS.md' `
             ':(exclude).gitignore' `
-            2>$null
-    ) | Where-Object { $_ }
+            2>$null |
+        Where-Object { $_ }
+    )
 
-    if ($Dirty.Count -gt 0) {
+    if (@($Dirty).Count -gt 0) {
         $Preview = ($Dirty | Select-Object -First 20) -join "`n"
 
         throw @"
@@ -542,7 +545,7 @@ The main repository contains non-workflow uncommitted changes.
 Preserve or clean those changes first, or intentionally use:
   -AllowDirtyBaseline
 
-The isolated V5.1 run still starts from the committed baseline.
+The isolated V5.2 run still starts from the committed baseline.
 
 Detected:
 $Preview
@@ -682,15 +685,17 @@ function Get-DeltaPaths {
             "$Checkpoint" `
             -- `
             . `
-            2>$null
-    ) | Where-Object { $_ }
+            2>$null |
+        Where-Object { $_ }
+    )
 
     $Untracked = @(
         & git -C "$Worktree" ls-files `
             --others `
             --exclude-standard `
-            2>$null
-    ) | Where-Object { $_ }
+            2>$null |
+        Where-Object { $_ }
+    )
 
     return @(
         @($Tracked) + @($Untracked) |
@@ -713,8 +718,9 @@ function Get-CumulativeCandidatePaths {
             "$CandidateCommit" `
             -- `
             . `
-            2>$null
-    ) | Where-Object { $_ }
+            2>$null |
+        Where-Object { $_ }
+    )
 
     return @(
         $Changed |
@@ -960,7 +966,7 @@ function Build-Request {
             -Encoding utf8
     }
 
-    if ($Parts.Count -eq 0) {
+    if (@($Parts).Count -eq 0) {
         throw "Provide -Request, -RequestFile, or both for a new run."
     }
 
@@ -981,7 +987,7 @@ function New-WorkflowState {
     $Now = (Get-Date).ToString("o")
 
     return [pscustomobject]@{
-        version = 51
+        version = 52
         run_id = $RunId
         round = 1
         max_rounds = $RoundLimit
@@ -1099,7 +1105,7 @@ function Get-LatestArchivedRoundDirectory {
         Sort-Object Number
     )
 
-    if ($Candidates.Count -eq 0) {
+    if (@($Candidates).Count -eq 0) {
         return $null
     }
 
@@ -1337,7 +1343,7 @@ function Write-EditorTask {
         -Entry $Entry `
         -PropertyName "acceptance"
 
-    $InstructionText = if ($Instructions.Count -eq 0) {
+    $InstructionText = if (@($Instructions).Count -eq 0) {
         "- Follow the semantic intent for this target from the approved plan."
     }
     else {
@@ -1347,7 +1353,7 @@ function Write-EditorTask {
         ) -join "`n"
     }
 
-    $AcceptanceText = if ($Acceptance.Count -eq 0) {
+    $AcceptanceText = if (@($Acceptance).Count -eq 0) {
         "- The target satisfies its approved plan intent."
     }
     else {
@@ -1570,7 +1576,7 @@ function Write-CumulativeCandidatePatch {
 
     [System.IO.File]::WriteAllText(
         $OutputPath,
-        (($Patch -join "`n") + $(if ($Patch.Count -gt 0) { "`n" } else { "" })),
+        (($Patch -join "`n") + $(if (@($Patch).Count -gt 0) { "`n" } else { "" })),
         $Utf8NoBom
     )
 }
@@ -1605,7 +1611,7 @@ function Assert-CumulativeAuthorization {
         }
     }
 
-    if ($Unauthorized.Count -gt 0) {
+    if (@($Unauthorized).Count -gt 0) {
         throw @"
 Candidate contains cumulative changes that were never accepted by the
 orchestrator:
@@ -1661,10 +1667,11 @@ $MainHead
                 --untracked-files=all `
                 -- `
                 "$Path" `
-                2>$null
-        ) | Where-Object { $_ }
+                2>$null |
+            Where-Object { $_ }
+        )
 
-        if ($Dirty.Count -gt 0) {
+        if (@($Dirty).Count -gt 0) {
             throw @"
 Refusing -ApplyOnPass because main has a local change at:
 $Path
@@ -1919,7 +1926,7 @@ if (
 The editor profile does not contain:
 $EditorProfileIdentifier
 
-Install the V5.1 editor profile before running.
+Install the V5.2 editor profile before running.
 "@
 }
 
@@ -1958,8 +1965,8 @@ if (-not [string]::IsNullOrWhiteSpace($ResumeRunId)) {
     Restore-ArchivedControlState -RunId $ResumeRunId
     $State = Read-JsonFile -Path $StatePath -Description "workflow state"
 
-    if ([int]$State.version -ne 51) {
-        throw "Only V5.1 runs can be resumed with this harness."
+    if ([int]$State.version -ne 52) {
+        throw "Only V5.2 runs can be resumed with this harness."
     }
 
     Assert-WorktreeAvailable -Worktree ([string]$State.worktree_path)
@@ -1977,10 +1984,10 @@ if (-not [string]::IsNullOrWhiteSpace($ResumeRunId)) {
 elseif ($Resume) {
     $State = Read-JsonFile -Path $StatePath -Description "workflow state"
 
-    if ([int]$State.version -ne 51) {
+    if ([int]$State.version -ne 52) {
         throw @"
 Current state belongs to an older harness version.
-Start a new V5.1 isolated run.
+Start a new V5.2 isolated run.
 "@
     }
 
@@ -2157,7 +2164,7 @@ if ($ResumeFrom -ne "Auto") {
 
 Write-Host ""
 Write-Host "============================================================"
-Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.1"
+Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.2"
 Write-Host "============================================================"
 Write-Host ("Run:           {0}" -f $State.run_id)
 Write-Host ("Round:         {0}/{1}" -f $State.round, $State.max_rounds)
@@ -2166,7 +2173,7 @@ Write-Host ("Baseline:      {0}" -f $State.baseline_commit)
 Write-Host ("Candidate:     {0}" -f $Worktree)
 Write-Host ("Editor retries:{0}" -f $State.editor_retry_limit)
 
-if ($Scopes.Count -gt 0) {
+if (@($Scopes).Count -gt 0) {
     Write-Host ("WriteScope:     {0}" -f ($Scopes -join ", "))
 }
 else {
@@ -2276,7 +2283,7 @@ try {
                 $Targets = @($Policy.write_entries)
                 $TargetIndex = [int]$State.current_target_index
 
-                if ($TargetIndex -ge $Targets.Count) {
+                if ($TargetIndex -ge (@($Targets).Count)) {
                     $Deleted = Apply-AuthorizedDeletes `
                         -Worktree $Worktree `
                         -DeleteEntries $Policy.delete_entries
@@ -2326,7 +2333,7 @@ try {
                         )
                         blockers = @()
                         notes = @(
-                            "Execution report synthesized by the V5.1 orchestrator.",
+                            "Execution report synthesized by the V5.2 orchestrator.",
                             "Each CREATE/MODIFY target was executed in an isolated one-file Editor invocation.",
                             "Unauthorized Editor writes were rolled back automatically before acceptance.",
                             "DELETE operations were performed by the orchestrator.",
@@ -2393,7 +2400,7 @@ try {
                     $Round,
                     $State.max_rounds,
                     ($TargetIndex + 1),
-                    $Targets.Count,
+                    (@($Targets).Count),
                     $TargetPath,
                     $Attempt,
                     $RetryLimit
@@ -2508,7 +2515,7 @@ try {
                     )
                 }
 
-                if ($Unauthorized.Count -gt 0) {
+                if (@($Unauthorized).Count -gt 0) {
                     Restore-CandidateCheckpoint `
                         -Worktree $Worktree `
                         -Checkpoint $AttemptCheckpoint
@@ -2827,7 +2834,7 @@ try {
                     Write-Host " PASS"
                     Write-Host "============================================================"
                     Write-Host ("Run:           {0}" -f $State.run_id)
-                    Write-Host ("Changed files: {0}" -f $ChangedPaths.Count)
+                    Write-Host ("Changed files: {0}" -f (@($ChangedPaths).Count))
                     Write-Host ("Candidate:     {0}" -f $Worktree)
                     Write-Host ("Approved diff: {0}" -f $ApprovedPatchPath)
 

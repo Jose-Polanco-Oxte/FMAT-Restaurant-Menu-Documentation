@@ -1249,17 +1249,33 @@ function Assert-AuditUsable {
     return $Audit
 }
 
-function Assert-PlanPolicy {
-    param(
-        [Parameter(Mandatory = $true)]$Plan,
-        [Parameter(Mandatory = $true)][string]$Worktree,
-        [string[]]$Scopes
-    )
+function Merge-UniquePlanStrings {
+    param([object[]]$Values)
 
     $Seen = @{}
-    $WriteEntries = @()
-    $DeleteEntries = @()
-    $VerifyEntries = @()
+    $Result = [System.Collections.Generic.List[string]]::new()
+
+    foreach ($Value in @($Values)) {
+        $Text = ([string]$Value).Trim()
+
+        if ([string]::IsNullOrWhiteSpace($Text)) {
+            continue
+        }
+
+        if (-not $Seen.ContainsKey($Text)) {
+            $Seen[$Text] = $true
+            [void]$Result.Add($Text)
+        }
+    }
+
+    return @($Result.ToArray())
+}
+
+function Normalize-PlanAffectedFiles {
+    param([Parameter(Mandatory = $true)]$Plan)
+
+    $Groups = [ordered]@{}
+    $GroupOrder = [System.Collections.Generic.List[string]]::new()
 
     foreach ($Entry in @($Plan.affected_files)) {
         if (
@@ -1276,11 +1292,173 @@ function Assert-PlanPolicy {
             throw "Unsupported plan operation '$Operation' for $Path"
         }
 
-        if ($Seen.ContainsKey($Path)) {
-            throw "IntegrationPlan contains duplicate affected path: $Path"
+        $Key = $Path.ToLowerInvariant()
+
+        if (-not $Groups.Contains($Key)) {
+            $Groups[$Key] = [pscustomobject]@{
+                path = $Path
+                entries = [System.Collections.Generic.List[object]]::new()
+                operations = [System.Collections.Generic.List[string]]::new()
+            }
+
+            [void]$GroupOrder.Add($Key)
         }
 
-        $Seen[$Path] = $Operation
+        [void]$Groups[$Key].entries.Add($Entry)
+        [void]$Groups[$Key].operations.Add($Operation)
+    }
+
+    $Normalized = [System.Collections.Generic.List[object]]::new()
+    $WasChanged = $false
+
+    foreach ($Key in $GroupOrder) {
+        $Group = $Groups[$Key]
+        $Entries = @($Group.entries)
+        $Operations = @(
+            $Group.operations |
+            Sort-Object -Unique
+        )
+
+        $EffectiveOperation = $null
+
+        if (@($Operations).Count -eq 1) {
+            $EffectiveOperation = [string]$Operations[0]
+        }
+        elseif (
+            @($Operations).Count -eq 2 -and
+            @($Operations | Where-Object { $_ -eq "VERIFY" }).Count -eq 1
+        ) {
+            $WriteOperations = @(
+                $Operations |
+                Where-Object { $_ -ne "VERIFY" }
+            )
+
+            if (
+                @($WriteOperations).Count -eq 1 -and
+                [string]$WriteOperations[0] -in @("CREATE", "MODIFY")
+            ) {
+                # A read-only VERIFY for a file that is also being written is
+                # folded into the write target. Its criteria are preserved
+                # below as acceptance criteria.
+                $EffectiveOperation = [string]$WriteOperations[0]
+            }
+        }
+
+        if ([string]::IsNullOrWhiteSpace($EffectiveOperation)) {
+            throw @"
+IntegrationPlan contains conflicting operations for the same path:
+$($Group.path)
+
+Operations:
+$($Operations -join ", ")
+
+Duplicate entries are merged automatically only when they are semantically
+compatible. CREATE+MODIFY, DELETE+MODIFY, DELETE+CREATE, and DELETE+VERIFY
+require Analyst re-planning.
+"@
+        }
+
+        $InstructionValues = @()
+        $AcceptanceValues = @()
+
+        foreach ($Entry in $Entries) {
+            $EntryOperation = ([string]$Entry.operation).ToUpperInvariant()
+
+            $Instructions = @()
+            if (Test-JsonProperty -Object $Entry -Name "instructions") {
+                $Instructions = @($Entry.instructions)
+            }
+
+            $Acceptance = @()
+            if (Test-JsonProperty -Object $Entry -Name "acceptance") {
+                $Acceptance = @($Entry.acceptance)
+            }
+
+            if (
+                $EntryOperation -eq "VERIFY" -and
+                $EffectiveOperation -ne "VERIFY"
+            ) {
+                # VERIFY instructions are validation concerns, not editing
+                # commands. Preserve them as acceptance criteria instead of
+                # feeding them to Flash as write instructions.
+                foreach ($Instruction in $Instructions) {
+                    $Text = ([string]$Instruction).Trim()
+
+                    if (-not [string]::IsNullOrWhiteSpace($Text)) {
+                        $AcceptanceValues += "Verify: $Text"
+                    }
+                }
+            }
+            else {
+                $InstructionValues += @($Instructions)
+            }
+
+            $AcceptanceValues += @($Acceptance)
+        }
+
+        $MergedEntry = [pscustomobject]@{
+            path = [string]$Group.path
+            operation = $EffectiveOperation
+            instructions = @(
+                Merge-UniquePlanStrings -Values $InstructionValues
+            )
+            acceptance = @(
+                Merge-UniquePlanStrings -Values $AcceptanceValues
+            )
+        }
+
+        [void]$Normalized.Add($MergedEntry)
+
+        if (
+            @($Entries).Count -gt 1 -or
+            -not (
+                ([string]$Entries[0].path).Equals(
+                    [string]$Group.path,
+                    [System.StringComparison]::Ordinal
+                )
+            ) -or
+            ([string]$Entries[0].operation).ToUpperInvariant() -ne $EffectiveOperation
+        ) {
+            $WasChanged = $true
+        }
+    }
+
+    if (@($Normalized).Count -ne @($Plan.affected_files).Count) {
+        $WasChanged = $true
+    }
+
+    if ($WasChanged) {
+        $Plan.affected_files = @($Normalized.ToArray())
+
+        # Persist the deterministic normalization so Editor and Auditor see
+        # the exact same effective plan. This does not invoke a model.
+        Write-JsonFile `
+            -Value $Plan `
+            -Path $PlanPath
+    }
+
+    return [pscustomobject]@{
+        changed = $WasChanged
+        entries = @($Normalized.ToArray())
+    }
+}
+
+function Assert-PlanPolicy {
+    param(
+        [Parameter(Mandatory = $true)]$Plan,
+        [Parameter(Mandatory = $true)][string]$Worktree,
+        [string[]]$Scopes
+    )
+
+    $WriteEntries = @()
+    $DeleteEntries = @()
+    $VerifyEntries = @()
+
+    $Normalization = Normalize-PlanAffectedFiles -Plan $Plan
+
+    foreach ($Entry in @($Normalization.entries)) {
+        $Path = Assert-SafeRepoRelativePath ([string]$Entry.path)
+        $Operation = ([string]$Entry.operation).ToUpperInvariant()
 
         if ($Operation -ne "VERIFY" -and (Test-ProtectedPath $Path)) {
             throw @"
@@ -2286,7 +2464,7 @@ if ($ResumeFrom -ne "Auto") {
 
 Write-Host ""
 Write-Host "============================================================"
-Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.2.2.1"
+Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.2.3"
 Write-Host "============================================================"
 Write-Host ("Run:           {0}" -f $State.run_id)
 Write-Host ("Round:         {0}/{1}" -f $State.round, $State.max_rounds)
@@ -2462,7 +2640,7 @@ try {
                         )
                         blockers = @()
                         notes = @(
-                            "Execution report synthesized by the V5.2.2 orchestrator.",
+                            "Execution report synthesized by the V5.2.3 orchestrator.",
                             "Each CREATE/MODIFY target was executed in an isolated one-file Editor invocation.",
                             "Unauthorized Editor writes were rolled back automatically before acceptance.",
                             "DELETE operations were performed by the orchestrator.",

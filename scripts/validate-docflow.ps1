@@ -22,7 +22,7 @@ $RequiredFiles = @(
     "scripts/docflow.ps1"
 )
 
-Write-Host "Validating Docflow V5.2.2.2..."
+Write-Host "Validating Docflow V5.2.3..."
 
 # 1) Parse the PowerShell script using PowerShell's own parser.
 $Tokens = $null
@@ -93,7 +93,7 @@ if (@($None).Count -ne 0) {
 }
 Write-Host "  [PASS] StrictMode collection semantics"
 
-# 6) Static anti-regression checks for the bug that triggered V5.2.2.
+# 6) Static anti-regression checks for the bug that triggered V5.2.3.
 $RawScript = Get-Content -LiteralPath $ScriptPath -Raw -Encoding utf8
 
 $UnsafeCount = [regex]::Matches(
@@ -248,7 +248,7 @@ Write-Host "  [PASS] Git checkpoint smoke test"
 # subsequent loop iterations. CREATE existence belongs only to the one-time
 # Assert-PlanOperationPreconditions function.
 $HarnessRaw = Get-Content `
-    -LiteralPath $DocflowPath `
+    -LiteralPath $ScriptPath `
     -Raw `
     -Encoding utf8
 
@@ -278,5 +278,28 @@ if ($HarnessRaw -notmatch "Assert-PlanOperationPreconditions") {
 
 Write-Host "  [PASS] CREATE lifecycle regression check"
 
+
+# Regression: duplicate affected_files for the same path must be normalized
+# rather than rejected merely because Sol expressed multiple corrections for
+# one document.
+$HarnessRaw = Get-Content `
+    -LiteralPath $ScriptPath `
+    -Raw `
+    -Encoding utf8
+
+if ($HarnessRaw -match "IntegrationPlan contains duplicate affected path") {
+    throw "Regression: harness still rejects duplicate affected path entries."
+}
+
+if ($HarnessRaw -notmatch "function Normalize-PlanAffectedFiles") {
+    throw "Missing duplicate affected_files normalization."
+}
+
+if ($HarnessRaw -notmatch "conflicting operations for the same path") {
+    throw "Missing explicit duplicate-operation conflict guard."
+}
+
+Write-Host "  [PASS] Duplicate affected_files normalization check"
+
 Write-Host ""
-Write-Host "Docflow V5.2.2.2 validation PASS."
+Write-Host "Docflow V5.2.3 validation PASS."

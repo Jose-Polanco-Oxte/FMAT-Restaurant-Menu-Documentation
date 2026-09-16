@@ -1,0 +1,49 @@
+{
+  "change_id": "menu-spec-audit-corrections",
+  "objective": "Corregir exclusivamente en docs/md/spec.md las tres contradicciones señaladas por la auditoría, preservando el modelo consolidado y la trazabilidad existente.",
+  "decisions": [
+    {
+      "id": "D1",
+      "decision": "ComboConfiguration no tendrá estado administrativo propio; las cardinalidades y la posibilidad de definiciones incompletas dependerán del estado ACTIVE o INACTIVE del MenuItem COMBO contenedor."
+    },
+    {
+      "id": "D2",
+      "decision": "Las integraciones de disponibilidad e invalidación se representarán como interacciones lógicas y neutrales respecto al transporte; broker, Pub/Sub, tópicos, destinatarios y rutas concretas permanecerán bajo OPEN-007."
+    },
+    {
+      "id": "D3",
+      "decision": "INV-MENU-003 conservará únicamente las restricciones de precio no negativo respaldadas para MenuItemVariant.unitPrice y ComboConfiguration.unitPrice; se eliminará la desigualdad no respaldada de ComboOption y su variable c no ligada."
+    }
+  ],
+  "invariants": [
+    "El único archivo modificable es docs/md/spec.md.",
+    "No se modificarán las fuentes originales, archivos de flujo ni artefactos derivados.",
+    "No se introducirán decisiones nuevas ni se creará docs/md/decisiones.md.",
+    "Los estados de revisión REVIEW_REQUIRED/NONE de ComboConfiguration seguirán separados del estado administrativo del MenuItem COMBO.",
+    "OPEN-007 continuará identificando como abiertas la selección de transporte, destinatarios, canales, tópicos y contratos técnicos.",
+    "Se conservarán los identificadores, anclas y trazabilidad existentes salvo el texto estrictamente necesario para eliminar las contradicciones."
+  ],
+  "affected_files": [
+    {
+      "path": "docs/md/spec.md",
+      "operation": "MODIFY",
+      "instructions": [
+        "Corregir la descripción general de Combo, el límite del agregado y el diagrama de dominio para que ACTIVE/INACTIVE califique únicamente al MenuItem COMBO contenedor; expresar que puede tener cero configuraciones mientras está INACTIVE y que requiere al menos una para estar ACTIVE, sin atribuir estado administrativo a ComboConfiguration.",
+        "Revisar las demás menciones relacionadas para mantener claramente separados el estado administrativo del MenuItem COMBO, la elegibilidad estructural y el estado de revisión REVIEW_REQUIRED/NONE de cada ComboConfiguration.",
+        "Reemplazar en el diagrama arquitectónico el Broker de Eventos, el bus Pub/Sub y Topics por interacciones lógicas entre los participantes, sin fijar protocolo, canal, tópico, destinatario ni mecanismo de entrega.",
+        "Ajustar el texto de patrones de comunicación y la tabla de dependencia con Inventory si fuera necesario para que no prescriban mensajería asíncrona ni otro transporte concreto y sean coherentes con OPEN-007.",
+        "Eliminar de INV-MENU-003 la desigualdad `(c.unitPrice + o.priceDelta) >= 0` aplicada a ComboOption, incluida la referencia a la variable c no ligada; conservar las restricciones respaldadas sobre los precios unitarios absolutos.",
+        "Mantener el Markdown y los diagramas Mermaid coherentes después de las correcciones, sin alterar contenido ajeno a los tres defectos auditados."
+      ],
+      "acceptance": [
+        "Ninguna sección atribuye ACTIVE o INACTIVE a ComboConfiguration; las reglas de cardinalidad se condicionan explícitamente al estado del MenuItem COMBO contenedor.",
+        "La especificación no prescribe Broker, Pub/Sub, Topics, mensajería asíncrona ni una ruta técnica concreta para disponibilidad o invalidación; las interacciones lógicas permanecen documentadas y OPEN-007 sigue abierto.",
+        "INV-MENU-003 no contiene la desigualdad de ComboOption ni variables no ligadas, y conserva únicamente restricciones de precios no negativos respaldadas por las fuentes.",
+        "Las secciones narrativa, de requisitos, reglas, modelo de dominio, arquitectura, dependencias y cuestiones abiertas no presentan contradicciones sobre estos tres temas.",
+        "Los identificadores, anclas y diagramas continúan siendo estructuralmente válidos.",
+        "El delta final contiene únicamente docs/md/spec.md."
+      ]
+    }
+  ],
+  "blockers": []
+}

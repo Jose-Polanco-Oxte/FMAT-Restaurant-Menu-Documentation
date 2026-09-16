@@ -633,26 +633,73 @@ function New-CandidateCheckpoint {
         [Parameter(Mandatory = $true)][string]$Message
     )
 
-    & git -C "$Worktree" add -A -- . `
-        ':(exclude).ai/current/**' `
-        ':(exclude).ai/runs/**' `
-        2>$null
+    # Stage the complete isolated candidate first. Avoid exclude pathspec magic
+    # here: on the harness control path we prefer the most portable Git command
+    # possible, then explicitly unstage runtime-only directories.
+    $StageOutput = @(
+        & git -C "$Worktree" add -A -- . 2>&1
+    )
+    $StageExitCode = $LASTEXITCODE
 
-    if ($LASTEXITCODE -ne 0) {
-        throw "Could not stage isolated candidate checkpoint."
+    if ($StageExitCode -ne 0) {
+        $Details = ($StageOutput | ForEach-Object { [string]$_ }) -join "`n"
+
+        throw @"
+Could not stage isolated candidate checkpoint.
+
+Git command:
+  git -C <candidate> add -A -- .
+
+Git exit code: $StageExitCode
+Git output:
+$Details
+"@
     }
 
-    & git -C "$Worktree" `
-        -c user.name="Docflow Harness" `
-        -c user.email="docflow@local.invalid" `
-        commit `
-        --allow-empty `
-        -m "$Message" `
-        2>$null |
-        Out-Null
+    # Runtime state must never become part of an internal candidate commit.
+    # `git reset -- <paths>` only resets the index for those paths; it leaves
+    # the working-tree files intact for the agents to read.
+    $UnstageOutput = @(
+        & git -C "$Worktree" reset -q HEAD -- ".ai/current" ".ai/runs" 2>&1
+    )
+    $UnstageExitCode = $LASTEXITCODE
 
-    if ($LASTEXITCODE -ne 0) {
-        throw "Could not create isolated candidate checkpoint."
+    if ($UnstageExitCode -ne 0) {
+        $Details = ($UnstageOutput | ForEach-Object { [string]$_ }) -join "`n"
+
+        throw @"
+Could not exclude runtime control state from the isolated checkpoint.
+
+Git command:
+  git -C <candidate> reset -q HEAD -- .ai/current .ai/runs
+
+Git exit code: $UnstageExitCode
+Git output:
+$Details
+"@
+    }
+
+    $CommitOutput = @(
+        & git -C "$Worktree" `
+            -c user.name="Docflow Harness" `
+            -c user.email="docflow@local.invalid" `
+            commit `
+            --allow-empty `
+            -m "$Message" `
+            2>&1
+    )
+    $CommitExitCode = $LASTEXITCODE
+
+    if ($CommitExitCode -ne 0) {
+        $Details = ($CommitOutput | ForEach-Object { [string]$_ }) -join "`n"
+
+        throw @"
+Could not create isolated candidate checkpoint.
+
+Git exit code: $CommitExitCode
+Git output:
+$Details
+"@
     }
 
     return Get-GitCommit -RepoRoot $Worktree -Ref "HEAD"
@@ -2133,7 +2180,28 @@ if ($ResumeFrom -ne "Auto") {
         }
 
         "Editor" {
-            $null = Assert-PlanUsable
+            $Plan = Assert-PlanUsable
+
+            $null = Assert-PlanPolicy `
+                -Plan $Plan `
+                -Worktree $Worktree `
+                -Scopes $Scopes
+
+            # Recovery case: Analyst completed and plan.json is valid, but the
+            # harness failed while creating the round checkpoint. Recreate that
+            # checkpoint here instead of rerunning the Analyst.
+            if (
+                [string]::IsNullOrWhiteSpace(
+                    [string]$State.round_checkpoint
+                )
+            ) {
+                Sync-ControlPlaneToWorktree -Worktree $Worktree
+
+                $State.round_checkpoint = New-CandidateCheckpoint `
+                    -Worktree $Worktree `
+                    -Message "docflow round $($State.round) start (recovered)"
+            }
+
             $State.next_stage = "EDITOR"
         }
 
@@ -2164,7 +2232,7 @@ if ($ResumeFrom -ne "Auto") {
 
 Write-Host ""
 Write-Host "============================================================"
-Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.2"
+Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.2.1"
 Write-Host "============================================================"
 Write-Host ("Run:           {0}" -f $State.run_id)
 Write-Host ("Round:         {0}/{1}" -f $State.round, $State.max_rounds)

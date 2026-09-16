@@ -22,7 +22,7 @@ $RequiredFiles = @(
     "scripts/docflow.ps1"
 )
 
-Write-Host "Validating Docflow V5.2..."
+Write-Host "Validating Docflow V5.2.1..."
 
 # 1) Parse the PowerShell script using PowerShell's own parser.
 $Tokens = $null
@@ -119,5 +119,129 @@ if (@($UnsafeArrayPipeline).Count -gt 0) {
 }
 
 Write-Host "  [PASS] Static collection anti-regression checks"
+
+# 7) Real Git checkpoint smoke test using the same portable sequence as docflow.
+$TempRepo = Join-Path (
+    [System.IO.Path]::GetTempPath(),
+    ("docflow-checkpoint-smoke-" + [guid]::NewGuid().ToString("N"))
+)
+
+try {
+    New-Item -ItemType Directory -Force -Path $TempRepo | Out-Null
+
+    $InitOutput = @(
+        & git -C "$TempRepo" init 2>&1
+    )
+    if ($LASTEXITCODE -ne 0) {
+        throw (
+            "Git checkpoint smoke test could not initialize temp repo: " +
+            (($InitOutput | ForEach-Object { [string]$_ }) -join "`n")
+        )
+    }
+
+    & git -C "$TempRepo" config user.name "Docflow Validator" | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Could not configure temp Git user.name." }
+
+    & git -C "$TempRepo" config user.email "docflow-validator@local.invalid" | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Could not configure temp Git user.email." }
+
+    Set-Content `
+        -LiteralPath (Join-Path $TempRepo "baseline.txt") `
+        -Value "baseline" `
+        -Encoding utf8
+
+    & git -C "$TempRepo" add -A -- . | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Could not stage temp baseline." }
+
+    & git -C "$TempRepo" commit -m "baseline" | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Could not commit temp baseline." }
+
+    New-Item `
+        -ItemType Directory `
+        -Force `
+        -Path (Join-Path $TempRepo ".ai/current") |
+        Out-Null
+
+    New-Item `
+        -ItemType Directory `
+        -Force `
+        -Path (Join-Path $TempRepo ".ai/runs") |
+        Out-Null
+
+    Set-Content `
+        -LiteralPath (Join-Path $TempRepo ".ai/current/request.md") `
+        -Value "runtime" `
+        -Encoding utf8
+
+    Set-Content `
+        -LiteralPath (Join-Path $TempRepo ".ai/runs/archive.txt") `
+        -Value "runtime" `
+        -Encoding utf8
+
+    Set-Content `
+        -LiteralPath (Join-Path $TempRepo "candidate.txt") `
+        -Value "candidate" `
+        -Encoding utf8
+
+    $StageOutput = @(
+        & git -C "$TempRepo" add -A -- . 2>&1
+    )
+    if ($LASTEXITCODE -ne 0) {
+        throw (
+            "Portable checkpoint git add failed: " +
+            (($StageOutput | ForEach-Object { [string]$_ }) -join "`n")
+        )
+    }
+
+    $UnstageOutput = @(
+        & git -C "$TempRepo" reset -q HEAD -- ".ai/current" ".ai/runs" 2>&1
+    )
+    if ($LASTEXITCODE -ne 0) {
+        throw (
+            "Portable checkpoint runtime unstage failed: " +
+            (($UnstageOutput | ForEach-Object { [string]$_ }) -join "`n")
+        )
+    }
+
+    $CommitOutput = @(
+        & git -C "$TempRepo" commit --allow-empty -m "candidate checkpoint" 2>&1
+    )
+    if ($LASTEXITCODE -ne 0) {
+        throw (
+            "Portable checkpoint commit failed: " +
+            (($CommitOutput | ForEach-Object { [string]$_ }) -join "`n")
+        )
+    }
+
+    $CommittedCandidate = @(
+        & git -C "$TempRepo" ls-tree -r --name-only HEAD 2>&1
+    )
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not inspect temp checkpoint commit."
+    }
+
+    if (
+        @($CommittedCandidate | Where-Object { $_ -eq "candidate.txt" }).Count -ne 1
+    ) {
+        throw "Checkpoint smoke test did not commit candidate.txt."
+    }
+
+    if (
+        @($CommittedCandidate | Where-Object { $_ -like ".ai/current/*" -or $_ -like ".ai/runs/*" }).Count -gt 0
+    ) {
+        throw "Checkpoint smoke test committed runtime control state."
+    }
+}
+finally {
+    if (Test-Path -LiteralPath $TempRepo) {
+        Remove-Item `
+            -LiteralPath $TempRepo `
+            -Recurse `
+            -Force `
+            -ErrorAction SilentlyContinue
+    }
+}
+
+Write-Host "  [PASS] Git checkpoint smoke test"
 Write-Host ""
-Write-Host "Docflow V5.2 validation PASS."
+Write-Host "Docflow V5.2.1 validation PASS."

@@ -1315,18 +1315,14 @@ $(@($Scopes) -join "`n")
 
         switch ($Operation) {
             "CREATE" {
-                if (Test-Path -LiteralPath $Absolute) {
-                    throw "CREATE target already exists in current candidate: $Path"
-                }
-
+                # Existence is a start-of-plan precondition, not a persistent
+                # policy rule. After a successful CREATE the file is expected
+                # to exist, and Assert-PlanPolicy is called again later.
                 $WriteEntries += $Entry
             }
 
             "MODIFY" {
-                if (-not (Test-Path -LiteralPath $Absolute -PathType Leaf)) {
-                    throw "MODIFY target does not exist as a file: $Path"
-                }
-
+                # Existence is validated once before execution starts.
                 $WriteEntries += $Entry
             }
 
@@ -1348,6 +1344,47 @@ $(@($Scopes) -join "`n")
         write_entries = @($WriteEntries)
         delete_entries = @($DeleteEntries)
         verify_entries = @($VerifyEntries)
+    }
+}
+
+function Assert-PlanOperationPreconditions {
+    param(
+        [Parameter(Mandatory = $true)]$Policy,
+        [Parameter(Mandatory = $true)][string]$Worktree
+    )
+
+    foreach ($Entry in @($Policy.write_entries)) {
+        $Path = Normalize-RepoPath ([string]$Entry.path)
+        $Operation = ([string]$Entry.operation).ToUpperInvariant()
+
+        $Absolute = Convert-ToAbsoluteRepoPath `
+            -RepoRoot $Worktree `
+            -RelativePath $Path
+
+        switch ($Operation) {
+            "CREATE" {
+                if (Test-Path -LiteralPath $Absolute) {
+                    throw @"
+CREATE precondition failed before Editor execution:
+$Path
+
+The target already exists in the current candidate. The Analyst must use
+MODIFY for an existing artifact.
+"@
+                }
+            }
+
+            "MODIFY" {
+                if (-not (Test-Path -LiteralPath $Absolute -PathType Leaf)) {
+                    throw @"
+MODIFY precondition failed before Editor execution:
+$Path
+
+The target does not exist as a file in the current candidate.
+"@
+                }
+            }
+        }
     }
 }
 
@@ -2182,14 +2219,31 @@ if ($ResumeFrom -ne "Auto") {
         "Editor" {
             $Plan = Assert-PlanUsable
 
-            $null = Assert-PlanPolicy `
+            $Policy = Assert-PlanPolicy `
                 -Plan $Plan `
                 -Worktree $Worktree `
                 -Scopes $Scopes
 
-            # Recovery case: Analyst completed and plan.json is valid, but the
-            # harness failed while creating the round checkpoint. Recreate that
-            # checkpoint here instead of rerunning the Analyst.
+            # Recovery case: Analyst completed but no Editor work has started.
+            # Only then should CREATE/MODIFY start-state preconditions be
+            # checked. A partially completed round may legitimately contain a
+            # file created by an already accepted CREATE target.
+            $NoEditorProgress = (
+                [int]$State.current_target_index -eq 0 -and
+                [string]::IsNullOrWhiteSpace(
+                    [string]$State.round_checkpoint
+                )
+            )
+
+            if ($NoEditorProgress) {
+                Assert-PlanOperationPreconditions `
+                    -Policy $Policy `
+                    -Worktree $Worktree
+            }
+
+            # Analyst completed and plan.json is valid, but the harness may
+            # have failed while creating the round checkpoint. Recreate it
+            # without rerunning the Analyst.
             if (
                 [string]::IsNullOrWhiteSpace(
                     [string]$State.round_checkpoint
@@ -2232,7 +2286,7 @@ if ($ResumeFrom -ne "Auto") {
 
 Write-Host ""
 Write-Host "============================================================"
-Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.2.1"
+Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.2.2.1"
 Write-Host "============================================================"
 Write-Host ("Run:           {0}" -f $State.run_id)
 Write-Host ("Round:         {0}/{1}" -f $State.round, $State.max_rounds)
@@ -2295,6 +2349,13 @@ try {
                     -Plan $Plan `
                     -Worktree $Worktree `
                     -Scopes $Scopes
+
+                # Validate CREATE/MODIFY against the candidate exactly once,
+                # before any Editor target has been executed. Later calls to
+                # Assert-PlanPolicy intentionally do not re-check existence.
+                Assert-PlanOperationPreconditions `
+                    -Policy $Policy `
+                    -Worktree $Worktree
 
                 $AffectedCount = @($Plan.affected_files).Count
                 $WriteCount = @($Policy.write_entries).Count
@@ -2401,7 +2462,7 @@ try {
                         )
                         blockers = @()
                         notes = @(
-                            "Execution report synthesized by the V5.2 orchestrator.",
+                            "Execution report synthesized by the V5.2.2 orchestrator.",
                             "Each CREATE/MODIFY target was executed in an isolated one-file Editor invocation.",
                             "Unauthorized Editor writes were rolled back automatically before acceptance.",
                             "DELETE operations were performed by the orchestrator.",

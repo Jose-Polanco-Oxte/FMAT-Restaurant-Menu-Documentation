@@ -22,7 +22,7 @@ $RequiredFiles = @(
     "scripts/docflow.ps1"
 )
 
-Write-Host "Validating Docflow V5.2.1..."
+Write-Host "Validating Docflow V5.2.2.2..."
 
 # 1) Parse the PowerShell script using PowerShell's own parser.
 $Tokens = $null
@@ -93,7 +93,7 @@ if (@($None).Count -ne 0) {
 }
 Write-Host "  [PASS] StrictMode collection semantics"
 
-# 6) Static anti-regression checks for the bug that triggered V5.2.
+# 6) Static anti-regression checks for the bug that triggered V5.2.2.
 $RawScript = Get-Content -LiteralPath $ScriptPath -Raw -Encoding utf8
 
 $UnsafeCount = [regex]::Matches(
@@ -243,5 +243,40 @@ finally {
 }
 
 Write-Host "  [PASS] Git checkpoint smoke test"
+
+# Regression: Assert-PlanPolicy must not treat successful CREATE as invalid on
+# subsequent loop iterations. CREATE existence belongs only to the one-time
+# Assert-PlanOperationPreconditions function.
+$HarnessRaw = Get-Content `
+    -LiteralPath $DocflowPath `
+    -Raw `
+    -Encoding utf8
+
+$PolicyStart = $HarnessRaw.IndexOf("function Assert-PlanPolicy")
+$PreconditionStart = $HarnessRaw.IndexOf("function Assert-PlanOperationPreconditions")
+
+if (
+    $PolicyStart -lt 0 -or
+    $PreconditionStart -lt 0 -or
+    $PreconditionStart -le $PolicyStart
+) {
+    throw "Could not locate separated plan policy/precondition functions."
+}
+
+$PolicyText = $HarnessRaw.Substring(
+    $PolicyStart,
+    $PreconditionStart - $PolicyStart
+)
+
+if ($PolicyText -match "CREATE target already exists") {
+    throw "Regression: CREATE existence check is still inside Assert-PlanPolicy."
+}
+
+if ($HarnessRaw -notmatch "Assert-PlanOperationPreconditions") {
+    throw "Missing one-time operation precondition validation."
+}
+
+Write-Host "  [PASS] CREATE lifecycle regression check"
+
 Write-Host ""
-Write-Host "Docflow V5.2.1 validation PASS."
+Write-Host "Docflow V5.2.2.2 validation PASS."

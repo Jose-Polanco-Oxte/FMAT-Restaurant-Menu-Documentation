@@ -1,62 +1,67 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AuditReport",
   "type": "object",
   "additionalProperties": false,
-  "required": ["verdict", "summary", "checks", "issues", "next_action"],
   "properties": {
     "verdict": {
       "type": "string",
-      "enum": ["PASS", "FAIL"]
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
     },
     "summary": {
-      "type": "string"
-    },
-    "checks": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["name", "status", "evidence"],
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": ["PASS", "FAIL", "WARNING"]
-          },
-          "evidence": {
-            "type": "string"
-          }
-        }
-      }
+      "type": "string",
+      "minLength": 1
     },
     "issues": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["severity", "file", "issue", "required_action"],
         "properties": {
           "severity": {
             "type": "string",
-            "enum": ["LOW", "MEDIUM", "HIGH", "BLOCKER"]
+            "enum": [
+              "BLOCKER",
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
           },
           "file": {
             "type": "string"
           },
           "issue": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
-          "required_action": {
-            "type": "string"
+          "required_fix": {
+            "type": "string",
+            "minLength": 1
           }
-        }
+        },
+        "required": [
+          "severity",
+          "file",
+          "issue",
+          "required_fix"
+        ]
       }
     },
     "next_action": {
       "type": "string",
-      "enum": ["NONE", "REANALYZE"]
+      "enum": [
+        "NONE",
+        "REANALYZE"
+      ]
     }
-  }
+  },
+  "required": [
+    "verdict",
+    "summary",
+    "issues",
+    "next_action"
+  ]
 }

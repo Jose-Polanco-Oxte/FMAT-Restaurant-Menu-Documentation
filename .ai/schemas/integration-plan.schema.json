@@ -1,46 +1,43 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "IntegrationPlan",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "change_id",
-    "objective",
-    "decisions",
-    "invariants",
-    "affected_files",
-    "unaffected_files",
-    "blockers"
-  ],
   "properties": {
     "change_id": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1
     },
     "objective": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1
     },
     "decisions": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "decision", "reason"],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "decision": {
-            "type": "string"
-          },
-          "reason": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           }
-        }
+        },
+        "required": [
+          "id",
+          "decision"
+        ]
       }
     },
     "invariants": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "minLength": 1
       }
     },
     "affected_files": {
@@ -48,64 +45,57 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["path", "operation", "reason", "changes"],
         "properties": {
           "path": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "operation": {
             "type": "string",
-            "enum": ["CREATE", "MODIFY", "DELETE", "VERIFY"]
+            "enum": [
+              "CREATE",
+              "MODIFY",
+              "DELETE",
+              "VERIFY"
+            ]
           },
-          "reason": {
-            "type": "string"
-          },
-          "changes": {
+          "instructions": {
             "type": "array",
             "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["target", "instruction", "acceptance_criteria"],
-              "properties": {
-                "target": {
-                  "type": "string"
-                },
-                "instruction": {
-                  "type": "string"
-                },
-                "acceptance_criteria": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "acceptance": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
             }
           }
-        }
-      }
-    },
-    "unaffected_files": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["path", "reason"],
-        "properties": {
-          "path": {
-            "type": "string"
-          },
-          "reason": {
-            "type": "string"
-          }
-        }
+        },
+        "required": [
+          "path",
+          "operation",
+          "instructions",
+          "acceptance"
+        ]
       }
     },
     "blockers": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "minLength": 1
       }
     }
-  }
+  },
+  "required": [
+    "change_id",
+    "objective",
+    "decisions",
+    "invariants",
+    "affected_files",
+    "blockers"
+  ]
 }

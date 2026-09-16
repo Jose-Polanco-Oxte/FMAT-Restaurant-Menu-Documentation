@@ -1,22 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ExecutionReport",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "status",
-    "created_files",
-    "modified_files",
-    "deleted_files",
-    "verified_files",
-    "applied_decisions",
-    "skipped_operations",
-    "blockers",
-    "notes"
-  ],
   "properties": {
     "status": {
       "type": "string",
-      "enum": ["COMPLETED", "BLOCKED"]
+      "enum": [
+        "COMPLETED",
+        "BLOCKED"
+      ]
     },
     "created_files": {
       "type": "array",
@@ -42,28 +35,6 @@
         "type": "string"
       }
     },
-    "applied_decisions": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "skipped_operations": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["path", "reason"],
-        "properties": {
-          "path": {
-            "type": "string"
-          },
-          "reason": {
-            "type": "string"
-          }
-        }
-      }
-    },
     "blockers": {
       "type": "array",
       "items": {
@@ -76,5 +47,14 @@
         "type": "string"
       }
     }
-  }
+  },
+  "required": [
+    "status",
+    "created_files",
+    "modified_files",
+    "deleted_files",
+    "verified_files",
+    "blockers",
+    "notes"
+  ]
 }

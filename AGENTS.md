@@ -1,87 +1,85 @@
-# Documentation Integration Protocol
+# Documentation Integration Workflow
 
-This repository uses a three-stage documentation workflow:
+## Scope Authority
 
-1. ANALYZE
-2. EXECUTE
-3. AUDIT
+The user's request is the authority for what the run is allowed to accomplish.
 
-The workflow supports:
+Repository context may be read to understand the request. Reading a file does not make that file part of the task.
 
-- CREATE
-- MODIFY
-- DELETE
-- VERIFY
+Do not convert discovered repository problems into work unless fixing that exact problem is directly required for the requested outcome.
 
-documentation artifacts.
+## Workflow
 
-## Roles
+The workflow is:
 
-### Analyst
+1. Analyst
+2. Surgical Editor
+3. Auditor
 
-Is the semantic authority.
+All agent work occurs in an isolated Git worktree. The main repository is never an agent workspace.
 
-It determines:
+## Analyst
 
-- what must exist
-- what must change
-- what must be removed
-- what must remain unchanged
-- which dependencies are affected
-- which invariants must remain true
+The Analyst is read-only.
 
-The analyst does not modify repository documentation.
+It produces the smallest IntegrationPlan that satisfies the request.
 
-### Editor
+It must not expand the task into:
 
-Is the execution authority.
+- repository-wide cleanup;
+- synchronization of historical documents;
+- translation synchronization;
+- generated/derived documentation updates;
+- adjacent fixes;
+- workflow changes.
 
-It performs only the operations authorized by:
+A secondary file belongs in `affected_files` only when changing that exact file is directly necessary to satisfy the original request.
 
-.ai/current/plan.json
+## Surgical Editor
 
-The editor does not reconsider architecture or product decisions.
+The Editor is invoked once per writable target.
 
-### Auditor
+Each invocation receives exactly one writable file in `.ai/current/editor-task.md`.
 
-Independently verifies the resulting repository.
+All other files are read-only context for that invocation.
 
-The auditor does not modify repository documentation.
+The Editor must not execute other plan entries and must not edit another file for consistency.
 
-## Workflow artifacts
+If another write seems necessary, it must stop and return:
 
-Current workflow state lives under:
+`[DOCFLOW_BLOCKED] <reason>`
 
-.ai/current/
+The harness validates the actual Git delta after every attempt. Unauthorized writes are rolled back automatically and the same target is retried with corrective feedback.
 
-Historical workflow runs live under:
+## Auditor
 
-.ai/runs/
+The Auditor checks the requested outcome and scope discipline.
 
-## Semantic authority
+It must not fail a run merely because unrelated pre-existing repository content is stale, inconsistent, historical, or imperfect.
 
-The current user request and authoritative repository documentation are
-the semantic sources of truth.
+It should fail:
 
-During execution:
+- defects in the requested outcome;
+- missing requested behavior;
+- contradictions introduced by the candidate;
+- unnecessary candidate changes outside request scope.
 
-.ai/current/plan.json
+## Protected Workflow Files
 
-is authoritative for what the editor is allowed to do.
+Documentation runs never modify:
 
-## Global rules
+- `AGENTS.md`
+- `.gitignore`
+- `.agents/**`
+- `.ai/**`
+- `scripts/**`
 
-- Never stage Git changes.
-- Never create Git commits.
-- Never automatically revert user changes.
-- Never modify files under `.ai/prompts/`.
-- Never modify files under `.ai/schemas/`.
-- Never modify historical files under `.ai/runs/`.
-- Preserve requirement IDs.
-- Preserve ADR IDs.
-- Preserve terminology.
-- Preserve traceability.
-- Search for stale indirect references.
-- Do not silently invent architecture or product decisions.
-- If an operation requires a semantic decision not present in the plan,
-  report a blocker.
+## Git Safety
+
+Agents never stage, commit, reset, restore, clean, or manipulate Git history.
+
+The harness owns checkpoints, rollback, deletion, reports, and final application.
+
+## Automatic Editor Recovery
+
+A successful process exit is not enough. CREATE/MODIFY must produce a real delta on the one allowed target, the target must remain a file, Git HEAD must remain under harness control, and protected workflow files must remain unchanged. Failed attempts are rolled back and retried automatically.

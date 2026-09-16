@@ -1,9 +1,4 @@
-# Revisión de spec.md
-
-* La nomenclatura de los identificadores de los requisitos funcionales debe cambiarse a REQ-MENU-{Abreviación del apartado}-{número de requisito}. Con esto también debe corregirse el orden numérico, actualmente está desordenado y se mencionan números en diferentes apartados que no tienen un orden como tal.
-
-````md
-## Modificación — Estrategia de disponibilidad granular
+# Modificación — Estrategia de disponibilidad granular
 
 La estrategia de disponibilidad deberá modificarse para evitar bloquear una
 `MenuItemVariant` o una `ComboConfiguration` completa únicamente porque una
@@ -14,7 +9,7 @@ La disponibilidad operacional deberá evaluarse y materializarse en la menor
 unidad seleccionable relevante, propagándose hacia niveles superiores sólo
 cuando la indisponibilidad impida construir cualquier configuración válida.
 
-### MenuItemVariant
+## MenuItemVariant
 
 Para `MenuItem` de tipo `PREPARED` o `STOCKED`, la disponibilidad principal
 deberá calcularse por `MenuItemVariant`, no únicamente por `MenuItem`.
@@ -29,7 +24,7 @@ La disponibilidad agregada de `MenuItem` será derivada:
 - esta disponibilidad agregada se utilizará para presentación de catálogo, no
   como fuente autoritativa para bloquear variantes individuales.
 
-### Modificadores
+## Modificadores
 
 La falta de inventario necesaria únicamente para una personalización opcional
 no deberá volver indisponible a toda la variante.
@@ -63,7 +58,7 @@ grupo obligatorio sin capacidad suficiente
 → bloquea la variante
 ```
 
-### Requerimientos de Inventory
+## Requerimientos de Inventory
 
 La proyección utilizada para disponibilidad deberá separar los requerimientos
 base de una variante de los requerimientos incrementales introducidos por sus
@@ -93,7 +88,7 @@ productos que todavía pueden venderse válidamente.
 Los requerimientos deberán expresarse mediante referencias a artículos de
 Inventory y cantidades normalizadas/aplanadas cuando corresponda.
 
-### Combo
+## Combo
 
 La disponibilidad de un `COMBO` deberá calcularse por
 `ComboConfiguration`.
@@ -132,7 +127,7 @@ Combo AVAILABLE
 ↔ existe al menos una ComboConfiguration AVAILABLE
 ```
 
-### Modelo de disponibilidad
+## Modelo de disponibilidad
 
 La disponibilidad no deberá tratarse como estado comercial autoritativo dentro
 de `MenuItem`.
@@ -161,7 +156,7 @@ ComboConfigurationAvailability
 La disponibilidad de `ComboOption`, `ComboSlot` y `MenuItem` podrá derivarse de
 estas proyecciones cuando no sea necesario materializarla explícitamente.
 
-### Propagación
+## Propagación
 
 La estrategia general de propagación será:
 
@@ -184,7 +179,7 @@ MenuItem aggregate availability
 La indisponibilidad sólo deberá propagarse hacia un nivel superior cuando la
 restricción impida satisfacer una configuración válida de ese nivel.
 
-### Cambio respecto al diseño anterior
+## Cambio respecto al diseño anterior
 
 Reemplazar cualquier requisito o decisión existente que determine la
 disponibilidad de una variante calculando el inventario necesario para el peor
@@ -203,16 +198,9 @@ cambia el ownership comercial de `MenuItem`, `MenuItemVariant`,
 `ModifierGroup`, `ModifierOption`, `ComboConfiguration`, `ComboSlot` o
 `ComboOption`, ni convierte la disponibilidad operacional en estado
 administrativo o elegibilidad estructural.
-```
 
+```txt
 La parte clave para modificar el documento existente es esa última distinción: **no necesitas rehacer el dominio comercial**. Cambias principalmente el **contrato/proyección de disponibilidad y sus reglas de propagación**.
 
 También reemplazaría cualquier requisito anterior equivalente a «calcular el máximo incluyendo todos los modificadores para decidir disponibilidad», en vez de conservar ambos, porque las dos políticas producen comportamientos incompatibles.
 ```
-
-````
-
-* REQ-MENU-013: No es que esté prohibido, sencillamente ese concepto no forma parte de combo.
-* En las sección 10 se habla de fuentes, pero se tuvo un error respecto a esto, no se debía leer otras fuentes más hallá de las solicitadas, por lo que tuvo que haber definido todo desde cero y no referenciar a partir de otras (Hay que revisar todo el documento).
-* El diagrama de la sección 8.1 tiene errores.
-* Entidad ModifierGroup en maxSelections y Entidad ComboSlot en maxSelections tienen un problema con latex:  \ge \text{min_selections}.

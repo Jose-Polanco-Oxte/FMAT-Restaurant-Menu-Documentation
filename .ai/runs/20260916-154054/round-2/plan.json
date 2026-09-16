@@ -1,0 +1,62 @@
+{
+  "change_id": "ground-spec-in-authorized-sources",
+  "objective": "Revisar integralmente docs/md/spec.md y corregirlo para que cada decisión, requisito, modelo, interfaz, verificación y vínculo de trazabilidad se derive exclusivamente de las nueve fuentes autorizadas, sin renumerar globalmente los requisitos.",
+  "decisions": [
+    {
+      "id": "D1",
+      "decision": "Tratar como evidencia válida únicamente Problema-Inicial.md, Consultoria-1.md, Consultoria-2.md, Auditoria-1.md, Auditoria-2.md, Modelo-Pre-Final.md, Decisiones-cierre-invariantes.md, Req-F-Aproved.md y Auditoria-3.md."
+    },
+    {
+      "id": "D2",
+      "decision": "Conservar una conclusión solo cuando su significado completo esté sustentado por una fuente autorizada; una cita nominal a una fuente permitida no justifica detalles que esa fuente no establece."
+    },
+    {
+      "id": "D3",
+      "decision": "Mantener changeId y reviewToken exclusivamente en los requisitos y contratos donde Req-F-Aproved.md los establece expresamente, sin convertirlos en atributos persistentes o detalles de exposición adicionales no sustentados."
+    },
+    {
+      "id": "D4",
+      "decision": "Conservar baseOptionIds, saved, current y difference conforme a REQ-MENU-037 de Req-F-Aproved.md, pero retirar atribuciones falsas a Auditoria-3.md."
+    },
+    {
+      "id": "D5",
+      "decision": "No realizar renumeración global ni cambiar los identificadores o anclas existentes de requisitos."
+    }
+  ],
+  "invariants": [
+    "El único archivo modificable es docs/md/spec.md.",
+    "No se modificarán fuentes históricas, documentos derivados, traducciones ni artefactos adyacentes.",
+    "No se incorporarán decisiones nuevas, supuestos de implementación ni prácticas generales sin evidencia autorizada.",
+    "Se preservarán las conclusiones cuyo significado sí pueda derivarse de las fuentes autorizadas.",
+    "Los identificadores REQ-MENU existentes y sus anclas permanecerán estables."
+  ],
+  "affected_files": [
+    {
+      "path": "docs/md/spec.md",
+      "operation": "MODIFY",
+      "instructions": [
+        "Recorrer el documento completo y contrastar cada afirmación normativa o de diseño —incluidos requisitos, verificaciones, reglas, invariantes, entidades, diagramas, persistencia, interfaces y trazabilidad— con el contenido real de las nueve fuentes autorizadas.",
+        "Eliminar cualquier referencia explícita o implícita a fuentes no autorizadas y cualquier decisión cuyo único sustento provenga de ellas. Corregir las atribuciones que mencionen una fuente autorizada sin que esta respalde el detalle citado.",
+        "Reducir REQ-MENU-034 a lo sustentado por Req-F-Aproved.md: exposición administrativa de ComboConfiguration en REVIEW_REQUIRED, estado agregado por MenuItem COMBO y separación respecto de MenuItem.status, estado de variantes y disponibilidad. Retirar de este requisito y su verificación la exposición de changeId, motivos detallados u otros datos no establecidos allí.",
+        "Alinear todas las representaciones derivadas de la revisión de combos —modelo de dominio, diagramas, modelo lógico, sección 10.3 y matriz de trazabilidad— con REQ-MENU-033 a REQ-MENU-036. Eliminar reviewStatus NONE, la colección persistente pendingChanges y cualquier detalle de inspección o respuesta no exigido por esos requisitos; conservar changeId y reviewToken solo en el alcance expresamente establecido por REQ-MENU-035 y REQ-MENU-036.",
+        "Mantener la semántica de REQ-MENU-037 sobre baseOptionIds, saved, current y difference porque Req-F-Aproved.md la establece expresamente, pero eliminar Auditoria-3.md como supuesto refinamiento y ajustar todas sus copias y trazabilidad para atribuir únicamente evidencia real.",
+        "Eliminar skuCode de MenuItemVariant en la descripción de dominio, diagramas y modelo persistente. Representar el suministro STOCKED mediante la referencia opaca inventoryItemId y la cantidad correspondiente conforme al modelo vigente autorizado.",
+        "Eliminar created_at, updated_at y RecipeComponent.recipe_version de todas las representaciones, ya que no están sustentados por las fuentes autorizadas. Mantener RecipeComponent vinculado mediante recipeId y los datos de Inventory respaldados.",
+        "Actualizar las filas REQ-MENU-033 a REQ-MENU-037 de la matriz de trazabilidad para que cada fuente y justificación describa solo el contenido efectivamente establecido; no usar Auditoria-3.md ni Decisiones-cierre-invariantes.md como respaldo superficial.",
+        "Conservar la numeración, los identificadores y las anclas actuales; efectuar únicamente las correcciones de contenido y coherencia interna necesarias dentro del archivo."
+      ],
+      "acceptance": [
+        "Todas las referencias nominales a archivos Markdown en docs/md/spec.md pertenecen a la lista de nueve fuentes autorizadas.",
+        "Cada conclusión conservada puede señalar evidencia semántica concreta en una fuente autorizada; no basta con que la fuente aparezca citada.",
+        "REQ-MENU-034 y sus representaciones derivadas no exponen changeId, motivos detallados ni reviewStatus NONE.",
+        "changeId y reviewToken aparecen únicamente donde los requisitos autorizados los establecen y no se convierten en estructura persistente inventada.",
+        "REQ-MENU-037 conserva baseOptionIds, saved, current y difference con atribución correcta a Req-F-Aproved.md.",
+        "No quedan ocurrencias normativas de skuCode, sku_code, created_at, updated_at ni recipe_version.",
+        "El dominio, los diagramas, el modelo lógico, las interfaces y la trazabilidad describen consistentemente las decisiones corregidas.",
+        "Los identificadores y anclas REQ-MENU permanecen sin renumeración global.",
+        "El cambio de Git se limita a docs/md/spec.md."
+      ]
+    }
+  ],
+  "blockers": []
+}

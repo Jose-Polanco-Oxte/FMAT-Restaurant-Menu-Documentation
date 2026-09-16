@@ -59,9 +59,9 @@
   - [9.3 Referencias Externas Desacopladas](#93-referencias-externas-desacopladas)
   - [9.4 Estrategia de Versionado Histórico e Inmutabilidad](#94-estrategia-de-versionado-histórico-e-inmutabilidad)
 - [10. Interfaces de Entrada y Salida (APIs)](#10-interfaces-de-entrada-y-salida-apis)
-  - [10.1 Interfaces de Consulta Pública de Catálogo (E-01 a E-03)](#101-interfaces-de-consulta-pública-de-catálogo-e-01-a-e-03)
-  - [10.2 Interfaces de Operaciones Administrativas y Copia (E-17)](#102-interfaces-de-operaciones-administrativas-y-copia-e-17)
-  - [10.3 Interfaces de Gestión de Revisiones de Combo (E-19 a E-21)](#103-interfaces-de-gestión-de-revisiones-de-combo-e-19-a-e-21)
+  - [10.1 Interfaz de Consulta Pública de Catálogo](#101-interfaz-de-consulta-pública-de-catálogo)
+  - [10.2 Interfaz de Operaciones Administrativas y Copia en Lote](#102-interfaz-de-operaciones-administrativas-y-copia-en-lote)
+  - [10.3 Interfaz de Gestión y Confirmación de Revisiones de Combo](#103-interfaz-de-gestión-y-confirmación-de-revisiones-de-combo)
   - [10.4 Interfaz de Resolución Neta de Insumos para Orders](#104-interfaz-de-resolución-neta-de-insumos-para-orders)
   - [10.5 Intercambio Lógico con Inventory](#105-intercambio-lógico-con-inventory)
 - [11. Eventos de Negocio](#11-eventos-de-negocio)
@@ -72,7 +72,7 @@
   - [12.2 Dependencias con Orders](#122-dependencias-con-orders)
   - [12.3 Dependencias con POS / KDS](#123-dependencias-con-pos--kds)
 - [13. Cuestiones Abiertas (Open Items)](#13-cuestiones-abiertas-open-items)
-  - [13.1 OPEN-002: Emparejamiento de Slots y Conflictos en Copia Masiva (E-17)](#131-open-002-emparejamiento-de-slots-y-conflictos-en-copia-masiva-e-17)
+  - [13.1 OPEN-002: Emparejamiento de Slots y Conflictos en Copia Masiva](#131-open-002-emparejamiento-de-slots-y-conflictos-en-copia-masiva)
   - [13.2 OPEN-007: Especificación Técnica Formal de Contratos Externos y Transporte](#132-open-007-especificación-técnica-formal-de-contratos-externos-y-transporte)
   - [13.3 OPEN-009: Precios de Componentes Fraccionados y Modificadores Repetidos en Combos](#133-open-009-precios-de-componentes-fraccionados-y-modificadores-repetidos-en-combos)
   - [13.4 OPEN-010: Rangos Numéricos Exhaustivos y Restricciones de Dominio](#134-open-010-rangos-numéricos-exhaustivos-y-restricciones-de-dominio)
@@ -391,10 +391,10 @@ Esta sección consolida formalmente los 41 requisitos aprobados de la línea bas
 
 <a id="req-menu-013"></a>
 #### REQ-MENU-013 — Definición de Grupos de Modificadores en el Item Hoja
-- **Obligación:** El servicio Menu deberá permitir definir grupos de modificadores (`ModifierGroup`) directamente en un `MenuItem` hoja (`PREPARED` o `STOCKED`). El grupo es propiedad del item y compartido por todas sus variantes, definiendo los límites enteros $0 \le \text{minSelections} \le \text{maxSelections}$. Queda terminantemente prohibido asociar un `ModifierGroup` directamente a un `MenuItem` de tipo `COMBO`. La regla completa de selección exige que cada cantidad seleccionada individualmente respete el `maxQuantity` efectivo de la opción (determinado por `VariantModifierConfig` si existe, o por `generalConfig` en su defecto), y que la suma de todas las cantidades seleccionadas en el grupo cumpla estrictamente $\text{minSelections} \le \sum \text{cantidades seleccionadas} \le \text{maxSelections}$. El servicio deberá validar la capacidad previa del grupo ($\sum \text{maxQuantity efectivos de opciones habilitadas} \ge \text{minSelections}$) como requisito para la transición a estado `ACTIVE`. Al momento de confirmar la línea en runtime, estos límites se revalidan para garantizar la consistencia de la comanda, respetando el ownership externo de Orders sobre el ciclo de vida de la orden y sus líneas.
+- **Obligación:** El servicio Menu deberá permitir definir grupos de modificadores (`ModifierGroup`) directamente en un `MenuItem` hoja (`PREPARED` o `STOCKED`). El grupo es propiedad del item y compartido por todas sus variantes, definiendo los límites enteros $0 \le \text{minSelections} \le \text{maxSelections}$. El grupo es compartido por las variantes hoja del item y no forma parte de la estructura de un `MenuItem` de tipo `COMBO` (los combos no poseen modificadores propios en v1). La regla completa de selección exige que cada cantidad seleccionada individualmente respete el `maxQuantity` efectivo de la opción (determinado por `VariantModifierConfig` si existe, o por `generalConfig` en su defecto), y que la suma de todas las cantidades seleccionadas en el grupo cumpla estrictamente $\text{minSelections} \le \sum \text{cantidades seleccionadas} \le \text{maxSelections}$. El servicio deberá validar la capacidad previa del grupo ($\sum \text{maxQuantity efectivos de opciones habilitadas} \ge \text{minSelections}$) como requisito para la transición a estado `ACTIVE`. Al momento de confirmar la línea en runtime, estos límites se revalidan para garantizar la consistencia de la comanda, respetando el ownership externo de Orders sobre el ciclo de vida de la orden y sus líneas.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-013); `Decisiones-cierre-invariantes.md` (ADR-005); `Auditoria-3.md`.
-- **Verificación:** Prueba: Crear un grupo en un item hoja y comprobar su disponibilidad para todas sus variantes; intentar crear un grupo en un COMBO y comprobar el rechazo por validación de dominio; validar que selecciones que violen el `maxQuantity` individual o la desigualdad $\text{minSelections} \le \sum \le \text{maxSelections}$ sean rechazadas; constatar el bloqueo de activación si la capacidad no cubre `minSelections`.
+- **Verificación:** Prueba: Crear un grupo en un item hoja y comprobar su disponibilidad para todas sus variantes; comprobar que los grupos de modificadores pertenecen exclusivamente a items hoja y no a COMBO; validar que selecciones que violen el `maxQuantity` individual o la desigualdad $\text{minSelections} \le \sum \le \text{maxSelections}$ sean rechazadas; constatar el bloqueo de activación si la capacidad no cubre `minSelections`.
 - **Trazabilidad:** Vigente. `Auditoria-3.md` ratifica que los modificadores pertenecen al item y no se duplican por variante ni se colocan en el combo.
 
 <a id="req-menu-014"></a>
@@ -414,11 +414,11 @@ Esta sección consolida formalmente los 41 requisitos aprobados de la línea bas
 - **Trazabilidad:** Vigente. Resuelve limpiamente la herencia y especialización sin duplicar modificadores.
 
 <a id="req-menu-016"></a>
-#### REQ-MENU-016 — Copia Administrativa de Configuraciones de Modificadores (E-17)
-- **Obligación:** El servicio Menu deberá permitir copiar, mediante la interfaz administrativa E-17, especializaciones de modificadores (`VariantModifierConfig`) desde una `MenuItemVariant` origen hacia una o más variantes destino del mismo `MenuItem`, aplicando atómicamente la política de resolución de conflictos seleccionada (`FAIL` para abortar sin cambios ante colisión, o `REPLACE` para sobrescribir la configuración existente).
+#### REQ-MENU-016 — Copia Administrativa de Configuraciones de Modificadores
+- **Obligación:** El servicio Menu deberá permitir copiar, mediante la interfaz administrativa de catálogo, especializaciones de modificadores (`VariantModifierConfig`) desde una `MenuItemVariant` origen hacia una o más variantes destino del mismo `MenuItem`, aplicando atómicamente la política de resolución de conflictos seleccionada (`FAIL` para abortar sin cambios ante colisión, o `REPLACE` para sobrescribir la configuración existente).
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-016); `Modelo-Pre-Final.md`.
-- **Verificación:** Prueba: Ejecutar E-17 en modo `dryRun` y en modo definitivo; ensayar conflictos bajo política `FAIL` verificando atomicidad y ausencia de escrituras parciales.
+- **Verificación:** Prueba: Ejecutar la operación de copia administrativa en modo `dryRun` y en modo definitivo; ensayar conflictos bajo política `FAIL` verificando atomicidad y ausencia de escrituras parciales.
 - **Trazabilidad:** Vigente.
 
 <a id="req-menu-017"></a>
@@ -483,16 +483,16 @@ Esta sección consolida formalmente los 41 requisitos aprobados de la línea bas
 - **Trazabilidad:** Vigente. Cambio fundamental introducido en `Auditoria-3.md` para evitar que el combo interprete dimensiones internas de sus componentes.
 
 <a id="req-menu-024"></a>
-#### REQ-MENU-024 — Copia Administrativa de Configuración de Combo (E-17)
-- **Obligación:** El servicio Menu deberá permitir copiar, mediante la interfaz E-17, los `ComboSlot` y sus correspondientes `ComboOption` desde una `ComboConfiguration` origen hacia otra destino del mismo `MenuItem` COMBO, regenerando identidades únicas para las entidades en el destino.
+#### REQ-MENU-024 — Copia Administrativa de Configuración de Combo
+- **Obligación:** El servicio Menu deberá permitir copiar, mediante la interfaz administrativa de catálogo, los `ComboSlot` y sus correspondientes `ComboOption` desde una `ComboConfiguration` origen hacia otra destino del mismo `MenuItem` COMBO, regenerando identidades únicas para las entidades en el destino.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-024); `Modelo-Pre-Final.md`.
 - **Verificación:** Prueba: Ejecutar copia entre configuraciones y constatar la duplicación fiel de la estructura con nuevos identificadores generados.
 - **Trazabilidad:** Vigente.
 
 <a id="req-menu-025"></a>
-#### REQ-MENU-025 — Asignación Múltiple Atómica de Opciones de Combo (E-17)
-- **Obligación:** El servicio Menu deberá permitir aplicar, mediante E-17, un conjunto seleccionado de `ComboOption` a múltiples `ComboConfiguration` del mismo item COMBO en una única operación administrativa atómica.
+#### REQ-MENU-025 — Asignación Múltiple Atómica de Opciones de Combo
+- **Obligación:** El servicio Menu deberá permitir aplicar, mediante la interfaz administrativa de catálogo, un conjunto seleccionado de `ComboOption` a múltiples `ComboConfiguration` del mismo item COMBO en una única operación administrativa atómica.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-025); `Modelo-Pre-Final.md`.
 - **Verificación:** Prueba: Asignar un lote de opciones a dos configuraciones simultáneamente; comprobar atomicidad total ante cualquier error de validación.
@@ -583,23 +583,23 @@ Esta sección consolida formalmente los 41 requisitos aprobados de la línea bas
 #### REQ-MENU-033 — Detección Automática de Necesidad de Revisión de Combo (REVIEW_REQUIRED)
 - **Obligación:** El servicio Menu deberá marcar una `ComboConfiguration` como `REVIEW_REQUIRED` cuando una `ComboOption` configurada —incluida una opción deshabilitada (`enabled = false`), la cual continúa siendo una dependencia estructural activa de la configuración— apunte a una `MenuItemVariant` hoja cuyo cambio no atendido tenga uno o más motivos limitados estrictamente a: `PRICE`, `COMPOSITION`, `MODIFIERS` o `STATUS`. El servicio deberá ignorar cambios cosméticos, cambios de stock/existencias en inventario y cambios en variantes no referenciadas. Asimismo, una nueva revisión de receta culinaria solo generará necesidad de revisión de combo cuando la `MenuItemVariant` hoja componente adopte explícitamente dicha revisión de receta.
 - **Tipo:** Funcional.
-- **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-033); `Decisiones-cierre-invariantes.md`; `Auditoria-3.md`.
-- **Verificación:** Consultar E-20 después de cada caso y comprobar que los motivos anteriores generan `REVIEW_REQUIRED`, mientras que una opción deshabilitada sigue siendo dependiente, los cambios cosméticos/stock/variantes ajenas no generan aviso y una receta nueva solo lo genera después de su adopción por la variante.
+- **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-033).
+- **Verificación:** Consultar la interfaz de inspección de revisiones de combo después de cada caso y comprobar que los motivos anteriores generan `REVIEW_REQUIRED`, mientras que una opción deshabilitada sigue siendo dependiente, los cambios cosméticos/stock/variantes ajenas no generan aviso y una receta nueva solo lo genera después de su adopción por la variante.
 - **Trazabilidad:** Vigente.
 
 <a id="req-menu-034"></a>
 #### REQ-MENU-034 — Visibilidad Administrativa del Estado de Revisión
-- **Obligación:** El servicio Menu deberá exponer en las interfaces E-19 y E-20 las `ComboConfiguration` con su estado de revisión (incluyendo `REVIEW_REQUIRED`), un estado agregado por `MenuItem` COMBO, y los cambios pendientes observables identificados cada uno por `changeId` y motivo (`PRICE`, `COMPOSITION`, `MODIFIERS`, `STATUS`). Dicho estado de revisión deberá permanecer completamente desacoplado de `MenuItem.status`, del estado de cada `MenuItemVariant` y de la disponibilidad de inventario.
+- **Obligación:** El servicio Menu deberá exponer en las interfaces administrativas las `ComboConfiguration` con estado de revisión `REVIEW_REQUIRED` y un estado agregado por `MenuItem` COMBO; este estado de revisión deberá permanecer separado de `MenuItem.status`, del estado de cada `MenuItemVariant` y de la disponibilidad.
 - **Tipo:** Funcional.
-- **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-034); `Auditoria-3.md`.
-- **Verificación:** Inspeccionar E-19/E-20, comprobar el estado por configuración, el agregado del combo y los cambios pendientes observables con `changeId` y motivo, y comprobar que un `MenuItem` no COMBO no recibe estado de revisión de combo.
+- **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-034).
+- **Verificación:** Inspeccionar las vistas administrativas de monitoreo e inspección, comprobar el estado por configuración y el agregado del combo y comprobar que un `MenuItem` no COMBO no recibe estado de revisión de combo.
 - **Trazabilidad:** Vigente.
 
 <a id="req-menu-035"></a>
 #### REQ-MENU-035 — Confirmación Atómica de Revisión Mediante Token Observado
-- **Obligación:** El servicio Menu deberá confirmar únicamente los `changeId` identificados por cada `reviewToken` observado enviado junto con el `configurationId` de las `ComboConfiguration` seleccionadas explícitamente en E-21 (recibiendo una o varias parejas explícitas `configurationId`/`reviewToken`). La operación confirmará y registrará como atendidos únicamente los cambios observados representados por el token; los cambios posteriores a la observación (cambios concurrentes) deberán permanecer como pendientes y mantendrán la configuración en `REVIEW_REQUIRED` (pasando a `reviewStatus = NONE` únicamente cuando no resten cambios pendientes). La respuesta deberá devolver o identificar los `changeId` atendidos.
+- **Obligación:** El servicio Menu deberá confirmar únicamente los `changeId` identificados por cada `reviewToken` observado enviado junto con el `configurationId` de las `ComboConfiguration` seleccionadas explícitamente en la interfaz de confirmación administrativa (recibiendo una o varias parejas explícitas `configurationId`/`reviewToken`). La operación confirmará y registrará como atendidos únicamente los cambios observados representados por el token; los cambios posteriores a la observación (cambios concurrentes) deberán permanecer como pendientes y mantendrán la configuración en `REVIEW_REQUIRED`. La respuesta deberá devolver o identificar los `changeId` atendidos.
 - **Tipo:** Funcional.
-- **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-035); `Decisiones-cierre-invariantes.md`.
+- **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-035).
 - **Verificación:** Prueba: Confirmar una o varias configuraciones con sus tokens observados, comprobar que el intento “todas” enumera explícitamente las configuraciones mostradas y comprobar que cambios nuevos concurrentes permanecen pendientes manteniendo `REVIEW_REQUIRED` e identificando los `changeId` atendidos en el recibo.
 - **Trazabilidad:** Vigente.
 
@@ -607,7 +607,7 @@ Esta sección consolida formalmente los 41 requisitos aprobados de la línea bas
 #### REQ-MENU-036 — Conservación de la Configuración Comercial al Confirmar Revisión
 - **Obligación:** El servicio Menu deberá permitir confirmar el `reviewToken` de una `ComboConfiguration` sin modificar su `unitPrice`, sus `ComboSlot`, sus `ComboOption` ni el estado de las opciones retiradas; la confirmación solo registra los cambios observados (`changeId`) como atendidos y devuelve su identificación, sin generar revisión comercial, sin reactivar opciones retiradas y sin alterar precios ni slots.
 - **Tipo:** Funcional.
-- **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-036); `Auditoria-3.md`.
+- **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-036).
 - **Verificación:** Prueba: Confirmar una revisión y comparar antes y después `unitPrice`, slots, opciones y estados; comprobar que no se crea revisión comercial, no se reactiva una opción retirada, la configuración comercial se conserva intacta y que el recibo identifica los `changeId` atendidos.
 - **Trazabilidad:** Vigente.
 
@@ -615,8 +615,8 @@ Esta sección consolida formalmente los 41 requisitos aprobados de la línea bas
 #### REQ-MENU-037 — Referencia Visual del Slot (Precios Informativos)
 - **Obligación:** El servicio Menu deberá exponer, para cada `ComboSlot` y sus `baseOptionIds` administrativos, la suma `saved` de los `MenuItemVariant.unitPrice` fijados multiplicados por `ComboOption.quantity`, la suma `current` de esos mismos componentes con sus precios actuales y la diferencia firmada `difference = current - saved`; estos datos tendrán carácter exclusivamente informativo y no modificarán el precio de venta del combo (`ComboConfiguration.unitPrice`).
 - **Tipo:** Funcional.
-- **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-037); `Auditoria-3.md`.
-- **Verificación:** Consultar E-20 con una selección base de varias opciones, comprobar el uso de `itemVariantId` y `ComboOption.quantity` en `saved` y `current`, verificar `difference = current - saved` y comprobar que `ComboConfiguration.unitPrice` no cambia.
+- **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-037).
+- **Verificación:** Consultar la inspección administrativa del slot con una selección base de varias opciones, comprobar el uso de `itemVariantId` y `ComboOption.quantity` en `saved` y `current`, verificar `difference = current - saved` y comprobar que `ComboConfiguration.unitPrice` no cambia.
 - **Trazabilidad:** Vigente. Restituido formalmente desde `Req-F-Aproved.md`.
 
 ---
@@ -626,7 +626,7 @@ Esta sección consolida formalmente los 41 requisitos aprobados de la línea bas
 
 <a id="req-menu-022"></a>
 #### REQ-MENU-022 — Publicación y Notificación de Invalidación de Catálogo
-- **Obligación:** El servicio Menu deberá exponer el catálogo activo a través de las interfaces E-01 a E-03 y emitir notificaciones de invalidación ante cambios comerciales efectivos en la definición del menú. Para la disponibilidad operacional, Menu publica cambios de definición de insumos hacia Inventory, e Inventory publica evaluaciones con revisión y `validUntil`. Menu consume las evaluaciones vigentes y no republica el resultado recibido. Cualquier contrato técnico de invalidación, transporte, nombres o payloads no resuelto en las fuentes se mantiene bajo OPEN-007.
+- **Obligación:** El servicio Menu deberá exponer el catálogo activo a través de las interfaces públicas de consulta de catálogo y emitir notificaciones de invalidación ante cambios comerciales efectivos en la definición del menú. Para la disponibilidad operacional, Menu publica cambios de definición de insumos hacia Inventory, e Inventory publica evaluaciones con revisión y `validUntil`. Menu consume las evaluaciones vigentes y no republica el resultado recibido. Cualquier contrato técnico de invalidación, transporte, nombres o payloads no resuelto en las fuentes se mantiene bajo OPEN-007.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `Req-F-Aproved.md` (REQ-MENU-022); `Decisiones-cierre-invariantes.md` (ADR-001); `Auditoria-3.md`.
 - **Verificación:** Demostración: Realizar un cambio de precio y verificar la notificación de invalidación de catálogo comercial; comprobar que Menu consume la evaluación de disponibilidad de Inventory sin republicar dicho resultado ni generar una nueva versión comercial de item.
@@ -804,7 +804,6 @@ El dominio se estructura en torno a tres límites de agregado (*Aggregate Roots*
 *Exclusiva de productos hoja (`PREPARED` y `STOCKED`). Queda excluida de `COMBO`.*
 - `id`: Identificador único UUID.
 - `menuItemId`: Identificador del `MenuItem` hoja propietario.
-- `skuCode`: Código alfanumérico identificador de venta.
 - `unitPrice`: Decimal absoluto autoritativo ($\ge 0$).
 - `status`: Estado administrativo (`ACTIVE`, `INACTIVE`, `ARCHIVED`).
 - `recipeRevisionId`: Cadena identificadora de la revisión inmutable de receta (si el item es `PREPARED`).
@@ -830,7 +829,7 @@ El dominio se estructura en torno a tres límites de agregado (*Aggregate Roots*
 
 #### ComboConfiguration, ComboSlot & ComboOption (Entities)
 *Exclusivas de `COMBO`.*
-- `ComboConfiguration`: `id`, `menuItemId`, `name`, `unitPrice` ($\ge 0$), `reviewStatus` (`NONE`, `REVIEW_REQUIRED`), colección conceptual de cambios de revisión pendientes (`pendingChanges`: conjunto de cambios donde cada uno está identificado por `changeId`, clasificado por su motivo [`PRICE`, `COMPOSITION`, `MODIFIERS`, `STATUS`] y referenciado a la opción/variante afectada), y `reviewToken` que representa como snapshot el conjunto observado de `changeId` al momento de inspeccionar la configuración. (Una configuración `DEFAULT` se concibe únicamente como posibilidad conceptual sin obligación de existencia).
+- `ComboConfiguration`: `id`, `menuItemId`, `name`, `unitPrice` ($\ge 0$), `reviewStatus` (estado de revisión que puede indicar `REVIEW_REQUIRED`). (Una configuración `DEFAULT` se concibe únicamente como posibilidad conceptual sin obligación de existencia).
 - `ComboSlot`: `id`, `comboConfigurationId`, `name`, `minSelections` ($\ge 0$), `maxSelections` ($\ge \text{minSelections}$), `baseOptionIds` (conjunto de identificadores de opciones base del slot para referencia administrativa y comparación de precios).
 - `ComboOption`: `id`, `comboSlotId`, `itemVariantId` (referencia directa a `MenuItemVariant` hoja), `quantity` (entero $\ge 1$), `priceDelta` (decimal con signo), `enabled` (booleano), `savedUnitPrice` (precio unitario histórico de la variante fijado al guardar la opción o configuración, conservado para el cálculo informativo de `saved`).
 
@@ -908,7 +907,6 @@ classDiagram
 
     class MenuItemVariant {
         +UUID id
-        +String skuCode
         +Decimal unitPrice
         +VariantStatus status
         +String recipeRevisionId
@@ -952,14 +950,6 @@ classDiagram
         +String name
         +Decimal unitPrice
         +ReviewStatus reviewStatus
-        +String reviewToken
-        +Set~PendingChange~ pendingChanges
-    }
-
-    class PendingChange {
-        +UUID changeId
-        +String reason
-        +UUID affectedVariantId
     }
 
     class ComboSlot {
@@ -1007,7 +997,6 @@ classDiagram
 
     ComboMenuItem "1" *-- "0..*" ComboConfiguration : define (0..* si MenuItem INACTIVE, 1..* si ACTIVE)
     ComboConfiguration "1" *-- "1..*" ComboSlot : estructura
-    ComboConfiguration "1" o-- "0..*" PendingChange : registra conceptualmente
     ComboSlot "1" *-- "0..*" ComboOption : contiene (0..* sin minimo forzado)
     ComboOption --> MenuItemVariant : referencia directa
 
@@ -1063,7 +1052,7 @@ flowchart LR
         Inventory["Servicio INVENTORY\n(Stock Físico, Movimientos)"]
     end
 
-    POS -->|Consulta Catálogo Proyectado E-01..E-03| Menu
+    POS -->|Consulta Catálogo Proyectado| Menu
     POS -->|Crea / Edita Comanda| Orders
     Orders -->|Solicita Resolución de Insumos| Menu
     Orders -->|Solicita Descuento Atómico de Insumos| Inventory
@@ -1071,7 +1060,7 @@ flowchart LR
 
     Menu -->|Notificación Lógica de Cambios de Insumos| Inventory
     Inventory -->|Evaluación Lógica de Disponibilidad\n(revisión, validUntil)| Menu
-    Menu -.->|Notificación Lógica de Invalidación de Catálogo\n(canal, destinatario y entrega abiertos bajo OPEN-007)| POS
+    Menu -.->|Notificación Lógica de Invalidación de Catálogo\n(destinatarios y transporte abiertos bajo OPEN-007)| ClientLayer
 ```
 
 <a id="82-patrones-de-interacción-y-comunicación"></a>
@@ -1109,21 +1098,16 @@ El modelo de datos lógico describe las entidades, atributos y relaciones persis
 - `combo_category_id`: UUID (Referencia opcional a `ComboCategory` para combos).
 - `commercial_classification`: String / Enum (`PLATILLO`, `BEBIDA`, `POSTRE`, `COMPLEMENTO`, nulo para `COMBO`).
 - `version`: String (Identificador de revisión inmutable `<number>_<ISO8601>`).
-- `created_at`: DateTime.
-- `updated_at`: DateTime.
 
 #### Entidad: MenuItemVariant
 *Aplica exclusivamente a items hoja (`PREPARED` y `STOCKED`). Un `COMBO` no posee registros en esta entidad.*
 - `id`: UUID (Llave primaria lógica).
 - `menu_item_id`: UUID (Referencia lógica a `MenuItem` hoja).
-- `sku_code`: String (Código alfanumérico comercial).
 - `unit_price`: Decimal (Precio de venta unitario absoluto autoritativo $\ge 0$).
 - `status`: String / Enum administrativo (`ACTIVE`, `INACTIVE`, `ARCHIVED`).
 - `recipe_revision_id`: String (Identificador de revisión inmutable de receta culinaria, requerido si `type = PREPARED`).
 - `inventory_item_id`: String (Identificador foráneo opaco de insumo en Inventory, requerido si `type = STOCKED`).
 - `stocked_quantity`: Decimal (Cantidad de retiro de inventario $> 0$, requerida si `type = STOCKED`).
-- `created_at`: DateTime.
-- `updated_at`: DateTime.
 
 #### Entidad: VariantDimension
 - `id`: UUID (Llave primaria lógica).
@@ -1145,7 +1129,7 @@ El modelo de datos lógico describe las entidades, atributos y relaciones persis
 - `menu_item_id`: UUID (Referencia lógica al `MenuItem` hoja propietario).
 - `name`: String (Nombre comercial del grupo de personalización).
 - `min_selections`: Integer (Límite entero de selección mínima $\ge 0$).
-- `max_selections`: Integer (Límite entero de selección máxima $\ge \text{min_selections}$).
+- `max_selections`: Integer (Límite entero de selección máxima $\ge \text{minSelections}$).
 
 #### Entidad: ModifierOption
 - `id`: UUID (Llave primaria lógica).
@@ -1171,18 +1155,14 @@ El modelo de datos lógico describe las entidades, atributos y relaciones persis
 - `menu_item_id`: UUID (Referencia lógica al `MenuItem` COMBO propietario).
 - `name`: String (Nombre de la configuración comercial).
 - `unit_price`: Decimal (Precio unitario absoluto autoritativo del combo $\ge 0$).
-- `review_status`: String / Enum (`NONE`, `REVIEW_REQUIRED`).
-- `pending_changes`: Colección conceptual de cambios pendientes de revisión identificados individualmente por `change_id` y clasificados por su motivo (`reason`: `PRICE`, `COMPOSITION`, `MODIFIERS`, `STATUS`) sobre el componente afectado (mantenida como concepto lógico sin presuponer tablas, tecnología o estrategia física de persistencia no respaldadas).
-- `review_token`: String (Token opaco que representa como snapshot el conjunto de `change_id` observados al momento de la inspección para su confirmación).
-- `created_at`: DateTime.
-- `updated_at`: DateTime.
+- `review_status`: String / Enum (Indicador de estado de revisión que puede señalar `REVIEW_REQUIRED`).
 
 #### Entidad: ComboSlot
 - `id`: UUID (Llave primaria lógica).
 - `combo_configuration_id`: UUID (Referencia lógica a `ComboConfiguration`).
 - `name`: String (Nombre descriptivo del espacio de elección, ej. "Bebida", "Plato fuerte").
 - `min_selections`: Integer (Selección mínima requerida $\ge 0$).
-- `max_selections`: Integer (Selección máxima permitida $\ge \text{min_selections}$).
+- `max_selections`: Integer (Selección máxima permitida $\ge \text{minSelections}$).
 - `base_option_ids`: Colección lógica de identificadores de `ComboOption` designadas como base para referencia administrativa.
 
 #### Entidad: ComboOption
@@ -1198,12 +1178,10 @@ El modelo de datos lógico describe las entidades, atributos y relaciones persis
 - `id`: UUID (Identificador lógico de la receta).
 - `name`: String (Nombre descriptivo culinario).
 - `version`: String (Revisión inmutable `<number>_<ISO8601>`).
-- `created_at`: DateTime.
 
 #### Entidad: RecipeComponent
 - `id`: UUID (Llave primaria lógica).
 - `recipe_id`: UUID (Referencia lógica a `Recipe`).
-- `recipe_version`: String (Revisión de la receta a la que pertenece el ingrediente).
 - `inventory_item_id`: String (Identificador foráneo opaco de insumo en Inventory).
 - `quantity`: Decimal (Cantidad requerida $> 0$).
 - `unit`: String (Unidad de medida formal de inventario).
@@ -1240,29 +1218,29 @@ Las relaciones e invariantes de integridad entre entidades se gobiernan mediante
 
 ## 10. Interfaces de Entrada y Salida (APIs)
 
-Esta sección consolida las interfaces confirmadas por las fuentes autorizadas sin inventar esquemas no respaldados.
+Esta sección consolida las interfaces lógicas confirmadas por las fuentes autorizadas sin inventar esquemas ni depender de numeraciones de interfaces externas no respaldadas.
 
-<a id="101-interfaces-de-consulta-pública-de-catálogo-e-01-a-e-03"></a>
-### 10.1 Interfaces de Consulta Pública de Catálogo (E-01 a E-03)
+<a id="101-interfaz-de-consulta-pública-de-catálogo"></a>
+### 10.1 Interfaz de Consulta Pública de Catálogo
 
-- **E-01 (Consulta Estructurada de Menú):** Expone las categorías activas y los `MenuItem` comercialmente vigentes con sus unidades vendibles elegibles y precios proyectados (`Desde $X` / `$X`).
-- **E-02 (Detalle Vendible de Item y Modificadores):** Retorna la definición completa de un item, sus variantes activas, sus dimensiones y la proyección plana `ResolvedVariantModifier` aplicable a cada variante para despliegue instantáneo en la UI de personalización.
-- **E-03 (Detalle Estructurado de Combo):** Expone las `ComboConfiguration` elegibles de un combo, sus `ComboSlot` con sus límites de selección (`minSelections`, `maxSelections`) y las `ComboOption` disponibles vinculadas a variantes hoja con sus `priceDelta`.
+- **Consulta Estructurada de Menú:** Expone las categorías activas y los `MenuItem` comercialmente vigentes con sus unidades vendibles elegibles y precios proyectados (`Desde $X` / `$X`).
+- **Detalle Vendible de Item y Modificadores:** Retorna la definición completa de un item, sus variantes activas, sus dimensiones y la proyección plana `ResolvedVariantModifier` aplicable a cada variante para despliegue instantáneo en la UI de personalización.
+- **Detalle Estructurado de Combo:** Expone las `ComboConfiguration` elegibles de un combo, sus `ComboSlot` con sus límites de selección (`minSelections`, `maxSelections`) y las `ComboOption` disponibles vinculadas a variantes hoja con sus `priceDelta`.
 
-<a id="102-interfaces-de-operaciones-administrativas-y-copia-e-17"></a>
-### 10.2 Interfaces de Operaciones Administrativas y Copia (E-17)
+<a id="102-interfaz-de-operaciones-administrativas-y-copia-en-lote"></a>
+### 10.2 Interfaz de Operaciones Administrativas y Copia en Lote
 
-- **E-17 (Operaciones Administrativas en Lote):** Permite ejecutar operaciones masivas de catálogo con soporte de simulación (`dryRun = true/false`) y control transaccional:
+- **Operaciones Administrativas en Lote:** Permite ejecutar operaciones masivas de catálogo con soporte de simulación (`dryRun = true/false`) y control transaccional:
   - Copia de configuraciones de modificadores (`VariantModifierConfig`) entre variantes con política `FAIL` o `REPLACE`.
   - Copia de slots y opciones de combo entre configuraciones del mismo item.
   - Asignación atómica múltiple de opciones de combo a múltiples configuraciones.
 
-<a id="103-interfaces-de-gestión-de-revisiones-de-combo-e-19-a-e-21"></a>
-### 10.3 Interfaces de Gestión de Revisiones de Combo (E-19 a E-21)
+<a id="103-interfaz-de-gestión-y-confirmación-de-revisiones-de-combo"></a>
+### 10.3 Interfaz de Gestión y Confirmación de Revisiones de Combo
 
-- **E-19 (Monitoreo de Revisiones de Combo):** Expone el estado agregado de revisión a nivel de `MenuItem` COMBO y el detalle del estado de revisión individual por cada una de sus `ComboConfiguration` (identificando aquellas en `REVIEW_REQUIRED` vs `NONE`). Permite visualizar si existen cambios pendientes de atención administrativa, manteniéndose completamente desacoplado de `MenuItem.status` y de la disponibilidad de inventario.
-- **E-20 (Inspección Detallada de Cambios en Combo):** Expone para una configuración de combo su estado de revisión, la lista observable de cambios pendientes identificados individualmente por `changeId` y categorizados por motivo (`PRICE`, `COMPOSITION`, `MODIFIERS`, `STATUS`) sobre las opciones/variantes afectadas, junto con los valores informativos de comparación del slot (`saved`, `current`, `difference`). Emite el `reviewToken` vigente que representa como snapshot el conjunto exacto de `changeId` observados al momento de la consulta.
-- **E-21 (Confirmación Administrativa de Revisión):** Admite la confirmación de una o varias configuraciones seleccionadas explícitamente mediante el envío de una o varias parejas explícitas `(configurationId, reviewToken)` (rechazando comodines implícitos no enumerados). Confirma y marca como atendidos **únicamente** los `changeId` correspondientes a los tokens observados. Si concurren cambios pendientes adicionales posteriores al token confirmado, dichos cambios se conservan como pendientes y la configuración mantiene el estado `REVIEW_REQUIRED` (pasando a `NONE` solo cuando no queden cambios pendientes). La operación devuelve o identifica en su recibo los `changeId` efectivamente atendidos, sin modificar en ningún caso el `unitPrice`, los `ComboSlot`, las `ComboOption` ni el estado administrativo de opciones retiradas, y sin generar una nueva revisión comercial.
+- **Monitoreo de Revisiones de Combo:** Expone en las interfaces administrativas las `ComboConfiguration` con estado de revisión `REVIEW_REQUIRED` y un estado agregado por `MenuItem` COMBO, manteniéndose completamente separado de `MenuItem.status`, del estado de cada `MenuItemVariant` y de la disponibilidad.
+- **Referencia Visual del Slot:** Expone para cada `ComboSlot` y sus `baseOptionIds` administrativos la suma `saved` de los precios unitarios fijados de las variantes componentes por cantidad, la suma `current` con los precios actuales y la diferencia firmada `current - saved`, con carácter exclusivamente informativo y sin modificar el precio de venta del combo.
+- **Confirmación Administrativa de Revisión:** Admite la confirmación de una o varias configuraciones seleccionadas explícitamente mediante el envío de cada `reviewToken` observado junto con su `configurationId` (rechazando comodines implícitos). Confirma y marca como atendidos **únicamente** los `changeId` correspondientes a los tokens observados. Si concurren cambios adicionales posteriores a la observación, dichos cambios se conservan como pendientes y la configuración mantiene el estado `REVIEW_REQUIRED`. La operación devuelve o identifica en su recibo los `changeId` efectivamente atendidos, sin modificar en ningún caso el `unitPrice`, los `ComboSlot`, las `ComboOption` ni el estado administrativo de opciones retiradas, y sin generar una nueva revisión comercial.
 
 <a id="104-interfaz-de-resolución-neta-de-insumos-para-orders"></a>
 ### 10.4 Interfaz de Resolución Neta de Insumos para Orders
@@ -1297,7 +1275,7 @@ Esta sección documenta exclusivamente los intercambios lógicos respaldados por
 2. **Notificación de Invalidación de Catálogo Comercial:**
    - **Naturaleza:** Obligación exclusivamente lógica de notificación de cambio de catálogo.
    - **Disparador:** Cambios comerciales efectivos en precios de variantes/configuraciones, modificaciones de estructura o transiciones administrativas de estado.
-   - **Propósito Lógico:** Notificar a los consumidores de catálogo que el estado comercial ha cambiado y que sus proyecciones locales de consulta requieren refresco contra las interfaces autorizadas de lectura (E-01 a E-03).
+   - **Propósito Lógico:** Notificar a los consumidores de catálogo que el estado comercial ha cambiado y que sus proyecciones locales de consulta requieren refresco contra las interfaces autorizadas de lectura de catálogo.
    - **Delimitación de Alcance:** Se retiran receptores concretos, campos de payload y cualquier ruta específica hacia POS; los nombres de eventos, destinatarios, esquemas de payload y protocolos de transporte permanecen diferidos bajo la cuestión abierta OPEN-007.
 
 <a id="112-eventos-consumidos-por-menu"></a>
@@ -1348,9 +1326,9 @@ Los clientes de punto de venta (POS) y estaciones de cocina (KDS) actúan como c
 
 Conforme a las reglas de consolidación normativas, los aspectos no resueltos por las fuentes autorizadas permanecen formalmente registrados como **cuestiones abiertas**. Queda estrictamente prohibido introducir decisiones arbitrarias o supuestos no fundamentados.
 
-<a id="131-open-002-emparejamiento-de-slots-y-conflictos-en-copia-masiva-e-17"></a>
-### 13.1 OPEN-002: Emparejamiento de Slots y Conflictos en Copia Masiva (E-17)
-- **Problema:** En operaciones de copia masiva mediante E-17 entre configuraciones de combo con distinta cardinalidad o semántica de slots, no está definido el algoritmo de emparejamiento automático (*slot matching*) ni el comportamiento detallado ante fallos parciales en lotes grandes cuando no aplica una política simple de `FAIL` o `REPLACE`.
+<a id="131-open-002-emparejamiento-de-slots-y-conflictos-en-copia-masiva"></a>
+### 13.1 OPEN-002: Emparejamiento de Slots y Conflictos en Copia Masiva
+- **Problema:** En operaciones de copia masiva entre configuraciones de combo con distinta cardinalidad o semántica de slots, no está definido el algoritmo de emparejamiento automático (*slot matching*) ni el comportamiento detallado ante fallos parciales en lotes grandes cuando no aplica una política simple de `FAIL` o `REPLACE`.
 - **Impacto:** Posible ambigüedad operativa o inconsistencias estructurales si el administrador copia slots entre combos asimétricos.
 - **Información Faltante:** Reglas comerciales sobre emparejamiento por nombre exacto vs orden posicional de slots, y estrategia de reversión fina en lotes heterogéneos.
 
@@ -1395,10 +1373,10 @@ La siguiente matriz documenta la consideración y el estado normativo exacto de 
 | **REQ-MENU-010** | Configuración de Combo | Vigente | `Req-F-Aproved.md` (p. 6) | `Auditoria-3.md` (pp. 12–13) | Conservado. Uso de `ComboConfiguration` con precio propio. |
 | **REQ-MENU-011** | Espacio de Selección (Slot) | Vigente | `Req-F-Aproved.md` (p. 6) | `Auditoria-3.md` (p. 13); ADR-005 | Conservado. Límites exactos `0 <= minSelections <= maxSelections` sin restricción inferior forzada en maxSelections. |
 | **REQ-MENU-012** | Opciones de Combo Directas | Vigente | `Req-F-Aproved.md` (p. 7) | `Auditoria-3.md` (pp. 13–14) | Conservado. Apunta directo a `itemVariantId`. |
-| **REQ-MENU-013** | Grupos de Modificadores | Vigente | `Req-F-Aproved.md` (p. 7) | `Auditoria-3.md` (pp. 8–9, 14) | Conservado. Propiedad del item hoja; prohibido en combo. |
+| **REQ-MENU-013** | Grupos de Modificadores | Vigente | `Req-F-Aproved.md` (p. 7) | `Auditoria-3.md` (pp. 8–9, 14) | Conservado. Propiedad del item hoja; no forma parte de combo. |
 | **REQ-MENU-014** | Opciones y Config General | Vigente | `Req-F-Aproved.md` (p. 8) | `Auditoria-3.md` (pp. 9–10) | Conservado. `ModifierOption` porta `generalConfig`. |
 | **REQ-MENU-015** | Especialización por Variante | Vigente | `Req-F-Aproved.md` (p. 8) | `Auditoria-3.md` (pp. 9–10) | Conservado. `VariantModifierConfig` sobrescribe general. |
-| **REQ-MENU-016** | Copia de Modificadores (E-17) | Vigente | `Req-F-Aproved.md` (p. 9) | `Modelo-Pre-Final.md` | Conservado. Copia administrativa con FAIL / REPLACE. |
+| **REQ-MENU-016** | Copia de Modificadores | Vigente | `Req-F-Aproved.md` (p. 9) | `Modelo-Pre-Final.md` | Conservado. Copia administrativa con FAIL / REPLACE. |
 | **REQ-MENU-017** | Directiva de Adición (ADD) | Vigente | `Req-F-Aproved.md` (p. 9) | `Auditoria-3.md` (pp. 10–11) | Conservado. Semántica formal de adición de insumos. |
 | **REQ-MENU-018** | Directiva de Omisión (OMIT) | Vigente | `Req-F-Aproved.md` (p. 10) | `Auditoria-3.md` (pp. 10–11) | Conservado. Semántica formal de omisión de insumos. |
 | **REQ-MENU-019** | Modificadores sin Efectos | Vigente | `Req-F-Aproved.md` (p. 10) | `Auditoria-3.md` (p. 11) | Conservado. Efectos vacíos para instrucciones de cocina. |
@@ -1406,8 +1384,8 @@ La siguiente matriz documenta la consideración y el estado normativo exacto de 
 | **REQ-MENU-021** | Historial de Recetas | Vigente | `Req-F-Aproved.md` (p. 11) | `Auditoria-3.md` (p. 7); ADR-006 | Conservado. Revisiones inmutables `<number>_<ISO8601>`. |
 | **REQ-MENU-022** | Publicación de Catálogo | Vigente | `Req-F-Aproved.md` (p. 12) | `Auditoria-3.md`; ADR-001 | Conservado. Notificación de invalidación comercial; consumo de evaluaciones de Inventory sin republicación. |
 | **REQ-MENU-023** | Valor de Dimensión | Vigente | `Req-F-Aproved.md` (p. 12) | `Auditoria-3.md` (pp. 4–5) | Conservado. Entidad formal `VariantValue`. |
-| **REQ-MENU-024** | Copia de Combo (E-17) | Vigente | `Req-F-Aproved.md` (p. 13) | `Modelo-Pre-Final.md` | Conservado. Copia de slots y opciones con nuevos IDs. |
-| **REQ-MENU-025** | Asignación Múltiple Opciones | Vigente | `Req-F-Aproved.md` (p. 13) | `Modelo-Pre-Final.md` | Conservado. Asignación atómica mediante E-17. |
+| **REQ-MENU-024** | Copia de Combo | Vigente | `Req-F-Aproved.md` (p. 13) | `Modelo-Pre-Final.md` | Conservado. Copia de slots y opciones con nuevos IDs. |
+| **REQ-MENU-025** | Asignación Múltiple Opciones | Vigente | `Req-F-Aproved.md` (p. 13) | `Modelo-Pre-Final.md` | Conservado. Asignación atómica mediante operación administrativa. |
 | **REQ-MENU-026** | Archivado de Variante | **Modificado** | `Req-F-Aproved.md` (p. 14); ADR-005 | `Auditoria-3.md` (pp. 19–20) | **Actualizado por prioridad posterior:** Permite archivado y reevalúa dependencias a REVIEW_REQUIRED sin rechazar ni mutar status del combo. |
 | **REQ-MENU-027** | Guardado Incompleto Inactivo | Vigente | `Req-F-Aproved.md` (p. 14) | `Auditoria-3.md`; ADR-005 | Conservado. Permite guardado incompleto solo si INACTIVE en MenuItem o Variant para ModifierGroup, o en MenuItem COMBO para ComboSlot. |
 | **REQ-MENU-028** | Informar Selecciones Faltantes| Vigente | `Req-F-Aproved.md` (p. 15) | ADR-005 | Conservado. Advertencia estructurada con identidad, tipo, minSelections y capacidad calculada. |
@@ -1415,11 +1393,11 @@ La siguiente matriz documenta la consideración y el estado normativo exacto de 
 | **REQ-MENU-030** | Resolución Neta Insumos | Vigente | `Req-F-Aproved.md` (p. 16) | `Auditoria-3.md` (pp. 11, 15); ADR-003 | Conservado. Confinamiento, OMIT antes de ADD. |
 | **REQ-MENU-031** | Revisión de MenuItem | Vigente | `Req-F-Aproved.md` (p. 16) | ADR-006 | Conservado. Formato `<number>_<ISO8601>` ante cambios comerciales. |
 | **REQ-MENU-032** | Migración Default Variant | Vigente | `Req-F-Aproved.md` (p. 17) | ADR-008; `Auditoria-3.md` | Conservado. Transición atómica de DEFAULT a explícitas. |
-| **REQ-MENU-033** | Detección Revisión Combo | Vigente | `Req-F-Aproved.md` (p. 17) | `Auditoria-3.md` (pp. 19–20) | Conservado. Marca `REVIEW_REQUIRED` por PRICE, COMPOSITION, MODIFIERS y STATUS; opciones deshabilitadas siguen siendo dependientes; recetas requieren adopción explícita. |
-| **REQ-MENU-034** | Visibilidad Revisión Combo | Vigente | `Req-F-Aproved.md` (p. 18) | `Auditoria-3.md` | Conservado. Exposición en E-19/E-20 por configuración y agregado combo con changeId y motivos observables. |
-| **REQ-MENU-035** | Confirmación con Token | Vigente | `Req-F-Aproved.md` (p. 18) | `Decisiones-cierre-invariantes.md` | Conservado. Confirmación atómica de changeId de configuraciones explícitas con reviewToken; retiene cambios concurrentes. |
-| **REQ-MENU-036** | Conservación al Confirmar | Vigente | `Req-F-Aproved.md` (p. 19) | `Auditoria-3.md` | Conservado. Confirmación identifica changeId atendidos sin alterar precios, slots, opciones ni reactivar bajas. |
-| **REQ-MENU-037** | Referencia Visual del Slot | Vigente | `Req-F-Aproved.md` (p. 19) | `Auditoria-3.md` (p. 15) | Restituido completo. baseOptionIds, saved, current, difference; puramente informativo sin alterar precio. |
+| **REQ-MENU-033** | Detección Revisión Combo | Vigente | `Req-F-Aproved.md` (p. 17) | `Req-F-Aproved.md` (p. 17) | Conservado. Marca `REVIEW_REQUIRED` ante cambios no atendidos de motivos PRICE, COMPOSITION, MODIFIERS y STATUS; opciones deshabilitadas permanecen dependientes; recetas requieren adopción explícita por la variante. |
+| **REQ-MENU-034** | Visibilidad Revisión Combo | Vigente | `Req-F-Aproved.md` (p. 18) | `Req-F-Aproved.md` (p. 18) | Conservado. Exposición administrativa de ComboConfiguration en REVIEW_REQUIRED y estado agregado por MenuItem COMBO, separado de MenuItem.status, estado de variantes y disponibilidad. |
+| **REQ-MENU-035** | Confirmación con Token | Vigente | `Req-F-Aproved.md` (p. 18) | `Req-F-Aproved.md` (p. 18) | Conservado. Confirmación únicamente de los changeId identificados por reviewToken observado con configurationId explícitos; cambios posteriores permanecen pendientes. |
+| **REQ-MENU-036** | Conservación al Confirmar | Vigente | `Req-F-Aproved.md` (p. 19) | `Req-F-Aproved.md` (p. 19) | Conservado. Confirmación de reviewToken sin modificar unitPrice, slots, opciones ni reactivar bajas; solo registra cambios observados como atendidos identificando changeId en recibo. |
+| **REQ-MENU-037** | Referencia Visual del Slot | Vigente | `Req-F-Aproved.md` (p. 19) | `Req-F-Aproved.md` (p. 19) | Conservado. Exposición por ComboSlot de baseOptionIds con sumas saved, current y difference con carácter informativo sin alterar precio del combo. |
 | **REQ-MENU-038** | Proyección Modificadores | Vigente | `Req-F-Aproved.md` (p. 20) | `Auditoria-3.md` (pp. 10, 15) | Conservado. Publicación de `ResolvedVariantModifier`. |
 | **REQ-MENU-039** | Elegibilidad Variante Hoja | Vigente | `Req-F-Aproved.md` (p. 20) | `Auditoria-3.md` (p. 18) | Conservado. Condiciones estructurales independientes de stock. |
 | **REQ-MENU-040** | Elegibilidad Config Combo | Vigente | `Req-F-Aproved.md` (p. 21) | `Auditoria-3.md` (p. 18) | Conservado. Mínimos alcanzables con variantes elegibles. |

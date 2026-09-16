@@ -1,0 +1,25 @@
+{
+  "verdict": "FAIL",
+  "summary": "El candidato elimina referencias nominales no autorizadas, pero conserva contenido no sustentado y trazabilidad superficial en la revisión integral solicitada.",
+  "issues": [
+    {
+      "severity": "HIGH",
+      "file": "docs/md/spec.md:592-595, 833, 1174-1176, 1263-1265, 1418-1422",
+      "issue": "REQ-MENU-034 y la sección 10.3 exigen exponer cambios pendientes por changeId y motivo, además de un estado reviewStatus NONE. REQ-MENU-034 de Req-F-Aproved.md no establece esa exposición detallada; Auditoria-3.md y Decisiones-cierre-invariantes.md tampoco definen esos elementos ni el enum NONE.",
+      "required_fix": "Reducir REQ-MENU-034 y todas sus copias en API, modelo, verificaciones y trazabilidad a contenido respaldado por fuentes autorizadas. Conservar changeId y reviewToken únicamente donde un requisito autorizado los establezca explícitamente y eliminar reviewStatus NONE si no existe evidencia autorizada."
+    },
+    {
+      "severity": "HIGH",
+      "file": "docs/md/spec.md:803-811, 909-917, 1100-1126, 1197-1208, 1291-1295",
+      "issue": "El modelo mantiene MenuItemVariant.skuCode como atributo normativo y añade created_at, updated_at y RecipeComponent.recipe_version sin respaldo en las nueve fuentes. Modelo-Pre-Final.md elimina MenuItemVariant.skuCode? en favor del mapeo de SKU/inventory en StockedVariantDefinition, y Auditoria-3.md modela Stocked mediante inventoryItemId.",
+      "required_fix": "Eliminar skuCode de dominio, diagramas, persistencia y referencias derivadas; usar la referencia opaca de Inventory establecida por el modelo vigente. Eliminar también los timestamps y recipe_version no sustentados, manteniendo coherencia en todas las representaciones."
+    },
+    {
+      "severity": "MEDIUM",
+      "file": "docs/md/spec.md:586, 594, 602, 610, 618, 1418-1422",
+      "issue": "La especificación atribuye a Auditoria-3.md y Decisiones-cierre-invariantes.md detalles que esas fuentes no establecen, como motivos observables, reviewToken, baseOptionIds y saved/current/difference. Esto incumple la aceptación que prohíbe usar citas autorizadas superficialmente.",
+      "required_fix": "Corregir cada Fuente Autorizada y fila de trazabilidad para atribuir solo el significado realmente establecido por cada fuente; retirar citas de refinamiento falsas y eliminar cualquier detalle que no tenga evidencia autorizada."
+    }
+  ],
+  "next_action": "REANALYZE"
+}

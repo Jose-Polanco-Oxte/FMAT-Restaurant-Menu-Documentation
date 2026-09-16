@@ -8,6 +8,10 @@ Repository context may be read to understand the request. Reading a file does no
 
 Do not convert discovered repository problems into work unless fixing that exact problem is directly required for the requested outcome.
 
+## Configuration
+
+Don't forget to update the version and specification (if applicable) in any configuration file or within a document that includes a configuration section. Do this only if that file has been modified (or, in the case of a specific document, if the file or files referenced by that configuration have been modified).
+
 ## Workflow
 
 The workflow is:

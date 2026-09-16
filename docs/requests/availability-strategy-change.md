@@ -1,4 +1,14 @@
-# Modificación — Estrategia de disponibilidad granular
+# Modificación de requisitos
+
+## Objetivo
+
+Busca todas las consecuencias de las modificaciones: requisitos existentes afectados, modelo de dominio, modelo de datos/proyecciones, contratos con Inventory, interfaces, eventos y texto explicativo. Integra estas decisiones y sustituye cualquier diseño incompatible.
+
+## REQ-MENU-013
+
+No decir que algo está “prohibido” en Combo si simplemente ese concepto no pertenece al modelo de Combo. Es una diferencia importante entre una regla negativa y ausencia del concepto.
+
+## Estrategia de disponibilidad granular
 
 La estrategia de disponibilidad deberá modificarse para evitar bloquear una
 `MenuItemVariant` o una `ComboConfiguration` completa únicamente porque una
@@ -9,7 +19,7 @@ La disponibilidad operacional deberá evaluarse y materializarse en la menor
 unidad seleccionable relevante, propagándose hacia niveles superiores sólo
 cuando la indisponibilidad impida construir cualquier configuración válida.
 
-## MenuItemVariant
+### MenuItemVariant
 
 Para `MenuItem` de tipo `PREPARED` o `STOCKED`, la disponibilidad principal
 deberá calcularse por `MenuItemVariant`, no únicamente por `MenuItem`.
@@ -24,7 +34,7 @@ La disponibilidad agregada de `MenuItem` será derivada:
 - esta disponibilidad agregada se utilizará para presentación de catálogo, no
   como fuente autoritativa para bloquear variantes individuales.
 
-## Modificadores
+### Modificadores
 
 La falta de inventario necesaria únicamente para una personalización opcional
 no deberá volver indisponible a toda la variante.
@@ -58,7 +68,7 @@ grupo obligatorio sin capacidad suficiente
 → bloquea la variante
 ```
 
-## Requerimientos de Inventory
+### Requerimientos de Inventory
 
 La proyección utilizada para disponibilidad deberá separar los requerimientos
 base de una variante de los requerimientos incrementales introducidos por sus
@@ -88,7 +98,7 @@ productos que todavía pueden venderse válidamente.
 Los requerimientos deberán expresarse mediante referencias a artículos de
 Inventory y cantidades normalizadas/aplanadas cuando corresponda.
 
-## Combo
+### Combo
 
 La disponibilidad de un `COMBO` deberá calcularse por
 `ComboConfiguration`.
@@ -127,7 +137,7 @@ Combo AVAILABLE
 ↔ existe al menos una ComboConfiguration AVAILABLE
 ```
 
-## Modelo de disponibilidad
+### Modelo de disponibilidad
 
 La disponibilidad no deberá tratarse como estado comercial autoritativo dentro
 de `MenuItem`.
@@ -156,7 +166,7 @@ ComboConfigurationAvailability
 La disponibilidad de `ComboOption`, `ComboSlot` y `MenuItem` podrá derivarse de
 estas proyecciones cuando no sea necesario materializarla explícitamente.
 
-## Propagación
+### Propagación
 
 La estrategia general de propagación será:
 
@@ -179,7 +189,7 @@ MenuItem aggregate availability
 La indisponibilidad sólo deberá propagarse hacia un nivel superior cuando la
 restricción impida satisfacer una configuración válida de ese nivel.
 
-## Cambio respecto al diseño anterior
+### Cambio respecto al diseño anterior
 
 Reemplazar cualquier requisito o decisión existente que determine la
 disponibilidad de una variante calculando el inventario necesario para el peor

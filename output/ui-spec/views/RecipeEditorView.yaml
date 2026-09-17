@@ -1,0 +1,448 @@
+view:
+  id: RecipeEditorView
+  name: Recipe Editor View
+  purpose: >
+    Provide the menu administrator with a specialized semantic interface to create culinary recipes,
+    inspect immutable revision histories, and author new recipe revisions consisting of a descriptive
+    name and a list of RecipeComponent entries (specifying opaque inventoryItemId, positive quantity,
+    and measurement unit). Enforces strict version immutability (INV-MENU-004) where any modification
+    produces a new immutable revision formatted as '<number>_<ISO8601>' and never mutates earlier revisions,
+    while establishing that PREPARED MenuItemVariants referencing previous revisions retain their prior
+    recipeRevisionId until explicit adoption elsewhere, without inventing inventory search, catalog lookup,
+    stock verification, or automatic scaling.
+  actors:
+    - ADMINISTRATOR
+  requirements:
+    - REQ-MENU-FUL-002
+    - REQ-MENU-FUL-003
+    - REQ-MENU-FUL-004
+    - INV-MENU-004
+  inputs:
+    - name: recipeId
+      type: "UUID | null"
+      required: false
+      description: "Identifier of an existing Recipe aggregate to inspect or author a new revision for; null or omitted when creating an initial recipe entity."
+      trace: "REQ-MENU-FUL-003"
+    - name: targetRevisionId
+      type: "String | null"
+      required: false
+      description: "Specific immutable recipe revision token formatted as '<number>_<ISO8601>' to inspect in read-only mode; null or omitted loads the latest revision or an empty creation buffer."
+      trace: "REQ-MENU-FUL-004, INV-MENU-004"
+    - name: returnContext
+      type: "String | null"
+      required: false
+      description: "Contextual origin marker (e.g. 'MenuItemEditorView' or 'MenuCatalogAdministrationView') indicating the view to return to upon completion or cancellation."
+      trace: "docs/ui-spec-arch.md"
+  outputs:
+    - name: savedRecipeId
+      type: UUID
+      description: "Unique identifier of the created or revised Recipe aggregate emitted upon accepted persistence."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - name: newRecipeRevisionId
+      type: String
+      description: "Newly generated immutable recipe revision token formatted as '<number>_<ISO8601>' emitted upon accepted persistence."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+    - name: returnToOriginSignal
+      type: Boolean
+      description: "Navigation trigger returning the administrator to the calling view upon save, completion, or cancellation."
+      trace: "docs/ui-spec-arch.md"
+  regions:
+    - id: recipeIdentityRegion
+      role: primary
+      description: "Semantic region for defining and inspecting the Recipe commercial identity, aggregate identifier, and currently inspected or target revision token."
+      data:
+        - recipeIdentity
+      controls:
+        - nameInput
+        - revisionSelector
+    - id: recipeComponentsRegion
+      role: primary
+      description: "Semantic region for managing RecipeComponent entries (opaque inventoryItemId, positive quantity, and measurement unit) for the working recipe revision."
+      data:
+        - recipeComponents
+      controls:
+        - addComponentAction
+        - removeComponentAction
+        - componentInventoryItemIdInput
+        - componentQuantityInput
+        - componentUnitInput
+    - id: revisionHistoryRegion
+      role: secondary
+      description: "Semantic region displaying the chronological audit log of all immutable revisions generated for this Recipe, supporting read-only inspection and branching."
+      data:
+        - revisionHistory
+      controls:
+        - inspectHistoricalRevisionAction
+        - branchRevisionFromHistoricalAction
+    - id: variantAdoptionNoticeRegion
+      role: supporting
+      description: "Semantic informational region explicitly confirming that recipe edits produce decoupled immutable revisions and that variants retain their prior recipeRevisionId until explicit adoption elsewhere."
+      data:
+        - variantAdoptionNotice
+      controls: []
+    - id: revisionCommitRegion
+      role: supporting
+      description: "Semantic region evaluating structural invariants and providing actions to commit a new immutable revision or discard pending edits."
+      data:
+        - recipeValidationStatus
+      controls:
+        - saveRecipeRevisionAction
+        - cancelEditAction
+  displayedData:
+    - id: recipeIdentity
+      name: Recipe Identity and Version State
+      type: RecipeIdentityProjection
+      description: "Core identity, descriptive name, and revision tracking metadata of the Recipe aggregate root."
+      fields:
+        - name: recipeId
+          type: "UUID | null"
+          description: "Unique identifier of the Recipe aggregate root; null for a new unpersisted recipe."
+          trace: "REQ-MENU-FUL-003"
+        - name: name
+          type: String
+          description: "Descriptive culinary name of the Recipe (e.g. 'Salsa Pomodoro Especial', 'Masa Tradicional Pizza')."
+          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+        - name: currentRevision
+          type: "String | null"
+          description: "Active immutable revision token formatted as '<number>_<ISO8601>'; null for a new unpersisted recipe."
+          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+        - name: revisionNumber
+          type: "Integer | null"
+          description: "Sequential integer counter extracted from the revision token (e.g. 1 for initial revision, 2 for second revision)."
+          trace: "REQ-MENU-FUL-004, INV-MENU-004"
+        - name: isNewRecipe
+          type: Boolean
+          description: "True if the editor is operating on a brand new Recipe aggregate not yet saved to the catalog."
+          trace: "REQ-MENU-FUL-003"
+        - name: isHistoricalReadOnly
+          type: Boolean
+          description: "True if inspecting an earlier historical revision in read-only mode, locking inputs against accidental in-place alteration."
+          trace: "REQ-MENU-FUL-004, INV-MENU-004"
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+    - id: recipeComponents
+      name: Recipe Components
+      type: "List<RecipeComponentProjection>"
+      description: "Collection of required inventory ingredient components defined for the active or inspected recipe revision."
+      fields:
+        - name: componentId
+          type: UUID
+          description: "Unique identifier of the RecipeComponent entity within the recipe revision."
+          trace: "REQ-MENU-FUL-003"
+        - name: inventoryItemId
+          type: String
+          description: "Foreign opaque inventory identifier or SKU; kept strictly opaque with no inventory search or lookup behavior."
+          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+        - name: quantity
+          type: Decimal
+          description: "Required ingredient quantity for the recipe preparation (quantity > 0)."
+          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+        - name: unit
+          type: String
+          description: "Formal metric or operational inventory unit of measurement (e.g. 'g', 'ml', 'piezas', 'kg')."
+          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: revisionHistory
+      name: Recipe Revision History
+      type: "List<RecipeRevisionHistoryEntryProjection>"
+      description: "Chronological audit log of all immutable revisions associated with this Recipe aggregate."
+      fields:
+        - name: revisionId
+          type: String
+          description: "Immutable revision token formatted as '<number>_<ISO8601>'."
+          trace: "REQ-MENU-FUL-004, INV-MENU-004"
+        - name: revisionNumber
+          type: Integer
+          description: "Sequential revision number (1, 2, ...)."
+          trace: "REQ-MENU-FUL-004, INV-MENU-004"
+        - name: createdAt
+          type: String
+          description: "ISO 8601 timestamp recording when this immutable revision was accepted and persisted."
+          trace: "REQ-MENU-FUL-004, INV-MENU-004"
+        - name: nameAtRevision
+          type: String
+          description: "Descriptive name of the recipe as captured at the time of this revision."
+          trace: "REQ-MENU-FUL-004"
+        - name: componentCount
+          type: Integer
+          description: "Total number of RecipeComponent entries in this revision."
+          trace: "REQ-MENU-FUL-004"
+        - name: isLatest
+          type: Boolean
+          description: "True if this revision is the latest persisted revision of the Recipe."
+          trace: "REQ-MENU-FUL-004"
+      trace: "REQ-MENU-FUL-004, INV-MENU-004"
+    - id: variantAdoptionNotice
+      name: Variant Adoption Notice
+      type: VariantAdoptionNoticeProjection
+      description: "Architectural and domain explanatory notice clarifying that recipe editing does not imply or trigger variant revision adoption."
+      fields:
+        - name: noticeTitle
+          type: String
+          description: "Header notice (e.g. 'Aislamiento de Revisiones de Receta y Variantes')."
+          trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004"
+        - name: noticeMessage
+          type: String
+          description: "Detailed notice explaining that existing MenuItemVariants retaining prior recipeRevisionId will not be silently modified, and that adopting the new revision is an explicit administrative action in MenuItemEditorView."
+          trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004"
+        - name: explicitAdoptionViewTarget
+          type: String
+          description: "Reference view ('MenuItemEditorView') where variant recipe adoption is performed."
+          trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004"
+      trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004"
+    - id: recipeValidationStatus
+      name: Recipe Revision Validation Status
+      type: RecipeValidationStatusProjection
+      description: "Real-time evaluation of structural constraints required to commit and persist a recipe revision."
+      fields:
+        - name: isValid
+          type: Boolean
+          description: "True if recipe name is non-empty, at least one component is present, and every component has non-empty inventoryItemId, quantity > 0, and non-empty unit."
+          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+        - name: validationErrors
+          type: "List<String>"
+          description: "List of validation error messages preventing revision commitment."
+          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+  controls:
+    - id: nameInput
+      type: input
+      operatesOn: recipeIdentity.name
+      triggersAction: updateRecipeNameField
+      description: "Semantic text input for the descriptive culinary name of the Recipe."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: revisionSelector
+      type: selection
+      operatesOn: recipeIdentity.currentRevision
+      triggersAction: selectRevisionForInspection
+      description: "Semantic selector enabling the administrator to switch between the latest active revision and historical read-only revisions."
+      trace: "REQ-MENU-FUL-004, INV-MENU-004"
+    - id: addComponentAction
+      type: action
+      operatesOn: recipeComponents
+      triggersAction: addRecipeComponentEntry
+      description: "Semantic action to append a new RecipeComponent entry to the working revision buffer."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: removeComponentAction
+      type: action
+      operatesOn: recipeComponents
+      triggersAction: removeRecipeComponentEntry
+      description: "Semantic action to remove a RecipeComponent entry from the working revision buffer."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: componentInventoryItemIdInput
+      type: input
+      operatesOn: recipeComponents.inventoryItemId
+      triggersAction: updateComponentInventoryItemId
+      description: "Semantic text input for the foreign opaque inventory item identifier (SKU); records no inventory search, catalog lookup, or selector behavior."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: componentQuantityInput
+      type: input
+      operatesOn: recipeComponents.quantity
+      triggersAction: updateComponentQuantity
+      description: "Semantic numeric input for the required component quantity (> 0)."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: componentUnitInput
+      type: input
+      operatesOn: recipeComponents.unit
+      triggersAction: updateComponentUnit
+      description: "Semantic text input for the formal unit of measure (e.g. 'g', 'ml', 'piezas')."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: inspectHistoricalRevisionAction
+      type: action
+      operatesOn: revisionHistory
+      triggersAction: loadHistoricalRevisionReadOnly
+      description: "Semantic action to load an earlier immutable revision into the view in read-only inspection mode."
+      trace: "REQ-MENU-FUL-004, INV-MENU-004"
+    - id: branchRevisionFromHistoricalAction
+      type: action
+      operatesOn: revisionHistory
+      triggersAction: branchNewRevisionFromHistorical
+      description: "Semantic action to copy the name and components of a selected historical revision into an editable working buffer to author a subsequent immutable revision."
+      trace: "REQ-MENU-FUL-004, INV-MENU-004"
+    - id: saveRecipeRevisionAction
+      type: primary_action
+      operatesOn:
+        - recipeIdentity
+        - recipeComponents
+        - recipeValidationStatus
+      triggersAction: commitRecipeRevision
+      description: "Primary semantic action to validate components and persist the recipe revision. Creates an initial immutable revision '<number>_<ISO8601>' for new recipes or an incremented immutable revision for existing recipes, never mutating earlier revisions."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+    - id: cancelEditAction
+      type: action
+      operatesOn: null
+      triggersAction: cancelRecipeEdit
+      description: "Semantic action to discard pending buffer edits and return to calling origin view."
+      trace: "docs/ui-spec-arch.md"
+  actions:
+    - id: updateRecipeNameField
+      description: "Update the recipe descriptive name in the working revision buffer."
+      parameters:
+        - name: newName
+          type: String
+          description: "New commercial culinary name for the recipe."
+      preconditions:
+        - "recipeIdentity.isHistoricalReadOnly must be false."
+      effect: "Updates working copy of recipeIdentity.name."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: selectRevisionForInspection
+      description: "Select an immutable revision from revisionHistory to inspect in the view."
+      parameters:
+        - name: targetRevisionId
+          type: String
+          description: "Revision token formatted as '<number>_<ISO8601>'."
+      effect: >
+        Loads the specified revision components and name into the view. If targetRevisionId is not the latest
+        revision, sets recipeIdentity.isHistoricalReadOnly to true and disables in-place modification controls.
+      trace: "REQ-MENU-FUL-004, INV-MENU-004"
+    - id: addRecipeComponentEntry
+      description: "Add a new RecipeComponent entry with empty inventoryItemId, default positive quantity, and unit to the working buffer."
+      parameters: []
+      preconditions:
+        - "recipeIdentity.isHistoricalReadOnly must be false."
+      effect: "Appends a new unpersisted RecipeComponent to recipeComponents."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: removeRecipeComponentEntry
+      description: "Remove a RecipeComponent entry from the working buffer."
+      parameters:
+        - name: componentId
+          type: UUID
+          description: "Identifier of the component entry to remove."
+      preconditions:
+        - "recipeIdentity.isHistoricalReadOnly must be false."
+      effect: "Removes the component entry from recipeComponents."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: updateComponentInventoryItemId
+      description: "Update the opaque foreign inventory identifier / SKU for a specific component entry."
+      parameters:
+        - name: componentId
+          type: UUID
+          description: "Identifier of the target component."
+        - name: inventoryItemId
+          type: String
+          description: "Foreign opaque inventory identifier string."
+      preconditions:
+        - "recipeIdentity.isHistoricalReadOnly must be false."
+      effect: "Updates component.inventoryItemId in the working buffer without triggering inventory search or lookup."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: updateComponentQuantity
+      description: "Update the positive ingredient quantity for a specific component entry."
+      parameters:
+        - name: componentId
+          type: UUID
+          description: "Identifier of the target component."
+        - name: quantity
+          type: Decimal
+          description: "Required ingredient quantity (> 0)."
+      preconditions:
+        - "recipeIdentity.isHistoricalReadOnly must be false."
+        - "quantity must be greater than 0."
+      effect: "Updates component.quantity in the working buffer."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: updateComponentUnit
+      description: "Update the formal measurement unit for a specific component entry."
+      parameters:
+        - name: componentId
+          type: UUID
+          description: "Identifier of the target component."
+        - name: unit
+          type: String
+          description: "Measurement unit string (e.g. 'g', 'ml', 'piezas')."
+      preconditions:
+        - "recipeIdentity.isHistoricalReadOnly must be false."
+      effect: "Updates component.unit in the working buffer."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+    - id: loadHistoricalRevisionReadOnly
+      description: "Load a historical immutable revision in read-only mode for audit and verification."
+      parameters:
+        - name: revisionId
+          type: String
+          description: "Historical revision token '<number>_<ISO8601>'."
+      effect: >
+        Loads historical components and name, sets recipeIdentity.isHistoricalReadOnly = true,
+        and presents the historical composition in immutable read-only state.
+      trace: "REQ-MENU-FUL-004, INV-MENU-004"
+    - id: branchNewRevisionFromHistorical
+      description: "Create an editable working revision buffer initialized with the name and components of a historical revision."
+      parameters:
+        - name: sourceRevisionId
+          type: String
+          description: "Historical revision token to copy from."
+      effect: >
+        Clones components and name from sourceRevisionId into an editable working buffer, sets
+        recipeIdentity.isHistoricalReadOnly = false, and prepares a new incremented revision draft.
+      trace: "REQ-MENU-FUL-004, INV-MENU-004"
+    - id: commitRecipeRevision
+      description: "Validate complete recipe definition and persist the revision as a new immutable revision."
+      parameters: []
+      preconditions:
+        - "recipeValidationStatus.isValid must be true."
+        - "recipeIdentity.name must be non-empty."
+        - "recipeComponents must contain at least one component (count >= 1)."
+        - "All components must have non-empty inventoryItemId, quantity > 0, and non-empty unit."
+        - "recipeIdentity.isHistoricalReadOnly must be false."
+      effect: >
+        Persists the Recipe definition. If recipeIdentity.isNewRecipe is true, creates a new Recipe aggregate
+        with a generated UUID and assigns the initial immutable revision token '1_<ISO8601>'. If editing an existing
+        recipe, generates a new immutable revision token '<N+1>_<ISO8601>' with an incremented revision counter.
+        Crucially, earlier revisions are NEVER mutated and remain permanently preserved in the historical audit log
+        (INV-MENU-004). MenuItemVariants referencing prior revisions retain their prior recipeRevisionId unchanged;
+        variant adoption is not performed by this action and must be explicitly executed in MenuItemEditorView
+        (REQ-MENU-FUL-002, REQ-MENU-FUL-004). Emits savedRecipeId, newRecipeRevisionId, and returnToOriginSignal.
+      trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+    - id: cancelRecipeEdit
+      description: "Discard unsaved modifications in the working buffer and return to calling origin view."
+      parameters: []
+      effect: "Emits returnToOriginSignal without persisting modifications."
+      trace: "docs/ui-spec-arch.md"
+  states:
+    - id: initialRecipeCreation
+      description: "Editor is operating in new recipe creation mode. No prior revisions exist. Saving will assign a new recipeId and the initial immutable revision token '1_<ISO8601>'."
+      condition: "recipeIdentity.isNewRecipe == true and recipeIdentity.recipeId == null."
+      trace: "REQ-MENU-FUL-003, INV-MENU-004"
+    - id: activeRevisionEditing
+      description: "Editor is authoring a new revision for an existing Recipe. Components and name are editable. Saving will generate a new immutable revision '<N+1>_<ISO8601>' without altering earlier revisions."
+      condition: "recipeIdentity.isNewRecipe == false and recipeIdentity.isHistoricalReadOnly == false."
+      trace: "REQ-MENU-FUL-004, INV-MENU-004"
+    - id: historicalRevisionReadOnly
+      description: "Editor is displaying an earlier immutable revision for historical inspection and audit. All modification controls are disabled to preserve historical integrity."
+      condition: "recipeIdentity.isHistoricalReadOnly == true."
+      trace: "REQ-MENU-FUL-004, INV-MENU-004"
+  constraints:
+    - id: C-REC-001
+      description: >
+        Invariant of Version Immutability (INV-MENU-004): Once persisted, an accepted revision of a Recipe
+        ('<number>_<ISO8601>') is strictly immutable. Attributes (name) and component composition cannot be altered
+        in place. Any modification to a recipe produces a new immutable revision with an incremented counter, and
+        prior revisions remain permanently preserved and identical in the historical record.
+      trace: "REQ-MENU-FUL-004, INV-MENU-004"
+    - id: C-REC-002
+      description: >
+        Culinary Recipe and Component Definition (REQ-MENU-FUL-003): A recipe definition requires a descriptive name
+        and at least one RecipeComponent entry. Each RecipeComponent must specify the foreign inventory item identifier
+        (inventoryItemId), a positive required quantity (quantity > 0), and a formal unit of measurement (unit).
+      trace: "REQ-MENU-FUL-003"
+    - id: C-REC-003
+      description: >
+        Decoupled Variant Adoption (REQ-MENU-FUL-002, REQ-MENU-FUL-004): Variant adoption is not implied or executed
+        by recipe revision creation. Existing MenuItemVariant entities referencing earlier recipe revisions retain their
+        prior recipeRevisionId unchanged. Upgrading a PREPARED variant to a newly created recipe revision requires an
+        explicit administrative adoption action in MenuItemEditorView, which generates a new commercial MenuItem revision.
+      trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004"
+    - id: C-REC-004
+      description: >
+        Opaque Inventory Identifiers: Inventory item identifiers (inventoryItemId) are foreign opaque strings (SKUs).
+        The view records no inventory search, catalog lookup, stock level queries, or warehouse management behavior
+        absent from the SRS.
+      trace: "REQ-MENU-FUL-001, REQ-MENU-FUL-003, docs/ui-spec-arch.md"
+    - id: C-REC-005
+      description: >
+        Independent Variant Recipe Association (REQ-MENU-FUL-002): Each MenuItemVariant of a PREPARED item resolves
+        its preparation independently. Recipes may be shared or specialized per presentation, and the view enforces
+        no automatic scale factors (scaleFactor).
+      trace: "REQ-MENU-FUL-002"
+    - id: C-REC-006
+      description: >
+        Historical Audit Integrity (REQ-MENU-FUL-004, INV-MENU-004): When an administrator inspects an earlier recipe
+        revision from revisionHistory, the view enforces read-only presentation. To modify or adapt a historical recipe,
+        the administrator must explicitly branch a new revision, ensuring earlier versions cannot be overwritten.
+      trace: "REQ-MENU-FUL-004, INV-MENU-004"

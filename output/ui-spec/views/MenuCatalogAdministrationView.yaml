@@ -1,0 +1,360 @@
+view:
+  id: MenuCatalogAdministrationView
+  name: Menu Catalog Administration View
+  purpose: >
+    Provide the menu administrator with a centralized semantic interface to monitor and locate
+    MenuItems across the catalog, inspect their orthogonal administrative, structural, operational,
+    and review statuses, request explicit administrative lifecycle transitions, and navigate to
+    supported item editing or combo review responsibilities without inventing visual dashboard metrics,
+    deletion, or category administration.
+  actors:
+    - ADMINISTRATOR
+  requirements:
+    - REQ-MENU-ITM-001
+    - REQ-MENU-ITM-002
+    - REQ-MENU-PRC-003
+    - REQ-MENU-LIF-001
+    - REQ-MENU-REV-002
+    - REQ-MENU-VER-001
+    - REQ-MENU-AVL-002
+    - REQ-MENU-AVL-007
+  inputs:
+    - name: menuId
+      type: UUID
+      required: false
+      description: "Identifier of the target commercial menu catalog; defaults to the active store menu catalog."
+      trace: "REQ-MENU-ITM-001"
+    - name: initialSearchTerm
+      type: String
+      required: false
+      description: "Pre-filled text search query when entering the administrative view from a shortcut."
+      trace: "REQ-MENU-ITM-001"
+    - name: initialFilterStatus
+      type: String
+      required: false
+      description: "Pre-selected administrative status filter ('ACTIVE' or 'INACTIVE')."
+      trace: "REQ-MENU-ITM-002"
+    - name: initialFilterReviewRequired
+      type: Boolean
+      required: false
+      description: "Pre-selected filter flag to directly isolate COMBO items requiring review."
+      trace: "REQ-MENU-REV-002, REQ-MENU-LIF-001"
+  outputs:
+    - name: selectedMenuItemId
+      type: UUID
+      description: "Identifier of the selected MenuItem passed to MenuItemEditorView for commercial inspection and editing."
+      trace: "REQ-MENU-ITM-001"
+    - name: openComboReviewSignal
+      type: Boolean
+      description: "Navigation trigger passed to transition the administrator to ComboReviewView."
+      trace: "REQ-MENU-REV-002, REQ-MENU-LIF-001"
+    - name: createItemSignal
+      type: Boolean
+      description: "Navigation trigger passed to transition the administrator to MenuItemEditorView in item creation mode."
+      trace: "REQ-MENU-ITM-001"
+  regions:
+    - id: headerActionsRegion
+      role: supporting
+      description: "Semantic region providing administrative entry actions to create a new item or inspect combos requiring review."
+      data:
+        - pendingReviewNotice
+      controls:
+        - createItemAction
+        - inspectCombosRequiringReviewAction
+    - id: searchFilterRegion
+      role: supporting
+      description: "Semantic region for locating items by search text, administrative status, item type, or review requirement."
+      data:
+        - activeSearchQuery
+        - activeStatusFilter
+        - activeTypeFilter
+        - activeReviewFilter
+      controls:
+        - itemSearchInput
+        - statusFilterSelector
+        - typeFilterSelector
+        - reviewStatusFilterSelector
+        - clearFiltersAction
+    - id: catalogMonitoringRegion
+      role: primary
+      description: "Primary semantic region presenting catalog MenuItems with clearly separated orthogonal statuses, immutable revision, and individual inspection/transition controls."
+      data:
+        - administrativeCatalogItems
+      controls:
+        - inspectItemAction
+        - transitionStatusAction
+  displayedData:
+    - id: pendingReviewNotice
+      name: Pending Combo Review Notice
+      type: "Object | null"
+      description: "Summary notice indicating the presence of COMBO items in the catalog that require administrative review."
+      fields:
+        - name: hasPendingReviews
+          type: Boolean
+          description: "True if one or more COMBO items in the catalog have reviewStatus = REVIEW_REQUIRED."
+          trace: "REQ-MENU-REV-002, REQ-MENU-LIF-001"
+        - name: noticeMessage
+          type: String
+          description: "Informative message indicating that component variant changes require combo review."
+          trace: "REQ-MENU-REV-002"
+      trace: "REQ-MENU-REV-002, REQ-MENU-LIF-001"
+    - id: activeSearchQuery
+      name: Active Search Query
+      type: String
+      description: "Current search string used to filter catalog items."
+      trace: "REQ-MENU-ITM-001"
+    - id: activeStatusFilter
+      name: Active Administrative Status Filter
+      type: "String | null"
+      description: "Filter restricting items by administrative status ('ACTIVE', 'INACTIVE', or null for all)."
+      trace: "REQ-MENU-ITM-002"
+    - id: activeTypeFilter
+      name: Active Item Type Filter
+      type: "String | null"
+      description: "Filter restricting items by discriminator ('PREPARED', 'STOCKED', 'COMBO', or null for all)."
+      trace: "REQ-MENU-ITM-001"
+    - id: activeReviewFilter
+      name: Active Combo Review Status Filter
+      type: "String | null"
+      description: "Filter restricting COMBO items by review status ('REVIEW_REQUIRED', 'UP_TO_DATE', or null for all)."
+      trace: "REQ-MENU-REV-002"
+    - id: administrativeCatalogItems
+      name: Administrative Catalog Items
+      type: "List<AdministrativeCatalogItemProjection>"
+      description: "Collection of MenuItems in the catalog exposing distinct orthogonal status dimensions, immutable revision, and commercial identity."
+      fields:
+        - name: menuItemId
+          type: UUID
+          description: "Unique identifier of the MenuItem aggregate root."
+          trace: "REQ-MENU-ITM-001"
+        - name: name
+          type: String
+          description: "Commercial name of the MenuItem."
+          trace: "REQ-MENU-ITM-001"
+        - name: description
+          type: String
+          description: "Commercial description of the MenuItem."
+          trace: "REQ-MENU-ITM-001"
+        - name: imageRef
+          type: String
+          description: "Opaque reference URI for item image representation."
+          trace: "REQ-MENU-ITM-001"
+        - name: type
+          type: String
+          description: "Immutable discriminator of the item ('PREPARED', 'STOCKED', or 'COMBO')."
+          trace: "REQ-MENU-ITM-001"
+        - name: administrativeStatus
+          type: String
+          description: "Administrative lifecycle status ('ACTIVE' or 'INACTIVE'). Reflects commercial intent to sell; toggled explicitly by administrator."
+          trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002"
+        - name: isStructurallyEligible
+          type: Boolean
+          description: "Structural domain eligibility; true if the item satisfies all structural invariants and has at least one structurally eligible sellable unit (variant or combo configuration)."
+          trace: "REQ-MENU-PRC-003, REQ-MENU-LIF-001"
+        - name: isAvailable
+          type: Boolean
+          description: "Aggregate operational availability projection derived from Inventory evaluations; true if at least one eligible sellable unit is AVAILABLE. Ephemeral read signal that never mutates administrative status or commercial revision."
+          trace: "REQ-MENU-AVL-002, REQ-MENU-AVL-007"
+        - name: currentRevision
+          type: String
+          description: "Immutable commercial definition revision token formatted as '<number>_<ISO8601>'. Incremented upon accepted commercial modifications; unaltered by inventory availability changes."
+          trace: "REQ-MENU-VER-001, REQ-MENU-AVL-002"
+        - name: reviewStatus
+          type: "String | null"
+          description: "Aggregate combo review requirement status ('UP_TO_DATE' or 'REVIEW_REQUIRED') strictly for COMBO items; null for non-COMBO items (PREPARED and STOCKED)."
+          trace: "REQ-MENU-REV-002, REQ-MENU-LIF-001"
+      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-PRC-003, REQ-MENU-LIF-001, REQ-MENU-REV-002, REQ-MENU-VER-001, REQ-MENU-AVL-002, REQ-MENU-AVL-007"
+  controls:
+    - id: createItemAction
+      type: primary_action
+      operatesOn: null
+      triggersAction: createMenuItem
+      description: "Semantic action to initiate creation of a new MenuItem commercial entity and navigate to MenuItemEditorView."
+      trace: "REQ-MENU-ITM-001"
+    - id: inspectCombosRequiringReviewAction
+      type: action
+      operatesOn: pendingReviewNotice
+      triggersAction: inspectCombosRequiringReview
+      description: "Semantic navigation action to transition to ComboReviewView to inspect and resolve combos requiring review."
+      trace: "REQ-MENU-REV-002, REQ-MENU-LIF-001"
+    - id: itemSearchInput
+      type: search
+      operatesOn: activeSearchQuery
+      triggersAction: searchCatalogItems
+      description: "Semantic search control to filter displayed administrative items without prescribing widget style."
+      trace: "REQ-MENU-ITM-001"
+    - id: statusFilterSelector
+      type: selection
+      operatesOn: activeStatusFilter
+      triggersAction: filterByStatus
+      description: "Semantic selector to filter items by administrative status (ACTIVE, INACTIVE, or all) without prescribing visual tabs, chips, or dropdown."
+      trace: "REQ-MENU-ITM-002"
+    - id: typeFilterSelector
+      type: selection
+      operatesOn: activeTypeFilter
+      triggersAction: filterByType
+      description: "Semantic selector to filter items by type discriminator (PREPARED, STOCKED, COMBO, or all)."
+      trace: "REQ-MENU-ITM-001"
+    - id: reviewStatusFilterSelector
+      type: selection
+      operatesOn: activeReviewFilter
+      triggersAction: filterByReviewStatus
+      description: "Semantic selector to filter COMBO items by combo review status (REVIEW_REQUIRED, UP_TO_DATE, or all)."
+      trace: "REQ-MENU-REV-002"
+    - id: clearFiltersAction
+      type: action
+      operatesOn:
+        - activeSearchQuery
+        - activeStatusFilter
+        - activeTypeFilter
+        - activeReviewFilter
+      triggersAction: clearFilters
+      description: "Semantic control to clear all active search and filter constraints."
+      trace: "REQ-MENU-ITM-001"
+    - id: inspectItemAction
+      type: action
+      operatesOn: administrativeCatalogItems
+      triggersAction: inspectMenuItem
+      description: "Semantic selection action on an individual MenuItem to inspect its full commercial configuration and navigate to MenuItemEditorView."
+      trace: "REQ-MENU-ITM-001"
+    - id: transitionStatusAction
+      type: toggle
+      operatesOn: administrativeCatalogItems.administrativeStatus
+      triggersAction: transitionAdministrativeStatus
+      description: "Semantic control on an individual MenuItem to request an explicit administrative transition between ACTIVE and INACTIVE states."
+      trace: "REQ-MENU-ITM-002, REQ-MENU-PRC-003, REQ-MENU-VER-001"
+  actions:
+    - id: createMenuItem
+      description: "Initiate the creation workflow for a new commercial MenuItem and transition to MenuItemEditorView."
+      parameters: []
+      effect: "Emits createItemSignal and transitions administrator to MenuItemEditorView in creation mode."
+      trace: "REQ-MENU-ITM-001"
+    - id: inspectMenuItem
+      description: "Select an existing MenuItem to inspect and edit its commercial definition in MenuItemEditorView."
+      parameters:
+        - name: menuItemId
+          type: UUID
+          description: "Unique identifier of the target MenuItem."
+      effect: "Emits selectedMenuItemId and transitions administrator to MenuItemEditorView."
+      trace: "REQ-MENU-ITM-001"
+    - id: transitionAdministrativeStatus
+      description: "Execute an explicit administrative transition between ACTIVE and INACTIVE for a specified MenuItem."
+      parameters:
+        - name: menuItemId
+          type: UUID
+          description: "Unique identifier of the MenuItem to transition."
+        - name: targetStatus
+          type: String
+          description: "Target administrative state ('ACTIVE' or 'INACTIVE')."
+      preconditions:
+        - "Target status must differ from current administrativeStatus."
+        - "To transition from INACTIVE to ACTIVE, the MenuItem must satisfy structural domain invariants and have at least one structurally eligible sellable unit."
+      effect: "Updates administrativeStatus, increments commercial version producing a new immutable revision (<number>_<ISO8601>), and re-evaluates catalog visibility."
+      trace: "REQ-MENU-ITM-002, REQ-MENU-PRC-003, REQ-MENU-VER-001"
+    - id: inspectCombosRequiringReview
+      description: "Navigate to the administrative ComboReviewView to inspect and review combos with pending component changes."
+      parameters: []
+      effect: "Emits openComboReviewSignal and transitions administrator to ComboReviewView."
+      trace: "REQ-MENU-REV-002, REQ-MENU-LIF-001"
+    - id: searchCatalogItems
+      description: "Update activeSearchQuery and request and display corresponding administrative catalog item results."
+      parameters:
+        - name: query
+          type: String
+          description: "Search query text."
+      effect: "Updates activeSearchQuery and requests and displays corresponding administrative catalog items matching the search query; concrete matching and search algorithms are deferred to the issues tracker under 'Undefined Category Administration and Search Semantics'."
+      trace: "REQ-MENU-ITM-001, docs/issues-tracker.md"
+    - id: filterByStatus
+      description: "Filter catalog items by administrative status."
+      parameters:
+        - name: status
+          type: "String | null"
+          description: "Target status ('ACTIVE', 'INACTIVE', or null for all)."
+      effect: "Restricts administrativeCatalogItems to items matching the selected administrative status."
+      trace: "REQ-MENU-ITM-002"
+    - id: filterByType
+      description: "Filter catalog items by discriminator type."
+      parameters:
+        - name: itemType
+          type: "String | null"
+          description: "Target type ('PREPARED', 'STOCKED', 'COMBO', or null for all)."
+      effect: "Restricts administrativeCatalogItems to items matching the selected type."
+      trace: "REQ-MENU-ITM-001"
+    - id: filterByReviewStatus
+      description: "Filter COMBO items by combo review status."
+      parameters:
+        - name: reviewStatus
+          type: "String | null"
+          description: "Target review status ('REVIEW_REQUIRED', 'UP_TO_DATE', or null for all)."
+      effect: "Restricts administrativeCatalogItems to COMBO items matching the review requirement."
+      trace: "REQ-MENU-REV-002"
+    - id: clearFilters
+      description: "Clear active search string and all filter criteria."
+      parameters: []
+      effect: "Resets activeSearchQuery, activeStatusFilter, activeTypeFilter, and activeReviewFilter, restoring full administrative item list."
+      trace: "REQ-MENU-ITM-001"
+  states:
+    - id: normal
+      description: "Administrative catalog contains items; item list displays commercial identity, immutable revision, and orthogonal statuses."
+      condition: "Catalog contains >= 1 MenuItem matching active filters."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-VER-001"
+    - id: emptyCatalog
+      description: "The commercial catalog has zero registered MenuItems."
+      condition: "Total count of MenuItems in the catalog is 0."
+      trace: "REQ-MENU-ITM-001"
+    - id: noResults
+      description: "Search text or active filters match zero MenuItems."
+      condition: "Catalog contains items, but active filters evaluate to zero matches."
+      trace: "REQ-MENU-ITM-001"
+    - id: combosRequireReviewActive
+      description: "One or more COMBO items have reviewStatus = REVIEW_REQUIRED, activating review notification and review inspection shortcuts."
+      condition: "At least one COMBO item has reviewStatus == 'REVIEW_REQUIRED'."
+      trace: "REQ-MENU-REV-002, REQ-MENU-LIF-001"
+    - id: inventoryDegraded
+      description: "Inventory connection is lost or evaluation timestamps have expired. Operational availability is marked degraded/unavailable, but administrative monitoring, editing, and status transitions remain fully operable."
+      condition: "Inventory connection failure or evaluation validUntil timestamp expired."
+      trace: "REQ-MENU-AVL-002"
+  constraints:
+    - id: C-MCA-001
+      description: >
+        The four status concepts—administrative status (administrativeStatus: ACTIVE/INACTIVE), structural
+        eligibility (isStructurallyEligible: boolean), operational availability (isAvailable: boolean), and combo
+        review status (reviewStatus: REVIEW_REQUIRED/UP_TO_DATE)—are strictly orthogonal and must never be collapsed
+        into a single composite or unified status.
+      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-PRC-003, REQ-MENU-REV-002, REQ-MENU-AVL-002, REQ-MENU-AVL-007, docs/ui-spec-arch.md"
+    - id: C-MCA-002
+      description: >
+        Non-COMBO items (type PREPARED or STOCKED) do not possess and must not receive combo review status;
+        their reviewStatus field is strictly null and no combo review indicators or actions may apply to them.
+      trace: "REQ-MENU-REV-002, REQ-MENU-ITM-001"
+    - id: C-MCA-003
+      description: >
+        Administrative status transition between ACTIVE and INACTIVE is an explicit administrative operation.
+        Transitioning to ACTIVE requires structural eligibility (REQ-MENU-PRC-003: at least one eligible unit).
+        Every accepted transition generates a new immutable commercial revision (<number>_<ISO8601>).
+      trace: "REQ-MENU-ITM-002, REQ-MENU-PRC-003, REQ-MENU-VER-001"
+    - id: C-MCA-004
+      description: >
+        Operational availability (isAvailable) is an ephemeral read-only projection derived from Inventory evaluations
+        under REQ-MENU-AVL-002 and REQ-MENU-AVL-007; operational stock fluctuations or inventory expiration never
+        alter administrative status, structural eligibility, commercial revision, or combo review status.
+      trace: "REQ-MENU-AVL-002, REQ-MENU-AVL-007, REQ-MENU-VER-001"
+    - id: C-MCA-005
+      description: >
+        Archival of a variant (REQ-MENU-LIF-001) permanently removes its structural eligibility and updates dependent
+        ComboConfigurations to REVIEW_REQUIRED, but never automatically alters the administrative status
+        (administrativeStatus) of dependent COMBO MenuItems.
+      trace: "REQ-MENU-LIF-001, REQ-MENU-REV-002"
+    - id: C-MCA-006
+      description: >
+        The administrative catalog monitoring view conforms strictly to source-supported responsibilities: it does not
+        invent or provide item deletion, restoration of archived items, role-based access policies, dashboard metrics
+        or KPI widgets, or category management (category CRUD).
+      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, docs/ui-spec-arch.md"
+    - id: C-MCA-007
+      description: >
+        Search matching semantics and algorithms (such as exact match, substring containment, tokenization,
+        case or accent normalization, indexed fields, or debouncing) are not defined in the SRS and are explicitly
+        deferred to the issues tracker under 'Undefined Category Administration and Search Semantics'. The view provides
+        semantic query submission and displays corresponding results or the noResults state without prescribing an algorithmic matching criteria.
+      trace: "REQ-MENU-ITM-001, docs/issues-tracker.md, docs/ui-spec-arch.md"

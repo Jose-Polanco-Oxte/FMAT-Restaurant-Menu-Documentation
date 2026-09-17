@@ -1,0 +1,692 @@
+view:
+  id: ComboReviewView
+  name: Combo Review View
+  purpose: >
+    Provide the menu administrator with a dedicated semantic interface for monitoring and confirming
+    ComboConfiguration review requirements across the catalog. Exposes configuration-level REVIEW_REQUIRED
+    flags and aggregate COMBO MenuItem review statuses resulting from unacknowledged component changes
+    restricted strictly to allowed reasons (PRICE, COMPOSITION, MODIFIERS, STATUS), displaying observed
+    reviewToken values, pending changeIds, and informational slot reference values (saved, current, and
+    signed difference). Provides explicit selection of one or more configurationId/reviewToken pairs for
+    atomic confirmation acknowledging only the observed changeIds, while ensuring that concurrent later
+    changes remain pending and preserve REVIEW_REQUIRED status. Strictly enforces that review status is
+    orthogonal to administrative status and availability, that informational price differences cannot mutate
+    combo selling prices, that wildcard or implicit confirm-all operations are prohibited, and that review
+    confirmation never alters combo unit prices, slots, options, retired-option states, administrative
+    statuses, or immutable commercial revision tokens.
+  actors:
+    - ADMINISTRATOR
+  requirements:
+    - REQ-MENU-LIF-001
+    - REQ-MENU-REV-001
+    - REQ-MENU-REV-002
+    - REQ-MENU-REV-003
+    - REQ-MENU-REV-004
+    - REQ-MENU-REV-005
+  inputs:
+    - name: filterMenuItemId
+      type: "UUID | null"
+      required: false
+      description: "Identifier of a specific COMBO MenuItem to filter displayed review requirements; null displays all combos requiring review across the catalog."
+      trace: "REQ-MENU-REV-002"
+    - name: initialReasonFilter
+      type: "String | null"
+      required: false
+      description: "Pre-selected reason filter restricting displayed changes to one of: 'PRICE', 'COMPOSITION', 'MODIFIERS', or 'STATUS'."
+      trace: "REQ-MENU-REV-001"
+    - name: returnContext
+      type: "String | null"
+      required: false
+      description: "Contextual origin marker (e.g. 'MenuCatalogAdministrationView' or 'MenuItemEditorView') indicating the view to return to upon completion or cancellation."
+      trace: "docs/ui-spec-arch.md"
+  outputs:
+    - name: confirmedReviewReceipts
+      type: "List<ConfirmedReviewReceipt> | null"
+      description: "Structured receipts emitted upon confirmation execution identifying attended changeIds and remaining pending changes per confirmed configuration."
+      trace: "REQ-MENU-REV-003, REQ-MENU-REV-004"
+    - name: returnToOriginSignal
+      type: Boolean
+      description: "Navigation trigger returning the administrator to the calling origin view upon completion or dismissal."
+      trace: "docs/ui-spec-arch.md"
+    - name: selectedMenuItemId
+      type: UUID
+      description: "Identifier of a COMBO MenuItem selected to inspect or edit in MenuItemEditorView or ComboConfigurationView."
+      trace: "REQ-MENU-REV-002"
+  regions:
+    - id: reviewMonitoringHeaderRegion
+      role: primary
+      description: "Semantic region displaying aggregate catalog-wide combo review metrics, aggregate COMBO review status, and filtering controls (by COMBO MenuItem and allowed change reason: PRICE, COMPOSITION, MODIFIERS, STATUS)."
+      data:
+        - catalogReviewSummary
+        - reviewFilterContext
+      controls:
+        - filterByMenuItemSelector
+        - filterByReasonSelector
+        - clearReviewFiltersAction
+    - id: comboReviewListRegion
+      role: primary
+      description: "Primary semantic region presenting all COMBO MenuItems and contained ComboConfigurations requiring review, detailing configuration-level reviewStatus (REVIEW_REQUIRED), observed reviewToken, pending changeIds with allowed reasons (PRICE, COMPOSITION, MODIFIERS, STATUS), referenced leaf variants, and providing explicit selection of (configurationId, reviewToken) pairs without wildcard or implicit confirm-all mechanisms."
+      data:
+        - pendingComboReviews
+        - selectedConfigurationsToConfirm
+      controls:
+        - toggleConfigurationSelectionControl
+        - selectExplicitVisibleConfigurationsAction
+        - clearConfigurationSelectionsAction
+        - inspectConfigurationSlotPricingAction
+        - navigateToComboItemAction
+    - id: slotPriceReferenceRegion
+      role: secondary
+      description: "Semantic informational region displaying slot pricing reference comparisons for the focused ComboConfiguration and its designated baseOptionIds, exposing saved unit price sum (saved), current unit price sum (current), and signed difference (difference = current - saved), strictly without mutating combo selling prices."
+      data:
+        - focusedSlotPriceReferences
+      controls: []
+    - id: reviewConfirmationActionRegion
+      role: primary
+      description: "Semantic execution region providing atomic confirmation for explicitly selected configurationId/reviewToken pairs, acknowledging only observed changeIds, emitting attended-change receipts, exposing concurrent later changes that remain pending, and preserving commercial configurations unaltered."
+      data:
+        - confirmationExecutionReceipt
+      controls:
+        - confirmSelectedReviewsAction
+        - dismissConfirmationReceiptAction
+        - returnToOriginAction
+  displayedData:
+    - id: catalogReviewSummary
+      name: Catalog Combo Review Summary
+      type: CatalogReviewSummaryProjection
+      description: "Catalog-level aggregate metrics of combo configurations requiring supervisory review due to unacknowledged component changes."
+      fields:
+        - name: totalCombosRequiringReviewCount
+          type: Integer
+          description: "Count of distinct COMBO MenuItems in the catalog that have aggregate reviewStatus = 'REVIEW_REQUIRED'."
+          trace: "REQ-MENU-REV-002"
+        - name: totalConfigurationsRequiringReviewCount
+          type: Integer
+          description: "Total count of ComboConfigurations across the catalog marked with reviewStatus = 'REVIEW_REQUIRED'."
+          trace: "REQ-MENU-REV-002"
+        - name: totalPendingChangesCount
+          type: Integer
+          description: "Total count of unacknowledged pending changeIds across all combo configurations."
+          trace: "REQ-MENU-REV-001, REQ-MENU-REV-003"
+        - name: isAnyReviewPending
+          type: Boolean
+          description: "True if one or more ComboConfigurations in the catalog require review."
+          trace: "REQ-MENU-REV-002"
+      trace: "REQ-MENU-REV-001, REQ-MENU-REV-002, REQ-MENU-REV-003"
+    - id: reviewFilterContext
+      name: Review Filter Context
+      type: ReviewFilterContextProjection
+      description: "Active filter parameters applied to the combo review monitoring list."
+      fields:
+        - name: selectedMenuItemId
+          type: "UUID | null"
+          description: "Optional filter restricting displayed reviews to a specific COMBO MenuItem."
+          trace: "REQ-MENU-REV-002"
+        - name: selectedReason
+          type: "String | null"
+          description: "Optional filter restricting displayed pending changes to an allowed reason: 'PRICE', 'COMPOSITION', 'MODIFIERS', or 'STATUS'."
+          trace: "REQ-MENU-REV-001"
+      trace: "REQ-MENU-REV-001, REQ-MENU-REV-002"
+    - id: pendingComboReviews
+      name: Pending Combo Reviews Collection
+      type: "List<ComboReviewItemProjection>"
+      description: "Collection of COMBO MenuItems containing ComboConfigurations flagged with REVIEW_REQUIRED, presenting configuration review tokens, pending changes, and orthogonal status dimensions."
+      fields:
+        - name: menuItemId
+          type: UUID
+          description: "Unique identifier of the COMBO MenuItem aggregate root."
+          trace: "REQ-MENU-REV-002"
+        - name: menuItemName
+          type: String
+          description: "Commercial name of the COMBO MenuItem."
+          trace: "REQ-MENU-REV-002"
+        - name: administrativeStatus
+          type: String
+          description: "Administrative lifecycle status ('ACTIVE' or 'INACTIVE') of the COMBO item, strictly separate and orthogonal to reviewStatus."
+          trace: "REQ-MENU-REV-002, REQ-MENU-LIF-001"
+        - name: aggregateReviewStatus
+          type: String
+          description: "Aggregate review status of the COMBO MenuItem ('REVIEW_REQUIRED' if any configuration requires review, otherwise 'UP_TO_DATE')."
+          trace: "REQ-MENU-REV-002"
+        - name: isAvailable
+          type: Boolean
+          description: "Operational availability projection derived from Inventory evaluations, strictly separate and orthogonal to reviewStatus."
+          trace: "REQ-MENU-REV-002"
+        - name: currentRevision
+          type: String
+          description: "Current immutable commercial revision token formatted as '<number>_<ISO8601>'."
+          trace: "REQ-MENU-REV-004, REQ-MENU-VER-001"
+        - name: configurations
+          type: "List<ComboConfigurationReviewDetailProjection>"
+          description: "List of ComboConfigurations belonging to this COMBO item that require supervisory review."
+          fields:
+            - name: configurationId
+              type: UUID
+              description: "Unique identifier of the ComboConfiguration."
+              trace: "REQ-MENU-REV-002, REQ-MENU-REV-003"
+            - name: configurationName
+              type: String
+              description: "Commercial name of the ComboConfiguration."
+              trace: "REQ-MENU-REV-002"
+            - name: unitPrice
+              type: Decimal
+              description: "Authoritative absolute selling unit price (unitPrice >= 0), preserved unaltered by review confirmation."
+              trace: "REQ-MENU-REV-004, REQ-MENU-REV-005"
+            - name: reviewStatus
+              type: String
+              description: "Configuration-level supervisory review status: strictly 'REVIEW_REQUIRED'."
+              trace: "REQ-MENU-REV-001, REQ-MENU-REV-002"
+            - name: reviewToken
+              type: String
+              description: "Observed opaque review token representing the snapshot of unacknowledged changeIds at the time of observation."
+              trace: "REQ-MENU-REV-003"
+            - name: pendingChangeIds
+              type: "List<String>"
+              description: "Identifiers of all unattended component changes represented by the observed reviewToken."
+              trace: "REQ-MENU-REV-003"
+            - name: pendingChanges
+              type: "List<PendingChangeDetailItem>"
+              description: "Structured detail of unacknowledged component changes affecting this configuration."
+              fields:
+                - name: changeId
+                  type: String
+                  description: "Unique identifier of the component change event."
+                  trace: "REQ-MENU-REV-003"
+                - name: reason
+                  type: String
+                  description: "Allowed change reason: strictly one of 'PRICE', 'COMPOSITION', 'MODIFIERS', or 'STATUS'."
+                  trace: "REQ-MENU-REV-001"
+                - name: leafVariantId
+                  type: UUID
+                  description: "Identifier of the leaf MenuItemVariant whose change triggered the review requirement."
+                  trace: "REQ-MENU-REV-001, REQ-MENU-LIF-001"
+                - name: leafVariantName
+                  type: String
+                  description: "Resolved display name of the changed leaf variant."
+                  trace: "REQ-MENU-REV-001"
+                - name: leafItemName
+                  type: String
+                  description: "Commercial name of the leaf MenuItem owning the variant."
+                  trace: "REQ-MENU-REV-001"
+                - name: slotId
+                  type: UUID
+                  description: "Identifier of the ComboSlot containing the affected option."
+                  trace: "REQ-MENU-REV-001"
+                - name: slotName
+                  type: String
+                  description: "Display name of the affected ComboSlot."
+                  trace: "REQ-MENU-REV-001"
+                - name: optionId
+                  type: UUID
+                  description: "Identifier of the affected ComboOption entity."
+                  trace: "REQ-MENU-REV-001"
+                - name: isOptionEnabled
+                  type: Boolean
+                  description: "Administrative enablement of the option; disabled options (enabled=false) remain structural dependencies that trigger review."
+                  trace: "REQ-MENU-REV-001"
+                - name: detectedAt
+                  type: String
+                  description: "ISO8601 timestamp when the component change was detected."
+                  trace: "REQ-MENU-REV-001"
+                - name: detailMessage
+                  type: String
+                  description: "Diagnostic narrative of the change (e.g. 'Variante archivada', 'Precio base actualizado de 20.00 a 25.00', 'Modificador retirado')."
+                  trace: "REQ-MENU-REV-001"
+              trace: "REQ-MENU-REV-001, REQ-MENU-REV-003, REQ-MENU-LIF-001"
+            - name: hasConcurrentLaterChanges
+              type: Boolean
+              description: "True if additional component changes occurred after the observed reviewToken was generated, remaining pending."
+              trace: "REQ-MENU-REV-003"
+            - name: concurrentLaterChangeIds
+              type: "List<String>"
+              description: "Identifiers of concurrent changes that occurred subsequent to the observed reviewToken."
+              trace: "REQ-MENU-REV-003"
+          trace: "REQ-MENU-REV-001, REQ-MENU-REV-002, REQ-MENU-REV-003, REQ-MENU-REV-004, REQ-MENU-REV-005"
+      trace: "REQ-MENU-REV-001, REQ-MENU-REV-002, REQ-MENU-REV-003, REQ-MENU-REV-004, REQ-MENU-LIF-001"
+    - id: selectedConfigurationsToConfirm
+      name: Selected Configurations for Review Confirmation
+      type: "List<SelectedConfigurationTokenPairItem>"
+      description: "Explicit collection of (configurationId, reviewToken) pairs chosen by the administrator for review confirmation. Wildcard or implicit confirm-all selections are strictly excluded."
+      fields:
+        - name: configurationId
+          type: UUID
+          description: "Identifier of the selected ComboConfiguration."
+          trace: "REQ-MENU-REV-003"
+        - name: menuItemId
+          type: UUID
+          description: "Identifier of the parent COMBO MenuItem."
+          trace: "REQ-MENU-REV-003"
+        - name: configurationName
+          type: String
+          description: "Commercial name of the configuration."
+          trace: "REQ-MENU-REV-003"
+        - name: observedReviewToken
+          type: String
+          description: "The specific reviewToken snapshot observed and selected for confirmation."
+          trace: "REQ-MENU-REV-003"
+        - name: observedChangeIdsCount
+          type: Integer
+          description: "Count of observed changeIds that will be acknowledged upon confirming this token."
+          trace: "REQ-MENU-REV-003"
+      trace: "REQ-MENU-REV-003"
+    - id: focusedSlotPriceReferences
+      name: Focused Slot Price References
+      type: FocusedSlotPriceReferenceProjection
+      description: "Informational pricing reference data for each ComboSlot of a focused ComboConfiguration, exposing saved, current, and signed difference sums for designated baseOptionIds. Strictly informational; cannot mutate combo unitPrice."
+      fields:
+        - name: configurationId
+          type: "UUID | null"
+          description: "Identifier of the inspected ComboConfiguration, or null if none is focused."
+          trace: "REQ-MENU-REV-005"
+        - name: configurationName
+          type: "String | null"
+          description: "Commercial name of the inspected configuration."
+          trace: "REQ-MENU-REV-005"
+        - name: comboUnitPrice
+          type: "Decimal | null"
+          description: "Authoritative selling price of the combo configuration (unitPrice >= 0), unaffected by slot price references."
+          trace: "REQ-MENU-REV-004, REQ-MENU-REV-005"
+        - name: slots
+          type: "List<SlotPriceReferenceDetailItem>"
+          description: "Per-slot informational pricing breakdown based on designated baseOptionIds."
+          fields:
+            - name: slotId
+              type: UUID
+              description: "Unique identifier of the ComboSlot."
+              trace: "REQ-MENU-REV-005"
+            - name: slotName
+              type: String
+              description: "Display name of the ComboSlot."
+              trace: "REQ-MENU-REV-005"
+            - name: baseOptionIds
+              type: "List<UUID>"
+              description: "Designated administrative base option identifiers used for baseline price comparison."
+              trace: "REQ-MENU-REV-005"
+            - name: savedSum
+              type: Decimal
+              description: "Sum of leaf MenuItemVariant.unitPrice recorded when options were saved multiplied by ComboOption.quantity (saved = sum(savedUnitPrice * quantity))."
+              trace: "REQ-MENU-REV-005"
+            - name: currentSum
+              type: Decimal
+              description: "Sum of current leaf MenuItemVariant.unitPrice multiplied by ComboOption.quantity (current = sum(currentUnitPrice * quantity))."
+              trace: "REQ-MENU-REV-005"
+            - name: difference
+              type: Decimal
+              description: "Explicit signed price difference: difference = current - saved. Positive indicates component price increases; negative indicates decreases."
+              trace: "REQ-MENU-REV-005"
+            - name: isInformationalOnly
+              type: Boolean
+              description: "Informational marker (always true); enforces that slot price differences do not mutate ComboConfiguration.unitPrice."
+              trace: "REQ-MENU-REV-005"
+            - name: options
+              type: "List<SlotOptionPriceReferenceItem>"
+              description: "Itemized breakdown of base options in this slot contributing to saved and current sums."
+              fields:
+                - name: optionId
+                  type: UUID
+                  description: "Identifier of the ComboOption."
+                  trace: "REQ-MENU-REV-005"
+                - name: leafVariantId
+                  type: UUID
+                  description: "Identifier of the referenced leaf MenuItemVariant."
+                  trace: "REQ-MENU-REV-005"
+                - name: leafVariantName
+                  type: String
+                  description: "Display name of the leaf variant."
+                  trace: "REQ-MENU-REV-005"
+                - name: quantity
+                  type: Integer
+                  description: "Physical delivered quantity multiplier (quantity >= 1)."
+                  trace: "REQ-MENU-REV-005"
+                - name: savedUnitPrice
+                  type: Decimal
+                  description: "Historical unit price of the leaf variant recorded when the option was configured."
+                  trace: "REQ-MENU-REV-005"
+                - name: currentUnitPrice
+                  type: Decimal
+                  description: "Current active unit price of the leaf variant."
+                  trace: "REQ-MENU-REV-005"
+                - name: priceDelta
+                  type: Decimal
+                  description: "Signed commercial price delta configured on the option."
+                  trace: "REQ-MENU-REV-005"
+                - name: isBaseOption
+                  type: Boolean
+                  description: "True if this option is part of slot.baseOptionIds."
+                  trace: "REQ-MENU-REV-005"
+              trace: "REQ-MENU-REV-005"
+          trace: "REQ-MENU-REV-005"
+      trace: "REQ-MENU-REV-005"
+    - id: confirmationExecutionReceipt
+      name: Review Confirmation Execution Receipt
+      type: "ReviewConfirmationReceiptProjection | null"
+      description: "Attended-change receipt emitted upon executing review confirmation, identifying attended changeIds and detailing any concurrent later changes that remain pending."
+      fields:
+        - name: executionTimestamp
+          type: String
+          description: "ISO8601 timestamp of confirmation execution."
+          trace: "REQ-MENU-REV-003"
+        - name: confirmedConfigurationsCount
+          type: Integer
+          description: "Count of configurations confirmed in this execution."
+          trace: "REQ-MENU-REV-003"
+        - name: totalAttendedChangesCount
+          type: Integer
+          description: "Total count of observed changeIds acknowledged and recorded as attended."
+          trace: "REQ-MENU-REV-003, REQ-MENU-REV-004"
+        - name: attendedConfigurations
+          type: "List<AttendedConfigurationReceiptItem>"
+          description: "Per-configuration confirmation results and attended change details."
+          fields:
+            - name: configurationId
+              type: UUID
+              description: "Identifier of the confirmed ComboConfiguration."
+              trace: "REQ-MENU-REV-003"
+            - name: configurationName
+              type: String
+              description: "Commercial name of the configuration."
+              trace: "REQ-MENU-REV-003"
+            - name: confirmedReviewToken
+              type: String
+              description: "The observed reviewToken that was confirmed."
+              trace: "REQ-MENU-REV-003"
+            - name: attendedChangeIds
+              type: "List<String>"
+              description: "List of changeIds successfully acknowledged and recorded as attended."
+              trace: "REQ-MENU-REV-003, REQ-MENU-REV-004"
+            - name: remainingPendingChangeIds
+              type: "List<String>"
+              description: "List of concurrent later changeIds that occurred after token observation and remain pending."
+              trace: "REQ-MENU-REV-003"
+            - name: resultingReviewStatus
+              type: String
+              description: "Resulting review status: 'UP_TO_DATE' if no pending changes remain, or 'REVIEW_REQUIRED' if concurrent later changes remain pending."
+              trace: "REQ-MENU-REV-003"
+            - name: commercialRevisionUnaltered
+              type: Boolean
+              description: "Confirms that commercial version and revision token were NOT modified (always true)."
+              trace: "REQ-MENU-REV-004"
+            - name: unitPriceUnaltered
+              type: Boolean
+              description: "Confirms that combo unitPrice was NOT modified (always true)."
+              trace: "REQ-MENU-REV-004"
+            - name: slotsAndOptionsUnaltered
+              type: Boolean
+              description: "Confirms that slots, options, and retired-option states were NOT modified (always true)."
+              trace: "REQ-MENU-REV-004"
+            - name: administrativeStatusUnaltered
+              type: Boolean
+              description: "Confirms that MenuItem.status was NOT modified (always true)."
+              trace: "REQ-MENU-REV-002, REQ-MENU-REV-004"
+          trace: "REQ-MENU-REV-002, REQ-MENU-REV-003, REQ-MENU-REV-004"
+      trace: "REQ-MENU-REV-002, REQ-MENU-REV-003, REQ-MENU-REV-004"
+  controls:
+    - id: filterByMenuItemSelector
+      type: selection
+      operatesOn: reviewFilterContext.selectedMenuItemId
+      triggersAction: filterReviewsByMenuItem
+      description: "Semantic selector to filter displayed combo reviews by specific COMBO MenuItem or clear to show all catalog combos requiring review."
+      trace: "REQ-MENU-REV-002"
+    - id: filterByReasonSelector
+      type: selection
+      operatesOn: reviewFilterContext.selectedReason
+      triggersAction: filterReviewsByReason
+      description: "Semantic selector to filter displayed pending changes by allowed reason: 'PRICE', 'COMPOSITION', 'MODIFIERS', 'STATUS', or all."
+      trace: "REQ-MENU-REV-001"
+    - id: clearReviewFiltersAction
+      type: action
+      operatesOn: reviewFilterContext
+      triggersAction: resetReviewFilters
+      description: "Semantic action to reset all review filters and display all pending combo reviews."
+      trace: "REQ-MENU-REV-001, REQ-MENU-REV-002"
+    - id: toggleConfigurationSelectionControl
+      type: selection
+      operatesOn: selectedConfigurationsToConfirm
+      triggersAction: toggleConfigurationSelection
+      description: "Semantic selection control to explicitly add or remove a specific (configurationId, reviewToken) pair to the confirmation batch. Wildcards are strictly prohibited."
+      trace: "REQ-MENU-REV-003"
+    - id: selectExplicitVisibleConfigurationsAction
+      type: action
+      operatesOn: selectedConfigurationsToConfirm
+      triggersAction: selectExplicitVisibleConfigurations
+      description: "Semantic action that populates selectedConfigurationsToConfirm by explicitly enumerating each visible (configurationId, reviewToken) pair. Precludes wildcard or implicit confirm-all operations."
+      trace: "REQ-MENU-REV-003"
+    - id: clearConfigurationSelectionsAction
+      type: action
+      operatesOn: selectedConfigurationsToConfirm
+      triggersAction: clearConfigurationSelections
+      description: "Semantic action to deselect all currently chosen (configurationId, reviewToken) pairs."
+      trace: "REQ-MENU-REV-003"
+    - id: inspectConfigurationSlotPricingAction
+      type: action
+      operatesOn: focusedSlotPriceReferences
+      triggersAction: selectConfigurationForSlotPricing
+      description: "Semantic action to focus on a specific ComboConfiguration and display its informational slot price reference breakdown (saved, current, difference)."
+      trace: "REQ-MENU-REV-005"
+    - id: confirmSelectedReviewsAction
+      type: primary_action
+      operatesOn:
+        - selectedConfigurationsToConfirm
+        - pendingComboReviews
+        - confirmationExecutionReceipt
+      triggersAction: confirmObservedReviews
+      description: "Primary semantic action to execute atomic confirmation of the explicitly selected (configurationId, reviewToken) pairs, acknowledging only observed changeIds, emitting attended-change receipts, and leaving concurrent later changes pending under REVIEW_REQUIRED."
+      trace: "REQ-MENU-REV-003, REQ-MENU-REV-004"
+    - id: dismissConfirmationReceiptAction
+      type: action
+      operatesOn: confirmationExecutionReceipt
+      triggersAction: dismissConfirmationReceipt
+      description: "Semantic action to dismiss the confirmation execution receipt after inspecting attended and pending change outcomes."
+      trace: "REQ-MENU-REV-003"
+    - id: navigateToComboItemAction
+      type: navigation
+      operatesOn: pendingComboReviews.menuItemId
+      triggersAction: navigateToComboItem
+      description: "Semantic navigation control to transition to MenuItemEditorView or ComboConfigurationView to inspect or edit the full combo structure."
+      trace: "REQ-MENU-REV-002"
+    - id: returnToOriginAction
+      type: action
+      operatesOn: null
+      triggersAction: returnToOrigin
+      description: "Semantic action to dismiss review monitoring and return to the calling origin view."
+      trace: "docs/ui-spec-arch.md"
+  actions:
+    - id: filterReviewsByMenuItem
+      description: "Apply or clear COMBO MenuItem filter on pending combo reviews."
+      parameters:
+        - name: menuItemId
+          type: "UUID | null"
+          description: "Target COMBO MenuItem identifier, or null to clear filter."
+      preconditions:
+        - "If non-null, menuItemId must identify a COMBO MenuItem."
+      effect: "Updates reviewFilterContext.selectedMenuItemId and filters displayed reviews."
+      trace: "REQ-MENU-REV-002"
+    - id: filterReviewsByReason
+      description: "Filter pending changes by an allowed change reason."
+      parameters:
+        - name: reason
+          type: "String | null"
+          description: "Allowed change reason ('PRICE', 'COMPOSITION', 'MODIFIERS', 'STATUS', or null for all)."
+      preconditions:
+        - "If non-null, reason must be one of: 'PRICE', 'COMPOSITION', 'MODIFIERS', 'STATUS'."
+      effect: "Updates reviewFilterContext.selectedReason and filters displayed changes."
+      trace: "REQ-MENU-REV-001"
+    - id: resetReviewFilters
+      description: "Reset all review filtering criteria."
+      parameters: []
+      effect: "Sets selectedMenuItemId and selectedReason to null."
+      trace: "REQ-MENU-REV-001, REQ-MENU-REV-002"
+    - id: toggleConfigurationSelection
+      description: "Add or remove an explicit (configurationId, reviewToken) pair from the confirmation batch."
+      parameters:
+        - name: configurationId
+          type: UUID
+          description: "Target ComboConfiguration identifier."
+        - name: reviewToken
+          type: String
+          description: "Observed reviewToken snapshot for the configuration."
+      preconditions:
+        - "configurationId must identify a currently pending ComboConfiguration."
+        - "reviewToken must match the currently observed token of that configuration."
+      effect: "Toggles the presence of the (configurationId, reviewToken) pair in selectedConfigurationsToConfirm."
+      trace: "REQ-MENU-REV-003"
+    - id: selectExplicitVisibleConfigurations
+      description: "Explicitly enumerate and select all currently visible (configurationId, reviewToken) pairs into selectedConfigurationsToConfirm, without wildcard or backend confirm-all semantics."
+      parameters: []
+      effect: "Populates selectedConfigurationsToConfirm with an explicit entry for every currently visible configuration requiring review."
+      trace: "REQ-MENU-REV-003"
+    - id: clearConfigurationSelections
+      description: "Clear all selected (configurationId, reviewToken) pairs from the confirmation batch."
+      parameters: []
+      effect: "Empties selectedConfigurationsToConfirm."
+      trace: "REQ-MENU-REV-003"
+    - id: selectConfigurationForSlotPricing
+      description: "Select a ComboConfiguration to inspect its slot informational price references (saved, current, difference)."
+      parameters:
+        - name: configurationId
+          type: UUID
+          description: "Target ComboConfiguration identifier."
+      preconditions:
+        - "configurationId must exist on a displayed COMBO item."
+      effect: "Loads focusedSlotPriceReferences with slot saved, current, and signed difference values for designated baseOptionIds."
+      trace: "REQ-MENU-REV-005"
+    - id: confirmObservedReviews
+      description: >
+        Execute atomic review confirmation for the explicitly selected (configurationId, reviewToken) pairs:
+        1. Confirms ONLY the changeIds identified by each observed reviewToken.
+        2. Any component changes detected subsequent to token observation (concurrent later changes) remain
+           pending and preserve REVIEW_REQUIRED status on the configuration.
+        3. If all pending changes for a configuration are attended, configuration.reviewStatus transitions to UP_TO_DATE.
+        4. Reevaluates aggregate COMBO MenuItem reviewStatus (remains REVIEW_REQUIRED if any configuration still requires review).
+        5. Emits confirmationExecutionReceipt detailing attended changeIds and remaining pending changes per configuration.
+        6. Strictly does NOT modify ComboConfiguration.unitPrice, ComboSlots, ComboOptions, administrative enablement,
+           retired-option states, MenuItem.status, or commercial revision tokens (<number>_<ISO8601>).
+      parameters:
+        - name: selectedPairs
+          type: "List<SelectedConfigurationTokenPairItem>"
+          description: "Explicit list of (configurationId, observedReviewToken) pairs to confirm. Wildcard or implicit confirm-all is rejected."
+      preconditions:
+        - "selectedPairs must contain at least one explicit (configurationId, reviewToken) pair."
+        - "Each configurationId must exist and be in reviewStatus = 'REVIEW_REQUIRED'."
+        - "Each reviewToken must match the observed token snapshot."
+        - "No wildcard or implicit confirm-all token is allowed."
+      effect: >
+        For each pair in selectedPairs:
+        - Locates all changeIds captured by the observed reviewToken and marks them as attended.
+        - Identifies any concurrent later changeIds that occurred after reviewToken generation and leaves them pending.
+        - If remainingPendingChangeIds is empty, sets ComboConfiguration.reviewStatus = 'UP_TO_DATE'; otherwise preserves 'REVIEW_REQUIRED'.
+        - Updates aggregate COMBO MenuItem reviewStatus to 'UP_TO_DATE' only if all configurations of that item are 'UP_TO_DATE'.
+        - Populates confirmationExecutionReceipt with attendedChangeIds, remainingPendingChangeIds, and confirmation flags.
+        - Preserves ComboConfiguration.unitPrice, ComboSlots, ComboOptions, MenuItem.status, and commercial revision token completely unaltered.
+        - Clears selectedConfigurationsToConfirm.
+      trace: "REQ-MENU-REV-003, REQ-MENU-REV-004, REQ-MENU-REV-002"
+    - id: dismissConfirmationReceipt
+      description: "Dismiss the review confirmation execution receipt and clear receipt display."
+      parameters: []
+      effect: "Sets confirmationExecutionReceipt to null."
+      trace: "REQ-MENU-REV-003"
+    - id: navigateToComboItem
+      description: "Navigate to MenuItemEditorView or ComboConfigurationView to inspect or modify the target COMBO item."
+      parameters:
+        - name: menuItemId
+          type: UUID
+          description: "Target COMBO MenuItem identifier."
+      effect: "Emits selectedMenuItemId and transitions administrator to the item editing interface."
+      trace: "REQ-MENU-REV-002"
+    - id: returnToOrigin
+      description: "Exit the review monitoring view and return to the origin context."
+      parameters: []
+      effect: "Emits returnToOriginSignal."
+      trace: "docs/ui-spec-arch.md"
+  states:
+    - id: allReviewsUpToDate
+      description: "No COMBO items or configurations currently require supervisory review across the catalog."
+      condition: "catalogReviewSummary.totalConfigurationsRequiringReviewCount == 0."
+      trace: "REQ-MENU-REV-002"
+    - id: reviewsPendingSelectionEmpty
+      description: "One or more ComboConfigurations require review, but no (configurationId, reviewToken) pairs have been selected for confirmation."
+      condition: "catalogReviewSummary.totalConfigurationsRequiringReviewCount > 0 and selectedConfigurationsToConfirm.count == 0."
+      trace: "REQ-MENU-REV-002, REQ-MENU-REV-003"
+    - id: reviewsSelectedForConfirmation
+      description: "One or more explicit (configurationId, reviewToken) pairs are selected, enabling the confirmSelectedReviewsAction."
+      condition: "selectedConfigurationsToConfirm.count > 0."
+      trace: "REQ-MENU-REV-003"
+    - id: confirmationExecutedFullyResolved
+      description: "Review confirmation executed successfully with all pending changeIds attended; all confirmed configurations resolved to UP_TO_DATE."
+      condition: "confirmationExecutionReceipt != null and all items in confirmationExecutionReceipt.attendedConfigurations have remainingPendingChangeIds.count == 0."
+      trace: "REQ-MENU-REV-003, REQ-MENU-REV-004"
+    - id: confirmationExecutedWithConcurrentChangesPending
+      description: "Review confirmation acknowledged observed changeIds, but concurrent later changes occurred after token generation. Attended changes are confirmed, while concurrent changes remain pending and preserve REVIEW_REQUIRED."
+      condition: "confirmationExecutionReceipt != null and any item in confirmationExecutionReceipt.attendedConfigurations has remainingPendingChangeIds.count > 0."
+      trace: "REQ-MENU-REV-003, REQ-MENU-REV-004"
+    - id: slotPriceReferenceInspected
+      description: "Administrator is actively inspecting slot informational price reference calculations (saved, current, difference) for a specific configuration."
+      condition: "focusedSlotPriceReferences.configurationId != null."
+      trace: "REQ-MENU-REV-005"
+  constraints:
+    - id: C-CRV-001
+      description: >
+        Automatic Detection of Review Requirements and Allowed Change Reasons:
+        A ComboConfiguration is marked as REVIEW_REQUIRED when a ComboOption — including disabled options
+        (enabled = false), which remain active structural dependencies of the configuration — references a
+        leaf MenuItemVariant whose unattended change is strictly limited to one or more of: PRICE, COMPOSITION,
+        MODIFIERS, or STATUS under REQ-MENU-REV-001. Permanent archival of a leaf variant under REQ-MENU-LIF-001
+        that leaves a dependent combo slot unable to meet minSelections marks the configuration as ineligible
+        with reviewStatus = REVIEW_REQUIRED. Cosmetic changes, stock/inventory fluctuations, and changes to
+        unreferenced variants are strictly ignored. A new culinary recipe revision triggers review only when
+        the referenced leaf MenuItemVariant explicitly adopts that recipe revision.
+      trace: "REQ-MENU-REV-001, REQ-MENU-LIF-001"
+    - id: C-CRV-002
+      description: >
+        Orthogonality and Strict Separation of Review Status:
+        Configuration-level reviewStatus ('UP_TO_DATE' or 'REVIEW_REQUIRED') and the aggregate COMBO MenuItem
+        review status are strictly separated and orthogonal from administrative status (MenuItem.status:
+        ACTIVE/INACTIVE, MenuItemVariant.status: ACTIVE/INACTIVE/ARCHIVED), structural eligibility, and operational
+        availability projections (ComboConfigurationAvailability, isAvailable). Triggering REVIEW_REQUIRED or
+        confirming reviews never alters MenuItem.status or operational availability. Non-COMBO items (PREPARED
+        and STOCKED) never possess combo review status attributes.
+      trace: "REQ-MENU-REV-002, REQ-MENU-LIF-001"
+    - id: C-CRV-003
+      description: >
+        Explicit Selection and Prohibition of Wildcard Confirm-All Operations:
+        Confirmation of combo reviews requires explicit submission of one or more (configurationId, reviewToken)
+        pairs chosen by the administrator. Wildcard tokens, implicit "confirm-all" actions, or backend bulk-confirm
+        endpoints that bypass explicit pair enumeration are strictly prohibited under REQ-MENU-REV-003. Any batch
+        selection action in the interface must explicitly enumerate each visible (configurationId, reviewToken) pair
+        in the selection buffer before confirmation can be requested.
+      trace: "REQ-MENU-REV-003"
+    - id: C-CRV-004
+      description: >
+        Token-Bound Confirmation and Concurrent Later Change Preservation:
+        Review confirmation operates strictly on the observed reviewToken snapshot:
+        1. The confirmation transaction acknowledges and records as attended ONLY the specific changeIds
+           represented by the observed reviewToken.
+        2. Any component changes occurring subsequent to the observation of that reviewToken (concurrent later
+           changes) remain pending and unacknowledged.
+        3. Configurations with remaining concurrent pending changes preserve reviewStatus = 'REVIEW_REQUIRED'.
+        4. The execution receipt explicitly returns the identified attended changeIds and lists any remaining
+           pending changeIds.
+      trace: "REQ-MENU-REV-003"
+    - id: C-CRV-005
+      description: >
+        Conservation of Commercial Configuration Upon Confirmation:
+        Confirming a reviewToken acknowledges receipt of observed component changes and strictly:
+        1. Does NOT modify the combo configuration selling unitPrice (ComboConfiguration.unitPrice).
+        2. Does NOT alter ComboSlot definitions, slot boundaries (minSelections, maxSelections), or option groupings.
+        3. Does NOT alter ComboOption definitions, quantities, or price deltas.
+        4. Does NOT reactivate retired or disabled options (retired-option states are preserved).
+        5. Does NOT modify the administrative status (MenuItem.status) of the containing COMBO MenuItem.
+        6. Does NOT generate a new commercial revision or increment the immutable commercial revision token
+           formatted as '<number>_<ISO8601>' under REQ-MENU-VER-001.
+      trace: "REQ-MENU-REV-004, REQ-MENU-VER-001"
+    - id: C-CRV-006
+      description: >
+        Informational Slot Price Reference and Pricing Non-Mutation:
+        For each ComboSlot and its designated baseOptionIds, the view exposes:
+        - saved = sum(savedUnitPrice * ComboOption.quantity)
+        - current = sum(currentUnitPrice * ComboOption.quantity)
+        - difference = current - saved (signed)
+        under REQ-MENU-REV-005. These values are strictly informational to assist administrative evaluation.
+        Informational price differences cannot mutate, adjust, or overwrite ComboConfiguration.unitPrice, which
+        remains fixed and authoritative unless explicitly modified in ComboConfigurationView.
+      trace: "REQ-MENU-REV-005"

@@ -1,0 +1,917 @@
+view:
+  id: MenuItemEditorView
+  name: Menu Item Editor View
+  purpose: >
+    Provide the menu administrator with a centralized semantic interface to inspect and configure the
+    commercial identity, image reference, menu and category associations, immutable type discriminator,
+    administrative status, leaf presentations and dimensions, authoritative absolute unit prices, and
+    type-specific supply linkage (STOCKED inventory references and withdrawal quantities, or PREPARED
+    recipe-revision association and explicit adoption) of a MenuItem, as well as executing atomic
+    DEFAULT-to-explicit variant migrations, irreversible variant archival, and incomplete-INACTIVE saves
+    with structured capacity warnings, while enforcing full structural eligibility before commercial activation
+    without inventing image uploading, Inventory lookup, category CRUD, autosave, or destructive deletion.
+  actors:
+    - ADMINISTRATOR
+  requirements:
+    - REQ-MENU-ITM-001
+    - REQ-MENU-ITM-002
+    - REQ-MENU-VAR-001
+    - REQ-MENU-VAR-002
+    - REQ-MENU-VAR-003
+    - REQ-MENU-VAR-004
+    - REQ-MENU-VAR-005
+    - REQ-MENU-VAR-006
+    - REQ-MENU-PRC-001
+    - REQ-MENU-PRC-003
+    - REQ-MENU-FUL-001
+    - REQ-MENU-FUL-002
+    - REQ-MENU-FUL-003
+    - REQ-MENU-LIF-001
+    - REQ-MENU-LIF-002
+    - REQ-MENU-LIF-003
+    - REQ-MENU-VER-001
+    - REQ-MENU-AVL-002
+  inputs:
+    - name: menuItemId
+      type: "UUID | null"
+      required: false
+      description: "Identifier of an existing MenuItem to inspect and edit; null or omitted when creating a new MenuItem commercial entity."
+      trace: "REQ-MENU-ITM-001"
+    - name: initialItemType
+      type: "String | null"
+      required: false
+      description: "Pre-selected immutable type discriminator ('PREPARED', 'STOCKED', or 'COMBO') when entering editor via specialized creation shortcut."
+      trace: "REQ-MENU-ITM-001"
+    - name: initialMenuId
+      type: "UUID | null"
+      required: false
+      description: "Identifier of the target commercial menu catalog owning this item; defaults to the active store menu catalog."
+      trace: "REQ-MENU-ITM-001"
+  outputs:
+    - name: savedMenuItemId
+      type: UUID
+      description: "Unique identifier of the created or updated MenuItem emitted upon accepted commercial save."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-VER-001"
+    - name: newRevisionToken
+      type: String
+      description: "Newly generated immutable commercial revision token formatted as '<number>_<ISO8601>' emitted upon accepted save."
+      trace: "REQ-MENU-VER-001"
+    - name: returnToCatalogSignal
+      type: Boolean
+      description: "Navigation trigger returning the administrator to MenuCatalogAdministrationView upon save, completion, or cancellation."
+      trace: "REQ-MENU-ITM-001"
+    - name: navigateToModifierConfigurationSignal
+      type: "Object | null"
+      description: "Contextual navigation payload with menuItemId and optional variantId to transition the administrator to ModifierConfigurationView for leaf items."
+      trace: "REQ-MENU-ITM-001, docs/ui-spec-arch.md"
+    - name: navigateToComboConfigurationSignal
+      type: "Object | null"
+      description: "Contextual navigation payload with menuItemId to transition the administrator to ComboConfigurationView for COMBO items."
+      trace: "REQ-MENU-ITM-001, docs/ui-spec-arch.md"
+    - name: navigateToRecipeEditorSignal
+      type: "Object | null"
+      description: "Contextual navigation payload with optional recipeId or recipeRevisionId plus returnContext 'MenuItemEditorView' to create or inspect recipes in RecipeEditorView."
+      trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-003, docs/ui-spec-arch.md"
+  regions:
+    - id: commercialIdentityRegion
+      role: primary
+      description: "Semantic region for defining and editing MenuItem commercial identity, image reference, menu and category references, immutable type discriminator, and administrative status."
+      data:
+        - menuItemIdentity
+      controls:
+        - nameInput
+        - descriptionInput
+        - imageRefInput
+        - menuSelector
+        - categorySelector
+        - commercialClassificationSelector
+        - itemTypeSelector
+        - administrativeStatusToggle
+    - id: variantManagementRegion
+      role: primary
+      description: "Semantic region active for leaf items (PREPARED and STOCKED) to manage variant dimensions, dimension values, sellable variants, combinations, unit prices, supply configurations, default-to-explicit migration, and variant archival."
+      data:
+        - variantDimensions
+        - leafVariants
+        - defaultVariantState
+      controls:
+        - addDimensionAction
+        - addDimensionValueAction
+        - createVariantAction
+        - updateVariantPriceInput
+        - updateStockedSupplyControl
+        - associateRecipeRevisionInput
+        - adoptRecipeRevisionAction
+        - navigateToRecipeEditorAction
+        - migrateDefaultVariantAction
+        - archiveVariantAction
+    - id: comboSummaryRegion
+      role: secondary
+      description: "Semantic region active for COMBO items displaying high-level combo configuration summary, slot counts, structural eligibility, and contextual navigation to ComboConfigurationView."
+      data:
+        - comboConfigurationsSummary
+      controls:
+        - navigateToComboConfigurationAction
+    - id: modifierSummaryRegion
+      role: secondary
+      description: "Semantic region active for leaf items (PREPARED and STOCKED) displaying high-level modifier groups summary, min/max selection rules, and contextual navigation to ModifierConfigurationView."
+      data:
+        - modifierGroupsSummary
+      controls:
+        - navigateToModifierConfigurationAction
+    - id: validationAndWarningsRegion
+      role: supporting
+      description: "Semantic region displaying real-time structural eligibility evaluation, blocking validation errors for ACTIVE state, and structured incomplete capacity warnings for INACTIVE saves."
+      data:
+        - structuralValidationStatus
+        - incompleteCapacityWarnings
+      controls:
+        - saveDraftInactiveAction
+        - saveAndActivateAction
+        - cancelEditAction
+  displayedData:
+    - id: menuItemIdentity
+      name: Menu Item Commercial Identity
+      type: MenuItemCommercialIdentityProjection
+      description: "Core commercial identity, categorization, immutable discriminator, and administrative state of the MenuItem aggregate root."
+      fields:
+        - name: menuItemId
+          type: "UUID | null"
+          description: "Unique identifier of the MenuItem aggregate root; null for a new unpersisted item."
+          trace: "REQ-MENU-ITM-001"
+        - name: name
+          type: String
+          description: "Commercial name of the MenuItem."
+          trace: "REQ-MENU-ITM-001"
+        - name: description
+          type: String
+          description: "Commercial description of the MenuItem."
+          trace: "REQ-MENU-ITM-001"
+        - name: imageRef
+          type: String
+          description: "Opaque reference URI string for item image representation; does not provide file uploading."
+          trace: "REQ-MENU-ITM-001"
+        - name: menuId
+          type: UUID
+          description: "Identifier of the owning commercial menu catalog."
+          trace: "REQ-MENU-ITM-001"
+        - name: itemCategoryId
+          type: "UUID | null"
+          description: "Foreign reference identifier to an ItemCategory for leaf items (PREPARED or STOCKED); null for COMBO items."
+          trace: "REQ-MENU-ITM-001"
+        - name: comboCategoryId
+          type: "UUID | null"
+          description: "Foreign reference identifier to a ComboCategory for COMBO items; null for leaf items."
+          trace: "REQ-MENU-ITM-001"
+        - name: commercialClassification
+          type: "String | null"
+          description: "Commercial classification ('PLATILLO', 'BEBIDA', 'POSTRE', or 'COMPLEMENTO') applicable strictly to leaf items; null for COMBO items."
+          trace: "REQ-MENU-ITM-001"
+        - name: type
+          type: String
+          description: "Type discriminator ('PREPARED', 'STOCKED', or 'COMBO'). Selected at creation time; strictly immutable once persisted."
+          trace: "REQ-MENU-ITM-001"
+        - name: isTypeImmutable
+          type: Boolean
+          description: "True if the item has already been persisted (menuItemId != null), locking type discriminator against alteration."
+          trace: "REQ-MENU-ITM-001"
+        - name: administrativeStatus
+          type: String
+          description: "Administrative lifecycle status ('ACTIVE' or 'INACTIVE'). Reflects commercial intent to sell; toggled explicitly by administrator."
+          trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002"
+        - name: currentRevision
+          type: "String | null"
+          description: "Immutable commercial definition revision token formatted as '<number>_<ISO8601>'; null for new unpersisted item."
+          trace: "REQ-MENU-VER-001"
+        - name: isNewItem
+          type: Boolean
+          description: "True if the editor is operating on a new item not yet saved to the catalog."
+          trace: "REQ-MENU-ITM-001"
+      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-VER-001"
+    - id: variantDimensions
+      name: Variant Dimensions and Values
+      type: "List<VariantDimensionProjection>"
+      description: "Commercial differentiation dimensions owned by the leaf MenuItem and their configured values. Applicable only to PREPARED and STOCKED items."
+      fields:
+        - name: dimensionId
+          type: UUID
+          description: "Unique identifier of the VariantDimension entity."
+          trace: "REQ-MENU-VAR-002"
+        - name: name
+          type: String
+          description: "Commercial dimension name (e.g. 'Tamaño', 'Porción', 'Sabor')."
+          trace: "REQ-MENU-VAR-002"
+        - name: values
+          type: "List<VariantValueProjection>"
+          description: "Collection of configured values belonging to this dimension."
+          fields:
+            - name: valueId
+              type: UUID
+              description: "Unique identifier of the VariantValue entity."
+              trace: "REQ-MENU-VAR-003"
+            - name: name
+              type: String
+              description: "Commercial value name (e.g. 'Chica', 'Mediana', 'Grande', '600 ml')."
+              trace: "REQ-MENU-VAR-003"
+          trace: "REQ-MENU-VAR-003"
+      trace: "REQ-MENU-VAR-002, REQ-MENU-VAR-003"
+    - id: leafVariants
+      name: Leaf Item Variants
+      type: "List<AdminLeafVariantProjection>"
+      description: "Collection of concrete sellable presentations for PREPARED or STOCKED items, including pricing, supply linkage, dimension-value combinations, administrative status, and structural eligibility."
+      fields:
+        - name: variantId
+          type: UUID
+          description: "Unique identifier of the MenuItemVariant entity."
+          trace: "REQ-MENU-VAR-001"
+        - name: name
+          type: String
+          description: "Display name or combined dimensional representation of the variant."
+          trace: "REQ-MENU-VAR-004"
+        - name: isDefaultVariant
+          type: Boolean
+          description: "True if this is the technical DEFAULT variant automatically generated for a leaf item without commercial dimensions."
+          trace: "REQ-MENU-VAR-001, REQ-MENU-VAR-005"
+        - name: status
+          type: String
+          description: "Variant administrative lifecycle status ('ACTIVE', 'INACTIVE', or 'ARCHIVED')."
+          trace: "REQ-MENU-VAR-006, REQ-MENU-LIF-001"
+        - name: isArchived
+          type: Boolean
+          description: "True if variant status is ARCHIVED; permanent and irreversible, excludes variant from new sales while retaining historical consistency."
+          trace: "REQ-MENU-LIF-001"
+        - name: dimensionValues
+          type: "List<VariantDimensionValueAssignment>"
+          description: "List of dimension-value assignments defining this presentation (at most one value per dimension belonging to the item); empty for technical DEFAULT variant."
+          fields:
+            - name: dimensionId
+              type: UUID
+              description: "Identifier of the dimension."
+              trace: "REQ-MENU-VAR-004"
+            - name: dimensionName
+              type: String
+              description: "Commercial name of the dimension."
+              trace: "REQ-MENU-VAR-004"
+            - name: valueId
+              type: UUID
+              description: "Identifier of the assigned value."
+              trace: "REQ-MENU-VAR-004"
+            - name: valueName
+              type: String
+              description: "Commercial name of the assigned value."
+              trace: "REQ-MENU-VAR-004"
+          trace: "REQ-MENU-VAR-004"
+        - name: unitPrice
+          type: Decimal
+          description: "Authoritative absolute selling unit price of this specific variant (unitPrice >= 0). Never derived from an item base price."
+          trace: "REQ-MENU-PRC-001"
+        - name: recipeRevisionId
+          type: "String | null"
+          description: "Immutable recipe revision token formatted as '<number>_<ISO8601>' linked for PREPARED items; null for STOCKED items."
+          trace: "REQ-MENU-FUL-002"
+        - name: latestRecipeRevisionAvailable
+          type: "String | null"
+          description: "Latest known immutable revision of the linked recipe in Recipe aggregate, enabling explicit adoption comparison."
+          trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004"
+        - name: isRecipeRevisionAdopted
+          type: Boolean
+          description: "True if recipeRevisionId matches latestRecipeRevisionAvailable; false if a newer recipe revision exists pending explicit adoption."
+          trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004, REQ-MENU-REV-001"
+        - name: inventoryItemId
+          type: "String | null"
+          description: "Opaque foreign inventory identifier or SKU for STOCKED items; null for PREPARED items."
+          trace: "REQ-MENU-FUL-001"
+        - name: stockedQuantity
+          type: "Decimal | null"
+          description: "Positive physical warehouse withdrawal quantity required to supply this STOCKED presentation; null for PREPARED items."
+          trace: "REQ-MENU-FUL-001"
+        - name: isSupplyComplete
+          type: Boolean
+          description: "True if PREPARED variant has valid recipeRevisionId, or STOCKED variant has non-empty inventoryItemId and stockedQuantity > 0."
+          trace: "REQ-MENU-VAR-006, REQ-MENU-FUL-001, REQ-MENU-FUL-002"
+        - name: isStructurallyEligible
+          type: Boolean
+          description: "True if MenuItem is ACTIVE, variant is ACTIVE, not ARCHIVED, supply configuration is complete, and mandatory modifier groups can be satisfied."
+          trace: "REQ-MENU-VAR-006"
+      trace: "REQ-MENU-VAR-001, REQ-MENU-VAR-004, REQ-MENU-VAR-005, REQ-MENU-VAR-006, REQ-MENU-PRC-001, REQ-MENU-FUL-001, REQ-MENU-FUL-002, REQ-MENU-LIF-001"
+    - id: defaultVariantState
+      name: Default Variant Migration State
+      type: DefaultVariantStateProjection
+      description: "Metadata and migration eligibility when a leaf item possesses a single technical DEFAULT variant without commercial dimensions."
+      fields:
+        - name: hasDefaultVariantOnly
+          type: Boolean
+          description: "True if the leaf item has exactly one variant with isDefaultVariant == true and zero commercial dimensions."
+          trace: "REQ-MENU-VAR-001, REQ-MENU-VAR-005"
+        - name: canMigrateToExplicit
+          type: Boolean
+          description: "True if administrator has defined at least one dimension with at least two values, allowing atomic migration to explicit variants."
+          trace: "REQ-MENU-VAR-005"
+        - name: migrationNotice
+          type: String
+          description: "Explanatory message indicating that explicit migration will archive the DEFAULT variant and activate explicit presentations in a single atomic revision."
+          trace: "REQ-MENU-VAR-005"
+      trace: "REQ-MENU-VAR-001, REQ-MENU-VAR-005"
+    - id: comboConfigurationsSummary
+      name: Combo Configurations Summary
+      type: ComboSummaryProjection
+      description: "High-level summary of combo configurations for COMBO items, indicating configuration count, structural eligibility, and review statuses. Detailed configuration editing occurs in ComboConfigurationView."
+      fields:
+        - name: totalConfigurationsCount
+          type: Integer
+          description: "Total number of ComboConfigurations defined on this COMBO MenuItem."
+          trace: "REQ-MENU-COM-001"
+        - name: eligibleConfigurationsCount
+          type: Integer
+          description: "Number of ComboConfigurations satisfying structural eligibility (REQ-MENU-COM-006)."
+          trace: "REQ-MENU-COM-006"
+        - name: reviewRequiredCount
+          type: Integer
+          description: "Number of ComboConfigurations currently marked with reviewStatus = REVIEW_REQUIRED."
+          trace: "REQ-MENU-REV-002, REQ-MENU-LIF-001"
+        - name: configurations
+          type: "List<ComboConfigurationSummaryItem>"
+          description: "List of combo configuration summary entries."
+          fields:
+            - name: configurationId
+              type: UUID
+              description: "Identifier of the ComboConfiguration."
+              trace: "REQ-MENU-COM-001"
+            - name: name
+              type: String
+              description: "Commercial name of the configuration."
+              trace: "REQ-MENU-COM-001"
+            - name: unitPrice
+              type: Decimal
+              description: "Absolute unit base price (unitPrice >= 0)."
+              trace: "REQ-MENU-COM-001"
+            - name: slotsCount
+              type: Integer
+              description: "Number of ComboSlots configured in this configuration."
+              trace: "REQ-MENU-COM-001"
+            - name: isStructurallyEligible
+              type: Boolean
+              description: "True if the configuration contains at least one ComboSlot (slotsCount >= 1) and all mandatory slots meet minSelections where every counted component leaf variant satisfies the complete REQ-MENU-VAR-006 structural predicate (active parent, active non-archived variant, complete supply linkage, and satisfiable mandatory modifier groups), without using momentary availability."
+              trace: "REQ-MENU-COM-006, REQ-MENU-VAR-006, REQ-MENU-AVL-002"
+            - name: reviewStatus
+              type: String
+              description: "Review requirement status ('UP_TO_DATE' or 'REVIEW_REQUIRED')."
+              trace: "REQ-MENU-REV-002, REQ-MENU-LIF-001"
+          trace: "REQ-MENU-COM-001, REQ-MENU-COM-006, REQ-MENU-REV-002"
+      trace: "REQ-MENU-COM-001, REQ-MENU-COM-006, REQ-MENU-REV-002, REQ-MENU-LIF-001"
+    - id: modifierGroupsSummary
+      name: Modifier Groups Summary
+      type: ModifierGroupsSummaryProjection
+      description: "High-level summary of modifier groups belonging to the leaf MenuItem. Detailed group and option configuration occurs in ModifierConfigurationView."
+      fields:
+        - name: totalGroupsCount
+          type: Integer
+          description: "Total number of modifier groups owned by this leaf MenuItem."
+          trace: "REQ-MENU-MOD-001"
+        - name: mandatoryGroupsCount
+          type: Integer
+          description: "Count of modifier groups with minSelections > 0."
+          trace: "REQ-MENU-MOD-001"
+        - name: groups
+          type: "List<ModifierGroupSummaryItem>"
+          description: "Summary list of modifier groups."
+          fields:
+            - name: modifierGroupId
+              type: UUID
+              description: "Identifier of the ModifierGroup."
+              trace: "REQ-MENU-MOD-001"
+            - name: name
+              type: String
+              description: "Commercial name of the modifier group."
+              trace: "REQ-MENU-MOD-001"
+            - name: minSelections
+              type: Integer
+              description: "Minimum selections required."
+              trace: "REQ-MENU-MOD-001"
+            - name: maxSelections
+              type: Integer
+              description: "Maximum selections permitted."
+              trace: "REQ-MENU-MOD-001"
+            - name: enabledOptionsCount
+              type: Integer
+              description: "Number of enabled modifier options in the group."
+              trace: "REQ-MENU-MOD-001"
+            - name: configuredCapacity
+              type: Integer
+              description: "Sum of maxQuantity across enabled options in the group."
+              trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002"
+            - name: isCapacitySatisfied
+              type: Boolean
+              description: "True if configuredCapacity >= minSelections."
+              trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002"
+          trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002"
+      trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002"
+    - id: structuralValidationStatus
+      name: Structural Validation Status
+      type: StructuralValidationStatusProjection
+      description: "Real-time evaluation of all domain structural invariants and prerequisites for transitioning or saving the item in ACTIVE status."
+      fields:
+        - name: isEligibleForActive
+          type: Boolean
+          description: "True if all structural requirements are satisfied: at least 1 eligible sellable unit; for leaf items, all active variants have complete supply linkage and mandatory modifier groups meet minSelections; for COMBO items, at least one configuration is eligible, every configuration contains at least one slot (slotsCount >= 1, rejecting vacuous zero-slot configurations), and every counted component variant in mandatory slots satisfies the complete REQ-MENU-VAR-006 structural predicate (active parent, active non-archived variant, complete supply linkage, satisfiable mandatory modifier groups) with calculated capacity >= minSelections, without using momentary availability."
+          trace: "REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003, REQ-MENU-MOD-001, REQ-MENU-COM-006, REQ-MENU-AVL-002"
+        - name: blockingValidationErrors
+          type: "List<String>"
+          description: "List of blocking errors preventing transition to ACTIVE (e.g. 'Item carece de unidades vendibles elegibles', 'Variante activa sin suministro', 'Grupo obligatorio sin capacidad', 'Configuración de combo sin slots', 'Variante componente en slot sin elegibilidad estructural completa')."
+          trace: "REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003, REQ-MENU-MOD-001, REQ-MENU-COM-006"
+      trace: "REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003, REQ-MENU-MOD-001, REQ-MENU-COM-006, REQ-MENU-AVL-002"
+    - id: incompleteCapacityWarnings
+      name: Incomplete Capacity Warnings
+      type: "List<IncompleteCapacityWarningItem>"
+      description: "Collection of structured warnings generated when saving a MenuItem in INACTIVE status with incomplete definitions or capacity deficits under REQ-MENU-LIF-002 and REQ-MENU-LIF-003."
+      fields:
+        - name: entityId
+          type: UUID
+          description: "Identifier of the affected ModifierGroup or ComboSlot."
+          trace: "REQ-MENU-LIF-003"
+        - name: entityType
+          type: String
+          description: "Domain type of the affected entity ('ModifierGroup' or 'ComboSlot')."
+          trace: "REQ-MENU-LIF-003"
+        - name: entityName
+          type: String
+          description: "Commercial name of the affected entity."
+          trace: "REQ-MENU-LIF-003"
+        - name: minSelections
+          type: Integer
+          description: "Minimum selection requirement configured on the entity."
+          trace: "REQ-MENU-LIF-003"
+        - name: calculatedCapacity
+          type: Integer
+          description: "Calculated capacity: sum of maxQuantity for enabled options in ModifierGroup, or count of enabled options referencing component leaf variants satisfying the complete REQ-MENU-VAR-006 structural predicate in ComboSlot, without using momentary availability."
+          trace: "REQ-MENU-LIF-003, REQ-MENU-VAR-006, REQ-MENU-AVL-002"
+        - name: deficit
+          type: Integer
+          description: "Capacity deficit (minSelections - calculatedCapacity)."
+          trace: "REQ-MENU-LIF-003"
+        - name: warningMessage
+          type: String
+          description: "Descriptive message detailing the insufficient capacity and explaining that the definition is accepted only under INACTIVE status."
+          trace: "REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+      trace: "REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+  controls:
+    - id: nameInput
+      type: input
+      operatesOn: menuItemIdentity.name
+      triggersAction: updateItemIdentityField
+      description: "Semantic text input for the commercial name of the MenuItem."
+      trace: "REQ-MENU-ITM-001"
+    - id: descriptionInput
+      type: input
+      operatesOn: menuItemIdentity.description
+      triggersAction: updateItemIdentityField
+      description: "Semantic text input for the commercial description of the MenuItem."
+      trace: "REQ-MENU-ITM-001"
+    - id: imageRefInput
+      type: input
+      operatesOn: menuItemIdentity.imageRef
+      triggersAction: updateItemIdentityField
+      description: "Semantic text input for the opaque image reference URI string; does not provide file uploading or media transformation."
+      trace: "REQ-MENU-ITM-001"
+    - id: menuSelector
+      type: selection
+      operatesOn: menuItemIdentity.menuId
+      triggersAction: updateItemIdentityField
+      description: "Semantic selector for the owning commercial menu catalog."
+      trace: "REQ-MENU-ITM-001"
+    - id: categorySelector
+      type: selection
+      operatesOn:
+        - menuItemIdentity.itemCategoryId
+        - menuItemIdentity.comboCategoryId
+      triggersAction: updateItemIdentityField
+      description: "Semantic selector for category association (ItemCategory for leaf items, ComboCategory for combos); does not provide category CRUD."
+      trace: "REQ-MENU-ITM-001"
+    - id: commercialClassificationSelector
+      type: selection
+      operatesOn: menuItemIdentity.commercialClassification
+      triggersAction: updateItemIdentityField
+      description: "Semantic selector for commercial classification (PLATILLO, BEBIDA, POSTRE, COMPLEMENTO); active strictly for leaf items (PREPARED and STOCKED)."
+      trace: "REQ-MENU-ITM-001"
+    - id: itemTypeSelector
+      type: selection
+      operatesOn: menuItemIdentity.type
+      triggersAction: setItemType
+      description: "Semantic selector for immutable type discriminator ('PREPARED', 'STOCKED', or 'COMBO'). Active only during item creation; disabled and strictly immutable once persisted."
+      trace: "REQ-MENU-ITM-001"
+    - id: administrativeStatusToggle
+      type: toggle
+      operatesOn: menuItemIdentity.administrativeStatus
+      triggersAction: setTargetAdministrativeStatus
+      description: "Semantic toggle control between ACTIVE and INACTIVE administrative states; transitioning to ACTIVE triggers structural validation."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-LIF-002"
+    - id: addDimensionAction
+      type: action
+      operatesOn: variantDimensions
+      triggersAction: createVariantDimension
+      description: "Semantic action to define a new named VariantDimension on a leaf MenuItem (e.g. 'Tamaño')."
+      trace: "REQ-MENU-VAR-002"
+    - id: addDimensionValueAction
+      type: action
+      operatesOn: variantDimensions.values
+      triggersAction: createVariantValue
+      description: "Semantic action to add a named VariantValue to a specific dimension (e.g. 'Chica', 'Grande')."
+      trace: "REQ-MENU-VAR-003"
+    - id: createVariantAction
+      type: action
+      operatesOn: leafVariants
+      triggersAction: createLeafVariant
+      description: "Semantic action to define a new sellable MenuItemVariant with a unique combination of dimension values and absolute unitPrice."
+      trace: "REQ-MENU-VAR-004, REQ-MENU-PRC-001"
+    - id: updateVariantPriceInput
+      type: input
+      operatesOn: leafVariants.unitPrice
+      triggersAction: setVariantUnitPrice
+      description: "Semantic numeric input for authoritative absolute selling unit price of a variant (unitPrice >= 0). Never derived from item base price."
+      trace: "REQ-MENU-PRC-001"
+    - id: updateStockedSupplyControl
+      type: input
+      operatesOn:
+        - leafVariants.inventoryItemId
+        - leafVariants.stockedQuantity
+      triggersAction: configureStockedSupply
+      description: "Semantic input controls for foreign opaque inventoryItemId (SKU) and withdrawal quantity (> 0) for STOCKED items; does not invent inventory lookup or search."
+      trace: "REQ-MENU-FUL-001"
+    - id: associateRecipeRevisionInput
+      type: input
+      operatesOn: leafVariants.recipeRevisionId
+      triggersAction: associateRecipeRevision
+      description: "Semantic input control to specify or link an immutable recipe revision token ('<number>_<ISO8601>') for a PREPARED variant."
+      trace: "REQ-MENU-FUL-002"
+    - id: adoptRecipeRevisionAction
+      type: action
+      operatesOn: leafVariants.recipeRevisionId
+      triggersAction: adoptNewRecipeRevision
+      description: "Explicit administrative action to adopt a newly created immutable recipe revision for a PREPARED variant, replacing prior revision and producing a new MenuItem revision."
+      trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004, REQ-MENU-VER-001"
+    - id: navigateToRecipeEditorAction
+      type: navigation
+      operatesOn: leafVariants.recipeRevisionId
+      triggersAction: navigateToRecipeEditor
+      description: "Semantic navigation control in PREPARED-item context to transition to RecipeEditorView to create or inspect recipes."
+      trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-003, docs/ui-spec-arch.md"
+    - id: migrateDefaultVariantAction
+      type: action
+      operatesOn: defaultVariantState
+      triggersAction: migrateDefaultVariantToExplicit
+      description: "Semantic action to execute atomic migration replacing the technical DEFAULT variant with explicit dimensional presentations in a single revision."
+      trace: "REQ-MENU-VAR-005, REQ-MENU-VER-001"
+    - id: archiveVariantAction
+      type: action
+      operatesOn: leafVariants.status
+      triggersAction: archiveLeafVariant
+      description: "Semantic action to permanently and irreversibly archive a leaf variant (status = ARCHIVED). Excludes variant from new sales; updates dependent combo configurations to REVIEW_REQUIRED without altering dependent combo administrative status."
+      trace: "REQ-MENU-LIF-001, REQ-MENU-REV-001"
+    - id: navigateToModifierConfigurationAction
+      type: navigation
+      operatesOn: modifierGroupsSummary
+      triggersAction: navigateToModifierConfiguration
+      description: "Semantic navigation control to transition to ModifierConfigurationView to manage modifier groups and options for the leaf item."
+      trace: "REQ-MENU-MOD-001"
+    - id: navigateToComboConfigurationAction
+      type: navigation
+      operatesOn: comboConfigurationsSummary
+      triggersAction: navigateToComboConfiguration
+      description: "Semantic navigation control to transition to ComboConfigurationView to manage configurations, slots, and options for the COMBO item."
+      trace: "REQ-MENU-COM-001"
+    - id: saveDraftInactiveAction
+      type: action
+      operatesOn:
+        - menuItemIdentity
+        - leafVariants
+        - incompleteCapacityWarnings
+      triggersAction: saveMenuItemInactive
+      description: "Semantic action to save MenuItem commercial definition in INACTIVE status, permitting incomplete definitions with structured warnings."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-LIF-002, REQ-MENU-LIF-003, REQ-MENU-VER-001"
+    - id: saveAndActivateAction
+      type: primary_action
+      operatesOn:
+        - menuItemIdentity
+        - leafVariants
+        - structuralValidationStatus
+      triggersAction: saveAndActivateMenuItem
+      description: "Primary semantic action to validate complete structural capacity and persist the MenuItem in ACTIVE status."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003, REQ-MENU-COM-006, REQ-MENU-VER-001"
+    - id: cancelEditAction
+      type: action
+      operatesOn: null
+      triggersAction: cancelEdit
+      description: "Semantic action to discard pending edits and return to MenuCatalogAdministrationView."
+      trace: "REQ-MENU-ITM-001"
+  actions:
+    - id: updateItemIdentityField
+      description: "Update a commercial identity field (name, description, imageRef, menuId, itemCategoryId, comboCategoryId, commercialClassification) in the editor working buffer."
+      parameters:
+        - name: fieldName
+          type: String
+          description: "Name of the commercial identity field."
+        - name: fieldValue
+          type: "String | UUID | null"
+          description: "New value assigned to the field."
+      effect: "Updates working copy of menuItemIdentity."
+      trace: "REQ-MENU-ITM-001"
+    - id: setItemType
+      description: "Set the item type discriminator during initial item creation ('PREPARED', 'STOCKED', or 'COMBO')."
+      parameters:
+        - name: itemType
+          type: String
+          description: "Selected type discriminator."
+      preconditions:
+        - "menuItemIdentity.isNewItem must be true; type discriminator cannot be altered once item is persisted."
+      effect: "Sets menuItemIdentity.type, initializes single DEFAULT variant for leaf items or empty configuration collection for combos."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-VAR-001"
+    - id: setTargetAdministrativeStatus
+      description: "Set the target administrative status ('ACTIVE' or 'INACTIVE') for the item in the editor."
+      parameters:
+        - name: targetStatus
+          type: String
+          description: "Target administrative status."
+      effect: "Updates menuItemIdentity.administrativeStatus working target; if ACTIVE, triggers structural validation."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-LIF-002"
+    - id: createVariantDimension
+      description: "Define a new VariantDimension on the leaf MenuItem."
+      parameters:
+        - name: name
+          type: String
+          description: "Commercial name of the dimension."
+      preconditions:
+        - "Item type must be PREPARED or STOCKED."
+        - "Dimension name must be non-empty and unique within the MenuItem."
+      effect: "Appends a new VariantDimension to variantDimensions."
+      trace: "REQ-MENU-VAR-002"
+    - id: createVariantValue
+      description: "Add a named VariantValue to a specific VariantDimension."
+      parameters:
+        - name: dimensionId
+          type: UUID
+          description: "Identifier of the target dimension."
+        - name: name
+          type: String
+          description: "Commercial name of the value."
+      preconditions:
+        - "Value name must be non-empty and unique within the specified dimension."
+      effect: "Appends new VariantValue to the dimension's values collection."
+      trace: "REQ-MENU-VAR-003"
+    - id: createLeafVariant
+      description: "Register a new sellable MenuItemVariant with a unique combination of dimension values and absolute unitPrice."
+      parameters:
+        - name: valueAssignments
+          type: "List<UUID>"
+          description: "List of VariantValue identifiers (at most one per dimension belonging to the item)."
+        - name: unitPrice
+          type: Decimal
+          description: "Authoritative absolute unit selling price (unitPrice >= 0)."
+      preconditions:
+        - "Item type must be PREPARED or STOCKED."
+        - "At most one value per dimension belonging to the item."
+        - "Combination of values must not duplicate an existing variant within the item."
+        - "unitPrice >= 0."
+      effect: "Registers new MenuItemVariant with status ACTIVE (or INACTIVE if item is INACTIVE)."
+      trace: "REQ-MENU-VAR-004, REQ-MENU-PRC-001"
+    - id: setVariantUnitPrice
+      description: "Set the authoritative absolute selling unit price for a specific MenuItemVariant."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Identifier of the target variant."
+        - name: unitPrice
+          type: Decimal
+          description: "Absolute unit price (unitPrice >= 0)."
+      preconditions:
+        - "unitPrice >= 0."
+      effect: "Updates variant.unitPrice; does not alter item base price (discontinued)."
+      trace: "REQ-MENU-PRC-001"
+    - id: configureStockedSupply
+      description: "Specify foreign opaque inventoryItemId (SKU) and physical withdrawal quantity for a STOCKED variant."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Identifier of the target STOCKED variant."
+        - name: inventoryItemId
+          type: String
+          description: "Foreign opaque inventory identifier / SKU."
+        - name: stockedQuantity
+          type: Decimal
+          description: "Positive warehouse withdrawal quantity (> 0)."
+      preconditions:
+        - "Item type must be STOCKED."
+        - "stockedQuantity > 0."
+        - "inventoryItemId must be non-empty."
+      effect: "Updates variant inventory supply linkage and marks supply complete."
+      trace: "REQ-MENU-FUL-001, REQ-MENU-VAR-006"
+    - id: associateRecipeRevision
+      description: "Associate an immutable recipe revision token to a PREPARED variant."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Identifier of the target PREPARED variant."
+        - name: recipeRevisionId
+          type: String
+          description: "Immutable recipe revision token formatted as '<number>_<ISO8601>'."
+      preconditions:
+        - "Item type must be PREPARED."
+        - "recipeRevisionId must reference a valid immutable recipe revision."
+      effect: "Updates variant.recipeRevisionId and marks supply complete."
+      trace: "REQ-MENU-FUL-002, REQ-MENU-VAR-006"
+    - id: adoptNewRecipeRevision
+      description: "Explicitly adopt a newly created recipe revision for a PREPARED variant, updating recipeRevisionId and producing a new MenuItem revision upon save."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Identifier of the target PREPARED variant."
+        - name: targetRecipeRevisionId
+          type: String
+          description: "New immutable recipe revision token to adopt."
+      preconditions:
+        - "Item type must be PREPARED."
+        - "targetRecipeRevisionId must differ from current variant.recipeRevisionId."
+      effect: >
+        Updates variant.recipeRevisionId; upon save, produces a new immutable commercial MenuItem revision
+        (<number>_<ISO8601>) and triggers downstream combo review (COMPOSITION change) for any dependent combos.
+      trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004, REQ-MENU-VER-001, REQ-MENU-REV-001"
+    - id: migrateDefaultVariantToExplicit
+      description: "Atomically replace the single technical DEFAULT variant with explicit dimensional presentations in a single immutable revision."
+      parameters:
+        - name: explicitVariants
+          type: "List<ExplicitVariantMigrationPayload>"
+          description: "List of new explicit variants with dimensional combinations, prices, and supply linkage."
+      preconditions:
+        - "Item has a single technical DEFAULT variant (isDefaultVariant == true) and dimensions with values exist."
+        - "All new variants have unique value combinations, absolute unitPrice >= 0, and valid supply linkage."
+      effect: >
+        Atomically archives the DEFAULT variant (status = ARCHIVED), activates the new explicit variants,
+        and generates exactly one new immutable commercial revision (<number>_<ISO8601>).
+      trace: "REQ-MENU-VAR-005, REQ-MENU-VER-001"
+    - id: archiveLeafVariant
+      description: "Permanently and irreversibly archive a leaf variant (status = ARCHIVED)."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Identifier of the variant to archive."
+      preconditions:
+        - "Variant status must not already be ARCHIVED."
+        - "Item type must be PREPARED or STOCKED."
+      effect: >
+        Permanently sets variant.status to ARCHIVED. The variant is excluded from new sales.
+        All ComboOptions referencing this variant become ineligible. Dependent ComboConfigurations that can
+        no longer satisfy minSelections are marked ineligible with reviewStatus = REVIEW_REQUIRED.
+        CRITICAL: The administrative status (MenuItem.status) of dependent COMBO items is NOT modified automatically.
+      trace: "REQ-MENU-LIF-001, REQ-MENU-REV-001"
+    - id: navigateToRecipeEditor
+      description: "Transition administrator to RecipeEditorView to create culinary recipes or inspect existing revisions in the PREPARED-item context."
+      parameters:
+        - name: recipeId
+          type: "UUID | null"
+          description: "Optional identifier of the existing Recipe aggregate to inspect or author a revision for."
+        - name: recipeRevisionId
+          type: "String | null"
+          description: "Optional immutable recipe revision token formatted as '<number>_<ISO8601>' to inspect."
+      effect: "Emits navigateToRecipeEditorSignal with optional recipeId or recipeRevisionId plus returnContext 'MenuItemEditorView'."
+      trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-003, docs/ui-spec-arch.md"
+    - id: navigateToModifierConfiguration
+      description: "Transition administrator to ModifierConfigurationView to configure modifier groups and options for this leaf item."
+      parameters: []
+      effect: "Emits navigateToModifierConfigurationSignal with menuItemId."
+      trace: "REQ-MENU-MOD-001, docs/ui-spec-arch.md"
+    - id: navigateToComboConfiguration
+      description: "Transition administrator to ComboConfigurationView to configure configurations, slots, and options for this COMBO item."
+      parameters: []
+      effect: "Emits navigateToComboConfigurationSignal with menuItemId."
+      trace: "REQ-MENU-COM-001, docs/ui-spec-arch.md"
+    - id: saveMenuItemInactive
+      description: "Save the MenuItem commercial definition in INACTIVE administrative status, permitting incomplete definitions and returning structured warnings."
+      parameters: []
+      preconditions:
+        - "Commercial name, menuId, and type must be valid."
+        - "No duplicate variant combinations."
+      effect: >
+        Persists MenuItem with status = INACTIVE. Generates a new immutable commercial revision (<number>_<ISO8601>).
+        Populates incompleteCapacityWarnings with identity, type, minSelections, and calculated capacity for each
+        ModifierGroup or ComboSlot with capacity deficit under REQ-MENU-LIF-002 and REQ-MENU-LIF-003.
+        Emits savedMenuItemId and newRevisionToken.
+      trace: "REQ-MENU-ITM-001, REQ-MENU-LIF-002, REQ-MENU-LIF-003, REQ-MENU-VER-001"
+    - id: saveAndActivateMenuItem
+      description: "Validate complete structural capacity and persist the MenuItem in ACTIVE status."
+      parameters: []
+      preconditions:
+        - "structuralValidationStatus.isEligibleForActive must be true."
+        - "MenuItem must have at least one structurally eligible sellable unit (REQ-MENU-PRC-003)."
+        - "For leaf items: all active variants must have complete supply linkage (REQ-MENU-VAR-006, REQ-MENU-FUL-001, REQ-MENU-FUL-002), and all mandatory modifier groups must have calculated capacity >= minSelections (REQ-MENU-MOD-001)."
+        - "For combo items: at least one ComboConfiguration must be eligible, every configuration must contain at least one slot (slotsCount >= 1, preventing vacuous zero-slot configurations), and every counted component variant in mandatory slots must satisfy the complete REQ-MENU-VAR-006 structural predicate (active parent, active non-archived variant, complete supply linkage, satisfiable mandatory modifier groups) with calculated capacity >= minSelections, without using momentary availability (REQ-MENU-COM-006, REQ-MENU-VAR-006, REQ-MENU-AVL-002)."
+      effect: >
+        Persists MenuItem with status = ACTIVE. Generates a new immutable commercial revision (<number>_<ISO8601>).
+        Emits savedMenuItemId and newRevisionToken, and emits returnToCatalogSignal.
+      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003, REQ-MENU-COM-006, REQ-MENU-VER-001"
+    - id: cancelEdit
+      description: "Discard unsaved changes and return to catalog administration."
+      parameters: []
+      effect: "Emits returnToCatalogSignal without persisting modifications."
+      trace: "REQ-MENU-ITM-001"
+  states:
+    - id: creationNewItem
+      description: "Editor is open in new item creation mode. The type discriminator ('PREPARED', 'STOCKED', 'COMBO') is selectable. Once persisted, the discriminator becomes immutable."
+      condition: "menuItemIdentity.isNewItem == true and menuItemIdentity.menuItemId == null."
+      trace: "REQ-MENU-ITM-001"
+    - id: editingPreparedLeafItem
+      description: "Editing a PREPARED leaf item. Variant dimensions, recipe revision associations, explicit recipe revision adoptions, recipe navigation (navigateToRecipeEditorAction), modifier navigation, and variant archival are active."
+      condition: "menuItemIdentity.type == 'PREPARED'."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-VAR-001, REQ-MENU-FUL-002, REQ-MENU-FUL-003"
+    - id: editingStockedLeafItem
+      description: "Editing a STOCKED leaf item. Variant dimensions, foreign inventoryItemId (SKU) and withdrawal quantity inputs, modifier navigation, and variant archival are active."
+      condition: "menuItemIdentity.type == 'STOCKED'."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-VAR-001, REQ-MENU-FUL-001"
+    - id: editingComboItem
+      description: "Editing a COMBO item. Leaf variant and dimension sections are suppressed; combo category reference, configuration summary, and combo configuration navigation are active."
+      condition: "menuItemIdentity.type == 'COMBO'."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-COM-001"
+    - id: singleDefaultVariantMode
+      description: "Leaf item has no commercial dimensions and possesses a single technical DEFAULT variant. DEFAULT variant can be migrated to explicit variants atomically once dimensions are added."
+      condition: "menuItemIdentity.type in ['PREPARED', 'STOCKED'] and defaultVariantState.hasDefaultVariantOnly == true."
+      trace: "REQ-MENU-VAR-001, REQ-MENU-VAR-005"
+    - id: multipleVariantsConfigured
+      description: "Leaf item has multiple explicit dimensional variants configured."
+      condition: "menuItemIdentity.type in ['PREPARED', 'STOCKED'] and leafVariants.count > 1."
+      trace: "REQ-MENU-VAR-002, REQ-MENU-VAR-004"
+    - id: inactiveWithCapacityWarnings
+      description: "Item is saved in INACTIVE status with incomplete definitions or capacity deficits in modifier groups or combo slots. Structured warnings display affected entity identity, type, minSelections, and calculated capacity."
+      condition: "menuItemIdentity.administrativeStatus == 'INACTIVE' and incompleteCapacityWarnings.count > 0."
+      trace: "REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+    - id: activeStructurallyComplete
+      description: "Item is saved in ACTIVE status with all structural capacity requirements satisfied and at least one eligible sellable unit."
+      condition: "menuItemIdentity.administrativeStatus == 'ACTIVE' and structuralValidationStatus.isEligibleForActive == true."
+      trace: "REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003"
+    - id: recipeRevisionUpdatePending
+      description: "One or more PREPARED variants reference a recipe revision older than the latest available recipe revision, exposing explicit recipe revision adoption."
+      condition: "menuItemIdentity.type == 'PREPARED' and any variant has isRecipeRevisionAdopted == false."
+      trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004, REQ-MENU-REV-001"
+  constraints:
+    - id: C-MIE-001
+      description: >
+        The item type discriminator (type: PREPARED, STOCKED, or COMBO) is selected at item creation time and is
+        strictly immutable once the MenuItem aggregate has been persisted. It cannot be altered during subsequent edits.
+      trace: "REQ-MENU-ITM-001, docs/ui-spec-arch.md"
+    - id: C-MIE-002
+      description: >
+        The view branches structurally by MenuItem.type: leaf products (PREPARED and STOCKED) own variants
+        (MenuItemVariant), variant dimensions (VariantDimension), and modifier groups (ModifierGroup). COMBO items
+        do not own variants, recipes, or inventory items; they own ComboConfigurations and ComboSlots, managed in
+        ComboConfigurationView. Modifiers belong exclusively to leaf products and are absent from the COMBO structure in v1.
+      trace: "REQ-MENU-ITM-001, REQ-MENU-VAR-001, REQ-MENU-MOD-001, REQ-MENU-COM-001"
+    - id: C-MIE-003
+      description: >
+        Every leaf MenuItemVariant has its own authoritative absolute unit selling price (unitPrice >= 0).
+        The item-level basePrice attribute is discontinued and never used. Prices are set per variant.
+      trace: "REQ-MENU-PRC-001"
+    - id: C-MIE-004
+      description: >
+        Each MenuItemVariant in a multi-presentation leaf item selects at most one VariantValue per dimension defined
+        on the item. Duplicate combinations of dimension values within the same MenuItem are strictly prohibited.
+      trace: "REQ-MENU-VAR-002, REQ-MENU-VAR-003, REQ-MENU-VAR-004"
+    - id: C-MIE-005
+      description: >
+        A leaf item without commercial dimensions possesses a single technical DEFAULT variant to ensure variantId is
+        non-null in Orders events. Migrating from DEFAULT to explicit dimensional variants is an atomic operation within
+        a single immutable revision that archives the DEFAULT variant and activates the new explicit presentations.
+      trace: "REQ-MENU-VAR-001, REQ-MENU-VAR-005, REQ-MENU-VER-001"
+    - id: C-MIE-006
+      description: >
+        For STOCKED items, each variant specifies an opaque foreign inventoryItemId (SKU) and withdrawal quantity (> 0).
+        For PREPARED items, each variant links an immutable recipeRevisionId. Editing a recipe in RecipeEditorView creates
+        a new recipe revision but does NOT alter existing variant references; adoption of the new recipe revision is an
+        explicit administrative action in this editor that produces a new commercial MenuItem revision upon save.
+      trace: "REQ-MENU-FUL-001, REQ-MENU-FUL-002, REQ-MENU-FUL-004, REQ-MENU-VER-001"
+    - id: C-MIE-007
+      description: >
+        Archiving a variant (status = ARCHIVED) is permanent and irreversible. The archived variant is excluded from new sales.
+        Dependent ComboOptions referencing this variant become ineligible; dependent ComboConfigurations that cannot meet
+        slot minSelections become ineligible with reviewStatus = REVIEW_REQUIRED. Crucially, the administrative status
+        (MenuItem.status) of dependent COMBO items is NOT altered automatically (it remains unchanged).
+      trace: "REQ-MENU-LIF-001, REQ-MENU-REV-001, REQ-MENU-REV-002"
+    - id: C-MIE-008
+      description: >
+        Saving in INACTIVE status permits incomplete definitions (capacity deficits in ModifierGroups or ComboSlots),
+        emitting structured warnings with affected entity id, entity type, minSelections, and calculated capacity.
+        Transitioning or saving to ACTIVE status strictly requires complete structural capacity: all mandatory modifier
+        groups must meet minSelections, all active variants must have complete supply linkage, the item must possess
+        at least one structurally eligible sellable unit, and for COMBO items, every configuration must contain at least
+        one slot (rejecting vacuous zero-slot configurations) and every counted component variant must satisfy the complete
+        REQ-MENU-VAR-006 structural predicate without using momentary availability.
+      trace: "REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003, REQ-MENU-COM-006, REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+    - id: C-MIE-009
+      description: >
+        Every accepted commercial save (modifying identity, status, variants, prices, supply linkage, or adopting a
+        recipe revision) increments the commercial version and generates a new immutable revision token formatted as
+        '<number>_<ISO8601>'. Ephemeral operational availability fluctuations from Inventory do not create new commercial revisions.
+      trace: "REQ-MENU-VER-001, REQ-MENU-AVL-002"
+    - id: C-MIE-010
+      description: >
+        Conforming strictly to source-supported responsibilities, the editor does not invent or provide: image file uploading
+        (imageRef is an opaque reference string), Inventory item search or catalog lookup (inventoryItemId is an opaque
+        SKU reference), category CRUD (categories are selected from existing references), autosave or draft recovery, or
+        destructive deletion of items or variants.
+      trace: "REQ-MENU-ITM-001, docs/ui-spec-arch.md"

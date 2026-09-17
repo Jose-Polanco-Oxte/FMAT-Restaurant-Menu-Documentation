@@ -1,0 +1,1437 @@
+view:
+  id: ModifierConfigurationView
+  name: Modifier Configuration View
+  purpose: >
+    Provide the menu administrator with a centralized semantic interface to configure modifier groups and
+    options owned by leaf MenuItems (PREPARED and STOCKED), author baseline general configurations (default
+    priceDelta, default maxQuantity >= 0, and ADD, OMIT, or empty-effect culinary ingredientEffects), manage
+    per-variant specializations (VariantModifierConfig overrides for enabled, priceDelta, maxQuantity, and
+    ingredientEffects), execute administrative copy operations between variants of the same item with dry-run
+    simulation, explicit FAIL/REPLACE collision resolution, and atomic rollback, and validate structural capacity
+    against minSelections constraints, while permitting incomplete-INACTIVE saves with structured warnings and
+    strictly excluding modifier ownership from COMBO items and avoiding duplicating operational availability as
+    editable commercial configuration.
+  actors:
+    - ADMINISTRATOR
+  requirements:
+    - REQ-MENU-MOD-001
+    - REQ-MENU-MOD-002
+    - REQ-MENU-MOD-003
+    - REQ-MENU-MOD-004
+    - REQ-MENU-MOD-005
+    - REQ-MENU-MOD-006
+    - REQ-MENU-MOD-007
+    - REQ-MENU-MOD-008
+    - REQ-MENU-LIF-002
+    - REQ-MENU-LIF-003
+    - INV-MENU-005
+  inputs:
+    - name: menuItemId
+      type: UUID
+      required: true
+      description: "Identifier of the target leaf MenuItem (PREPARED or STOCKED) that owns the modifier groups."
+      trace: "REQ-MENU-MOD-001"
+    - name: initialVariantId
+      type: "UUID | null"
+      required: false
+      description: "Pre-selected MenuItemVariant identifier when entering the view to directly inspect or author variant-specific overrides."
+      trace: "REQ-MENU-MOD-003"
+    - name: returnContext
+      type: "String | null"
+      required: false
+      description: "Contextual origin marker (defaults to 'MenuItemEditorView') indicating the view to return to upon save, completion, or cancellation."
+      trace: "docs/ui-spec-arch.md"
+  outputs:
+    - name: savedMenuItemId
+      type: UUID
+      description: "Unique identifier of the updated leaf MenuItem emitted upon accepted commercial save."
+      trace: "REQ-MENU-MOD-001, REQ-MENU-VER-001"
+    - name: newRevisionToken
+      type: String
+      description: "Newly generated immutable commercial revision token formatted as '<number>_<ISO8601>' emitted upon accepted save."
+      trace: "REQ-MENU-VER-001"
+    - name: returnToItemEditorSignal
+      type: Boolean
+      description: "Navigation trigger returning the administrator to MenuItemEditorView upon save, completion, or cancellation."
+      trace: "docs/ui-spec-arch.md"
+    - name: copyReportNotification
+      type: "CopyVariantModifierReport | null"
+      description: "Structured notification payload emitted upon dry-run simulation or definitive execution of an administrative copy operation."
+      trace: "REQ-MENU-MOD-004"
+  regions:
+    - id: leafItemHeaderRegion
+      role: primary
+      description: "Semantic region displaying the commercial identity, discriminator ('PREPARED' or 'STOCKED'), administrative status, and commercial revision token of the parent leaf MenuItem, alongside variant presentation context."
+      data:
+        - leafItemContext
+      controls:
+        - variantFocusSelector
+    - id: modifierGroupsRegion
+      role: primary
+      description: "Semantic region for managing ModifierGroup entities owned by the leaf MenuItem, including group name, display ordering, and minSelections/maxSelections integer bounds."
+      data:
+        - modifierGroups
+      controls:
+        - addModifierGroupAction
+        - updateGroupNameInput
+        - updateMinSelectionsInput
+        - updateMaxSelectionsInput
+    - id: modifierOptionsGeneralRegion
+      role: primary
+      description: "Semantic region for defining ModifierOption entities within each group and configuring their general baseline (generalConfig): default priceDelta, default maxQuantity >= 0, and ingredientEffects (ADD, OMIT, or empty-effect culinary instructions)."
+      data:
+        - modifierGroups.options
+      controls:
+        - addModifierOptionAction
+        - updateOptionNameInput
+        - updateGeneralPriceDeltaInput
+        - updateGeneralMaxQuantityInput
+        - addGeneralIngredientEffectAction
+        - removeGeneralIngredientEffectAction
+        - setGeneralEffectOperationSelector
+        - updateGeneralEffectInventoryItemIdInput
+        - updateGeneralEffectQuantityInput
+        - updateGeneralEffectUnitInput
+        - clearGeneralIngredientEffectsAction
+    - id: variantSpecializationRegion
+      role: primary
+      description: "Semantic region for configuring variant-specific overrides (VariantModifierConfig) on a selected MenuItemVariant and option, defining specialized enablement, priceDelta, maxQuantity, and ingredientEffects."
+      data:
+        - variantSpecializations
+        - resolvedVariantModifiersProjection
+      controls:
+        - selectOptionForOverrideAction
+        - toggleVariantOptionEnabledToggle
+        - setVariantPriceDeltaInput
+        - setVariantMaxQuantityInput
+        - addVariantIngredientEffectAction
+        - removeVariantIngredientEffectAction
+        - setVariantEffectOperationSelector
+        - updateVariantEffectInventoryItemIdInput
+        - updateVariantEffectQuantityInput
+        - updateVariantEffectUnitInput
+        - clearVariantIngredientEffectsAction
+    - id: administrativeCopyRegion
+      role: secondary
+      description: "Semantic region for executing the administrative copy of VariantModifierConfig overrides from one source variant to one or more target variants of the same leaf MenuItem, supporting dry-run simulation, FAIL/REPLACE collision policies, and collision inspection."
+      data:
+        - administrativeCopyBuffer
+      controls:
+        - copySourceVariantSelector
+        - copyTargetVariantsMultiSelector
+        - copyPolicySelector
+        - dryRunCopyAction
+        - executeCopyAction
+        - clearCopyBufferAction
+    - id: validationAndWarningsRegion
+      role: supporting
+      description: "Semantic region displaying real-time structural capacity evaluation (sum(maxQuantity) >= minSelections across enabled options), blocking validation errors for ACTIVE status under INV-MENU-005, and structured capacity deficit warnings for INACTIVE saves under REQ-MENU-LIF-002 and REQ-MENU-LIF-003."
+      data:
+        - structuralValidationStatus
+        - incompleteCapacityWarnings
+      controls:
+        - saveDraftInactiveAction
+        - saveAndActivateAction
+        - cancelConfigurationAction
+  displayedData:
+    - id: leafItemContext
+      name: Leaf Menu Item Context
+      type: LeafMenuItemContextProjection
+      description: "Commercial context and discriminator of the leaf MenuItem aggregate root owning the modifier groups. Modifiers are exclusive to leaf items (PREPARED and STOCKED) and absent from COMBO items."
+      fields:
+        - name: menuItemId
+          type: UUID
+          description: "Unique identifier of the leaf MenuItem aggregate root."
+          trace: "REQ-MENU-MOD-001"
+        - name: name
+          type: String
+          description: "Commercial name of the leaf MenuItem."
+          trace: "REQ-MENU-MOD-001"
+        - name: type
+          type: String
+          description: "Immutable item type discriminator ('PREPARED' or 'STOCKED'). Modifiers are completely absent from COMBO items in v1."
+          trace: "REQ-MENU-MOD-001"
+        - name: status
+          type: String
+          description: "Administrative status ('ACTIVE' or 'INACTIVE') of the leaf MenuItem."
+          trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002"
+        - name: version
+          type: String
+          description: "Current immutable commercial revision token formatted as '<number>_<ISO8601>'."
+          trace: "REQ-MENU-VER-001"
+        - name: variants
+          type: "List<LeafVariantSummaryProjection>"
+          description: "List of active sellable variants belonging to this leaf item, available for specialization or copy operations."
+          fields:
+            - name: variantId
+              type: UUID
+              description: "Unique identifier of the MenuItemVariant."
+              trace: "REQ-MENU-MOD-003"
+            - name: name
+              type: String
+              description: "Commercial name or combined dimensional representation of the variant."
+              trace: "REQ-MENU-MOD-003"
+            - name: status
+              type: String
+              description: "Administrative status of the variant ('ACTIVE', 'INACTIVE', or 'ARCHIVED')."
+              trace: "REQ-MENU-MOD-003, REQ-MENU-LIF-002"
+            - name: unitPrice
+              type: Decimal
+              description: "Authoritative absolute selling unit price of the variant."
+              trace: "REQ-MENU-MOD-003"
+            - name: specializationsCount
+              type: Integer
+              description: "Count of explicit VariantModifierConfig overrides configured for this variant."
+              trace: "REQ-MENU-MOD-003"
+      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-003, REQ-MENU-VER-001"
+    - id: modifierGroups
+      name: Modifier Groups and Options
+      type: "List<ModifierGroupProjection>"
+      description: "Collection of ModifierGroup entities owned directly by the leaf MenuItem and shared across all its variants, defining selection bounds and baseline options."
+      fields:
+        - name: modifierGroupId
+          type: UUID
+          description: "Unique identifier of the ModifierGroup."
+          trace: "REQ-MENU-MOD-001"
+        - name: menuItemId
+          type: UUID
+          description: "Identifier of the leaf MenuItem owning this group."
+          trace: "REQ-MENU-MOD-001"
+        - name: name
+          type: String
+          description: "Commercial display name of the modifier group (e.g. 'Aderezos', 'Tipo de Pan', 'Término de Cocción', 'Extras')."
+          trace: "REQ-MENU-MOD-001"
+        - name: minSelections
+          type: Integer
+          description: "Minimum number of options that must be selected in this group (0 <= minSelections <= maxSelections)."
+          trace: "REQ-MENU-MOD-001"
+        - name: maxSelections
+          type: Integer
+          description: "Maximum number of options that may be selected in this group."
+          trace: "REQ-MENU-MOD-001"
+        - name: optionsCount
+          type: Integer
+          description: "Total count of ModifierOptions defined in this group."
+          trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-002"
+        - name: generalCalculatedCapacity
+          type: Integer
+          description: "Baseline structural capacity of the group: sum of maxQuantity across all options using generalConfig."
+          trace: "REQ-MENU-MOD-001, INV-MENU-005"
+        - name: isGeneralCapacitySatisfied
+          type: Boolean
+          description: "True if generalCalculatedCapacity >= minSelections."
+          trace: "REQ-MENU-MOD-001, INV-MENU-005"
+        - name: options
+          type: "List<ModifierOptionProjection>"
+          description: "List of ModifierOption entities defined within this group."
+          fields:
+            - name: modifierOptionId
+              type: UUID
+              description: "Unique identifier of the ModifierOption."
+              trace: "REQ-MENU-MOD-002"
+            - name: modifierGroupId
+              type: UUID
+              description: "Identifier of the parent ModifierGroup."
+              trace: "REQ-MENU-MOD-002"
+            - name: name
+              type: String
+              description: "Commercial name of the option (e.g. 'Extra queso', 'Sin cebolla', 'Término medio')."
+              trace: "REQ-MENU-MOD-002"
+            - name: generalConfig
+              type: ModifierOptionConfigProjection
+              description: "Mandatory baseline general configuration governing any variant that does not register a specific override."
+              fields:
+                - name: priceDelta
+                  type: Decimal
+                  description: "Default commercial price delta added to variant unitPrice when selected (signed decimal, e.g. +25.00, 0.00)."
+                  trace: "REQ-MENU-MOD-002"
+                - name: maxQuantity
+                  type: Integer
+                  description: "Default maximum quantity of this option selectable in a single order line (integer >= 0)."
+                  trace: "REQ-MENU-MOD-002"
+                - name: ingredientEffects
+                  type: "List<IngredientEffectProjection>"
+                  description: "List of ingredient directives (ADD, OMIT) applied to preparation inventory. An empty list denotes a culinary instruction without inventory consumption."
+                  fields:
+                    - name: effectId
+                      type: UUID
+                      description: "Local identifier for the effect entry."
+                      trace: "REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+                    - name: operation
+                      type: String
+                      description: "Ingredient directive type: strictly 'ADD' or 'OMIT'. Other operations are not supported in v1."
+                      trace: "REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+                    - name: inventoryItemId
+                      type: String
+                      description: "Opaque foreign identifier reference of the inventory ingredient affected."
+                      trace: "REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+                    - name: quantity
+                      type: "Decimal | null"
+                      description: "Positive quantity to add (quantity > 0) for ADD operations; null for OMIT operations."
+                      trace: "REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+                    - name: unit
+                      type: "String | null"
+                      description: "Formal metric inventory measurement unit (e.g. 'g', 'ml', 'piezas') for ADD operations; null for OMIT operations."
+                      trace: "REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+                  trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-007"
+                - name: isCulinaryInstruction
+                  type: Boolean
+                  description: "Derived flag: true if ingredientEffects is empty, representing cooking, service, or culinary notes (e.g. 'Término medio', 'Salsa aparte') without stock impact."
+                  trace: "REQ-MENU-MOD-007"
+              trace: "REQ-MENU-MOD-002"
+      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-002, REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-007, INV-MENU-005"
+    - id: variantSpecializations
+      name: Variant Specializations
+      type: VariantSpecializationProjection
+      description: "Configuration of variant-specific overrides (VariantModifierConfig) for the currently focused MenuItemVariant, illustrating inheritance and effective precedence."
+      fields:
+        - name: focusedVariantId
+          type: "UUID | null"
+          description: "Identifier of the MenuItemVariant currently selected for specialization inspection or editing."
+          trace: "REQ-MENU-MOD-003"
+        - name: focusedVariantName
+          type: "String | null"
+          description: "Display name of the focused MenuItemVariant."
+          trace: "REQ-MENU-MOD-003"
+        - name: groupSpecializations
+          type: "List<VariantGroupSpecializationProjection>"
+          description: "List of groups displaying options with effective configuration, override indicators, and variant-specific capacity evaluation."
+          fields:
+            - name: modifierGroupId
+              type: UUID
+              description: "Identifier of the ModifierGroup."
+              trace: "REQ-MENU-MOD-001"
+            - name: groupName
+              type: String
+              description: "Name of the modifier group."
+              trace: "REQ-MENU-MOD-001"
+            - name: minSelections
+              type: Integer
+              description: "Minimum selections required for this group."
+              trace: "REQ-MENU-MOD-001"
+            - name: maxSelections
+              type: Integer
+              description: "Maximum selections permitted for this group."
+              trace: "REQ-MENU-MOD-001"
+            - name: variantCalculatedCapacity
+              type: Integer
+              description: "Variant-specific structural capacity: sum of effectiveMaxQuantity across enabled options for this variant."
+              trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-003, INV-MENU-005"
+            - name: isVariantCapacitySatisfied
+              type: Boolean
+              description: "True if variantCalculatedCapacity >= minSelections."
+              trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-003, INV-MENU-005"
+            - name: optionOverrides
+              type: "List<VariantOptionSpecializationItem>"
+              description: "List of options showing effective commercial parameters and active VariantModifierConfig override details."
+              fields:
+                - name: modifierOptionId
+                  type: UUID
+                  description: "Identifier of the ModifierOption."
+                  trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-003"
+                - name: optionName
+                  type: String
+                  description: "Commercial name of the option."
+                  trace: "REQ-MENU-MOD-002"
+                - name: hasOverride
+                  type: Boolean
+                  description: "True if a VariantModifierConfig entity is registered for this (variantId, modifierOptionId) tuple; false if inheriting generalConfig."
+                  trace: "REQ-MENU-MOD-003"
+                - name: effectiveEnabled
+                  type: Boolean
+                  description: "Effective enablement status: override.enabled if hasOverride else true (default baseline)."
+                  trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008"
+                - name: effectivePriceDelta
+                  type: Decimal
+                  description: "Effective price delta: override.priceDelta if hasOverride else generalConfig.priceDelta."
+                  trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008"
+                - name: effectiveMaxQuantity
+                  type: Integer
+                  description: "Effective configured maximum selectable quantity: override.maxQuantity if hasOverride else generalConfig.maxQuantity."
+                  trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008"
+                - name: effectiveIngredientEffects
+                  type: "List<IngredientEffectProjection>"
+                  description: "Effective ingredient directives: override.ingredientEffects if hasOverride else generalConfig.ingredientEffects."
+                  trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-007, REQ-MENU-MOD-008"
+                - name: overrideConfig
+                  type: "VariantModifierConfigDetail | null"
+                  description: "Explicit override details when hasOverride is true; null when inheriting generalConfig."
+                  fields:
+                    - name: id
+                      type: UUID
+                      description: "Unique identifier of the VariantModifierConfig entity."
+                      trace: "REQ-MENU-MOD-003"
+                    - name: enabled
+                      type: Boolean
+                      description: "Configured enablement flag for this specific variant."
+                      trace: "REQ-MENU-MOD-003"
+                    - name: priceDelta
+                      type: Decimal
+                      description: "Specialized price delta for this specific variant."
+                      trace: "REQ-MENU-MOD-003"
+                    - name: maxQuantity
+                      type: Integer
+                      description: "Specialized maximum quantity limit (>= 0) for this specific variant."
+                      trace: "REQ-MENU-MOD-003"
+                    - name: ingredientEffects
+                      type: "List<IngredientEffectProjection>"
+                      description: "Specialized ingredient effects for this specific variant (e.g. 90g instead of 40g)."
+                      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-007"
+                  trace: "REQ-MENU-MOD-003"
+      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-003, REQ-MENU-MOD-008, INV-MENU-005"
+    - id: resolvedVariantModifiersProjection
+      name: Resolved Variant Modifiers Projection
+      type: "List<ResolvedVariantModifierProjection>"
+      description: >
+        Published commercial configuration read model (ResolvedVariantModifier) materialized for POS/KDS for each
+        (variantId, modifierOptionId) pair. Reflects effective commercial configuration (enabled, priceDelta,
+        configuredMaxQuantity, ingredientEffects) by applying VariantModifierConfig precedence over generalConfig.
+        CRITICAL ARCHITECTURAL BOUNDARY: This projection provides commercial definitions only. Operational availability
+        (isAvailable) and momentary dynamic limits (availableMaxQuantity) proceed exclusively from the decoupled
+        ModifierAvailability read model and are NOT stored in or editable through this commercial view.
+      fields:
+        - name: variantId
+          type: UUID
+          description: "Identifier of the leaf MenuItemVariant."
+          trace: "REQ-MENU-MOD-008"
+        - name: modifierOptionId
+          type: UUID
+          description: "Identifier of the ModifierOption."
+          trace: "REQ-MENU-MOD-008"
+        - name: name
+          type: String
+          description: "Commercial display name of the option."
+          trace: "REQ-MENU-MOD-008"
+        - name: enabled
+          type: Boolean
+          description: "Effective administrative enablement status."
+          trace: "REQ-MENU-MOD-008"
+        - name: priceDelta
+          type: Decimal
+          description: "Resolved commercial price adjustment."
+          trace: "REQ-MENU-MOD-008"
+        - name: maxQuantity
+          type: Integer
+          description: "Resolved configured commercial maximum quantity (>= 0)."
+          trace: "REQ-MENU-MOD-008"
+        - name: ingredientEffects
+          type: "List<IngredientEffectProjection>"
+          description: "Resolved list of ingredient directives (ADD, OMIT, or empty for culinary instruction)."
+          trace: "REQ-MENU-MOD-008"
+      trace: "REQ-MENU-MOD-008"
+    - id: administrativeCopyBuffer
+      name: Administrative Copy Buffer and Report
+      type: AdministrativeCopyBufferProjection
+      description: "Operational buffer for copying VariantModifierConfig specializations from one source variant to one or more target variants of the same leaf MenuItem, supporting dry-run simulation, collision detection, and atomic execution."
+      fields:
+        - name: sourceVariantId
+          type: "UUID | null"
+          description: "Identifier of the source MenuItemVariant from which overrides are copied."
+          trace: "REQ-MENU-MOD-004"
+        - name: targetVariantIds
+          type: "List<UUID>"
+          description: "List of target MenuItemVariant identifiers of the same MenuItem to receive the copies."
+          trace: "REQ-MENU-MOD-004"
+        - name: policy
+          type: String
+          description: "Collision resolution policy: 'FAIL' (abort entire operation without changes on conflict) or 'REPLACE' (overwrite existing configurations on target variants)."
+          trace: "REQ-MENU-MOD-004"
+        - name: isDryRun
+          type: Boolean
+          description: "Flag indicating whether the last copy operation was executed as a dry-run simulation or a definitive execution."
+          trace: "REQ-MENU-MOD-004"
+        - name: lastReport
+          type: "CopyReportProjection | null"
+          description: "Detailed report emitted from the latest dry-run or definitive execution."
+          fields:
+            - name: sourceVariantId
+              type: UUID
+              description: "Source variant identifier."
+              trace: "REQ-MENU-MOD-004"
+            - name: targetVariantIds
+              type: "List<UUID>"
+              description: "Target variant identifiers."
+              trace: "REQ-MENU-MOD-004"
+            - name: configsToCopyCount
+              type: Integer
+              description: "Total number of VariantModifierConfig overrides identified on the source variant."
+              trace: "REQ-MENU-MOD-004"
+            - name: collisionsCount
+              type: Integer
+              description: "Number of collision conflicts detected on target variants."
+              trace: "REQ-MENU-MOD-004"
+            - name: collisions
+              type: "List<CopyCollisionDetail>"
+              description: "List of collision entries detailing conflicting target variant and modifier option configurations."
+              fields:
+                - name: targetVariantId
+                  type: UUID
+                  description: "Target variant with existing configuration."
+                  trace: "REQ-MENU-MOD-004"
+                - name: targetVariantName
+                  type: String
+                  description: "Name of the target variant."
+                  trace: "REQ-MENU-MOD-004"
+                - name: modifierOptionId
+                  type: UUID
+                  description: "Conflicting modifier option identifier."
+                  trace: "REQ-MENU-MOD-004"
+                - name: modifierOptionName
+                  type: String
+                  description: "Commercial name of the conflicting modifier option."
+                  trace: "REQ-MENU-MOD-004"
+                - name: existingConfigSummary
+                  type: String
+                  description: "Summary of existing override on target (e.g. 'enabled=true, priceDelta=+20, maxQty=1')."
+                  trace: "REQ-MENU-MOD-004"
+                - name: proposedConfigSummary
+                  type: String
+                  description: "Summary of proposed override from source (e.g. 'enabled=true, priceDelta=+45, maxQty=2')."
+                  trace: "REQ-MENU-MOD-004"
+              trace: "REQ-MENU-MOD-004"
+            - name: outcome
+              type: String
+              description: "Simulation or execution outcome: 'SIMULATION_CLEAN', 'SIMULATION_COLLISIONS_BLOCKED', 'SIMULATION_REPLACE_ANTICIPATED', 'EXECUTED_SUCCESSFULLY', 'ABORTED_ON_CONFLICT_ROLLBACK'."
+              trace: "REQ-MENU-MOD-004"
+            - name: isAtomicRollback
+              type: Boolean
+              description: "True if the operation aborted with full atomic rollback and zero partial writes on conflict under FAIL policy."
+              trace: "REQ-MENU-MOD-004"
+          trace: "REQ-MENU-MOD-004"
+      trace: "REQ-MENU-MOD-004"
+    - id: structuralValidationStatus
+      name: Structural Validation Status
+      type: StructuralValidationStatusProjection
+      description: "Real-time evaluation of structural constraints required for transitioning or saving the leaf MenuItem in ACTIVE administrative status."
+      fields:
+        - name: isEligibleForActive
+          type: Boolean
+          description: "True if all modifier groups across the item and all active variants satisfy Capacidad(ModifierGroup) >= minSelections under INV-MENU-005."
+          trace: "REQ-MENU-MOD-001, INV-MENU-005"
+        - name: blockingValidationErrors
+          type: "List<String>"
+          description: "List of blocking errors preventing transition to ACTIVE (e.g. 'El grupo obligatorio Aderezos carece de capacidad suficiente para minSelections=2')."
+          trace: "REQ-MENU-MOD-001, INV-MENU-005"
+      trace: "REQ-MENU-MOD-001, INV-MENU-005"
+    - id: incompleteCapacityWarnings
+      name: Incomplete Capacity Warnings
+      type: "List<IncompleteCapacityWarningItem>"
+      description: "Structured warnings populated when saving the leaf MenuItem in INACTIVE administrative status with incomplete definitions or capacity deficits under REQ-MENU-LIF-002 and REQ-MENU-LIF-003."
+      fields:
+        - name: entityId
+          type: UUID
+          description: "Unique identifier of the affected ModifierGroup."
+          trace: "REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+        - name: entityType
+          type: String
+          description: "Entity type identifier: strictly 'ModifierGroup'."
+          trace: "REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+        - name: minSelections
+          type: Integer
+          description: "Configured minimum selection requirement that cannot currently be satisfied."
+          trace: "REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+        - name: calculatedCapacity
+          type: Integer
+          description: "Calculated structural capacity: sum of maxQuantity across enabled options."
+          trace: "REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+        - name: variantId
+          type: "UUID | null"
+          description: "Specific MenuItemVariant identifier if the deficit arises from variant-specific overrides; null if arising from generalConfig baseline."
+          trace: "REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+        - name: warningMessage
+          type: String
+          description: "Human-readable diagnostic warning detailing the capacity deficit and INACTIVE containment."
+          trace: "REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+      trace: "REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+  controls:
+    - id: variantFocusSelector
+      type: selection
+      operatesOn: variantSpecializations.focusedVariantId
+      triggersAction: selectVariantForSpecialization
+      description: "Semantic selector to choose which MenuItemVariant is focused for inspecting and authoring variant-specific overrides, or null to focus on item-level general configuration."
+      trace: "REQ-MENU-MOD-003"
+    - id: addModifierGroupAction
+      type: action
+      operatesOn: modifierGroups
+      triggersAction: createModifierGroup
+      description: "Semantic action to create a new ModifierGroup owned by the leaf MenuItem."
+      trace: "REQ-MENU-MOD-001"
+    - id: updateGroupNameInput
+      type: input
+      operatesOn: modifierGroups.name
+      triggersAction: setModifierGroupName
+      description: "Semantic text input for the commercial display name of a ModifierGroup."
+      trace: "REQ-MENU-MOD-001"
+    - id: updateMinSelectionsInput
+      type: input
+      operatesOn: modifierGroups.minSelections
+      triggersAction: setModifierGroupSelectionLimits
+      description: "Semantic numeric input for minimum required selections in a group (integer >= 0, <= maxSelections)."
+      trace: "REQ-MENU-MOD-001"
+    - id: updateMaxSelectionsInput
+      type: input
+      operatesOn: modifierGroups.maxSelections
+      triggersAction: setModifierGroupSelectionLimits
+      description: "Semantic numeric input for maximum permitted selections in a group (integer >= minSelections)."
+      trace: "REQ-MENU-MOD-001"
+    - id: addModifierOptionAction
+      type: action
+      operatesOn: modifierGroups.options
+      triggersAction: createModifierOption
+      description: "Semantic action to define a new ModifierOption within a ModifierGroup."
+      trace: "REQ-MENU-MOD-002"
+    - id: updateOptionNameInput
+      type: input
+      operatesOn: modifierGroups.options.name
+      triggersAction: setModifierOptionName
+      description: "Semantic text input for the commercial name of a ModifierOption."
+      trace: "REQ-MENU-MOD-002"
+    - id: updateGeneralPriceDeltaInput
+      type: input
+      operatesOn: modifierGroups.options.generalConfig.priceDelta
+      triggersAction: setGeneralPriceDelta
+      description: "Semantic numeric input for default price delta added when the option is selected (signed decimal, e.g. +25.00, 0.00)."
+      trace: "REQ-MENU-MOD-002"
+    - id: updateGeneralMaxQuantityInput
+      type: input
+      operatesOn: modifierGroups.options.generalConfig.maxQuantity
+      triggersAction: setGeneralMaxQuantity
+      description: "Semantic numeric input for default maximum quantity selectable for this option (integer >= 0)."
+      trace: "REQ-MENU-MOD-002"
+    - id: addGeneralIngredientEffectAction
+      type: action
+      operatesOn: modifierGroups.options.generalConfig.ingredientEffects
+      triggersAction: addGeneralIngredientEffect
+      description: "Semantic action to append an ingredient directive (ADD or OMIT) to the option's generalConfig."
+      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+    - id: removeGeneralIngredientEffectAction
+      type: action
+      operatesOn: modifierGroups.options.generalConfig.ingredientEffects
+      triggersAction: removeGeneralIngredientEffect
+      description: "Semantic action to remove an ingredient directive from the option's generalConfig."
+      trace: "REQ-MENU-MOD-002"
+    - id: setGeneralEffectOperationSelector
+      type: selection
+      operatesOn: modifierGroups.options.generalConfig.ingredientEffects.operation
+      triggersAction: setIngredientEffectOperation
+      description: "Semantic selector choosing between 'ADD' (positive physical consumption, atomically supplying quantity > 0 and non-empty unit) and 'OMIT' (exclusion of base recipe ingredient, atomically clearing quantity and unit to null)."
+      trace: "REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+    - id: updateGeneralEffectInventoryItemIdInput
+      type: input
+      operatesOn: modifierGroups.options.generalConfig.ingredientEffects.inventoryItemId
+      triggersAction: setIngredientEffectInventoryItemId
+      description: "Semantic text input for the opaque inventoryItemId SKU reference affected by the directive."
+      trace: "REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+    - id: updateGeneralEffectQuantityInput
+      type: input
+      operatesOn: modifierGroups.options.generalConfig.ingredientEffects.quantity
+      triggersAction: setIngredientEffectQuantity
+      description: "Semantic numeric input for editing positive quantity (> 0) on an existing ADD effect; disabled when operation is OMIT."
+      trace: "REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+    - id: updateGeneralEffectUnitInput
+      type: input
+      operatesOn: modifierGroups.options.generalConfig.ingredientEffects.unit
+      triggersAction: setIngredientEffectUnit
+      description: "Semantic text input for editing metric measurement unit (e.g. 'g', 'ml', 'piezas') on an existing ADD effect; disabled when operation is OMIT."
+      trace: "REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+    - id: clearGeneralIngredientEffectsAction
+      type: action
+      operatesOn: modifierGroups.options.generalConfig.ingredientEffects
+      triggersAction: clearGeneralIngredientEffects
+      description: "Semantic action to clear all ingredient effects on an option to establish it as an empty-effect culinary instruction (e.g. 'Término medio', 'Salsa aparte')."
+      trace: "REQ-MENU-MOD-007"
+    - id: selectOptionForOverrideAction
+      type: action
+      operatesOn: variantSpecializations.optionOverrides
+      triggersAction: initVariantOptionOverride
+      description: "Semantic action to instantiate a VariantModifierConfig override for the focused variant and selected option."
+      trace: "REQ-MENU-MOD-003"
+    - id: toggleVariantOptionEnabledToggle
+      type: toggle
+      operatesOn: variantSpecializations.optionOverrides.overrideConfig.enabled
+      triggersAction: setVariantOptionEnabled
+      description: "Semantic toggle control to explicitly enable or disable this modifier option for the focused variant."
+      trace: "REQ-MENU-MOD-003"
+    - id: setVariantPriceDeltaInput
+      type: input
+      operatesOn: variantSpecializations.optionOverrides.overrideConfig.priceDelta
+      triggersAction: setVariantPriceDelta
+      description: "Semantic numeric input for specialized price delta on the focused variant."
+      trace: "REQ-MENU-MOD-003"
+    - id: setVariantMaxQuantityInput
+      type: input
+      operatesOn: variantSpecializations.optionOverrides.overrideConfig.maxQuantity
+      triggersAction: setVariantMaxQuantity
+      description: "Semantic numeric input for specialized maximum selectable quantity on the focused variant (integer >= 0)."
+      trace: "REQ-MENU-MOD-003"
+    - id: addVariantIngredientEffectAction
+      type: action
+      operatesOn: variantSpecializations.optionOverrides.overrideConfig.ingredientEffects
+      triggersAction: addVariantIngredientEffect
+      description: "Semantic action to add a specialized ingredient directive for the focused variant."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+    - id: removeVariantIngredientEffectAction
+      type: action
+      operatesOn: variantSpecializations.optionOverrides.overrideConfig.ingredientEffects
+      triggersAction: removeVariantIngredientEffect
+      description: "Semantic action to remove a specialized ingredient directive from the override."
+      trace: "REQ-MENU-MOD-003"
+    - id: setVariantEffectOperationSelector
+      type: selection
+      operatesOn: variantSpecializations.optionOverrides.overrideConfig.ingredientEffects.operation
+      triggersAction: setVariantIngredientEffectOperation
+      description: "Semantic selector choosing between 'ADD' (positive physical consumption, atomically supplying quantity > 0 and non-empty unit) and 'OMIT' (exclusion of base recipe ingredient, atomically clearing quantity and unit to null) for the variant specialization."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+    - id: updateVariantEffectInventoryItemIdInput
+      type: input
+      operatesOn: variantSpecializations.optionOverrides.overrideConfig.ingredientEffects.inventoryItemId
+      triggersAction: setVariantIngredientEffectInventoryItemId
+      description: "Semantic text input for the inventoryItemId affected by the specialized directive."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+    - id: updateVariantEffectQuantityInput
+      type: input
+      operatesOn: variantSpecializations.optionOverrides.overrideConfig.ingredientEffects.quantity
+      triggersAction: setVariantIngredientEffectQuantity
+      description: "Semantic numeric input for editing specialized positive quantity (> 0) on an existing ADD effect; disabled when operation is OMIT."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005"
+    - id: updateVariantEffectUnitInput
+      type: input
+      operatesOn: variantSpecializations.optionOverrides.overrideConfig.ingredientEffects.unit
+      triggersAction: setVariantIngredientEffectUnit
+      description: "Semantic text input for editing specialized metric unit on an existing ADD effect; disabled when operation is OMIT."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005"
+    - id: clearVariantIngredientEffectsAction
+      type: action
+      operatesOn: variantSpecializations.optionOverrides.overrideConfig.ingredientEffects
+      triggersAction: clearVariantIngredientEffects
+      description: "Semantic action to clear specialized ingredient effects on the override, converting it to an empty-effect culinary instruction for this variant."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-007"
+    - id: copySourceVariantSelector
+      type: selection
+      operatesOn: administrativeCopyBuffer.sourceVariantId
+      triggersAction: setCopySourceVariant
+      description: "Semantic selector choosing the source MenuItemVariant that provides the VariantModifierConfig overrides to copy."
+      trace: "REQ-MENU-MOD-004"
+    - id: copyTargetVariantsMultiSelector
+      type: selection
+      operatesOn: administrativeCopyBuffer.targetVariantIds
+      triggersAction: setCopyTargetVariants
+      description: "Semantic multi-selection control choosing one or more target MenuItemVariants of the same MenuItem to receive copied overrides."
+      trace: "REQ-MENU-MOD-004"
+    - id: copyPolicySelector
+      type: selection
+      operatesOn: administrativeCopyBuffer.policy
+      triggersAction: setCopyCollisionPolicy
+      description: "Semantic selector choosing the collision policy: 'FAIL' (abort on conflict without changes) or 'REPLACE' (overwrite conflicting overrides on target variants)."
+      trace: "REQ-MENU-MOD-004"
+    - id: dryRunCopyAction
+      type: action
+      operatesOn: administrativeCopyBuffer
+      triggersAction: dryRunCopyVariantModifierConfigs
+      description: "Semantic action to simulate the copy operation without persisting modifications, evaluating collisions and generating a detailed dry-run report."
+      trace: "REQ-MENU-MOD-004"
+    - id: executeCopyAction
+      type: action
+      operatesOn: administrativeCopyBuffer
+      triggersAction: executeCopyVariantModifierConfigs
+      description: "Semantic action to execute definitive atomic copy of overrides from source to target variants, adhering strictly to FAIL or REPLACE collision resolution with zero partial writes on failure."
+      trace: "REQ-MENU-MOD-004"
+    - id: clearCopyBufferAction
+      type: action
+      operatesOn: administrativeCopyBuffer
+      triggersAction: resetCopyBuffer
+      description: "Semantic action to reset copy selections and clear the last copy report."
+      trace: "REQ-MENU-MOD-004"
+    - id: saveDraftInactiveAction
+      type: action
+      operatesOn:
+        - leafItemContext
+        - modifierGroups
+        - variantSpecializations
+        - incompleteCapacityWarnings
+      triggersAction: saveModifierConfigurationInactive
+      description: "Semantic action to persist modifier configuration while retaining or setting MenuItem status to INACTIVE, allowing incomplete definitions with structured capacity warnings."
+      trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002, REQ-MENU-LIF-003, REQ-MENU-VER-001"
+    - id: saveAndActivateAction
+      type: primary_action
+      operatesOn:
+        - leafItemContext
+        - modifierGroups
+        - variantSpecializations
+        - structuralValidationStatus
+      triggersAction: saveModifierConfigurationAndActivate
+      description: "Primary semantic action to validate complete structural capacity across all groups (Capacidad >= minSelections) and persist the leaf MenuItem in ACTIVE status."
+      trace: "REQ-MENU-MOD-001, INV-MENU-005, REQ-MENU-VER-001"
+    - id: cancelConfigurationAction
+      type: action
+      operatesOn: null
+      triggersAction: cancelConfiguration
+      description: "Semantic action to discard pending modifier edits and emit returnToItemEditorSignal."
+      trace: "docs/ui-spec-arch.md"
+  actions:
+    - id: selectVariantForSpecialization
+      description: "Focus on a specific MenuItemVariant to author or inspect specialized overrides, or clear focus to inspect item-level baseline."
+      parameters:
+        - name: variantId
+          type: "UUID | null"
+          description: "Target MenuItemVariant identifier or null."
+      preconditions:
+        - "The leaf MenuItem must be of type PREPARED or STOCKED."
+        - "If non-null, variantId must identify a variant belonging to this leaf MenuItem."
+      effect: "Sets variantSpecializations.focusedVariantId and populates optionOverrides with effective parameters and active overrides."
+      trace: "REQ-MENU-MOD-003"
+    - id: createModifierGroup
+      description: "Add a new ModifierGroup to the leaf MenuItem with default selection limits (0..1)."
+      parameters:
+        - name: name
+          type: String
+          description: "Commercial name for the modifier group."
+        - name: minSelections
+          type: Integer
+          description: "Minimum selections required (default 0)."
+        - name: maxSelections
+          type: Integer
+          description: "Maximum selections permitted (default 1)."
+      preconditions:
+        - "The leaf MenuItem must be of type PREPARED or STOCKED."
+        - "0 <= minSelections <= maxSelections."
+      effect: "Appends a new ModifierGroup entity to modifierGroups with unique UUID and updates capacity calculations."
+      trace: "REQ-MENU-MOD-001"
+    - id: setModifierGroupName
+      description: "Update the commercial display name of an existing ModifierGroup."
+      parameters:
+        - name: modifierGroupId
+          type: UUID
+          description: "Identifier of the target group."
+        - name: name
+          type: String
+          description: "New non-empty commercial name."
+      preconditions:
+        - "modifierGroupId must exist on this leaf MenuItem."
+      effect: "Updates modifierGroups.name."
+      trace: "REQ-MENU-MOD-001"
+    - id: setModifierGroupSelectionLimits
+      description: "Update the selection bounds (minSelections and maxSelections) of a ModifierGroup."
+      parameters:
+        - name: modifierGroupId
+          type: UUID
+          description: "Identifier of the target group."
+        - name: minSelections
+          type: Integer
+          description: "New minimum selection bound (integer >= 0)."
+        - name: maxSelections
+          type: Integer
+          description: "New maximum selection bound (integer >= minSelections)."
+      preconditions:
+        - "0 <= minSelections <= maxSelections."
+      effect: "Updates group minSelections and maxSelections, re-evaluating structural capacity across generalConfig and variant specializations."
+      trace: "REQ-MENU-MOD-001, INV-MENU-005"
+    - id: createModifierOption
+      description: "Add a new ModifierOption to a ModifierGroup with initial baseline generalConfig."
+      parameters:
+        - name: modifierGroupId
+          type: UUID
+          description: "Identifier of the parent group."
+        - name: name
+          type: String
+          description: "Commercial name of the option."
+        - name: defaultPriceDelta
+          type: Decimal
+          description: "Initial priceDelta (defaults to 0.00)."
+        - name: defaultMaxQuantity
+          type: Integer
+          description: "Initial maxQuantity (defaults to 1, integer >= 0)."
+      preconditions:
+        - "modifierGroupId must exist."
+        - "defaultMaxQuantity >= 0."
+      effect: "Appends new ModifierOption with generalConfig to the target group and recalculates group capacity."
+      trace: "REQ-MENU-MOD-002, INV-MENU-005"
+    - id: setModifierOptionName
+      description: "Update the commercial name of a ModifierOption."
+      parameters:
+        - name: modifierOptionId
+          type: UUID
+          description: "Identifier of the option."
+        - name: name
+          type: String
+          description: "New commercial name."
+      effect: "Updates option name."
+      trace: "REQ-MENU-MOD-002"
+    - id: setGeneralPriceDelta
+      description: "Update the baseline default price delta on an option's generalConfig."
+      parameters:
+        - name: modifierOptionId
+          type: UUID
+          description: "Identifier of the option."
+        - name: priceDelta
+          type: Decimal
+          description: "Commercial price delta added to variant unit price."
+      effect: "Updates generalConfig.priceDelta and refreshes ResolvedVariantModifier for non-overridden variants."
+      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-008"
+    - id: setGeneralMaxQuantity
+      description: "Update the baseline default maximum selectable quantity on an option's generalConfig."
+      parameters:
+        - name: modifierOptionId
+          type: UUID
+          description: "Identifier of the option."
+        - name: maxQuantity
+          type: Integer
+          description: "Maximum quantity limit (integer >= 0)."
+      preconditions:
+        - "maxQuantity >= 0."
+      effect: "Updates generalConfig.maxQuantity, re-evaluating baseline group capacity and refreshing ResolvedVariantModifier."
+      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-008, INV-MENU-005"
+    - id: addGeneralIngredientEffect
+      description: "Add an ingredient directive (ADD or OMIT) to the option's baseline generalConfig."
+      parameters:
+        - name: modifierOptionId
+          type: UUID
+          description: "Identifier of the option."
+        - name: operation
+          type: String
+          description: "Directive operation ('ADD' or 'OMIT')."
+        - name: inventoryItemId
+          type: String
+          description: "Opaque inventory item reference identifier."
+        - name: quantity
+          type: "Decimal | null"
+          description: "Positive quantity (> 0) for ADD; null for OMIT."
+        - name: unit
+          type: "String | null"
+          description: "Metric unit string for ADD; null for OMIT."
+      preconditions:
+        - "operation must be 'ADD' or 'OMIT'."
+        - "If ADD, quantity must be strictly greater than 0 and unit must be non-empty."
+        - "If OMIT, quantity and unit are null."
+      effect: "Appends IngredientEffect to generalConfig.ingredientEffects and updates ResolvedVariantModifier."
+      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-008"
+    - id: removeGeneralIngredientEffect
+      description: "Remove an ingredient directive from the option's baseline generalConfig."
+      parameters:
+        - name: modifierOptionId
+          type: UUID
+          description: "Identifier of the option."
+        - name: effectId
+          type: UUID
+          description: "Identifier of the effect entry to remove."
+      effect: "Removes effect entry from generalConfig.ingredientEffects."
+      trace: "REQ-MENU-MOD-002"
+    - id: clearGeneralIngredientEffects
+      description: "Establish the option as an empty-effect culinary instruction by clearing its generalConfig.ingredientEffects list."
+      parameters:
+        - name: modifierOptionId
+          type: UUID
+          description: "Identifier of the option."
+      effect: "Sets generalConfig.ingredientEffects to empty list [], setting isCulinaryInstruction to true."
+      trace: "REQ-MENU-MOD-007"
+    - id: setIngredientEffectOperation
+      description: "Update the directive operation ('ADD' or 'OMIT') of an ingredient effect in baseline generalConfig, atomically supplying quantity and unit when transitioning to ADD or clearing them to null when transitioning to OMIT."
+      parameters:
+        - name: modifierOptionId
+          type: UUID
+          description: "Identifier of the target option."
+        - name: effectId
+          type: UUID
+          description: "Identifier of the target effect entry."
+        - name: operation
+          type: String
+          description: "New directive operation: strictly 'ADD' or 'OMIT'."
+        - name: quantity
+          type: "Decimal | null"
+          description: "Positive quantity to add (> 0) required when transitioning to ADD; null when transitioning to OMIT."
+        - name: unit
+          type: "String | null"
+          description: "Metric measurement unit required when transitioning to ADD; null when transitioning to OMIT."
+      preconditions:
+        - "operation must be 'ADD' or 'OMIT'."
+        - "If operation is 'ADD', quantity must be strictly greater than 0 and unit must be non-empty."
+        - "If operation is 'OMIT', quantity and unit must be null."
+      effect: "Atomically updates operation and associated metrics on the specified effect in generalConfig.ingredientEffects: sets quantity and unit to null when transitioning to OMIT, or validates and assigns quantity > 0 and non-empty unit when transitioning to ADD, preventing intermediate invalid states and refreshing ResolvedVariantModifier."
+      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-008"
+    - id: setIngredientEffectInventoryItemId
+      description: "Update the target inventory item reference of an ingredient effect in baseline generalConfig."
+      parameters:
+        - name: modifierOptionId
+          type: UUID
+          description: "Identifier of the target option."
+        - name: effectId
+          type: UUID
+          description: "Identifier of the target effect entry."
+        - name: inventoryItemId
+          type: String
+          description: "New opaque inventory item reference SKU identifier."
+      preconditions:
+        - "inventoryItemId must be non-empty."
+      effect: "Updates inventoryItemId on the specified effect in generalConfig.ingredientEffects and refreshes ResolvedVariantModifier."
+      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-008"
+    - id: setIngredientEffectQuantity
+      description: "Update the quantity of an existing ADD ingredient effect in baseline generalConfig."
+      parameters:
+        - name: modifierOptionId
+          type: UUID
+          description: "Identifier of the target option."
+        - name: effectId
+          type: UUID
+          description: "Identifier of the target effect entry."
+        - name: quantity
+          type: Decimal
+          description: "Positive quantity to add (> 0) for an existing ADD effect."
+      preconditions:
+        - "The target ingredient effect must have operation == 'ADD'."
+        - "quantity must be strictly greater than 0."
+      effect: "Updates quantity on the specified ADD effect in generalConfig.ingredientEffects and refreshes ResolvedVariantModifier."
+      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-005, REQ-MENU-MOD-008"
+    - id: setIngredientEffectUnit
+      description: "Update the metric measurement unit of an existing ADD ingredient effect in baseline generalConfig."
+      parameters:
+        - name: modifierOptionId
+          type: UUID
+          description: "Identifier of the target option."
+        - name: effectId
+          type: UUID
+          description: "Identifier of the target effect entry."
+        - name: unit
+          type: String
+          description: "Metric unit string for an existing ADD effect."
+      preconditions:
+        - "The target ingredient effect must have operation == 'ADD'."
+        - "unit must be non-empty."
+      effect: "Updates metric unit on the specified ADD effect in generalConfig.ingredientEffects and refreshes ResolvedVariantModifier."
+      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-005, REQ-MENU-MOD-008"
+    - id: initVariantOptionOverride
+      description: "Instantiate a specialized VariantModifierConfig for the focused variant and option, initialized with generalConfig values."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Focused MenuItemVariant identifier."
+        - name: modifierOptionId
+          type: UUID
+          description: "Target ModifierOption identifier."
+      preconditions:
+        - "variantId belongs to the same leaf MenuItem."
+        - "modifierOptionId belongs to a group of the same leaf MenuItem."
+      effect: "Creates VariantModifierConfig entity mapped to (variantId, modifierOptionId) with hasOverride = true."
+      trace: "REQ-MENU-MOD-003"
+    - id: setVariantOptionEnabled
+      description: "Set the explicit enablement status of an option on a specific variant via VariantModifierConfig."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Target variant identifier."
+        - name: modifierOptionId
+          type: UUID
+          description: "Target option identifier."
+        - name: enabled
+          type: Boolean
+          description: "Whether option is enabled for this variant."
+      effect: "Updates VariantModifierConfig.enabled, re-evaluating variant-specific group capacity under INV-MENU-005."
+      trace: "REQ-MENU-MOD-003, INV-MENU-005"
+    - id: setVariantPriceDelta
+      description: "Set specialized price delta for this variant via VariantModifierConfig."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Target variant identifier."
+        - name: modifierOptionId
+          type: UUID
+          description: "Target option identifier."
+        - name: priceDelta
+          type: Decimal
+          description: "Specialized price delta."
+      effect: "Updates VariantModifierConfig.priceDelta and updates ResolvedVariantModifier for this variant."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008"
+    - id: setVariantMaxQuantity
+      description: "Set specialized maxQuantity for this variant via VariantModifierConfig."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Target variant identifier."
+        - name: modifierOptionId
+          type: UUID
+          description: "Target option identifier."
+        - name: maxQuantity
+          type: Integer
+          description: "Specialized maximum quantity limit (>= 0)."
+      preconditions:
+        - "maxQuantity >= 0."
+      effect: "Updates VariantModifierConfig.maxQuantity and re-evaluates variant-specific group capacity."
+      trace: "REQ-MENU-MOD-003, INV-MENU-005"
+    - id: addVariantIngredientEffect
+      description: "Add a specialized ingredient directive (ADD or OMIT) on the variant's VariantModifierConfig."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Target variant identifier."
+        - name: modifierOptionId
+          type: UUID
+          description: "Target option identifier."
+        - name: operation
+          type: String
+          description: "Directive operation ('ADD' or 'OMIT')."
+        - name: inventoryItemId
+          type: String
+          description: "Opaque inventory item reference."
+        - name: quantity
+          type: "Decimal | null"
+          description: "Positive quantity (> 0) for ADD; null for OMIT."
+        - name: unit
+          type: "String | null"
+          description: "Metric unit string for ADD; null for OMIT."
+      preconditions:
+        - "operation must be 'ADD' or 'OMIT'."
+        - "If ADD, quantity > 0 and unit non-empty."
+        - "If OMIT, quantity and unit are null."
+      effect: "Appends IngredientEffect to VariantModifierConfig.ingredientEffects."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005, REQ-MENU-MOD-006"
+    - id: removeVariantIngredientEffect
+      description: "Remove a specialized ingredient directive from the variant's VariantModifierConfig."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Target variant identifier."
+        - name: modifierOptionId
+          type: UUID
+          description: "Target option identifier."
+        - name: effectId
+          type: UUID
+          description: "Effect entry identifier to remove."
+      effect: "Removes effect entry from VariantModifierConfig.ingredientEffects."
+      trace: "REQ-MENU-MOD-003"
+    - id: clearVariantIngredientEffects
+      description: "Clear all specialized ingredient effects on the override, converting it to an empty-effect culinary instruction for this variant."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Target variant identifier."
+        - name: modifierOptionId
+          type: UUID
+          description: "Target option identifier."
+      effect: "Sets VariantModifierConfig.ingredientEffects to empty list []."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-007"
+    - id: setVariantIngredientEffectOperation
+      description: "Update the directive operation ('ADD' or 'OMIT') of a specialized ingredient effect in VariantModifierConfig, atomically supplying quantity and unit when transitioning to ADD or clearing them to null when transitioning to OMIT."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Target MenuItemVariant identifier."
+        - name: modifierOptionId
+          type: UUID
+          description: "Target option identifier."
+        - name: effectId
+          type: UUID
+          description: "Identifier of the target effect entry."
+        - name: operation
+          type: String
+          description: "New directive operation: strictly 'ADD' or 'OMIT'."
+        - name: quantity
+          type: "Decimal | null"
+          description: "Specialized positive quantity to add (> 0) required when transitioning to ADD; null when transitioning to OMIT."
+        - name: unit
+          type: "String | null"
+          description: "Specialized metric measurement unit required when transitioning to ADD; null when transitioning to OMIT."
+      preconditions:
+        - "variantId must belong to this leaf MenuItem."
+        - "operation must be 'ADD' or 'OMIT'."
+        - "If operation is 'ADD', quantity must be strictly greater than 0 and unit must be non-empty."
+        - "If operation is 'OMIT', quantity and unit must be null."
+      effect: "Atomically updates operation and associated metrics on the specified effect in VariantModifierConfig.ingredientEffects: sets quantity and unit to null when transitioning to OMIT, or validates and assigns quantity > 0 and non-empty unit when transitioning to ADD, preventing intermediate invalid states and refreshing ResolvedVariantModifier for this variant."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-008"
+    - id: setVariantIngredientEffectInventoryItemId
+      description: "Update the target inventory item reference of a specialized ingredient effect in VariantModifierConfig."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Target MenuItemVariant identifier."
+        - name: modifierOptionId
+          type: UUID
+          description: "Target option identifier."
+        - name: effectId
+          type: UUID
+          description: "Identifier of the target effect entry."
+        - name: inventoryItemId
+          type: String
+          description: "New opaque inventory item reference SKU identifier."
+      preconditions:
+        - "variantId must belong to this leaf MenuItem."
+        - "inventoryItemId must be non-empty."
+      effect: "Updates inventoryItemId on the specified effect in VariantModifierConfig.ingredientEffects and refreshes ResolvedVariantModifier for this variant."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-008"
+    - id: setVariantIngredientEffectQuantity
+      description: "Update the quantity of an existing ADD specialized ingredient effect in VariantModifierConfig."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Target MenuItemVariant identifier."
+        - name: modifierOptionId
+          type: UUID
+          description: "Target option identifier."
+        - name: effectId
+          type: UUID
+          description: "Identifier of the target effect entry."
+        - name: quantity
+          type: Decimal
+          description: "Specialized positive quantity to add (> 0) for an existing ADD effect."
+      preconditions:
+        - "variantId must belong to this leaf MenuItem."
+        - "The target ingredient effect must have operation == 'ADD'."
+        - "quantity must be strictly greater than 0."
+      effect: "Updates quantity on the specified ADD effect in VariantModifierConfig.ingredientEffects and refreshes ResolvedVariantModifier for this variant."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005, REQ-MENU-MOD-008"
+    - id: setVariantIngredientEffectUnit
+      description: "Update the metric measurement unit of an existing ADD specialized ingredient effect in VariantModifierConfig."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Target MenuItemVariant identifier."
+        - name: modifierOptionId
+          type: UUID
+          description: "Target option identifier."
+        - name: effectId
+          type: UUID
+          description: "Identifier of the target effect entry."
+        - name: unit
+          type: String
+          description: "Specialized metric unit string for an existing ADD effect."
+      preconditions:
+        - "variantId must belong to this leaf MenuItem."
+        - "The target ingredient effect must have operation == 'ADD'."
+        - "unit must be non-empty."
+      effect: "Updates metric unit on the specified ADD effect in VariantModifierConfig.ingredientEffects and refreshes ResolvedVariantModifier for this variant."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005, REQ-MENU-MOD-008"
+    - id: setCopySourceVariant
+      description: "Select the source MenuItemVariant for an administrative copy operation."
+      parameters:
+        - name: variantId
+          type: UUID
+          description: "Source variant identifier."
+      preconditions:
+        - "variantId must belong to this leaf MenuItem."
+      effect: "Updates administrativeCopyBuffer.sourceVariantId."
+      trace: "REQ-MENU-MOD-004"
+    - id: setCopyTargetVariants
+      description: "Select one or more target MenuItemVariants of the same leaf MenuItem to receive copied overrides."
+      parameters:
+        - name: variantIds
+          type: "List<UUID>"
+          description: "List of target variant identifiers."
+      preconditions:
+        - "Every variantId in variantIds must belong to this leaf MenuItem."
+        - "None of the target variantIds may be identical to sourceVariantId."
+      effect: "Updates administrativeCopyBuffer.targetVariantIds."
+      trace: "REQ-MENU-MOD-004"
+    - id: setCopyCollisionPolicy
+      description: "Set the collision resolution policy for administrative copy ('FAIL' or 'REPLACE')."
+      parameters:
+        - name: policy
+          type: String
+          description: "Collision policy: 'FAIL' or 'REPLACE'."
+      preconditions:
+        - "policy in ['FAIL', 'REPLACE']."
+      effect: "Updates administrativeCopyBuffer.policy."
+      trace: "REQ-MENU-MOD-004"
+    - id: dryRunCopyVariantModifierConfigs
+      description: "Simulate the administrative copy operation from source to target variants without persisting changes, detecting collisions and projecting outcomes."
+      parameters: []
+      preconditions:
+        - "sourceVariantId must be selected."
+        - "targetVariantIds must contain at least one target variant."
+        - "policy in ['FAIL', 'REPLACE']."
+      effect: >
+        Inspects all VariantModifierConfig entries on sourceVariantId. Identifies collisions on targetVariantIds
+        where a VariantModifierConfig already exists for the same modifierOptionId. Compiles collisions into
+        administrativeCopyBuffer.lastReport with outcome ('SIMULATION_CLEAN', 'SIMULATION_COLLISIONS_BLOCKED', or
+        'SIMULATION_REPLACE_ANTICIPATED'). Emits copyReportNotification without mutating domain entities.
+      trace: "REQ-MENU-MOD-004"
+    - id: executeCopyVariantModifierConfigs
+      description: "Execute the administrative copy definitively and atomically from source to target variants."
+      parameters: []
+      preconditions:
+        - "sourceVariantId must be selected."
+        - "targetVariantIds must contain at least one target variant."
+        - "policy in ['FAIL', 'REPLACE']."
+      effect: >
+        Evaluates collisions on target variants.
+        If policy == 'FAIL' and any collision is detected: aborts the entire transaction immediately, performs
+        an atomic rollback leaving target variants completely unchanged (zero partial writes), and records
+        outcome 'ABORTED_ON_CONFLICT_ROLLBACK' with isAtomicRollback = true.
+        If policy == 'REPLACE' or zero collisions: copies all source VariantModifierConfigs to all target variants,
+        overwriting existing configs where collisions occur, in a single atomic transaction. Updates variant
+        capacities and structural validation status.
+      trace: "REQ-MENU-MOD-004"
+    - id: resetCopyBuffer
+      description: "Reset copy selections and clear copy results report."
+      parameters: []
+      effect: "Clears administrativeCopyBuffer."
+      trace: "REQ-MENU-MOD-004"
+    - id: saveModifierConfigurationInactive
+      description: "Save modifier configuration changes with MenuItem status INACTIVE, accepting incomplete capacities and generating structured warnings."
+      parameters: []
+      preconditions:
+        - "Item must be a leaf MenuItem (PREPARED or STOCKED)."
+        - "All selection bounds must satisfy 0 <= minSelections <= maxSelections."
+        - "All maxQuantity values must be >= 0."
+      effect: >
+        Persists modifier groups, options, generalConfigs, and VariantModifierConfigs. Generates a new immutable
+        commercial revision (<number>_<ISO8601>). Populates incompleteCapacityWarnings with entityId, entityType
+        ('ModifierGroup'), minSelections, and calculatedCapacity for each group with capacity < minSelections under
+        REQ-MENU-LIF-002 and REQ-MENU-LIF-003. Emits savedMenuItemId and newRevisionToken.
+      trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002, REQ-MENU-LIF-003, REQ-MENU-VER-001"
+    - id: saveModifierConfigurationAndActivate
+      description: "Validate complete structural capacity and persist modifier configuration with MenuItem status ACTIVE."
+      parameters: []
+      preconditions:
+        - "structuralValidationStatus.isEligibleForActive must be true."
+        - "Every mandatory modifier group (minSelections > 0) must satisfy Capacidad(ModifierGroup) >= minSelections under generalConfig and across all active variants under INV-MENU-005."
+      effect: >
+        Persists modifier groups, options, generalConfigs, and VariantModifierConfigs with MenuItem status ACTIVE.
+        Generates a new immutable commercial revision (<number>_<ISO8601>). Emits savedMenuItemId, newRevisionToken,
+        and returnToItemEditorSignal.
+      trace: "REQ-MENU-MOD-001, INV-MENU-005, REQ-MENU-VER-001"
+    - id: cancelConfiguration
+      description: "Discard unsaved modifier configuration edits and return to MenuItemEditorView."
+      parameters: []
+      effect: "Emits returnToItemEditorSignal without persisting modifications."
+      trace: "docs/ui-spec-arch.md"
+  states:
+    - id: viewingGeneralConfiguration
+      description: "Administrator is inspecting or authoring baseline generalConfig for modifier groups and options across the leaf MenuItem, applicable to all variants by default."
+      condition: "variantSpecializations.focusedVariantId == null."
+      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-002"
+    - id: variantSpecializationEditing
+      description: "Administrator is inspecting or authoring variant-specific overrides (VariantModifierConfig) for a focused MenuItemVariant, with clear indicators of inherited vs overridden values."
+      condition: "variantSpecializations.focusedVariantId != null."
+      trace: "REQ-MENU-MOD-003"
+    - id: culinaryInstructionEmptyEffectState
+      description: "Option has an empty ingredientEffects list ([]), representing a preparation or service note without inventory deduction or capacity constraints."
+      condition: "generalConfig.ingredientEffects.count == 0 or overrideConfig.ingredientEffects.count == 0."
+      trace: "REQ-MENU-MOD-007"
+    - id: additiveEffectConfiguredState
+      description: "Option contains one or more ADD ingredient directives, consuming residual stock in runtime."
+      condition: "any ingredientEffect has operation == 'ADD'."
+      trace: "REQ-MENU-MOD-005"
+    - id: omissionEffectConfiguredState
+      description: "Option contains an OMIT ingredient directive, discounting base recipe requirements in runtime before ADD evaluation."
+      condition: "any ingredientEffect has operation == 'OMIT'."
+      trace: "REQ-MENU-MOD-006"
+    - id: copyDryRunCleanSuccess
+      description: "Dry-run copy simulation evaluated zero collisions across all target variants, indicating clean atomic copy is ready for definitive execution."
+      condition: "administrativeCopyBuffer.isDryRun == true and administrativeCopyBuffer.lastReport.collisionsCount == 0."
+      trace: "REQ-MENU-MOD-004"
+    - id: copyDryRunCollisionBlocked
+      description: "Dry-run copy simulation detected collisions under FAIL policy, warning the administrator that definitive execution will abort without making changes."
+      condition: "administrativeCopyBuffer.isDryRun == true and administrativeCopyBuffer.policy == 'FAIL' and administrativeCopyBuffer.lastReport.collisionsCount > 0."
+      trace: "REQ-MENU-MOD-004"
+    - id: copyDryRunReplaceAnticipated
+      description: "Dry-run copy simulation detected collisions under REPLACE policy, presenting which existing target variant overrides will be overwritten upon definitive execution."
+      condition: "administrativeCopyBuffer.isDryRun == true and administrativeCopyBuffer.policy == 'REPLACE' and administrativeCopyBuffer.lastReport.collisionsCount > 0."
+      trace: "REQ-MENU-MOD-004"
+    - id: copyExecutionSuccess
+      description: "Definitive atomic copy completed successfully across all target variants, updating variant specializations."
+      condition: "administrativeCopyBuffer.lastReport.outcome == 'EXECUTED_SUCCESSFULLY'."
+      trace: "REQ-MENU-MOD-004"
+    - id: copyExecutionAbortedRollback
+      description: "Definitive copy aborted due to collision under FAIL policy, leaving all target variants completely unchanged via atomic rollback."
+      condition: "administrativeCopyBuffer.lastReport.outcome == 'ABORTED_ON_CONFLICT_ROLLBACK' and administrativeCopyBuffer.lastReport.isAtomicRollback == true."
+      trace: "REQ-MENU-MOD-004"
+    - id: inactiveSavedWithCapacityWarnings
+      description: "Configuration saved in INACTIVE status with capacity deficits in mandatory modifier groups. Structured warnings identify entityId, entityType ('ModifierGroup'), minSelections, and calculatedCapacity."
+      condition: "leafItemContext.status == 'INACTIVE' and incompleteCapacityWarnings.count > 0."
+      trace: "REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+    - id: activeSavedCapacitySatisfied
+      description: "Configuration saved in ACTIVE status with all mandatory modifier groups satisfying structural capacity Capacidad(ModifierGroup) >= minSelections."
+      condition: "leafItemContext.status == 'ACTIVE' and structuralValidationStatus.isEligibleForActive == true."
+      trace: "REQ-MENU-MOD-001, INV-MENU-005"
+  constraints:
+    - id: C-MOD-001
+      description: >
+        Leaf MenuItem Ownership and COMBO Exclusion:
+        Modifier groups (ModifierGroup) and options (ModifierOption) are owned directly and exclusively by leaf
+        MenuItems (PREPARED and STOCKED). Groups are owned by the leaf MenuItem aggregate root and shared across
+        all of its variants. ModifierGroup and ModifierOption entities are completely absent from the COMBO
+        entity model in v1. Combos do not own modifier groups; any customizations in combos apply strictly to
+        the leaf variants chosen in combo slots.
+      trace: "REQ-MENU-MOD-001"
+    - id: C-MOD-002
+      description: >
+        Group Selection Bounds and Structural Capacity Validation:
+        Each ModifierGroup enforces integer limits 0 <= minSelections <= maxSelections. In runtime sales, selections
+        must satisfy minSelections <= sum(selected quantities) <= maxSelections, and each option must respect its
+        effective maxQuantity. For commercial activation (status = ACTIVE), the group must satisfy the structural
+        capacity invariant Capacidad(ModifierGroup) = sum(effectiveMaxQuantity of enabled options) >= minSelections
+        under INV-MENU-005.
+      trace: "REQ-MENU-MOD-001, INV-MENU-005"
+    - id: C-MOD-003
+      description: >
+        General Option Configuration Baseline (generalConfig):
+        Every ModifierOption must define a generalConfig (ModifierOptionConfig) containing default priceDelta
+        (signed decimal), default maxQuantity (integer >= 0), and ingredientEffects. If no variant-specific
+        override is registered for a variant, generalConfig governs fully and unconditionally.
+      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-003"
+    - id: C-MOD-004
+      description: >
+        Variant Specialization and Effective Precedence:
+        When an option's commercial behavior must differ on a specific variant in price, maximum quantity,
+        enablement, or ingredient dosage, a VariantModifierConfig entity mapped to (variantId, modifierOptionId)
+        is registered. Both the variant and the modifier group must belong to the same leaf MenuItem.
+        Effective configuration strictly follows the precedence: VariantModifierConfig overrides generalConfig
+        for that variant; absent an override, generalConfig governs.
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008"
+    - id: C-MOD-005
+      description: >
+        Administrative Copy Scope, Dry-Run Simulation, and Atomic Collision Resolution:
+        Copying VariantModifierConfig overrides operates exclusively from a source MenuItemVariant to one or more
+        target MenuItemVariants of the SAME leaf MenuItem. Cross-item copying is unsupported. The operation supports
+        dry-run simulation (reporting collisions without persisting changes) and definitive execution under an explicit
+        collision resolution policy:
+        - FAIL: If any target variant already possesses a configuration for any copied option, the entire operation
+          aborts immediately with full atomic rollback (zero partial writes).
+        - REPLACE: Overwrites conflicting configurations on target variants atomically.
+      trace: "REQ-MENU-MOD-004"
+    - id: C-MOD-006
+      description: >
+        Ingredient Directives Restricted to ADD, OMIT, and Empty-Effect Culinary Instructions:
+        IngredientEffect operations are strictly restricted to ADD and OMIT in v1.
+        - ADD specifies an inventoryItemId, positive quantity (> 0), and metric measurement unit.
+          Transitions from OMIT to ADD must be atomic across baseline and variant configurations,
+          supplying quantity (> 0) and non-empty unit together with operation, ensuring no intermediate
+          ADD state can exist with null quantity or unit.
+        - OMIT specifies an inventoryItemId to exclude from base preparation; transitions to OMIT atomically
+          set quantity and unit to null, and OMIT always persists with null quantity and unit.
+        - An empty ingredientEffects list ([]) represents cooking, service, or culinary instructions
+          (e.g. 'Término medio', 'Salsa aparte') without inventory deduction or capacity constraints.
+        - Separate quantity and unit setters are restricted to editing an effect already in ADD state and
+          cannot serve as an invalid intermediate transition path from OMIT.
+        No substitute or custom transformation operations are supported.
+      trace: "REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-007"
+    - id: C-MOD-007
+      description: >
+        Strict Separation of Commercial Configuration from Operational Availability:
+        The view authors and manages persisted commercial configuration (enabled, priceDelta, configured maxQuantity,
+        and ingredientEffects) and projects ResolvedVariantModifier. It does NOT manage, expose, or duplicate
+        momentary operational availability (isAvailable, availableMaxQuantity, evaluatedCapacity, or raw inventory
+        stock levels) as editable commercial configuration. Operational availability proceeds dynamically from
+        the decoupled ModifierAvailability read model, and operational fluctuations never alter commercial
+        definitions, prices, or versions.
+      trace: "REQ-MENU-MOD-008, INV-MENU-005"
+    - id: C-MOD-008
+      description: >
+        Incomplete-INACTIVE Saves and Structured Capacity Deficit Warnings:
+        Incomplete modifier definitions or capacity deficits (Capacidad < minSelections) may be saved if and only if
+        the containing MenuItem (or variant context) is in INACTIVE administrative status. Such saves generate
+        structured warnings detailing entityId, entityType ('ModifierGroup'), minSelections, and calculated capacity.
+        Transitioning to ACTIVE is strictly blocked until all mandatory groups satisfy capacity >= minSelections.
+      trace: "REQ-MENU-LIF-002, REQ-MENU-LIF-003, INV-MENU-005"
+    - id: C-MOD-009
+      description: >
+        Commercial Versioning on Accepted Persistence:
+        Every accepted commercial modification to modifier groups, options, general configurations, variant overrides,
+        or executed copy operations increments the MenuItem commercial version and generates a new immutable
+        revision token formatted as '<number>_<ISO8601>'. Dry-run simulations do not increment version counters.
+      trace: "REQ-MENU-VER-001"
+    - id: C-MOD-010
+      description: >
+        Boundary Integrity and Non-Invention of Unsupported Operations:
+        The view does not invent or support cross-item modifier sharing or global modifier libraries, inventory
+        item search or creation (inventoryItemId is an opaque SKU reference), automatic scaling of ingredient
+        quantities across variant dimensions, or autosave/draft recovery.
+      trace: "docs/ui-spec-arch.md, REQ-MENU-MOD-001"

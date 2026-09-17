@@ -1,0 +1,265 @@
+view:
+  id: CatalogBrowseView
+  name: Catalog Browse View
+  purpose: >
+    Provide POS and KDS clients with a semantic interface to browse, search, and filter the active
+    commercial menu catalog, inspecting sellable items, their projected catalog prices, and operational
+    availability before selecting an item to configure.
+  actors:
+    - POS_CLIENT
+    - KDS_CLIENT
+  requirements:
+    - REQ-MENU-ITM-001
+    - REQ-MENU-PRC-002
+    - REQ-MENU-PRC-003
+    - REQ-MENU-AVL-001
+    - REQ-MENU-AVL-002
+    - REQ-MENU-AVL-007
+    - NFR-MENU-PERF-02
+    - NFR-MENU-RESI-01
+    - BR-MENU-018
+    - BR-MENU-019
+  inputs:
+    - name: menuId
+      type: UUID
+      required: false
+      description: "Identifier of the target menu catalog; defaults to the active menu of the store."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-AVL-001"
+    - name: initialCategoryId
+      type: UUID
+      required: false
+      description: "Pre-selected category identifier when entering catalog via category shortcut."
+      trace: "BR-MENU-019, NFR-MENU-PERF-02"
+    - name: initialSearchTerm
+      type: String
+      required: false
+      description: "Pre-filled text search query when entering catalog via search shortcut."
+      trace: "NFR-MENU-PERF-02"
+  outputs:
+    - name: selectedMenuItemId
+      type: UUID
+      description: "Identifier of the selected MenuItem passed to SellableItemConfigurationView."
+      trace: "NFR-MENU-PERF-02, REQ-MENU-ITM-001"
+  regions:
+    - id: filterRegion
+      role: supporting
+      description: "Semantic region providing category filtering and keyword search over the catalog."
+      data:
+        - categories
+        - activeCategoryFilter
+        - activeSearchQuery
+      controls:
+        - catalogSearch
+        - categoryFilter
+        - clearFilters
+    - id: catalogItemsRegion
+      role: primary
+      description: "Primary semantic region presenting the list of projected catalog items."
+      data:
+        - catalogItems
+      controls:
+        - itemInspection
+    - id: statusNoticeRegion
+      role: supporting
+      description: "Supporting semantic region displaying catalog state notifications, including resilience notices."
+      data:
+        - inventoryStatusNotice
+      controls: []
+  displayedData:
+    - id: categories
+      name: Catalog Categories
+      type: "List<CategoryReference>"
+      description: "Available menu categories, partitioned into ItemCategory for leaf items and ComboCategory for combos."
+      fields:
+        - name: categoryId
+          type: UUID
+          description: "Unique identifier of the category."
+          trace: "BR-MENU-019"
+        - name: name
+          type: String
+          description: "Display name of the category."
+          trace: "BR-MENU-019"
+        - name: categoryType
+          type: String
+          description: "Category classification ('ITEM_CATEGORY' or 'COMBO_CATEGORY')."
+          trace: "BR-MENU-018, BR-MENU-019"
+      trace: "BR-MENU-018, BR-MENU-019, REQ-MENU-ITM-001"
+    - id: activeCategoryFilter
+      name: Active Category Filter
+      type: "UUID | null"
+      description: "Identifier of the active category filter, or null if all categories are shown."
+      trace: "NFR-MENU-PERF-02, BR-MENU-019"
+    - id: activeSearchQuery
+      name: Active Search Query
+      type: String
+      description: "Current search string used to filter catalog items."
+      trace: "NFR-MENU-PERF-02"
+    - id: catalogItems
+      name: Catalog Items
+      type: "List<CatalogItemProjection>"
+      description: "Collection of active menu items with eligible sellable units matching active filters."
+      fields:
+        - name: menuItemId
+          type: UUID
+          description: "Unique identifier of the MenuItem aggregate root."
+          trace: "REQ-MENU-ITM-001"
+        - name: name
+          type: String
+          description: "Commercial name of the MenuItem."
+          trace: "REQ-MENU-ITM-001"
+        - name: description
+          type: String
+          description: "Commercial description of the MenuItem."
+          trace: "REQ-MENU-ITM-001"
+        - name: imageRef
+          type: String
+          description: "Opaque reference URI for item image representation."
+          trace: "REQ-MENU-ITM-001"
+        - name: type
+          type: String
+          description: "Immutable discriminator of the item ('PREPARED', 'STOCKED', or 'COMBO')."
+          trace: "REQ-MENU-ITM-001"
+        - name: displayPrice
+          type: String
+          description: "Formatted catalog price string: '$X' if uniform, 'Desde $X' if prices vary, or omitted if ineligible."
+          trace: "REQ-MENU-PRC-002, REQ-MENU-PRC-003"
+        - name: isAvailable
+          type: Boolean
+          description: "Aggregate operational availability projection; true if at least one eligible unit is AVAILABLE."
+          trace: "REQ-MENU-AVL-001, REQ-MENU-AVL-002, REQ-MENU-AVL-007"
+        - name: itemCategoryId
+          type: "UUID | null"
+          description: "Reference to ItemCategory for leaf items (PREPARED or STOCKED)."
+          trace: "BR-MENU-019, REQ-MENU-ITM-001"
+        - name: comboCategoryId
+          type: "UUID | null"
+          description: "Reference to ComboCategory for COMBO items."
+          trace: "BR-MENU-019, REQ-MENU-ITM-001"
+        - name: commercialClassification
+          type: "String | null"
+          description: "Commercial classification ('PLATILLO', 'BEBIDA', 'POSTRE', 'COMPLEMENTO') for leaf items only."
+          trace: "BR-MENU-018, REQ-MENU-ITM-001"
+      trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-002, REQ-MENU-PRC-003, REQ-MENU-AVL-001, REQ-MENU-AVL-002, REQ-MENU-AVL-007, BR-MENU-018, BR-MENU-019"
+    - id: inventoryStatusNotice
+      name: Inventory Operational Notice
+      type: "Object | null"
+      description: "Transient notice reflecting network degradation or evaluation expiry under NFR-MENU-RESI-01."
+      fields:
+        - name: isDegraded
+          type: Boolean
+          description: "True if Inventory service is disconnected or evaluations have expired."
+          trace: "NFR-MENU-RESI-01"
+        - name: noticeMessage
+          type: String
+          description: "Informational message stating that expired items show as unavailable while catalog navigation remains active."
+          trace: "NFR-MENU-RESI-01, REQ-MENU-AVL-002"
+      trace: "NFR-MENU-RESI-01, REQ-MENU-AVL-002"
+  controls:
+    - id: catalogSearch
+      type: search
+      operatesOn: activeSearchQuery
+      triggersAction: searchCatalog
+      description: "Semantic text search control to filter catalog items without prescribing input widget."
+      trace: "NFR-MENU-PERF-02"
+    - id: categoryFilter
+      type: selection
+      operatesOn: activeCategoryFilter
+      triggersAction: filterByCategory
+      description: "Semantic category selector to filter by ItemCategory or ComboCategory without prescribing visual tabs, chips, or dropdown."
+      trace: "NFR-MENU-PERF-02, BR-MENU-019"
+    - id: clearFilters
+      type: action
+      operatesOn:
+        - activeSearchQuery
+        - activeCategoryFilter
+      triggersAction: clearFilters
+      description: "Semantic reset control to clear active query and category filters."
+      trace: "NFR-MENU-PERF-02"
+    - id: itemInspection
+      type: action
+      operatesOn: catalogItems
+      triggersAction: inspectItem
+      description: "Semantic selection control on an individual catalog item to inspect details and initiate sellable configuration."
+      trace: "NFR-MENU-PERF-02, REQ-MENU-ITM-001, REQ-MENU-AVL-007"
+  actions:
+    - id: searchCatalog
+      description: "Update activeSearchQuery and request and display corresponding catalog item results."
+      parameters:
+        - name: query
+          type: String
+          description: "Search query text."
+      effect: "Updates activeSearchQuery and requests and displays corresponding catalog items matching the search query; concrete matching and search algorithms are deferred to the issues tracker under 'Undefined Category Administration and Search Semantics'."
+      trace: "NFR-MENU-PERF-02, docs/issues-tracker.md"
+    - id: filterByCategory
+      description: "Update activeCategoryFilter to restrict catalog items to a specific category or show all."
+      parameters:
+        - name: categoryId
+          type: "UUID | null"
+          description: "Target category UUID to filter, or null to view all categories."
+      effect: "Filters catalogItems list to items belonging to the selected category."
+      trace: "NFR-MENU-PERF-02, BR-MENU-019"
+    - id: clearFilters
+      description: "Clear active search string and category filter."
+      parameters: []
+      effect: "Resets activeSearchQuery to empty and activeCategoryFilter to null, restoring full catalog."
+      trace: "NFR-MENU-PERF-02"
+    - id: inspectItem
+      description: "Select an item to inspect its sellable configuration and navigate to SellableItemConfigurationView."
+      parameters:
+        - name: menuItemId
+          type: UUID
+          description: "UUID of the selected MenuItem."
+      preconditions:
+        - "The selected MenuItem must exist in catalogItems with ACTIVE status and at least one eligible unit."
+      effect: "Emits selectedMenuItemId and transitions actor to SellableItemConfigurationView."
+      trace: "NFR-MENU-PERF-02, REQ-MENU-ITM-001, REQ-MENU-AVL-007"
+  states:
+    - id: normal
+      description: "Catalog contains active items with valid Inventory evaluations; items display name, imageRef, displayPrice, and isAvailable."
+      condition: "Catalog has eligible items, filters match >= 1 item, and Inventory evaluations are valid."
+      trace: "REQ-MENU-AVL-001, REQ-MENU-PRC-002, REQ-MENU-AVL-007"
+    - id: emptyCatalog
+      description: "No active menu items with eligible sellable units exist in the menu."
+      condition: "Total count of active eligible items in catalog is 0."
+      trace: "REQ-MENU-PRC-003, REQ-MENU-AVL-001"
+    - id: noResults
+      description: "Active search query or category filter matches zero items in the catalog."
+      condition: "Catalog has items, but activeSearchQuery or activeCategoryFilter filters out all items."
+      trace: "NFR-MENU-PERF-02"
+    - id: granularUnavailable
+      description: "One or more child units or entire items have isAvailable = false due to inventory exhaustion, but catalog navigation remains fully operable."
+      condition: "At least one item or variant has isAvailable = false derived from Inventory evaluation."
+      trace: "REQ-MENU-AVL-002, REQ-MENU-AVL-004, REQ-MENU-AVL-006, REQ-MENU-AVL-007"
+    - id: inventoryDisconnectedOrExpired
+      description: "Inventory service connection is lost or validUntil evaluation timestamps have expired. Expired units are marked unavailable, but catalog navigation, search, filtering, and commercial definitions remain fully operable."
+      condition: "Inventory connection failure or current time > evaluation validUntil timestamp."
+      trace: "NFR-MENU-RESI-01, REQ-MENU-AVL-002"
+  constraints:
+    - id: C-CAT-001
+      description: "Only MenuItems with status ACTIVE and at least one structurally eligible sellable unit may appear in the catalog view."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-003, REQ-MENU-LIF-001"
+    - id: C-CAT-002
+      description: "The displayPrice field must strictly project '$X' for single or uniform eligible unit prices, 'Desde $X' for varied eligible unit prices, and omit numeric price when no eligible units exist."
+      trace: "REQ-MENU-PRC-002, REQ-MENU-PRC-003"
+    - id: C-CAT-003
+      description: "MenuItems without eligible MenuItemVariant or ComboConfiguration units are excluded from public catalog offer and display no numeric price."
+      trace: "REQ-MENU-PRC-003"
+    - id: C-CAT-004
+      description: "The isAvailable field is a non-authoritative read projection for catalog presentation and filtering convenience; operational availability changes never alter administrative status (status), structural eligibility, or commercial revision."
+      trace: "REQ-MENU-AVL-002, REQ-MENU-AVL-007"
+    - id: C-CAT-005
+      description: "Leaf items are grouped in ItemCategory and combos in ComboCategory; category classification is optional and combos do not inherit categories from component items."
+      trace: "BR-MENU-018, BR-MENU-019"
+    - id: C-CAT-006
+      description: "Inventory disconnection or validUntil expiration marks affected operational evaluations as unavailable but must never disable or block catalog navigation, search, filtering, or display of commercial definitions."
+      trace: "NFR-MENU-RESI-01, REQ-MENU-AVL-002"
+    - id: C-CAT-007
+      description: "Catalog consultation view does not manage cart, ordering lines, checkout, payments, or KDS command lifecycle; selection exclusively hands off the menuItemId to configuration."
+      trace: "docs/ui-spec-arch.md"
+    - id: C-CAT-008
+      description: >
+        Search matching semantics and algorithms (such as exact match, substring containment, tokenization,
+        case or accent normalization, indexed fields, or debouncing) are not defined in the SRS and are explicitly
+        deferred to the issues tracker under 'Undefined Category Administration and Search Semantics'. The view provides
+        semantic query submission and displays corresponding results or the noResults state without prescribing an algorithmic matching criteria.
+      trace: "NFR-MENU-PERF-02, docs/issues-tracker.md, docs/ui-spec-arch.md"

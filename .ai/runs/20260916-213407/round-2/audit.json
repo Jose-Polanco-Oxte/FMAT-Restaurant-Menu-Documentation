@@ -1,0 +1,1 @@
+{"verdict":"PASS","summary":"docs/md/spec.md normalizes all 46 Menu requirement IDs, preserves consecutive per-section numbering, updates references and anchors, and stays within the allowed file scope.","issues":[],"next_action":"NONE"}

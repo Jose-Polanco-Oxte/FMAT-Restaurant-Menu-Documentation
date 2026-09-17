@@ -6,6 +6,8 @@ Realizar una revisión exclusivamente sintáctica y de formato sobre `/docs/md/s
 
 ## Tarea
 
+Usar estándares de Markdown y de estilo de documentación para corregir. [Linters, validadores y herramientas de revisión de Markdown]
+
 Revisar:
 
 - jerarquía de encabezados Markdown;

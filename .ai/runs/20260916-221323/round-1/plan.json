@@ -1,0 +1,50 @@
+{
+  "change_id": "spec-md-syntax-format-correction",
+  "objective": "Corregir exclusivamente la sintaxis y el formato Markdown de docs/md/spec.md, conservando intactas todas las decisiones funcionales, arquitectónicas y de dominio.",
+  "decisions": [
+    {
+      "id": "D1",
+      "decision": "Limitar toda modificación a docs/md/spec.md; los demás artefactos quedan fuera del alcance."
+    },
+    {
+      "id": "D2",
+      "decision": "Representar invariantes simples como código técnico legible y reservar LaTeX para expresiones cuya complejidad lo justifique."
+    },
+    {
+      "id": "D3",
+      "decision": "Incrementar la versión documental de 1.1.8 a 1.1.9 y registrar que la revisión solo corrige sintaxis y formato."
+    }
+  ],
+  "invariants": [
+    "No modificar requisitos, reglas de negocio, contratos, modelo de dominio ni decisiones arquitectónicas.",
+    "No renumerar requisitos, reglas, invariantes, ADR ni secciones normativas.",
+    "Conservar exactamente la nomenclatura canónica y su capitalización: MenuItem, MenuItemVariant, ModifierGroup, ModifierOption, ComboConfiguration, ComboSlot, ComboOption, minSelections, maxSelections, maxQuantity y availableMaxQuantity.",
+    "Conservar los identificadores snake_case cuando sean nombres deliberados de columnas persistentes; no mezclarlos con nombres de atributos de dominio.",
+    "No sincronizar traducciones, documentos históricos, artefactos generados ni archivos adyacentes."
+  ],
+  "affected_files": [
+    {
+      "path": "docs/md/spec.md",
+      "operation": "MODIFY",
+      "instructions": [
+        "Aplicar una revisión sintáctica y de formato sobre encabezados, listas, tablas, bloques de código, enlaces internos, expresiones matemáticas, caracteres escapados y nombres técnicos, sin reformular contenido normativo.",
+        "Mantener la jerarquía actual H1-H4 y la numeración existente; alinear el índice, los encabezados y sus anclas. Corregir específicamente el enlace de la sección 9.4, cuya ruta del índice no coincide con el id explícito, y hacer que los rótulos del índice de 11.1, 11.2 y 13.2 reflejen sus encabezados sin cambiar estos últimos.",
+        "Etiquetar como text los dos bloques cercados actualmente sin lenguaje —el diagrama ASCII de bounded contexts y el árbol textual de MenuEntry—; conservar como mermaid los cuatro diagramas Mermaid y mantener balanceadas todas las cercas.",
+        "Normalizar delimitadores, separadores y espaciado de tablas, incluidas las celdas que actualmente carecen de espacio antes del separador vertical, sin alterar el contenido de las celdas.",
+        "En las descripciones de ModifierGroup y ComboSlot, sustituir las expresiones LaTeX simples fragmentadas por el invariante en código inline `0 <= minSelections <= maxSelections`. En la representación persistente, conservar min_selections y max_selections y expresar coherentemente `0 <= min_selections <= max_selections`, sin mezclar camelCase ni escapes LaTeX.",
+        "Conservar LaTeX en cálculos no triviales —sumatorias, mínimos, máximos y capacidad residual— y corregir únicamente delimitadores o escapes defectuosos.",
+        "Uniformar exclusivamente errores reales de capitalización o escritura de nombres técnicos; no renombrar entidades, atributos, columnas ni conceptos por preferencia estilística.",
+        "Corregir solo sintaxis Mermaid necesaria para que los cuatro diagramas sean analizables; preservar nodos, relaciones, multiplicidades, estados, flujos y significado de las etiquetas.",
+        "Actualizar la configuración documental de Versión 1.1.8 a 1.1.9 y añadir a la reseña de versiones una nota breve que identifique esta revisión como corrección sintáctica y de formato sin cambios normativos."
+      ],
+      "acceptance": [
+        "Verify: Ejecutar un linter Markdown sobre el archivo y comprobar las reglas aplicables de jerarquía de encabezados, listas, tablas y cercas de código; no ampliar el cambio para satisfacer reglas meramente estilísticas como longitud de línea.",
+        "Verify: Validar que cada enlace interno del índice resuelva a un id explícito o al ancla generada por su encabezado, sin destinos duplicados o inexistentes.",
+        "Verify: Analizar individualmente los cuatro bloques Mermaid y comprobar que todos sean sintácticamente válidos.",
+        "Verify: Comprobar el balance de cercas de código y delimitadores matemáticos, y que no permanezcan formas simples mal construidas como `\\ge \\text{minSelections}` o variantes escapadas equivalentes para los límites indicados.",
+        "Verify: Revisar el diff para confirmar que los identificadores y la numeración normativa no cambiaron, que solo docs/md/spec.md presenta modificaciones y que `git diff --check` no informa errores."
+      ]
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,869 @@
+diff --git a/docs/md/spec.md b/docs/md/spec.md
+index e804502..71e3c74 100644
+--- a/docs/md/spec.md
++++ b/docs/md/spec.md
+@@ -2,7 +2,7 @@
+ 
+ **Documento:** Especificación Técnica, Funcional y de Arquitectura de Dominio Consolidada  
+ **Servicio:** Menu (Sistema de Comandas para Restaurantes)  
+-**Versión:** 1.1.9 (Consolidada Vigente)
++**Versión:** 1.1.10 (Consolidada Vigente)
+ **Estado:** Vigente / Aprobado  
+ **Fecha:** 2026-09-16  
+ 
+@@ -19,7 +19,7 @@
+   - [3.1 Responsabilidades del Bounded Context Menu](#31-responsabilidades-del-bounded-context-menu)
+   - [3.2 Límites de Contexto y Ownership de Datos](#32-límites-de-contexto-y-ownership-de-datos)
+   - [3.3 Taxonomía Fundamental del Menú](#33-taxonomía-fundamental-del-menú)
+-  - [3.4 Ortogonalidad: Estado Administrativo, Elegibilidad Estructural, Disponibilidad Operacional y Estado de Revisión](#34-ortogonalidad-estado-administrativo-elegibilidad-estructural-y-disponibilidad-operacional)
++  - [3.4 Ortogonalidad: Estado Administrativo, Elegibilidad Estructural, Disponibilidad Operacional y Estado de Revisión](#34-ortogonalidad-estado-administrativo-elegibilidad-estructural-disponibilidad-operacional-y-estado-de-revisión)
+   - [3.5 Glosario Normativo del Dominio](#35-glosario-normativo-del-dominio)
+ - [4. Requisitos Funcionales Consolidados](#4-requisitos-funcionales-consolidados)
+   - [4.1 Definición y Catálogo de MenuItems](#41-definición-y-catálogo-de-menuitems)
+@@ -57,7 +57,7 @@
+   - [9.1 Estructura Persistente Relacional](#91-estructura-persistente-relacional)
+   - [9.2 Relaciones Internas y Restricciones](#92-relaciones-internas-y-restricciones)
+   - [9.3 Referencias Externas Desacopladas](#93-referencias-externas-desacopladas)
+-  - [9.4 Estrategia de Versionado Histórico e Inmutabilidad](#94-estrategia-versionado-histórico-e-inmutabilidad)
++  - [9.4 Estrategia de Versionado Histórico e Inmutabilidad](#94-estrategia-de-versionado-histórico-e-inmutabilidad)
+ - [10. Interfaces de Entrada y Salida (APIs)](#10-interfaces-de-entrada-y-salida-apis)
+   - [10.1 Interfaz de Consulta Pública de Catálogo](#101-interfaz-de-consulta-pública-de-catálogo)
+   - [10.2 Interfaz de Operaciones Administrativas y Copia en Lote](#102-interfaz-de-operaciones-administrativas-y-copia-en-lote)
+@@ -65,15 +65,15 @@
+   - [10.4 Interfaz de Resolución Neta de Insumos para Orders](#104-interfaz-de-resolución-neta-de-insumos-para-orders)
+   - [10.5 Intercambio Lógico con Inventory](#105-intercambio-lógico-con-inventory)
+ - [11. Eventos de Negocio](#11-eventos-de-negocio)
+-  - [11.1 Mensajes y Notificaciones Emitidas por Menu](#111-eventos-emitidos-por-menu)
+-  - [11.2 Evaluaciones y Mensajes Consumidos por Menu](#112-eventos-consumidos-por-menu)
++  - [11.1 Mensajes y Notificaciones Emitidas por Menu](#111-mensajes-y-notificaciones-emitidas-por-menu)
++  - [11.2 Evaluaciones y Mensajes Consumidos por Menu](#112-evaluaciones-y-mensajes-consumidos-por-menu)
+ - [12. Datos Requeridos de Otros Servicios y Ownership](#12-datos-requeridos-de-otros-servicios-y-ownership)
+   - [12.1 Dependencias con Inventory](#121-dependencias-con-inventory)
+   - [12.2 Dependencias con Orders](#122-dependencias-con-orders)
+-  - [12.3 Dependencias con POS / KDS](#123-dependencias-con-pos--kds)
++  - [12.3 Dependencias con POS / KDS](#123-interacción-con-pos--kds)
+ - [13. Cuestiones Abiertas (Open Items)](#13-cuestiones-abiertas-open-items)
+   - [13.1 OPEN-002: Emparejamiento de Slots y Conflictos en Copia Masiva](#131-open-002-emparejamiento-de-slots-y-conflictos-en-copia-masiva)
+-  - [13.2 OPEN-007: Especificación Técnica Formal de Contratos Externos, Invalidación y Transporte](#132-open-007-especificación-técnica-formal-de-contratos-externos-y-transporte)
++  - [13.2 OPEN-007: Especificación Técnica Formal de Contratos Externos, Invalidación y Transporte](#132-open-007-especificación-técnica-formal-de-contratos-externos-invalidación-y-transporte)
+   - [13.3 OPEN-009: Precios de Componentes Fraccionados y Modificadores Repetidos en Combos](#133-open-009-precios-de-componentes-fraccionados-y-modificadores-repetidos-en-combos)
+   - [13.4 OPEN-010: Rangos Numéricos Exhaustivos y Restricciones de Dominio](#134-open-010-rangos-numéricos-exhaustivos-y-restricciones-de-dominio)
+ - [14. Matriz de Trazabilidad](#14-matriz-de-trazabilidad)
+@@ -85,14 +85,12 @@
+ 
+ ## 2. Configuración del Documento
+ 
+-<a id="21-identificación-y-propósito"></a>
+ ### 2.1 Identificación y Propósito
+ 
+-El presente documento constituye la especificación técnica, funcional, estructural y de arquitectura consolidada y vigente para el servicio **Menu**, componente central del sistema de comandas y gestión de restaurantes. Su objetivo es constituirse como la **única fuente autorizada de verdad**, autosuficiente y verificable, reemplazando ambigüedades, documentos transitorios y discusiones previas. La versión 1.1.1 incorporó formalmente el refinamiento de disponibilidad operacional granular adoptado el 2026-09-16 y aclaró la composición efectiva OMIT/ADD y la señal lógica de capacidad de Inventory. La versión 1.1.2 complementa y formaliza de manera implementable las aclaraciones normativas sobre la derivación entera y dimensional de evaluatedCapacity, el cálculo de capacidad en grupos obligatorios ante valores enteros y nulos, la reevaluación obligatoria de VariantAvailability ante cualquier reducción de capacidad con no propagación circunscrita a casos opcionales o con capacidad remanente, y la definición de opciones seleccionables y availableCapacity en ComboSlot. La versión 1.1.3 corrige y formaliza la derivación de capacidad evaluada (`evaluatedCapacity`) y límites de modificadores (`availableMaxQuantity`) basándola estrictamente en el inventario remanente tras descontar los requerimientos base netos efectivos tras OMIT ($\text{StockRemanente}(k) = \max(0, \text{StockDisponible}(k) - \text{BaseNetoTrasOMIT}(k))$), sustituyendo el cálculo sobre stock bruto para impedir que una opción o variante se declare disponible utilizando inventario ya consumido por los requerimientos base efectivos, y clarifica que la satisfacibilidad en `VariantAvailability` evalúa la demanda neta integral (base tras OMIT más ADD). La versión 1.1.4 corrige el caso de verificación de la directiva OMIT en REQ-MENU-AVL-005 —eliminando toda interpretación de reducción parcial sobre la base para establecer $\text{BaseNetoTrasOMIT} = 0$ y su consecuente recálculo de capacidad remanente— y corrige el ancla HTML y enlace de índice de trazabilidad de la sección 14.1. La versión 1.1.5 formaliza la revisión transversal de consistencia del modelo vigente: ratifica la ortogonalidad estricta entre estado administrativo (`status`), elegibilidad estructural, disponibilidad operacional (proyecciones desacopladas) y estado de revisión (`reviewStatus`), clarificando que ninguna proyección operacional constituye un estado administrativo persistente; explicita la prohibición de formulaciones heredadas basadas en peor caso, requerimientos base crudos aislados o cálculo sobre stock bruto; ratifica la derivación de `VariantAvailability`, `ModifierAvailability` y `ComboConfigurationAvailability` sobre capacidad residual y opciones seleccionables; y explicita las inconsistencias semánticas identificadas en los diagramas para su resolución diferida sin alterar el estilo ni renumerar requisitos. La versión 1.1.6 formaliza la corrección y alineación exhaustiva de los diagramas visuales con el modelo de dominio y las invariantes vigentes: representa a `MenuItem` como raíz de agregado con discriminador (`PREPARED`, `STOCKED`, `COMBO`), circunscribe variantes, dimensiones y modificadores exclusivamente a items hoja y separa las entidades persistentes de los read models desacoplados; incorpora en el diagrama de estados las cuatro dimensiones ortogonales distinguiendo los ciclos de vida de item y variante, rotulando la activación mediante capacidad estructural (INV-MENU-005) y modelando el ciclo de supervisión de `reviewStatus`; reformula el flujo de propagación de disponibilidad para ilustrar la publicación desacoplada de requerimientos, la evaluación de inventario con capacidad residual y la propagación no obstructiva hacia variantes, combos y slots; y delimita el diagrama de contexto estrictamente a la frontera de integración directa de Menu anotando la invalidación bajo OPEN-007, retirando notas de discrepancias diferidas sin alterar requisitos ni la numeración normativa. La versión 1.1.7 subsana las dos observaciones diagramáticas identificadas: en el diagrama de clases de la sección 7.5, reemplaza las composiciones de `VariantModifierConfig` por asociaciones no compositivas hacia `MenuItemVariant` y `ModifierOption` con multiplicidad exactamente 1 en cada referencia y 0..* configuraciones desde cada entidad referenciada, explicitando que cada configuración es única por la tupla `(variantId, modifierOptionId)` sin admitir doble pertenencia compositiva; y en el diagrama de propagación de disponibilidad granular, desagrega la publicación de Menu en dos salidas independientes hacia Inventory (`BaseRequirements` por variante y `ModifierRequirements` por tupla `(variantId, modifierOptionId)`), conectándolas de forma separada con la evaluación de existencias que combina la base efectiva tras OMIT con las directivas ADD sobre capacidad residual, excluyendo explícitamente todo cálculo global de peor caso. La versión 1.1.8 normaliza la nomenclatura de los 46 requisitos funcionales mediante identificadores estructurados por apartado funcional (REQ-MENU-{APARTADO}-{NNN}) y actualiza integralmente sus referencias internas, anclas y matriz de trazabilidad sin alterar el contenido normativo. La versión 1.1.9 aplica una corrección sintáctica y de formato sobre encabezados, listas, tablas, bloques de código, enlaces internos, diagramas Mermaid y expresiones matemáticas, sin alteraciones normativas.
++El presente documento constituye la especificación técnica, funcional, estructural y de arquitectura consolidada y vigente para el servicio **Menu**, componente central del sistema de comandas y gestión de restaurantes. Su objetivo es constituirse como la **única fuente autorizada de verdad**, autosuficiente y verificable, reemplazando ambigüedades, documentos transitorios y discusiones previas. La versión 1.1.1 incorporó formalmente el refinamiento de disponibilidad operacional granular adoptado el 2026-09-16 y aclaró la composición efectiva OMIT/ADD y la señal lógica de capacidad de Inventory. La versión 1.1.2 complementa y formaliza de manera implementable las aclaraciones normativas sobre la derivación entera y dimensional de evaluatedCapacity, el cálculo de capacidad en grupos obligatorios ante valores enteros y nulos, la reevaluación obligatoria de VariantAvailability ante cualquier reducción de capacidad con no propagación circunscrita a casos opcionales o con capacidad remanente, y la definición de opciones seleccionables y availableCapacity en ComboSlot. La versión 1.1.3 corrige y formaliza la derivación de capacidad evaluada (`evaluatedCapacity`) y límites de modificadores (`availableMaxQuantity`) basándola estrictamente en el inventario remanente tras descontar los requerimientos base netos efectivos tras OMIT ($\text{StockRemanente}(k) = \max(0, \text{StockDisponible}(k) - \text{BaseNetoTrasOMIT}(k))$), sustituyendo el cálculo sobre stock bruto para impedir que una opción o variante se declare disponible utilizando inventario ya consumido por los requerimientos base efectivos, y clarifica que la satisfacibilidad en `VariantAvailability` evalúa la demanda neta integral (base tras OMIT más ADD). La versión 1.1.4 corrige el caso de verificación de la directiva OMIT en REQ-MENU-AVL-005 —eliminando toda interpretación de reducción parcial sobre la base para establecer $\text{BaseNetoTrasOMIT} = 0$ y su consecuente recálculo de capacidad remanente— y corrige el ancla HTML y enlace de índice de trazabilidad de la sección 14.1. La versión 1.1.5 formaliza la revisión transversal de consistencia del modelo vigente: ratifica la ortogonalidad estricta entre estado administrativo (`status`), elegibilidad estructural, disponibilidad operacional (proyecciones desacopladas) y estado de revisión (`reviewStatus`), clarificando que ninguna proyección operacional constituye un estado administrativo persistente; explicita la prohibición de formulaciones heredadas basadas en peor caso, requerimientos base crudos aislados o cálculo sobre stock bruto; ratifica la derivación de `VariantAvailability`, `ModifierAvailability` y `ComboConfigurationAvailability` sobre capacidad residual y opciones seleccionables; y explicita las inconsistencias semánticas identificadas en los diagramas para su resolución diferida sin alterar el estilo ni renumerar requisitos. La versión 1.1.6 formaliza la corrección y alineación exhaustiva de los diagramas visuales con el modelo de dominio y las invariantes vigentes: representa a `MenuItem` como raíz de agregado con discriminador (`PREPARED`, `STOCKED`, `COMBO`), circunscribe variantes, dimensiones y modificadores exclusivamente a items hoja y separa las entidades persistentes de los read models desacoplados; incorpora en el diagrama de estados las cuatro dimensiones ortogonales distinguiendo los ciclos de vida de item y variante, rotulando la activación mediante capacidad estructural (INV-MENU-005) y modelando el ciclo de supervisión de `reviewStatus`; reformula el flujo de propagación de disponibilidad para ilustrar la publicación desacoplada de requerimientos, la evaluación de inventario con capacidad residual y la propagación no obstructiva hacia variantes, combos y slots; y delimita el diagrama de contexto estrictamente a la frontera de integración directa de Menu anotando la invalidación bajo OPEN-007, retirando notas de discrepancias diferidas sin alterar requisitos ni la numeración normativa. La versión 1.1.7 subsana las dos observaciones diagramáticas identificadas: en el diagrama de clases de la sección 7.5, reemplaza las composiciones de `VariantModifierConfig` por asociaciones no compositivas hacia `MenuItemVariant` y `ModifierOption` con multiplicidad exactamente 1 en cada referencia y 0..* configuraciones desde cada entidad referenciada, explicitando que cada configuración es única por la tupla `(variantId, modifierOptionId)` sin admitir doble pertenencia compositiva; y en el diagrama de propagación de disponibilidad granular, desagrega la publicación de Menu en dos salidas independientes hacia Inventory (`BaseRequirements` por variante y `ModifierRequirements` por tupla `(variantId, modifierOptionId)`), conectándolas de forma separada con la evaluación de existencias que combina la base efectiva tras OMIT con las directivas ADD sobre capacidad residual, excluyendo explícitamente todo cálculo global de peor caso. La versión 1.1.8 normaliza la nomenclatura de los 46 requisitos funcionales mediante identificadores estructurados por apartado funcional (REQ-MENU-{APARTADO}-{NNN}) y actualiza integralmente sus referencias internas, anclas y matriz de trazabilidad sin alterar el contenido normativo. La versión 1.1.9 aplica una corrección sintáctica y de formato sobre encabezados, listas, tablas, bloques de código, enlaces internos, diagramas Mermaid y expresiones matemáticas, sin alteraciones normativas. La versión 1.1.10 elimina las anclas HTML fuera de bloques de código cercados y normaliza los enlaces internos mediante Markdown nativo, sin alteraciones normativas.
+ 
+ Cualquier ingeniero, arquitecto o auditor debe ser capaz de entender e implementar el comportamiento normativo del servicio Menu a partir exclusivamente de este texto, sin requerir reconstrucción arqueológica de versiones descartadas.
+ 
+-<a id="22-autoridad-temporal-y-semántica-de-las-fuentes"></a>
+ ### 2.2 Autoridad Temporal y Semántica de las Fuentes
+ 
+ La consolidación se fundamenta estrictamente en la evolución cronológica y jerárquica de las fuentes autorizadas del proyecto:
+@@ -115,7 +113,6 @@ Una fuente posterior sustituye a una anterior en caso de conflicto directo o ref
+ - **`Req-F-Aproved.md`** aporta la línea base de los requisitos funcionales aprobados. Cuando una regla de `Req-F-Aproved.md` o de `Decisiones-cierre-invariantes.md` (por ejemplo, el rechazo obligatorio del archivado de variantes con dependencias) entre en contradicción con `Auditoria-3.md`, prevalece incondicionalmente la disposición de `Auditoria-3.md` (permitir el archivado y reevaluar la elegibilidad de combos dependientes marcándolos como `REVIEW_REQUIRED`).
+ - Las decisiones intermedias o hipótesis descartadas quedan fuera del cuerpo normativo principal y se registran exclusivamente como notas de trazabilidad histórica.
+ 
+-<a id="23-alcance-y-exclusiones"></a>
+ ### 2.3 Alcance y Exclusiones
+ 
+ - **Dentro del alcance:** Modelado y administración de la oferta comercial (MenuItems, variantes, combos, recetas culinarias, grupos y opciones de modificadores); cálculo autoritativo de precios unitarios y proyecciones de precio de catálogo; resolución neta de insumos culinarios para órdenes; reevaluación de dependencias estructurales; versionado inmutable de definiciones comerciales.
+@@ -128,7 +125,6 @@ Una fuente posterior sustituye a una anterior en caso de conflicto directo o ref
+ 
+ ## 3. Contexto, Alcance y Lenguaje del Dominio
+ 
+-<a id="31-responsabilidades-del-bounded-context-menu"></a>
+ ### 3.1 Responsabilidades del Bounded Context Menu
+ 
+ El servicio Menu es la autoridad exclusiva sobre la **oferta comercial vendible** del restaurante. Sus responsabilidades comprenden:
+@@ -141,7 +137,6 @@ El servicio Menu es la autoridad exclusiva sobre la **oferta comercial vendible*
+ 7. Resolver, ante una solicitud de Orders, la descomposición neta exacta de insumos físicos (ingredientes de receta, cantidades de stock y efectos de modificadores) requeridos por una línea de comanda confirmada.
+ 8. Gestionar las revisiones inmutables de las definiciones comerciales del menú (`<number>_<ISO8601>`).
+ 
+-<a id="32-límites-de-contexto-y-ownership-de-datos"></a>
+ ### 3.2 Límites de Contexto y Ownership de Datos
+ 
+ ```text
+@@ -175,7 +170,6 @@ El servicio Menu es la autoridad exclusiva sobre la **oferta comercial vendible*
+ - **Inventory no posee conceptos comerciales:** Inventory desconoce qué es una pizza, un combo o un tamaño familiar. Recibe requerimientos planos de insumos referenciados por claves de definición y emite evaluaciones de disponibilidad temporal con `validUntil` y capacidad evaluada cuando aplica.
+ - **Orders custodia la transacción:** Orders congela un snapshot inmutable del precio, variante y receta en el instante de venta. Las modificaciones posteriores en Menu no alteran órdenes en curso ni históricas.
+ 
+-<a id="33-taxonomía-fundamental-del-menú"></a>
+ ### 3.3 Taxonomía Fundamental del Menú
+ 
+ El catálogo distingue tres tipos conceptuales de entradas bajo la jerarquía de dominio:
+@@ -200,7 +194,6 @@ MenuEntry (Concepto abstracto del catálogo)
+    - **Los modificadores propios pertenecen al modelo de items hoja y están ausentes del modelo de Combo v1** (las personalizaciones aplican y se seleccionan exclusivamente sobre los productos hoja elegidos en sus slots).
+    - Pueden asociarse opcionalmente a una categoría de combos independiente (`ComboCategory`). No se les aplica la clasificación comercial de hoja.
+ 
+-<a id="34-ortogonalidad-estado-administrativo-elegibilidad-estructural-y-disponibilidad-operacional"></a>
+ ### 3.4 Ortogonalidad: Estado Administrativo, Elegibilidad Estructural, Disponibilidad Operacional y Estado de Revisión
+ 
+ El dominio establece una distinción tajante entre cuatro dimensiones estrictamente ortogonales que jamás deben fusionarse, sobrescribirse ni confundirse mutuamente:
+@@ -217,7 +210,6 @@ El dominio establece una distinción tajante entre cuatro dimensiones estrictame
+ 2. **Invarianza administrativa y comercial ante fluctuaciones de inventario:** Los cambios operacionales en las existencias físicas o el agotamiento momentáneo de stock no mutan el `status` administrativo, no alteran la elegibilidad estructural, no disparan ni limpian `reviewStatus`, no alteran precios ni generan una nueva revisión comercial inmutable de catálogo.
+ 3. **Independencia del estado de revisión:** El marcaje de una configuración de combo como `REVIEW_REQUIRED` es un indicador de supervisión administrativa de dependencias; no equivale a indisponibilidad física ni muta el estado administrativo `ACTIVE`/`INACTIVE` del item contenedor ni de sus variantes componentes.
+ 
+-<a id="35-glosario-normativo-del-dominio"></a>
+ ### 3.5 Glosario Normativo del Dominio
+ 
+ - **`MenuItem`:** Entidad comercial raíz del catálogo que agrupa presentaciones vendibles bajo una misma identidad de producto.
+@@ -252,10 +244,8 @@ El dominio establece una distinción tajante entre cuatro dimensiones estrictame
+ 
+ Esta sección consolida formalmente los 46 requisitos normativos del servicio Menu (46 requisitos por apartados), integrando la línea base aprobada (`Req-F-Aproved.md`), las decisiones de `Auditoria-3.md` y el refinamiento de disponibilidad granular del 2026-09-16.
+ 
+-<a id="41-definición-y-catálogo-de-menuitems"></a>
+ ### 4.1 Definición y Catálogo de MenuItems
+ 
+-<a id="req-menu-itm-001"></a>
+ #### REQ-MENU-ITM-001 — Definición del MenuItem Comercial
+ - **Obligación:** El servicio Menu deberá crear y registrar un `MenuItem` con nombre, descripción, referencia de imagen, `menuId` propietario, tipo discriminador (`PREPARED`, `STOCKED` o `COMBO`) y un estado administrativo inicial (`ACTIVE` o `INACTIVE`).
+ - **Tipo:** Funcional.
+@@ -263,7 +253,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Demostración: Registrar un `MenuItem` para cada uno de los tres tipos permitidos con ambos estados administrativos iniciales y comprobar la exactitud de los atributos persistidos.
+ - **Trazabilidad:** Vigente sin alteraciones.
+ 
+-<a id="req-menu-itm-002"></a>
+ #### REQ-MENU-ITM-002 — Transición de Estado Administrativo
+ - **Obligación:** El servicio Menu deberá permitir cambiar el estado administrativo de un `MenuItem` entre `ACTIVE` e `INACTIVE` mediante una operación administrativa explícita.
+ - **Tipo:** Funcional.
+@@ -273,10 +262,8 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ 
+ ---
+ 
+-<a id="42-variantes-de-productos-hoja"></a>
+ ### 4.2 Variantes de Productos Hoja
+ 
+-<a id="req-menu-var-001"></a>
+ #### REQ-MENU-VAR-001 — Presentación Vendible de Item Hoja (Default Variant)
+ - **Obligación:** El servicio Menu deberá garantizar que todo `MenuItem` hoja (`PREPARED` o `STOCKED`) disponga siempre de al menos una `MenuItemVariant` vendible concreta (`variants.count >= 1`). En caso de que comercialmente el producto no posea opciones de presentación seleccionables por el cliente, el servicio deberá crear y mantener una variante técnica `DEFAULT`.
+ - **Tipo:** Funcional.
+@@ -284,7 +271,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Crear un item hoja sin dimensiones comerciales; constatar que se genera automáticamente su `MenuItemVariant` `DEFAULT` y que en los eventos emitidos hacia Orders el `variantId` es siempre no nulo.
+ - **Trazabilidad:** Vigente. Se refuerza que la variante técnica `DEFAULT` no se expone como elección en la UI del cliente.
+ 
+-<a id="req-menu-var-002"></a>
+ #### REQ-MENU-VAR-002 — Definición de Dimensión de Variante
+ - **Obligación:** El servicio Menu deberá permitir definir dimensiones de variante (`VariantDimension`) identificadas con nombre dentro de un `MenuItem` hoja (ej. "Tamaño", "Porción").
+ - **Tipo:** Funcional.
+@@ -292,7 +278,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Demostración: Crear una dimensión de variante en un item hoja y validar que pertenece exclusivamente a dicho item.
+ - **Trazabilidad:** Vigente. Terminología formal unificada a `VariantDimension` según `Auditoria-3.md`.
+ 
+-<a id="req-menu-var-003"></a>
+ #### REQ-MENU-VAR-003 — Valor de Dimensión de Variante
+ - **Obligación:** El servicio Menu deberá permitir definir valores con nombre (`VariantValue`) dentro de una dimensión de variante de un `MenuItem` hoja (ej. "Chica", "Mediana", "Grande").
+ - **Tipo:** Funcional.
+@@ -300,7 +285,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Demostración: Agregar dos o más valores a una dimensión y comprobar su correcta asociación jerárquica con la dimensión y el item propietario.
+ - **Trazabilidad:** Vigente. Se adopta formalmente el término `VariantValue`.
+ 
+-<a id="req-menu-var-004"></a>
+ #### REQ-MENU-VAR-004 — Definición de Variantes Vendibles
+ - **Obligación:** El servicio Menu deberá permitir definir una `MenuItemVariant` vendible asociándole una combinación de `VariantValue` pertenecientes a las dimensiones del `MenuItem` hoja propietario, permitiendo como máximo un valor por dimensión y prohibiendo combinaciones duplicadas dentro del mismo item.
+ - **Tipo:** Funcional.
+@@ -308,7 +292,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Registrar una variante válida; intentar registrar una variante con dos valores de la misma dimensión, una variante con valores de otro item y una combinación idéntica a una preexistente, comprobando el rechazo con error de dominio.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-var-005"></a>
+ #### REQ-MENU-VAR-005 — Migración Atómica de Variante Predeterminada
+ - **Obligación:** El servicio Menu deberá permitir reemplazar la `MenuItemVariant` técnica `DEFAULT` de un `MenuItem` hoja por un conjunto de variantes con combinaciones explícitas de `VariantValue`, ejecutando dicha transición de forma atómica en una única revisión inmutable del `MenuItem`, archivando la variante técnica predeterminada y activando las nuevas presentaciones.
+ - **Tipo:** Funcional.
+@@ -316,7 +299,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: En un item con variante `DEFAULT`, agregar dimensiones y migrar a tres tamaños explícitos; validar que no se expone ningún estado transitorio inconsistente y que se genera exactamente una nueva revisión inmutable.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-var-006"></a>
+ #### REQ-MENU-VAR-006 — Elegibilidad Estructural de Variante Hoja
+ - **Obligación:** El servicio Menu deberá considerar una `MenuItemVariant` hoja como elegible para nuevas ventas únicamente cuando se cumplan copulativamente las siguientes condiciones:
+   1. Su `MenuItem` propietario esté en estado `ACTIVE`.
+@@ -331,10 +313,8 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ 
+ ---
+ 
+-<a id="43-precios-autoritativos-y-proyección-de-catálogo"></a>
+ ### 4.3 Precios Autoritativos y Proyección de Catálogo
+ 
+-<a id="req-menu-prc-001"></a>
+ #### REQ-MENU-PRC-001 — Precio Absoluto Autoritativo de la Variante
+ - **Obligación:** El servicio Menu deberá asignar un precio de venta unitario absoluto autoritativo a cada `MenuItemVariant` vendible (`MenuItemVariant.unitPrice`). El atributo histórico `MenuItem.basePrice` queda totalmente descontinuado y carece de validez normativa.
+ - **Tipo:** Funcional.
+@@ -342,7 +322,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Registrar variantes con precios independientes (ej. Individual $140, Pareja $210, Familiar $290) y constatar que ningún cálculo deriva de un precio base común del item.
+ - **Trazabilidad:** Vigente. Prioridad de `Auditoria-3.md` consolidada: precio absoluto por variante.
+ 
+-<a id="req-menu-prc-002"></a>
+ #### REQ-MENU-PRC-002 — Proyección del Precio de Catálogo
+ - **Obligación:** El servicio Menu deberá calcular y proyectar el precio visible en catálogo para cada `MenuItem` a partir exclusivamente de sus unidades vendibles estructuralmente elegibles:
+   - Para items hoja: a partir de `MenuItemVariant.unitPrice` de las variantes elegibles.
+@@ -357,7 +336,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Configurar items con una sola variante, con variantes de igual precio, con variantes de precios escalonados y sin variantes elegibles; inspeccionar la proyección generada para POS/KDS verificando los formatos exactos.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-prc-003"></a>
+ #### REQ-MENU-PRC-003 — Exclusión de Catálogo sin Unidades Elegibles
+ - **Obligación:** Cuando un `MenuItem` no disponga de ninguna `MenuItemVariant` o `ComboConfiguration` elegible para venta, el servicio Menu deberá excluir dicho item de la oferta pública para nuevas comandas y no deberá exponer ningún valor numérico de precio.
+ - **Tipo:** Funcional.
+@@ -367,10 +345,8 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ 
+ ---
+ 
+-<a id="44-suministro-y-recetas-culinarias"></a>
+ ### 4.4 Suministro y Recetas Culinarias
+ 
+-<a id="req-menu-ful-001"></a>
+ #### REQ-MENU-FUL-001 — Configuración de Suministro Almacenado (Stocked)
+ - **Obligación:** El servicio Menu deberá permitir especificar para cada `MenuItemVariant` de un item `STOCKED` el identificador foráneo opaco de inventario (`inventoryItemId` o SKU) y la cantidad física de retiro requerida para suministrar dicha presentación.
+ - **Tipo:** Funcional.
+@@ -378,7 +354,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Demostración: Configurar presentaciones de refresco embotellado (ej. 355 ml -> SKU-LATA-355, cant 1; 1 L -> SKU-BOT-1000, cant 1) y comprobar su persistencia y vinculación.
+ - **Trazabilidad:** Vigente. Se aclara el propósito normativo que había sido mezclado en la verificación de `Req-F-Aproved.md`.
+ 
+-<a id="req-menu-ful-002"></a>
+ #### REQ-MENU-FUL-002 — Vinculación de Receta para Presentación Preparada (Prepared)
+ - **Obligación:** El servicio Menu deberá permitir asociar cada `MenuItemVariant` de un item `PREPARED` con una revisión inmutable concreta de receta (`recipeRevisionId`). Cada variante resuelve su preparación de forma independiente; la reutilización de recetas entre variantes es permitida pero opcional.
+ - **Tipo:** Funcional.
+@@ -386,7 +361,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Asociar recetas distintas con composiciones no proporcionales a las variantes Individual, Pareja y Familiar de una pizza; comprobar que cada variante referencia su propia revisión inmutable de receta.
+ - **Trazabilidad:** Vigente. Se ratifica que no se fuerza un factor de escala automático (`scaleFactor`).
+ 
+-<a id="req-menu-ful-003"></a>
+ #### REQ-MENU-FUL-003 — Definición de Recetas Culinarias
+ - **Obligación:** El servicio Menu deberá permitir definir una receta culinaria (`Recipe`) con nombre y lista de componentes (`RecipeComponent`), especificando para cada componente el identificador del insumo de inventario (`inventoryItemId`), la cantidad requerida y la unidad de medida. Menu asignará la revisión inicial inmutable de la receta.
+ - **Tipo:** Funcional.
+@@ -394,7 +368,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Demostración: Crear una receta con múltiples insumos y verificar que se genera su identificador y revisión inicial con formato canónico.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-ful-004"></a>
+ #### REQ-MENU-FUL-004 — Historial y Versionado Inmutable de Recetas
+ - **Obligación:** El servicio Menu deberá conservar cada modificación aceptada al nombre o a la lista de ingredientes de una receta como una nueva revisión inmutable independiente, utilizando el formato `<number>_<ISO8601>`. Las variantes que referenciaban la revisión previa conservarán inalterada su referencia hasta que un administrador decida explícitamente adoptar la nueva revisión.
+ - **Tipo:** Funcional.
+@@ -404,10 +377,8 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ 
+ ---
+ 
+-<a id="45-grupos-y-opciones-de-modificadores"></a>
+ ### 4.5 Grupos y Opciones de Modificadores
+ 
+-<a id="req-menu-mod-001"></a>
+ #### REQ-MENU-MOD-001 — Definición de Grupos de Modificadores en el Item Hoja
+ - **Obligación:** El servicio Menu deberá permitir definir grupos de modificadores (`ModifierGroup`) directamente en un `MenuItem` hoja (`PREPARED` o `STOCKED`). El grupo es propiedad del item y compartido por todas sus variantes, definiendo los límites enteros $0 \le \text{minSelections} \le \text{maxSelections}$. Los conceptos de `ModifierGroup` y `ModifierOption` pertenecen exclusivamente al modelo de los productos hoja y están ausentes del modelo de `MenuItem` de tipo `COMBO` en v1 (donde las personalizaciones se realizan sobre las variantes hoja seleccionadas en los slots). La regla completa de selección exige que cada cantidad seleccionada individualmente respete el `maxQuantity` efectivo de la opción (determinado por `VariantModifierConfig` si existe, o por `generalConfig` en su defecto), y que la suma de todas las cantidades seleccionadas en el grupo cumpla estrictamente $\text{minSelections} \le \sum \text{cantidades seleccionadas} \le \text{maxSelections}$. El servicio deberá validar la capacidad previa del grupo ($\sum \text{maxQuantity efectivos de opciones habilitadas} \ge \text{minSelections}$) como requisito para la transición a estado `ACTIVE`. Al momento de confirmar la línea en runtime, estos límites se revalidan para garantizar la consistencia de la comanda, respetando el ownership externo de Orders sobre el ciclo de vida de la orden y sus líneas.
+ - **Tipo:** Funcional.
+@@ -415,7 +386,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Crear un grupo en un item hoja y comprobar su disponibilidad para todas sus variantes; constatar que los grupos y opciones de modificadores forman parte del modelo de items hoja y están ausentes de la estructura de COMBO; validar que selecciones que violen el `maxQuantity` individual o la desigualdad $\text{minSelections} \le \sum \le \text{maxSelections}$ sean rechazadas; constatar el bloqueo de activación si la capacidad no cubre `minSelections`.
+ - **Trazabilidad:** Refinado (2026-09-16). Se reformula para expresar formalmente que los modificadores pertenecen al modelo de items hoja y están ausentes del modelo de Combo v1, sin describir dicha ausencia como regla negativa o prohibición.
+ 
+-<a id="req-menu-mod-002"></a>
+ #### REQ-MENU-MOD-002 — Opciones de Modificador y Configuración General
+ - **Obligación:** El servicio Menu deberá permitir definir opciones de modificador (`ModifierOption`) dentro de un `ModifierGroup`. Cada opción contendrá obligatoriamente una configuración general (`generalConfig`) que define el delta de precio por defecto (`priceDelta`), la cantidad máxima elegible (`maxQuantity >= 0`) y la lista de efectos sobre insumos (`ingredientEffects[]`).
+ - **Tipo:** Funcional.
+@@ -423,7 +393,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Demostración: Crear una opción "Extra queso" con `priceDelta = +25`, `maxQuantity = 2` y efecto `ADD queso 40 g` en `generalConfig`; validar su consulta.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-mod-003"></a>
+ #### REQ-MENU-MOD-003 — Especialización de Modificador por Variante (VariantModifierConfig)
+ - **Obligación:** Cuando el comportamiento de una `ModifierOption` deba diferir en una variante específica respecto a la configuración general (en precio, cantidad máxima, habilitación o gramaje de ingredientes), el servicio Menu deberá permitir registrar una `VariantModifierConfig` asociada a la tupla `(variantId, modifierOptionId)`. Para cualquier variante sin configuración específica, regirá plenamente `generalConfig`.
+ - **Tipo:** Funcional.
+@@ -431,7 +400,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Configurar "Extra queso" con generalConfig (+$25, 40 g) y crear una excepción para la variante Familiar (+$45, 90 g); verificar que las variantes Chica y Mediana adoptan el valor general y Familiar adopta el valor especializado.
+ - **Trazabilidad:** Vigente. Resuelve limpiamente la herencia y especialización sin duplicar modificadores.
+ 
+-<a id="req-menu-mod-004"></a>
+ #### REQ-MENU-MOD-004 — Copia Administrativa de Configuraciones de Modificadores
+ - **Obligación:** El servicio Menu deberá permitir copiar, mediante la interfaz administrativa de catálogo, especializaciones de modificadores (`VariantModifierConfig`) desde una `MenuItemVariant` origen hacia una o más variantes destino del mismo `MenuItem`, aplicando atómicamente la política de resolución de conflictos seleccionada (`FAIL` para abortar sin cambios ante colisión, o `REPLACE` para sobrescribir la configuración existente).
+ - **Tipo:** Funcional.
+@@ -439,7 +407,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Ejecutar la operación de copia administrativa en modo `dryRun` y en modo definitivo; ensayar conflictos bajo política `FAIL` verificando atomicidad y ausencia de escrituras parciales.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-mod-005"></a>
+ #### REQ-MENU-MOD-005 — Directiva de Adición de Insumo (ADD)
+ - **Obligación:** El servicio Menu deberá permitir configurar directivas de adición de insumos (`operation = ADD`) dentro de `generalConfig` o `VariantModifierConfig`, especificando el `inventoryItemId`, la cantidad positiva a adicionar y la unidad de medida.
+ - **Tipo:** Funcional.
+@@ -447,7 +414,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Demostración: Configurar efectos ADD y verificar que sus campos queden registrados conforme al contrato estricto de `IngredientEffect`.
+ - **Trazabilidad:** Vigente. Se restringe a ADD y OMIT para v1 según `Auditoria-3.md`.
+ 
+-<a id="req-menu-mod-006"></a>
+ #### REQ-MENU-MOD-006 — Directiva de Omisión de Insumo (OMIT)
+ - **Obligación:** El servicio Menu deberá permitir configurar directivas de omisión de insumos (`operation = OMIT`) dentro de `generalConfig` o `VariantModifierConfig`, especificando el `inventoryItemId` que deberá ser excluido de la preparación base del producto al ser seleccionado por el cliente.
+ - **Tipo:** Funcional.
+@@ -455,7 +421,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Demostración: Configurar la opción "Sin cebolla" con directiva `OMIT` apuntando al insumo CEBOLLA; verificar la estructura del efecto registrado.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-mod-007"></a>
+ #### REQ-MENU-MOD-007 — Modificadores de Preparación sin Efectos sobre Insumos
+ - **Obligación:** El servicio Menu deberá permitir registrar opciones de modificador con lista vacía de efectos sobre insumos (`ingredientEffects = []`) para representar instrucciones culinarias, de cocción o de servicio (ej. "Término medio", "Salsa aparte", "Cortar a la mitad") sin crear entidades de dominio separadas.
+ - **Tipo:** Funcional.
+@@ -463,7 +428,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Crear un grupo "Término de cocción" con opciones que no tengan efectos de inventario; comprobar que el sistema las acepta y procesa con normalidad.
+ - **Trazabilidad:** Vigente. Se unifica conceptualmente en `ModifierOption` sin crear contratos redundantes.
+ 
+-<a id="req-menu-mod-008"></a>
+ #### REQ-MENU-MOD-008 — Proyección Publicada de Modificadores Efectivos (ResolvedVariantModifier)
+ - **Obligación:** El servicio Menu deberá materializar y publicar en el catálogo para POS/KDS, para cada `MenuItemVariant` publicada y cada `ModifierOption` aplicable, una proyección de lectura de configuración comercial efectiva `ResolvedVariantModifier` que contenga: `variantId`, `modifierOptionId`, `enabled` (habilitación configurada), `priceDelta`, `maxQuantity` configurado y la lista efectiva de `ingredientEffects`, resolviendo la especialización de `VariantModifierConfig` cuando exista, o recurriendo a `generalConfig` en caso contrario. `ResolvedVariantModifier` aporta la configuración comercial efectiva y su `maxQuantity` configurado; la disponibilidad operacional y la cantidad máxima actualmente disponible (`availableMaxQuantity`) proceden de la proyección operacional `ModifierAvailability` y no modifican ni sobrescriben la configuración comercial persistida ni los valores de `ResolvedVariantModifier`.
+ - **Tipo:** Funcional.
+@@ -473,10 +437,8 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ 
+ ---
+ 
+-<a id="46-combos-configuraciones-slots-y-opciones"></a>
+ ### 4.6 Combos, Configuraciones, Slots y Opciones
+ 
+-<a id="req-menu-com-001"></a>
+ #### REQ-MENU-COM-001 — Configuración de Combo (ComboConfiguration)
+ - **Obligación:** El servicio Menu deberá permitir definir una o más `ComboConfiguration` para un `MenuItem` de tipo `COMBO`. Cada configuración poseerá nombre, precio unitario absoluto autoritativo (`unitPrice >= 0`) y uno o más `ComboSlot`. Si un combo no presenta configuraciones diferenciadas al cliente, la noción de configuración `DEFAULT` se concibe únicamente como una posibilidad conceptual de diseño, sin constituir una creación obligatoria ni un requisito imperativo.
+ - **Tipo:** Funcional.
+@@ -484,7 +446,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Demostración: Definir un combo "Paquete Familiar" con configuración propia y precio absoluto $350; validar la entidad creada.
+ - **Trazabilidad:** Vigente. Se desacopla de `MenuItemVariant`: el combo usa `ComboConfiguration`.
+ 
+-<a id="req-menu-com-002"></a>
+ #### REQ-MENU-COM-002 — Definición del Espacio de Selección (ComboSlot)
+ - **Obligación:** El servicio Menu deberá permitir configurar cada `ComboSlot` con un nombre representativo y los límites enteros `minSelections` y `maxSelections` de opciones que el cliente puede elegir, cumpliendo estrictamente la invariante $0 \le \text{minSelections} \le \text{maxSelections}$. Las fuentes no imponen una cardinalidad mínima de `ComboOption` en la definición del slot, permitiéndose definiciones incompletas mientras el `MenuItem` COMBO contenedor permanezca en estado administrativo `INACTIVE`, mientras que la elegibilidad estructural de la configuración requiere que el `MenuItem` COMBO esté en estado `ACTIVE` y que el slot pueda satisfacer `minSelections` con componentes elegibles.
+ - **Tipo:** Funcional.
+@@ -492,7 +453,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Registrar slots con combinaciones válidas de límites (`0..0`, `0..1`, `1..1`, `2..3`) cumpliendo el invariante entero $0 \le \text{minSelections} \le \text{maxSelections}$ e intentar registrar `minSelections > maxSelections` comprobando el rechazo inmediato; verificar que se admiten slots con cero o más opciones en `INACTIVE`.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-com-003"></a>
+ #### REQ-MENU-COM-003 — Opciones de Combo Vinculadas Directamente a la Variante Hoja
+ - **Obligación:** El servicio Menu deberá permitir agregar a un `ComboSlot` opciones (`ComboOption`) que apunten directamente a una `MenuItemVariant` hoja concreta (`itemVariantId`), especificando una cantidad física suministrada entera positiva (`quantity > 0`) y un delta de precio explícito (`priceDelta`). Queda descontinuado el modelo previo de `menuItemId + AllowedVariant`.
+ - **Tipo:** Funcional.
+@@ -500,7 +460,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Asociar a un slot opciones que apunten a "Refresco 600ml" y "Refresco 1L" con distintos deltas de precio; verificar que la referencia es directa a `itemVariantId`.
+ - **Trazabilidad:** Vigente. Cambio fundamental introducido en `Auditoria-3.md` para evitar que el combo interprete dimensiones internas de sus componentes.
+ 
+-<a id="req-menu-com-004"></a>
+ #### REQ-MENU-COM-004 — Copia Administrativa de Configuración de Combo
+ - **Obligación:** El servicio Menu deberá permitir copiar, mediante la interfaz administrativa de catálogo, los `ComboSlot` y sus correspondientes `ComboOption` desde una `ComboConfiguration` origen hacia otra destino del mismo `MenuItem` COMBO, regenerando identidades únicas para las entidades en el destino.
+ - **Tipo:** Funcional.
+@@ -508,7 +467,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Ejecutar copia entre configuraciones y constatar la duplicación fiel de la estructura con nuevos identificadores generados.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-com-005"></a>
+ #### REQ-MENU-COM-005 — Asignación Múltiple Atómica de Opciones de Combo
+ - **Obligación:** El servicio Menu deberá permitir aplicar, mediante la interfaz administrativa de catálogo, un conjunto seleccionado de `ComboOption` a múltiples `ComboConfiguration` del mismo item COMBO en una única operación administrativa atómica.
+ - **Tipo:** Funcional.
+@@ -516,7 +474,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Asignar un lote de opciones a dos configuraciones simultáneamente; comprobar atomicidad total ante cualquier error de validación.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-com-006"></a>
+ #### REQ-MENU-COM-006 — Elegibilidad Estructural de Configuración de Combo
+ - **Obligación:** El servicio Menu deberá considerar una `ComboConfiguration` como estructuralmente elegible para nuevas ventas ssi:
+   1. Su `MenuItem` COMBO propietario esté en estado `ACTIVE`.
+@@ -529,10 +486,8 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ 
+ ---
+ 
+-<a id="47-ciclo-de-vida-archivado-y-reglas-incompletas"></a>
+ ### 4.7 Ciclo de Vida, Archivado y Reglas Incompletas
+ 
+-<a id="req-menu-lif-001"></a>
+ #### REQ-MENU-LIF-001 — Archivado de Variante y Reevaluación No Obstructiva de Dependencias
+ - **Obligación:** El servicio Menu deberá permitir archivar una `MenuItemVariant` vendible (`status = ARCHIVED`), acción que será permanente e irreversible. La variante archivada quedará excluida de nuevas ventas y conservada para fines históricos. La operación desencadenará la siguiente secuencia obligatoria:
+   1. La variante archivada deja de ser elegible.
+@@ -545,7 +500,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Archivar una variante componente requerida por un combo activo; constatar que el archivado se ejecuta exitosamente, la opción queda inelegible, la configuración pasa a no elegible, el combo pasa a `REVIEW_REQUIRED` y el `status` del combo permanece en `ACTIVE`.
+ - **Trazabilidad:** Modificado según la máxima prioridad de `Auditoria-3.md` (reconciliación explícita con ADR-005).
+ 
+-<a id="req-menu-lif-002"></a>
+ #### REQ-MENU-LIF-002 — Guardado de Definiciones Incompletas en Contexto Inactivo
+ - **Obligación:** El servicio Menu deberá permitir guardar una definición incompleta cuando el contexto que contiene la regla esté en estado `INACTIVE`: para un `ModifierGroup`, el contexto puede ser su `MenuItem` hoja o la `MenuItemVariant` hoja correspondiente; para un `ComboSlot`, es el `MenuItem` COMBO contenedor, dado que `ComboConfiguration` no tiene estado propio. La capacidad calculada será inferior a `minSelections` cuando, para un `ModifierGroup`, la suma de `maxQuantity` de sus `ModifierOption` habilitadas sea menor que `minSelections` o, para un `ComboSlot`, el número de `ComboOption` habilitadas cuya `MenuItemVariant` componente esté `ACTIVE` sea menor que `minSelections`.
+ - **Tipo:** Funcional.
+@@ -553,7 +507,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Guardar un `MenuItem` hoja `INACTIVE` con un grupo cuyo mínimo sea 2 y capacidad calculada 1, guardar una `MenuItemVariant` hoja `INACTIVE` con la misma insuficiencia y guardar un `MenuItem` COMBO `INACTIVE` con un slot cuyo mínimo sea 2 y una sola opción habilitada con componente `ACTIVE`; comprobar que se guardan con advertencia identificable y no se ofrecen como `ACTIVE`.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-lif-003"></a>
+ #### REQ-MENU-LIF-003 — Advertencias de Capacidad Faltante
+ - **Obligación:** El servicio Menu deberá incluir, al guardar un `MenuItem` o `MenuItemVariant` en estado `INACTIVE`, en la advertencia estructurada de capacidad incompleta la identidad y el tipo de cada entidad afectada (`ModifierGroup` o `ComboSlot`) que no pueda cumplir su `minSelections`, junto con el valor de `minSelections` y la capacidad calculada correspondiente (suma de `maxQuantity` para un grupo de modificadores o número de opciones habilitadas con componente `ACTIVE` para un slot de combo).
+ - **Tipo:** Funcional.
+@@ -563,10 +516,8 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ 
+ ---
+ 
+-<a id="48-resolución-neta-de-insumos"></a>
+ ### 4.8 Resolución Neta de Insumos
+ 
+-<a id="req-menu-ing-001"></a>
+ #### REQ-MENU-ING-001 — Resolución Neta de Insumos para Líneas de Comanda
+ - **Obligación:** El servicio Menu deberá calcular y retornar a Orders la lista neta aplanada de insumos requeridos para una línea de orden seleccionada, aplicando el siguiente algoritmo determinista:
+   1. Para cada componente `PREPARED`, resolver los insumos de la revisión exacta de `Recipe` vinculada.
+@@ -581,10 +532,8 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ 
+ ---
+ 
+-<a id="49-versionado-inmutable-de-definiciones-comerciales"></a>
+ ### 4.9 Versionado Inmutable de Definiciones Comerciales
+ 
+-<a id="req-menu-ver-001"></a>
+ #### REQ-MENU-VER-001 — Generación de Revision Inmutable de MenuItem
+ - **Obligación:** El servicio Menu deberá crear una nueva revisión inmutable independiente de un `MenuItem` ante cualquier cambio aceptado en su definición comercial (nombre, descripción, estado administrativo, variantes, precios, grupos de modificadores, configuraciones de combo o referencias a recetas). La revisión adoptará el formato canónico `<number>_<ISO8601>`. Las fluctuaciones operacionales de disponibilidad de inventario **no** crearán versiones comerciales de `MenuItem`.
+ - **Tipo:** Funcional.
+@@ -594,10 +543,8 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ 
+ ---
+ 
+-<a id="410-detección-y-gestión-de-revisiones-de-combo"></a>
+ ### 4.10 Detección y Gestión de Revisiones de Combo
+ 
+-<a id="req-menu-rev-001"></a>
+ #### REQ-MENU-REV-001 — Detección Automática de Necesidad de Revisión de Combo (REVIEW_REQUIRED)
+ - **Obligación:** El servicio Menu deberá marcar una `ComboConfiguration` como `REVIEW_REQUIRED` cuando una `ComboOption` configurada —incluida una opción deshabilitada (`enabled = false`), la cual continúa siendo una dependencia estructural activa de la configuración— apunte a una `MenuItemVariant` hoja cuyo cambio no atendido tenga uno o más motivos limitados estrictamente a: `PRICE`, `COMPOSITION`, `MODIFIERS` o `STATUS`. El servicio deberá ignorar cambios cosméticos, cambios de stock/existencias en inventario y cambios en variantes no referenciadas. Asimismo, una nueva revisión de receta culinaria solo generará necesidad de revisión de combo cuando la `MenuItemVariant` hoja componente adopte explícitamente dicha revisión de receta.
+ - **Tipo:** Funcional.
+@@ -605,7 +552,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Consultar la interfaz de inspección de revisiones de combo después de cada caso y comprobar que los motivos anteriores generan `REVIEW_REQUIRED`, mientras que una opción deshabilitada sigue siendo dependiente, los cambios cosméticos/stock/variantes ajenas no generan aviso y una receta nueva solo lo genera después de su adopción por la variante.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-rev-002"></a>
+ #### REQ-MENU-REV-002 — Visibilidad Administrativa del Estado de Revisión
+ - **Obligación:** El servicio Menu deberá exponer en las interfaces administrativas las `ComboConfiguration` con estado de revisión `REVIEW_REQUIRED` y un estado agregado por `MenuItem` COMBO; este estado de revisión deberá permanecer separado de `MenuItem.status`, del estado de cada `MenuItemVariant` y de la disponibilidad.
+ - **Tipo:** Funcional.
+@@ -613,7 +559,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Inspeccionar las vistas administrativas de monitoreo e inspección, comprobar el estado por configuración y el agregado del combo y comprobar que un `MenuItem` no COMBO no recibe estado de revisión de combo.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-rev-003"></a>
+ #### REQ-MENU-REV-003 — Confirmación Atómica de Revisión Mediante Token Observado
+ - **Obligación:** El servicio Menu deberá confirmar únicamente los `changeId` identificados por cada `reviewToken` observado enviado junto con el `configurationId` de las `ComboConfiguration` seleccionadas explícitamente en la interfaz de confirmación administrativa (recibiendo una o varias parejas explícitas `configurationId`/`reviewToken`). La operación confirmará y registrará como atendidos únicamente los cambios observados representados por el token; los cambios posteriores a la observación (cambios concurrentes) deberán permanecer como pendientes y mantendrán la configuración en `REVIEW_REQUIRED`. La respuesta deberá devolver o identificar los `changeId` atendidos.
+ - **Tipo:** Funcional.
+@@ -621,7 +566,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Confirmar una o varias configuraciones con sus tokens observados, comprobar que el intento “todas” enumera explícitamente las configuraciones mostradas y comprobar que cambios nuevos concurrentes permanecen pendientes manteniendo `REVIEW_REQUIRED` e identificando los `changeId` atendidos en el recibo.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-rev-004"></a>
+ #### REQ-MENU-REV-004 — Conservación de la Configuración Comercial al Confirmar Revisión
+ - **Obligación:** El servicio Menu deberá permitir confirmar el `reviewToken` de una `ComboConfiguration` sin modificar su `unitPrice`, sus `ComboSlot`, sus `ComboOption` ni el estado de las opciones retiradas; la confirmación solo registra los cambios observados (`changeId`) como atendidos y devuelve su identificación, sin generar revisión comercial, sin reactivar opciones retiradas y sin alterar precios ni slots.
+ - **Tipo:** Funcional.
+@@ -629,7 +573,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Prueba: Confirmar una revisión y comparar antes y después `unitPrice`, slots, opciones y estados; comprobar que no se crea revisión comercial, no se reactiva una opción retirada, la configuración comercial se conserva intacta y que el recibo identifica los `changeId` atendidos.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-rev-005"></a>
+ #### REQ-MENU-REV-005 — Referencia Visual del Slot (Precios Informativos)
+ - **Obligación:** El servicio Menu deberá exponer, para cada `ComboSlot` y sus `baseOptionIds` administrativos, la suma `saved` de los `MenuItemVariant.unitPrice` fijados multiplicados por `ComboOption.quantity`, la suma `current` de esos mismos componentes con sus precios actuales y la diferencia firmada `difference = current - saved`; estos datos tendrán carácter exclusivamente informativo y no modificarán el precio de venta del combo (`ComboConfiguration.unitPrice`).
+ - **Tipo:** Funcional.
+@@ -639,10 +582,8 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ 
+ ---
+ 
+-<a id="411-publicación-proyecciones-y-disponibilidad"></a>
+ ### 4.11 Publicación, Proyecciones y Disponibilidad
+ 
+-<a id="req-menu-avl-001"></a>
+ #### REQ-MENU-AVL-001 — Publicación y Notificación de Invalidación de Catálogo
+ - **Obligación:** El servicio Menu deberá exponer el catálogo activo a través de las interfaces públicas de consulta de catálogo y emitir notificaciones de invalidación ante cambios comerciales efectivos en la definición del menú. Para la disponibilidad operacional, Menu publica cambios de definición de insumos hacia Inventory, e Inventory publica evaluaciones con revisión y `validUntil`. Menu consume las evaluaciones vigentes y no republica el resultado recibido. Cualquier contrato técnico de invalidación, transporte, nombres o payloads no resuelto en las fuentes se mantiene bajo OPEN-007.
+ - **Tipo:** Funcional.
+@@ -650,7 +591,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Demostración: Realizar un cambio de precio y verificar la notificación de invalidación de catálogo comercial; comprobar que Menu consume la evaluación de disponibilidad de Inventory sin republicar dicho resultado ni generar una nueva versión comercial de item.
+ - **Trazabilidad:** Vigente.
+ 
+-<a id="req-menu-avl-002"></a>
+ #### REQ-MENU-AVL-002 — Frontera General de Disponibilidad Operacional Desacoplada
+ - **Obligación:** El servicio Menu deberá gestionar la oferta de venta reflejando la disponibilidad operacional a partir de las evaluaciones emitidas por Inventory con su clave opaca, revisión de definición asociada, número incremental de evaluación (`evaluationRevision`) y caducidad temporal (`validUntil`). Menu consume las evaluaciones vigentes, descarta evaluaciones obsoletas y no republica el resultado de disponibilidad recibido de Inventory para evitar bucles de eventos. Un cambio exclusivamente de disponibilidad operacional no modificará el estado administrativo (`status`), no alterará la elegibilidad estructural, no modificará precios comerciales ni generará una nueva revisión comercial inmutable de `MenuItem`. La disponibilidad no se tratará como un estado comercial autoritativo dentro de `MenuItem`, sino como información operacional derivada de Inventory mediante proyecciones desacopladas.
+ - **Tipo:** Funcional.
+@@ -658,7 +598,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Demostración: Recibir una evaluación de inventario con disponibilidad agotada para un insumo; verificar que la indisponibilidad operacional se refleja en las proyecciones correspondientes, mientras que el estado administrativo (`status`) permanece intacto, la elegibilidad estructural se mantiene en `true` y no se altera el contador de versiones comerciales del item.
+ - **Trazabilidad:** Refinado (2026-09-16). Se consolida como la frontera general de desacoplamiento operacional entre Menu e Inventory.
+ 
+-<a id="req-menu-avl-003"></a>
+ #### REQ-MENU-AVL-003 — Publicación Desacoplada de Requerimientos Base e Incrementales
+ - **Obligación:** El servicio Menu deberá publicar hacia Inventory los requerimientos de insumos de forma desacoplada y separada entre requerimientos base de cada variante y requerimientos incrementales introducidos por sus modificadores:
+   1. Para cada `MenuItemVariant` de un item `PREPARED`, publicar `BaseRequirements` a partir de los insumos, cantidades y unidades de la revisión inmutable de receta vinculada (`recipeRevisionId`).
+@@ -670,7 +609,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ - **Verificación:** Demostración: Configurar una variante preparada con receta y múltiples opciones de modificador; comprobar que Menu publica `BaseRequirements` basados en la receta y `ModifierRequirements` independientes para cada opción de modificador (con sus efectos `ADD`/`OMIT` normalizados y agregados por insumo), sin emitir un requerimiento compuesto de peor caso con todos los modificadores opcionales activos y sin condicionar la disponibilidad a una precondición aislada de requerimientos base.
+ - **Trazabilidad:** Incorporado (2026-09-16); Aclarado (v1.1.1, v1.1.2). Reemplaza cualquier política previa basada en peor caso global por descomposición granular de requerimientos que preserva la información OMIT/ADD para evaluar configuraciones efectivas sin convertir el requerimiento base en precondición independiente.
+ 
+-<a id="req-menu-avl-004"></a>
+ #### REQ-MENU-AVL-004 — Cálculo Granular de Disponibilidad de Variante (VariantAvailability)
+ - **Obligación:** El servicio Menu deberá calcular y materializar para cada `MenuItemVariant` hoja (`PREPARED` o `STOCKED`) una proyección operacional `VariantAvailability(variantId, available)`. El cálculo de `VariantAvailability` no exigirá satisfacer aisladamente los `BaseRequirements` crudos de la variante: una variante permanecerá `AVAILABLE` (`available = true`) si y solo si existe al menos una configuración completa de modificadores que respete `enabled`, `maxQuantity` y los límites `minSelections` y `maxSelections` de todos los grupos del item, cuya demanda neta de insumos resulte satisfacible con el inventario actual reportado. Para cada configuración candidata, la satisfacibilidad compara Inventory contra la demanda neta completa: se parte de los `BaseRequirements`, se aplican en primer lugar las directivas `OMIT` seleccionadas (descontando o anulando el insumo de la receta base) y posteriormente las directivas `ADD` seleccionadas (incorporando la demanda adicional de insumo), evaluándose la cobertura del resultado integral normalizado frente a Inventory. Una capacidad calculada sobre stock bruto no puede justificar `VariantAvailability.available = true`, siendo obligatorio que el inventario cubra la totalidad de la demanda neta (`BaseRequirements` tras `OMIT` más las adiciones `ADD`). En cada grupo obligatorio (`minSelections > 0`), se verifica que la capacidad total aportada por sus opciones cubra `minSelections`: cada opción aporta cero si está deshabilitada o `available = false`, su `availableMaxQuantity` si no es nulo, o su `configuredMaxQuantity` si `available = true` y `availableMaxQuantity` es nulo. La falta de inventario requerida exclusivamente para una personalización opcional (`minSelections == 0` o cuando el grupo retiene capacidad remanente de opciones disponibles $\ge \text{minSelections}$) no volverá no disponible a la `MenuItemVariant`. Toda reducción de capacidad en opciones de modificadores obliga a reevaluar `VariantAvailability`. Si las opciones disponibles de un grupo obligatorio no permiten alcanzar `minSelections`, o si la totalidad de configuraciones completas posibles resultan no satisfacibles por inventario insuficiente, la `MenuItemVariant` pasa a no disponible (`available = false`).
+ - **Tipo:** Funcional.
+@@ -683,7 +621,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+   5. *Reevaluación por reducción de capacidad:* En una variante disponible, simular una reducción de capacidad en un modificador obligatorio que deja sin configuraciones satisfacibles al grupo; constatar que la reevaluación actualiza de inmediato `VariantAvailability.available` a `false`.
+ - **Trazabilidad:** Incorporado (2026-09-16); Aclarado (v1.1.1, v1.1.2, v1.1.3). Establece la disponibilidad a nivel de variante por existencia de al menos una configuración completa válida satisfacible comparando Inventory contra la demanda neta completa (BaseRequirements tras OMIT más ADD), prohibiendo que capacidades sobre stock bruto justifiquen disponibilidad, sin exigir satisfacer aisladamente los BaseRequirements crudos, la regla de capacidad de grupo ante valores enteros y nulos, la reevaluación obligatoria ante reducción de capacidad y la no obstrucción por modificadores opcionales o con capacidad remanente.
+ 
+-<a id="req-menu-avl-005"></a>
+ #### REQ-MENU-AVL-005 — Cálculo de Disponibilidad y Límite de Modificadores (ModifierAvailability)
+ - **Obligación:** El servicio Menu deberá calcular y materializar para cada opción de modificador en el contexto de una variante hoja la proyección `ModifierAvailability(variantId, modifierOptionId, available, availableMaxQuantity)` a partir de la evaluación de sus `ModifierRequirements`. Inventory aporta en su evaluación lógica una señal de capacidad evaluada (`evaluatedCapacity`) cuando la naturaleza cuantificable del insumo y el stock reportado lo permiten. Se define `evaluatedCapacity` de manera implementable como un número entero y adimensional ($\text{evaluatedCapacity} \in \mathbb{N}_0$) que expresa la cantidad máxima de selecciones completas satisfacibles de una opción calculada a partir del inventario remanente tras abastecer la base neta:
+   1. *Normalización y agregación:* Se normalizan las unidades métricas entre Inventory y la opción, y se agregan las cantidades de efectos que apunten a un mismo `inventoryItemId`.
+@@ -719,7 +656,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+   7. *Aporte al grupo y propagación condicional:* Configurar un grupo con $\text{minSelections} = 2$ y dos opciones: una cuantificable con $\text{availableMaxQuantity} = 1$ y otra con $\text{availableMaxQuantity} = \text{null}$ y $\text{configuredMaxQuantity} = 1$; constatar que la capacidad del grupo es $1 + 1 = 2 \ge 2$, manteniendo la variante disponible. Simular que la primera opción pasa a $\text{availableMaxQuantity} = 0$; constatar que la capacidad del grupo desciende a $0 + 1 = 1 < 2$, obligando a la reevaluación y marcando la `MenuItemVariant` como `available = false`.
+ - **Trazabilidad:** Incorporado (2026-09-16); Aclarado (v1.1.1, v1.1.2, v1.1.3, v1.1.4). Define la disponibilidad y límite dinámico de modificadores derivado de `evaluatedCapacity` de Inventory calculada a partir de `StockRemanente` tras `BaseNetoTrasOMIT` como entero adimensional con normalización, agregación, cuello de botella y mínimo explícito de cero; prohibición de declarar disponibilidad con inventario comprometido por la base; semántica estricta de null vs cero; cálculo de capacidad aportada al grupo y no propagación circunscrita a opciones opcionales o con capacidad remanente.
+ 
+-<a id="req-menu-avl-006"></a>
+ #### REQ-MENU-AVL-006 — Cálculo de Disponibilidad de Configuración de Combo por Capacidad de Slots (ComboConfigurationAvailability)
+ - **Obligación:** El servicio Menu deberá calcular y materializar la disponibilidad operacional de los combos por configuración vendible mediante `ComboConfigurationAvailability(configurationId, available)`. Cada `ComboOption` conservará `ComboOption.available` como señal operacional heredada directamente de la `MenuItemVariant` hoja que referencia (`ComboOption.available = VariantAvailability.available`). De manera diferenciada a dicha señal, se define el predicado de opción seleccionable dentro del slot, el cual exige copulativamente:
+   1. `ComboOption.enabled = true` (habilitación administrativa configurada);
+@@ -735,7 +671,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+   4. *Evaluación de slot obligatorio:* En un combo con un slot obligatorio de bebida (`minSelections = 1`) que cuenta con opciones Refresco A y Refresco B seleccionables, simular que Refresco A deja de ser seleccionable; constatar que la `ComboConfiguration` continúa `AVAILABLE` por contar con `availableCapacity = 1 >= 1`. Simular que Refresco B también deja de ser seleccionable ($\text{availableCapacity} = 0 < 1$) y verificar que la `ComboConfiguration` pasa a `available = false`.
+ - **Trazabilidad:** Incorporado (2026-09-16); Aclarado (v1.1.2). Establece la disponibilidad de ComboConfiguration por cobertura de slots obligatorios mediante availableCapacity; señal heredada ComboOption.available; predicado estricto de opción seleccionable y límite de aporte unitario independiente de quantity.
+ 
+-<a id="req-menu-avl-007"></a>
+ #### REQ-MENU-AVL-007 — Derivación de Disponibilidad Agregada de MenuItem para Catálogo
+ - **Obligación:** El servicio Menu deberá derivar la disponibilidad agregada de cada `MenuItem` (`CatalogItemProjection.isAvailable`) a partir del estado operacional de sus unidades vendibles hijas, utilizándola exclusivamente para propósitos de presentación visual y filtrado en catálogo:
+   1. Un `MenuItem` hoja (`PREPARED` o `STOCKED`) estará disponible en catálogo (`isAvailable = true`) si al menos una de sus `MenuItemVariant` estructuralmente elegibles se encuentra `AVAILABLE`.
+@@ -752,7 +687,6 @@ Esta sección consolida formalmente los 46 requisitos normativos del servicio Me
+ 
+ Los requisitos no funcionales documentados en esta sección reproducen **únicamente** los compromisos técnicos, perfiles y presupuestos de rendimiento justificados en las fuentes autorizadas (`Consultoria-1.md`, `Consultoria-2.md` y `Decisiones-cierre-invariantes.md` — ADR-004). Representan **objetivos formales de aceptación de ingeniería**, no mediciones empíricas de software ya ejecutadas.
+ 
+-<a id="51-presupuesto-de-rendimiento-de-aceptación-adr-004"></a>
+ ### 5.1 Presupuesto de Rendimiento de Aceptación (ADR-004)
+ 
+ - **Identificador:** `NFR-MENU-PERF-01`
+@@ -760,7 +694,6 @@ Los requisitos no funcionales documentados en esta sección reproducen **únicam
+ - **Fuente:** `Decisiones-cierre-invariantes.md` (ADR-004); `Consultoria-1.md`.
+ - **Criterio:** Validación mediante pruebas de carga automatizadas (k6, Gatling o JMeter) con datasets representativos.
+ 
+-<a id="52-perfil-nominal-de-operación"></a>
+ ### 5.2 Perfil Nominal de Operación
+ 
+ - **Identificador:** `NFR-MENU-PERF-02`
+@@ -776,7 +709,6 @@ Los requisitos no funcionales documentados en esta sección reproducen **únicam
+   - **Tasa de Error Interno:** Inferior al **0.1% (<0.1%)** de las solicitudes ofrecidas bajo carga nominal.
+   - **Integridad:** Cero (**0**) órdenes aceptadas perdidas, duplicadas o corrompidas.
+ 
+-<a id="53-objetivos-de-latencia-por-clase-de-operación"></a>
+ ### 5.3 Objetivos de Latencia por Clase de Operación
+ 
+ Las duraciones se miden desde la acción física en el cliente POS hasta el resultado observable en pantalla, incluyendo el procesamiento del servicio y la red de área local (excluyendo pasarelas de pago externas):
+@@ -791,7 +723,6 @@ Las duraciones se miden desde la acción física en el cliente POS hasta el resu
+ | **Envío a Cocina (`Enviar a cocina` → ACK Orders)** | **≤ 500 ms** | **≤ 1.0 s** | > 2.0 s |
+ | **Visibilidad de Orden en KDS desde Envío** | **≤ 1.0 s** | **≤ 2.0 s** | > 3.0 s |
+ 
+-<a id="54-capacidad-ante-ráfagas-burst"></a>
+ ### 5.4 Capacidad ante Ráfagas (Burst)
+ 
+ - **Identificador:** `NFR-MENU-PERF-03`
+@@ -803,14 +734,12 @@ Las duraciones se miden desde la acción física en el cliente POS hasta el resu
+   3. **Persistencia, Contabilización y Reintento:** Cada solicitud fallida o pendiente debe quedar debidamente contabilizada. Finalizada la ráfaga, se verificará que toda orden aceptada tenga su resultado persistido y que el reintento de solicitudes pendientes no duplique efectos ni en Orders ni en inventario.
+   4. No se exige mantener los percentiles de latencia nominales durante la ventana de ráfaga. Se declara expresamente que no existe un plazo de recuperación de colas establecido en las fuentes ni se exige recuperación inmediata tras finalizar la ráfaga.
+ 
+-<a id="55-concurrencia-e-integridad-transaccional"></a>
+ ### 5.5 Concurrencia e Integridad Transaccional
+ 
+ - **Identificador:** `NFR-MENU-CONS-01`
+ - **Idempotencia de Movimientos y Delimitación de Outbox:** Cada solicitud de confirmación de comanda transmitida por Orders a Inventory deberá portar un identificador compuesto único que distinga orden, línea, revisión y operación. Inventory procesará cada identificador exactamente una vez. Conforme a lo documentado en ADR-003, el patrón Transactional Outbox y las garantías de entrega física asociadas constituyen una responsabilidad externa asignada exclusivamente al servicio Orders para la emisión confiable de movimientos hacia Inventory, y no representan un patrón obligatorio ni una obligación de entrega atribuida al servicio Menu.
+ - **Desacoplamiento de Publicación en Menu:** El servicio Menu emite sus notificaciones lógicas de cambio e invalidación sin asumir obligaciones de outbox local transaccional ni garantías de entrega impuestas a su frontera de servicio.
+ 
+-<a id="56-resiliencia-y-desacoplamiento-de-inventory"></a>
+ ### 5.6 Resiliencia y Desacoplamiento de Inventory
+ 
+ - **Identificador:** `NFR-MENU-RESI-01`
+@@ -821,61 +750,58 @@ Las duraciones se miden desde la acción física en el cliente POS hasta el resu
+ 
+ ## 6. Reglas de Negocio e Invariantes del Dominio
+ 
+-<a id="61-reglas-de-negocio-br-menu"></a>
+ ### 6.1 Reglas de Negocio (BR-MENU)
+ 
+-- <a id="br-menu-001"></a>**BR-MENU-001 (Identidad y Tipo de MenuItem):** Todo `MenuItem` debe poseer un tipo inmutable (`PREPARED`, `STOCKED` o `COMBO`) definido en su creación. Un item no puede mutar su tipo durante su ciclo de vida.
+-- <a id="br-menu-002"></a>**BR-MENU-002 (Unicidad de Dimensión en Variante):** Una `MenuItemVariant` puede seleccionar a lo sumo un `VariantValue` por cada `VariantDimension` perteneciente a su item hoja.
+-- <a id="br-menu-003"></a>**BR-MENU-003 (Pertenencia Estricta de Dimensiones):** Queda prohibido asociar a una variante valores de dimensiones (`VariantValue`) que pertenezcan a otro `MenuItem`.
+-- <a id="br-menu-004"></a>**BR-MENU-004 (Unicidad de Combinación de Variante):** No pueden coexistir dos variantes vendibles activas dentro del mismo `MenuItem` con exactamente la misma combinación de valores de dimensiones.
+-- <a id="br-menu-005"></a>**BR-MENU-005 (Variante Técnica DEFAULT):** Si un item hoja no posee dimensiones comerciales, debe poseer una única variante técnica con código `DEFAULT`, cuyo identificador es transmitido obligatoriamente a Orders en cada línea de comanda.
+-- <a id="br-menu-006"></a>**BR-MENU-006 (Exclusividad Item vs Variante):** Una misma presentación comercial no debe representarse simultáneamente como un `MenuItem` independiente con variante `DEFAULT` y como una variante dentro de otro `MenuItem` (ej. Coca-Cola 600ml).
+-- <a id="br-menu-007"></a>**BR-MENU-007 (Autoridad Absoluta de Precio):** El precio de venta unitario de una variante (`MenuItemVariant.unitPrice`) es absoluto y autoritativo. No se calculan precios de variantes mediante deltas sobre un precio base del item.
+-- <a id="br-menu-008"></a>**BR-MENU-008 (Cálculo del Precio del Combo):** El precio total de una unidad de combo se calcula mediante la fórmula normativa:
++- **BR-MENU-001 (Identidad y Tipo de MenuItem):** Todo `MenuItem` debe poseer un tipo inmutable (`PREPARED`, `STOCKED` o `COMBO`) definido en su creación. Un item no puede mutar su tipo durante su ciclo de vida.
++- **BR-MENU-002 (Unicidad de Dimensión en Variante):** Una `MenuItemVariant` puede seleccionar a lo sumo un `VariantValue` por cada `VariantDimension` perteneciente a su item hoja.
++- **BR-MENU-003 (Pertenencia Estricta de Dimensiones):** Queda prohibido asociar a una variante valores de dimensiones (`VariantValue`) que pertenezcan a otro `MenuItem`.
++- **BR-MENU-004 (Unicidad de Combinación de Variante):** No pueden coexistir dos variantes vendibles activas dentro del mismo `MenuItem` con exactamente la misma combinación de valores de dimensiones.
++- **BR-MENU-005 (Variante Técnica DEFAULT):** Si un item hoja no posee dimensiones comerciales, debe poseer una única variante técnica con código `DEFAULT`, cuyo identificador es transmitido obligatoriamente a Orders en cada línea de comanda.
++- **BR-MENU-006 (Exclusividad Item vs Variante):** Una misma presentación comercial no debe representarse simultáneamente como un `MenuItem` independiente con variante `DEFAULT` y como una variante dentro de otro `MenuItem` (ej. Coca-Cola 600ml).
++- **BR-MENU-007 (Autoridad Absoluta de Precio):** El precio de venta unitario de una variante (`MenuItemVariant.unitPrice`) es absoluto y autoritativo. No se calculan precios de variantes mediante deltas sobre un precio base del item.
++- **BR-MENU-008 (Cálculo del Precio del Combo):** El precio total de una unidad de combo se calcula mediante la fórmula normativa:
+   $$\text{Precio Final} = \text{ComboConfiguration.unitPrice} + \sum \text{ComboOption.priceDelta} + \sum \text{priceDelta}(\text{modificadores de componentes})$$
+   Bajo ninguna circunstancia se suman nuevamente los `unitPrice` de lista de los productos hoja seleccionados en los slots.
+-- <a id="br-menu-009"></a>**BR-MENU-009 (Asociación de Receta a Variante):** Cada variante de un item `PREPARED` debe estar asociada a una revisión concreta e inmutable de receta (`recipeRevisionId`).
+-- <a id="br-menu-010"></a>**BR-MENU-010 (Suministro de Stocked):** Cada variante de un item `STOCKED` debe estar asociada a un `inventoryItemId` y una cantidad entera o decimal de retiro mayor a cero.
+-- <a id="br-menu-011"></a>**BR-MENU-011 (Límites de Selección de ComboSlot):** En todo `ComboSlot` debe cumplirse exactamente el invariante entero $0 \le \text{minSelections} \le \text{maxSelections}$.
+-- <a id="br-menu-012"></a>**BR-MENU-012 (Selección de ComboOption):** En cada unidad de combo, una `ComboOption` puede seleccionarse cero o una vez. La cantidad física entregada viene determinada por `ComboOption.quantity` (entero $\ge 1$).
+-- <a id="br-menu-013"></a>**BR-MENU-013 (Límites de Modificadores y Selección de Grupo):** En todo `ModifierGroup`, cada cantidad seleccionada individualmente para una opción respeta el límite efectivo $0 \le q_o \le o.\text{maxQuantity}$ (definido en `VariantModifierConfig` si existe, o en `generalConfig` en su defecto), y la suma de todas las cantidades seleccionadas en el grupo debe satisfacer estrictamente $\text{minSelections} \le \sum_{o \in \text{Group}} q_o \le \text{maxSelections}$. Para autorizar la activación comercial del item, la capacidad previa del grupo ($\sum_{o \in \text{EnabledOptions}} o.\text{maxQuantity}$) debe ser mayor o igual a $\text{minSelections}$. Al momento de confirmar la línea en runtime, estos límites se revalidan para garantizar la integridad de la orden, respetando el ownership externo de Orders sobre el ciclo de vida de la orden y sus líneas.
+-- <a id="br-menu-014"></a>**BR-MENU-014 (Especialización de Modificadores):** La resolución de configuración de un modificador para una variante sigue una cascada estricta: si existe `VariantModifierConfig` para la tupla `(variantId, modifierOptionId)`, se utiliza dicha configuración; en caso contrario, se utiliza `ModifierOption.generalConfig`.
+-- <a id="br-menu-015"></a>**BR-MENU-015 (Precedencia de Efectos sobre Insumos):** Al resolver la comanda para cocina e inventario, si coexisten directivas sobre el mismo insumo, la directiva `OMIT` anula la aportación de la receta base antes de computar las adiciones de `ADD`.
+-- <a id="br-menu-016"></a>**BR-MENU-016 (Confinamiento de Modificadores):** Los efectos de un modificador aplican pura y exclusivamente a la receta del componente que lo declaró. Un modificador aplicado a un componente dentro de un combo jamás altera las recetas de otros componentes.
+-- <a id="br-menu-017"></a>**BR-MENU-017 (Ausencia del Concepto de Modificadores en Combo v1):** En el modelo de Combo v1, los conceptos de `ModifierGroup` y `ModifierOption` pertenecen exclusivamente a los productos hoja y están ausentes de la estructura de `Combo`. Las opciones de personalización aplican y se seleccionan exclusivamente sobre las variantes de productos hoja elegidas dentro de sus slots.
+-- <a id="br-menu-018"></a>**BR-MENU-018 (Clasificación Comercial Exclusiva de Hoja):** Las clasificaciones comerciales (`PLATILLO`, `BEBIDA`, `POSTRE`, `COMPLEMENTO`) aplican exclusivamente a `PreparedItem` y `StockedItem`. No aplican a `Combo`.
+-- <a id="br-menu-019"></a>**BR-MENU-019 (Separación de Categorías):** Cuando se asignen categorías, los productos hoja se agrupan en `ItemCategory` y los combos en `ComboCategory`. La asignación de categorías es una clasificación organizativa opcional y no una exigencia obligatoria; un combo no hereda las categorías de sus productos componentes.
+-- <a id="br-menu-020"></a>**BR-MENU-020 (Reevaluación de Dependencias al Archivar):** Archivar una variante está siempre permitido; la variante se excluye de nuevas ventas y las configuraciones de combo que dependan de ella se reevalúan marcándose como no elegibles y en estado `REVIEW_REQUIRED` si ya no alcanzan sus selecciones mínimas, sin mutar el `MenuItem.status` del combo.
+-- <a id="br-menu-021"></a>**BR-MENU-021 (Agotamiento de Modificador y Reevaluación de Variante):** La falta de inventario de una opción de modificador bloquea o limita dicha opción en `ModifierAvailability` (con $\text{availableMaxQuantity}$ basado en la capacidad residual de `StockRemanente`) y no vuelve no disponible a la `MenuItemVariant` únicamente cuando la opción es puramente opcional (`minSelections == 0`) o cuando el grupo retiene capacidad remanente de opciones disponibles suficiente para cubrir $\text{minSelections}$. Toda reducción de capacidad obliga a reevaluar `VariantAvailability`; la variante transita a no disponible (`available = false`) si ya no existe al menos una configuración completa válida cuya demanda neta integral resulte satisfacible frente al inventario. Asimismo, el agotamiento de un insumo de la receta base no bloquea la variante si este puede ser omitido válidamente mediante una selección `OMIT` dentro de los límites de los grupos de modificadores.
+-- <a id="br-menu-022"></a>**BR-MENU-022 (Capacidad de Grupo Obligatorio y Bloqueo de Variante):** En todo `ModifierGroup` con requerimiento de selección mínima ($\text{minSelections} > 0$), la capacidad disponible del grupo se evalúa sumando la capacidad lógica aportada por cada opción: cero ($0$) si está deshabilitada (`enabled = false`) o no disponible (`available = false`); $\text{availableMaxQuantity}$ si está disponible y dicho valor es un entero no nulo; o $\text{configuredMaxQuantity}$ si está disponible y $\text{availableMaxQuantity}$ es `null` (no cuantificable). Si la suma de las capacidades aportadas no alcanza $\text{minSelections}$ ($\sum c(o) < \text{minSelections}$), o si ninguna configuración completa válida de modificadores puede ser satisfecha por Inventory al contrastar la demanda neta completa (`BaseRequirements` tras aplicar `OMIT` antes de `ADD`) contra el inventario disponible —sin que una capacidad evaluada sobre stock bruto pueda justificar satisfacibilidad—, la `MenuItemVariant` completa pasa operacionalmente a no disponible (`VariantAvailability.available = false`), manteniendo las cantidades físicas de Inventory separadas de las unidades lógicas y adimensionales de selección.
+-- <a id="br-menu-023"></a>**BR-MENU-023 (Herencia de Disponibilidad y Opción Seleccionable en ComboOption):** Cada `ComboOption` conserva `ComboOption.available` como señal operacional heredada directamente de la `MenuItemVariant` hoja referenciada (`ComboOption.available = VariantAvailability.available`). De manera separada a dicha señal, se define el predicado de opción seleccionable dentro del slot, el cual exige copulativamente: `ComboOption.enabled = true` (habilitación administrativa), que la variante hoja referenciada sea estructuralmente elegible (no archivada, item comercial en estado `ACTIVE`) y `VariantAvailability.available = true` (disponibilidad operacional afirmativa). Una opción no seleccionable no aporta capacidad operacional al slot.
+-- <a id="br-menu-024"></a>**BR-MENU-024 (Capacidad Disponible de ComboSlot y Disponibilidad de ComboConfiguration):** La capacidad disponible operacional de un `ComboSlot` (`availableCapacity`) se define como el conteo exacto de sus opciones seleccionables. Cada `ComboOption` seleccionable aporta como máximo una (1) selección a `availableCapacity`, independientemente del multiplicador físico entregado configurado en `ComboOption.quantity`. La indisponibilidad operacional o no seleccionabilidad de una `ComboOption` individual no vuelve no disponible a la `ComboConfiguration` mientras el `ComboSlot` conserve $\text{availableCapacity} \ge \text{minSelections}$. Una `ComboConfiguration` pasa a no disponible (`ComboConfigurationAvailability.available = false`) si al menos uno de sus `ComboSlot` obligatorios ($\text{minSelections} > 0$) no alcanza $\text{minSelections}$ con opciones seleccionables. Esta capacidad operacional en runtime es independiente y no se fusiona con la capacidad estructural de INV-MENU-005.
+-- <a id="br-menu-025"></a>**BR-MENU-025 (Disponibilidad Agregada de MenuItem por Existencia):** Un `MenuItem` hoja o COMBO se considera disponible en catálogo (`isAvailable = true`) si y solo si existe al menos una unidad vendible hija (`MenuItemVariant` o `ComboConfiguration` estructuralmente elegible) con disponibilidad operacional afirmativa. Esta disponibilidad agregada es una derivación exclusiva para presentación en catálogo y no bloquea unidades hijas individualmente.
++- **BR-MENU-009 (Asociación de Receta a Variante):** Cada variante de un item `PREPARED` debe estar asociada a una revisión concreta e inmutable de receta (`recipeRevisionId`).
++- **BR-MENU-010 (Suministro de Stocked):** Cada variante de un item `STOCKED` debe estar asociada a un `inventoryItemId` y una cantidad entera o decimal de retiro mayor a cero.
++- **BR-MENU-011 (Límites de Selección de ComboSlot):** En todo `ComboSlot` debe cumplirse exactamente el invariante entero $0 \le \text{minSelections} \le \text{maxSelections}$.
++- **BR-MENU-012 (Selección de ComboOption):** En cada unidad de combo, una `ComboOption` puede seleccionarse cero o una vez. La cantidad física entregada viene determinada por `ComboOption.quantity` (entero $\ge 1$).
++- **BR-MENU-013 (Límites de Modificadores y Selección de Grupo):** En todo `ModifierGroup`, cada cantidad seleccionada individualmente para una opción respeta el límite efectivo $0 \le q_o \le o.\text{maxQuantity}$ (definido en `VariantModifierConfig` si existe, o en `generalConfig` en su defecto), y la suma de todas las cantidades seleccionadas en el grupo debe satisfacer estrictamente $\text{minSelections} \le \sum_{o \in \text{Group}} q_o \le \text{maxSelections}$. Para autorizar la activación comercial del item, la capacidad previa del grupo ($\sum_{o \in \text{EnabledOptions}} o.\text{maxQuantity}$) debe ser mayor o igual a $\text{minSelections}$. Al momento de confirmar la línea en runtime, estos límites se revalidan para garantizar la integridad de la orden, respetando el ownership externo de Orders sobre el ciclo de vida de la orden y sus líneas.
++- **BR-MENU-014 (Especialización de Modificadores):** La resolución de configuración de un modificador para una variante sigue una cascada estricta: si existe `VariantModifierConfig` para la tupla `(variantId, modifierOptionId)`, se utiliza dicha configuración; en caso contrario, se utiliza `ModifierOption.generalConfig`.
++- **BR-MENU-015 (Precedencia de Efectos sobre Insumos):** Al resolver la comanda para cocina e inventario, si coexisten directivas sobre el mismo insumo, la directiva `OMIT` anula la aportación de la receta base antes de computar las adiciones de `ADD`.
++- **BR-MENU-016 (Confinamiento de Modificadores):** Los efectos de un modificador aplican pura y exclusivamente a la receta del componente que lo declaró. Un modificador aplicado a un componente dentro de un combo jamás altera las recetas de otros componentes.
++- **BR-MENU-017 (Ausencia del Concepto de Modificadores en Combo v1):** En el modelo de Combo v1, los conceptos de `ModifierGroup` y `ModifierOption` pertenecen exclusivamente a los productos hoja y están ausentes de la estructura de `Combo`. Las opciones de personalización aplican y se seleccionan exclusivamente sobre las variantes de productos hoja elegidas dentro de sus slots.
++- **BR-MENU-018 (Clasificación Comercial Exclusiva de Hoja):** Las clasificaciones comerciales (`PLATILLO`, `BEBIDA`, `POSTRE`, `COMPLEMENTO`) aplican exclusivamente a `PreparedItem` y `StockedItem`. No aplican a `Combo`.
++- **BR-MENU-019 (Separación de Categorías):** Cuando se asignen categorías, los productos hoja se agrupan en `ItemCategory` y los combos en `ComboCategory`. La asignación de categorías es una clasificación organizativa opcional y no una exigencia obligatoria; un combo no hereda las categorías de sus productos componentes.
++- **BR-MENU-020 (Reevaluación de Dependencias al Archivar):** Archivar una variante está siempre permitido; la variante se excluye de nuevas ventas y las configuraciones de combo que dependan de ella se reevalúan marcándose como no elegibles y en estado `REVIEW_REQUIRED` si ya no alcanzan sus selecciones mínimas, sin mutar el `MenuItem.status` del combo.
++- **BR-MENU-021 (Agotamiento de Modificador y Reevaluación de Variante):** La falta de inventario de una opción de modificador bloquea o limita dicha opción en `ModifierAvailability` (con $\text{availableMaxQuantity}$ basado en la capacidad residual de `StockRemanente`) y no vuelve no disponible a la `MenuItemVariant` únicamente cuando la opción es puramente opcional (`minSelections == 0`) o cuando el grupo retiene capacidad remanente de opciones disponibles suficiente para cubrir $\text{minSelections}$. Toda reducción de capacidad obliga a reevaluar `VariantAvailability`; la variante transita a no disponible (`available = false`) si ya no existe al menos una configuración completa válida cuya demanda neta integral resulte satisfacible frente al inventario. Asimismo, el agotamiento de un insumo de la receta base no bloquea la variante si este puede ser omitido válidamente mediante una selección `OMIT` dentro de los límites de los grupos de modificadores.
++- **BR-MENU-022 (Capacidad de Grupo Obligatorio y Bloqueo de Variante):** En todo `ModifierGroup` con requerimiento de selección mínima ($\text{minSelections} > 0$), la capacidad disponible del grupo se evalúa sumando la capacidad lógica aportada por cada opción: cero ($0$) si está deshabilitada (`enabled = false`) o no disponible (`available = false`); $\text{availableMaxQuantity}$ si está disponible y dicho valor es un entero no nulo; o $\text{configuredMaxQuantity}$ si está disponible y $\text{availableMaxQuantity}$ es `null` (no cuantificable). Si la suma de las capacidades aportadas no alcanza $\text{minSelections}$ ($\sum c(o) < \text{minSelections}$), o si ninguna configuración completa válida de modificadores puede ser satisfecha por Inventory al contrastar la demanda neta completa (`BaseRequirements` tras aplicar `OMIT` antes de `ADD`) contra el inventario disponible —sin que una capacidad evaluada sobre stock bruto pueda justificar satisfacibilidad—, la `MenuItemVariant` completa pasa operacionalmente a no disponible (`VariantAvailability.available = false`), manteniendo las cantidades físicas de Inventory separadas de las unidades lógicas y adimensionales de selección.
++- **BR-MENU-023 (Herencia de Disponibilidad y Opción Seleccionable en ComboOption):** Cada `ComboOption` conserva `ComboOption.available` como señal operacional heredada directamente de la `MenuItemVariant` hoja referenciada (`ComboOption.available = VariantAvailability.available`). De manera separada a dicha señal, se define el predicado de opción seleccionable dentro del slot, el cual exige copulativamente: `ComboOption.enabled = true` (habilitación administrativa), que la variante hoja referenciada sea estructuralmente elegible (no archivada, item comercial en estado `ACTIVE`) y `VariantAvailability.available = true` (disponibilidad operacional afirmativa). Una opción no seleccionable no aporta capacidad operacional al slot.
++- **BR-MENU-024 (Capacidad Disponible de ComboSlot y Disponibilidad de ComboConfiguration):** La capacidad disponible operacional de un `ComboSlot` (`availableCapacity`) se define como el conteo exacto de sus opciones seleccionables. Cada `ComboOption` seleccionable aporta como máximo una (1) selección a `availableCapacity`, independientemente del multiplicador físico entregado configurado en `ComboOption.quantity`. La indisponibilidad operacional o no seleccionabilidad de una `ComboOption` individual no vuelve no disponible a la `ComboConfiguration` mientras el `ComboSlot` conserve $\text{availableCapacity} \ge \text{minSelections}$. Una `ComboConfiguration` pasa a no disponible (`ComboConfigurationAvailability.available = false`) si al menos uno de sus `ComboSlot` obligatorios ($\text{minSelections} > 0$) no alcanza $\text{minSelections}$ con opciones seleccionables. Esta capacidad operacional en runtime es independiente y no se fusiona con la capacidad estructural de INV-MENU-005.
++- **BR-MENU-025 (Disponibilidad Agregada de MenuItem por Existencia):** Un `MenuItem` hoja o COMBO se considera disponible en catálogo (`isAvailable = true`) si y solo si existe al menos una unidad vendible hija (`MenuItemVariant` o `ComboConfiguration` estructuralmente elegible) con disponibilidad operacional afirmativa. Esta disponibilidad agregada es una derivación exclusiva para presentación en catálogo y no bloquea unidades hijas individualmente.
+ 
+ ---
+ 
+-<a id="62-invariantes-de-integridad-del-dominio-inv-menu"></a>
+ ### 6.2 Invariantes de Integridad del Dominio (INV-MENU)
+ 
+-- <a id="inv-menu-001"></a>**INV-MENU-001 (Invariante de Variante Obligatoria):**
++- **INV-MENU-001 (Invariante de Variante Obligatoria):**
+   $$\forall \, i \in (\text{PreparedItem} \cup \text{StockedItem}), \quad \text{count}(i.\text{variants}) \ge 1$$
+-- <a id="inv-menu-002"></a>**INV-MENU-002 (Invariante de VariantId No Nulo):** En toda línea de orden procesada o proyectada (`OrderLine`), el campo `variantId` es estrictamente obligatorio y no nulo.
+-- <a id="inv-menu-003"></a>**INV-MENU-003 (Invariante de Precios No Negativos):**
++- **INV-MENU-002 (Invariante de VariantId No Nulo):** En toda línea de orden procesada o proyectada (`OrderLine`), el campo `variantId` es estrictamente obligatorio y no nulo.
++- **INV-MENU-003 (Invariante de Precios No Negativos):**
+   $$\forall \, v \in \text{MenuItemVariant}, \quad v.\text{unitPrice} \ge 0$$
+   $$\forall \, c \in \text{ComboConfiguration}, \quad c.\text{unitPrice} \ge 0$$
+-- <a id="inv-menu-004"></a>**INV-MENU-004 (Invariante de Inmutabilidad de Versiones):** Una vez persistida una revisión comercial de `MenuItem` (`<number>_<ISO8601>`) o de `Recipe`, sus atributos y composición son estrictamente inmutables. Toda edición posterior produce una nueva revisión con contador incrementado.
+-- <a id="inv-menu-005"></a>**INV-MENU-005 (Invariante de Capacidad Vendible en Estado Activo):**
++- **INV-MENU-004 (Invariante de Inmutabilidad de Versiones):** Una vez persistida una revisión comercial de `MenuItem` (`<number>_<ISO8601>`) o de `Recipe`, sus atributos y composición son estrictamente inmutables. Toda edición posterior produce una nueva revisión con contador incrementado.
++- **INV-MENU-005 (Invariante de Capacidad Vendible en Estado Activo):**
+   Para que un `MenuItem` o `MenuItemVariant` pase a estado `ACTIVE`, todos sus grupos obligatorios y slots deben satisfacer:
+   $$\text{Capacidad}(\text{ModifierGroup}) = \sum_{o \in \text{EnabledOptions}} o.\text{maxQuantity} \ge \text{ModifierGroup.minSelections}$$
+   $$\text{Capacidad}(\text{ComboSlot}) = \text{count}(\{o \in \text{EnabledOptions} \mid o.\text{component}.\text{status} = \text{ACTIVE}\}) \ge \text{ComboSlot.minSelections}$$
+   Se permite registrar definiciones incompletas que no satisfagan estas capacidades mientras el elemento permanezca en estado `INACTIVE`. *(Nota: INV-MENU-005 regula la capacidad estructural y administrativa requerida para transiciones a ACTIVE, sin fusionarse con la capacidad operacional availableCapacity evaluada en runtime en BR-MENU-024).*
+-- <a id="inv-menu-006"></a>**INV-MENU-006 (Invariante de Aislamiento de Persistencia):** La base de datos de Menu no contendrá llaves foráneas (*Foreign Keys*), disparadores (*triggers*) ni transacciones distribuidas vinculadas a tablas o esquemas de Inventory u Orders.
++- **INV-MENU-006 (Invariante de Aislamiento de Persistencia):** La base de datos de Menu no contendrá llaves foráneas (*Foreign Keys*), disparadores (*triggers*) ni transacciones distribuidas vinculadas a tablas o esquemas de Inventory u Orders.
+ 
+ ---
+ 
+ ## 7. Modelo de Dominio
+ 
+-<a id="71-agregados-y-límites-de-consistencia"></a>
+ ### 7.1 Agregados y Límites de Consistencia
+ 
+ El dominio se estructura en torno a tres límites de agregado (*Aggregate Roots*) claramente definidos con restricciones y subtipos explícitos:
+@@ -895,7 +821,6 @@ El dominio se estructura en torno a tres límites de agregado (*Aggregate Roots*
+ 
+ ---
+ 
+-<a id="72-entidades-y-atributos-principales"></a>
+ ### 7.2 Entidades y Atributos Principales
+ 
+ #### MenuItem (Aggregate Root)
+@@ -952,7 +877,6 @@ El dominio se estructura en torno a tres límites de agregado (*Aggregate Roots*
+ 
+ ---
+ 
+-<a id="73-value-objects"></a>
+ ### 7.3 Value Objects
+ 
+ #### ModifierOptionConfig (Value Object)
+@@ -968,7 +892,6 @@ El dominio se estructura en torno a tres límites de agregado (*Aggregate Roots*
+ 
+ ---
+ 
+-<a id="74-proyecciones-de-consulta-read-models"></a>
+ ### 7.4 Proyecciones de Consulta (Read Models)
+ 
+ #### ResolvedVariantModifier (Proyección de Configuración Comercial para POS/KDS)
+@@ -1017,7 +940,6 @@ El dominio se estructura en torno a tres límites de agregado (*Aggregate Roots*
+ 
+ ---
+ 
+-<a id="75-diagramas-estructurales-y-de-comportamiento"></a>
+ ### 7.5 Diagramas Estructurales y de Comportamiento
+ 
+ #### Modelo Estructural de Dominio (Taxonomía y Agregados)
+@@ -1316,7 +1238,6 @@ flowchart TD
+ 
+ ## 8. Arquitectura y Límites del Sistema
+ 
+-<a id="81-diagrama-de-contexto-de-bounded-contexts"></a>
+ ### 8.1 Diagrama de Contexto de Bounded Contexts
+ 
+ El sistema se organiza bajo arquitectura orientada a servicios y principios de *Domain-Driven Design* (DDD):
+@@ -1344,14 +1265,12 @@ flowchart LR
+     Menu -.- NoteOpen007
+ ```
+ 
+-<a id="82-patrones-de-interacción-y-comunicación"></a>
+ ### 8.2 Patrones de Interacción y Comunicación
+ 
+ 1. **CQRS / Proyecciones Especializadas:** Separación nítida entre el modelo transaccional de escritura administrativo y las vistas aplanadas desnormalizadas (`CatalogItemProjection`, `ResolvedVariantModifier`, `VariantAvailability`, `ModifierAvailability`, `ComboConfigurationAvailability`) optimizadas para lecturas masivas en POS sin joins en runtime.
+ 2. **Desacoplamiento Lógico de Integración:** Menu emite notificaciones lógicas de cambio e invalidación sin prescribir mensajería asíncrona ni un transporte concreto, y sin asumir obligaciones de Transactional Outbox ni garantías de entrega física asignadas a su frontera de servicio. Los contratos técnicos formales, destinatarios, canales y mecanismos de transporte permanecen diferidos a la cuestión abierta OPEN-007. Conforme a lo documentado en ADR-003, el patrón Transactional Outbox y las garantías de entrega corresponden exclusivamente a la responsabilidad externa del servicio Orders para la persistencia y transmisión confiable de sus solicitudes de movimiento a Inventory.
+ 3. **Validación Basada en Snapshots:** Orders no recalcula precios ni insumos al momento del cierre de orden; consume y almacena un snapshot inmutable fijado en la confirmación de la línea.
+ 
+-<a id="83-aislamiento-de-persistencia-y-reglas-de-integración"></a>
+ ### 8.3 Aislamiento de Persistencia y Reglas de Integración
+ 
+ - Cada bounded context opera sobre su propio esquema de base de datos aislado.
+@@ -1362,7 +1281,6 @@ flowchart LR
+ 
+ ## 9. Modelo de Datos Lógico
+ 
+-<a id="91-estructura-persistente-relacional"></a>
+ ### 9.1 Estructura Persistente Relacional
+ 
+ El modelo de datos lógico describe las entidades, atributos y relaciones persistentes del servicio Menu de forma neutral e independiente de un motor físico de base de datos específico. Se emplean tipos abstractos de datos (`UUID`/`ID`, `String`, `Decimal`, `Integer`, `Boolean`, `DateTime`), sin presuponer precisiones fijas, longitudes de almacenamiento físico ni valores predeterminados de base de datos, cuyas definiciones permanecen abiertas bajo OPEN-010:
+@@ -1473,7 +1391,6 @@ El esquema relacional de persistencia de Menu almacena exclusivamente la definic
+ 
+ Queda terminantemente prohibido almacenar proyecciones de disponibilidad operacional (`VariantAvailability`, `ModifierAvailability`, `ComboConfigurationAvailability`, `isAvailable`) o valores temporales de existencias físicas (`evaluatedCapacity`, `availableMaxQuantity`, `validUntil`, `evaluationRevision`) como columnas o tablas del modelo persistente. Estas señales operacionales se gestionan exclusivamente en la capa de proyecciones en memoria y caché de lectura (Sección 7.4), garantizando que las fluctuaciones operacionales de stock en Inventory no provoquen escrituras, bloqueos transaccionales ni modificaciones de versión en el repositorio de datos de Menu.
+ 
+-<a id="92-relaciones-internas-y-restricciones"></a>
+ ### 9.2 Relaciones Internas y Restricciones
+ 
+ Las relaciones e invariantes de integridad entre entidades se gobiernan mediante reglas lógicas de dominio y validaciones transaccionales de aplicación, distinguiéndose de los mecanismos físicos de base de datos (cuyos índices, llaves y motores concretos no han sido decididos):
+@@ -1489,13 +1406,11 @@ Las relaciones e invariantes de integridad entre entidades se gobiernan mediante
+ 5. **Aislamiento de decisiones físicas:**  
+    No se afirman garantías físicas a nivel de base de datos relacional (tales como índices físicos específicos, eliminaciones automáticas en cascada o disparadores de motor) que el modelo lógico neutral no implementa. Las restricciones de integridad referencial y de ciclo de vida se ejecutan en el límite transaccional de los agregados de dominio.
+ 
+-<a id="93-referencias-externas-desacopladas"></a>
+ ### 9.3 Referencias Externas Desacopladas
+ 
+ - `inventory_item_id` se maneja exclusivamente como un identificador escalar opaco (`String`), sin llaves foráneas ni dependencias físicas hacia la base de datos de Inventory.
+ - No existen tablas de asociación física ni dependencias de persistencia con el esquema de Orders; cualquier intercambio se realiza mediante contratos lógicos de comunicación.
+ 
+-<a id="94-estrategia-versionado-histórico-e-inmutabilidad"></a>
+ ### 9.4 Estrategia de Versionado Histórico e Inmutabilidad
+ 
+ - Cada modificación comercial aceptada sobre `MenuItem` o `Recipe` incrementa su versión bajo el patrón inmutable `<number>_<ISO8601>`, preservando el registro histórico sin sobrescribir definiciones anteriores.
+@@ -1507,14 +1422,12 @@ Las relaciones e invariantes de integridad entre entidades se gobiernan mediante
+ 
+ Esta sección consolida las interfaces lógicas confirmadas por las fuentes autorizadas sin inventar esquemas ni depender de numeraciones de interfaces externas no respaldadas.
+ 
+-<a id="101-interfaz-de-consulta-pública-de-catálogo"></a>
+ ### 10.1 Interfaz de Consulta Pública de Catálogo
+ 
+ - **Consulta Estructurada de Menú:** Expone las categorías activas y los `MenuItem` comercialmente vigentes con sus unidades vendibles elegibles, precios proyectados (`Desde $X` / `$X`) y el indicador agregado de presentación visual `isAvailable` (afirmativo si y solo si al menos una unidad vendible hija está disponible operacionalmente).
+ - **Detalle Vendible de Item y Modificadores:** Retorna la definición completa de un item, sus variantes activas con su disponibilidad operacional (`VariantAvailability`), sus dimensiones y la proyección plana `ResolvedVariantModifier` (con `enabled` y `maxQuantity` configurado) junto con `ModifierAvailability` (`available`, `availableMaxQuantity`), permitiendo a la UI de venta deshabilitar opciones agotadas o limitar su cantidad seleccionable sin bloquear indebidamente la variante vendible completa cuando se trate de opciones puramente opcionales o con capacidad remanente suficiente en el grupo obligatorio.
+ - **Detalle Estructurado de Combo:** Expone las `ComboConfiguration` elegibles de un combo con su disponibilidad operacional (`ComboConfigurationAvailability`), sus `ComboSlot` con sus límites de selección (`minSelections`, `maxSelections`), su `availableCapacity` operacional y las `ComboOption` con su disponibilidad heredada `available`, su condición de seleccionable y sus `priceDelta`.
+ 
+-<a id="102-interfaz-de-operaciones-administrativas-y-copia-en-lote"></a>
+ ### 10.2 Interfaz de Operaciones Administrativas y Copia en Lote
+ 
+ - **Operaciones Administrativas en Lote:** Permite ejecutar operaciones masivas de catálogo con soporte de simulación (`dryRun = true/false`) y control transaccional:
+@@ -1522,14 +1435,12 @@ Esta sección consolida las interfaces lógicas confirmadas por las fuentes auto
+   - Copia de slots y opciones de combo entre configuraciones del mismo item.
+   - Asignación atómica múltiple de opciones de combo a múltiples configuraciones.
+ 
+-<a id="103-interfaz-de-gestión-y-confirmación-de-revisiones-de-combo"></a>
+ ### 10.3 Interfaz de Gestión y Confirmación de Revisiones de Combo
+ 
+ - **Monitoreo de Revisiones de Combo:** Expone en las interfaces administrativas las `ComboConfiguration` con estado de revisión `REVIEW_REQUIRED` y un estado agregado por `MenuItem` COMBO, manteniéndose completamente separado de `MenuItem.status`, del estado de cada `MenuItemVariant` y de la disponibilidad.
+ - **Referencia Visual del Slot:** Expone para cada `ComboSlot` y sus `baseOptionIds` administrativos la suma `saved` de los precios unitarios fijados de las variantes componentes por cantidad, la suma `current` con los precios actuales y la diferencia firmada `current - saved`, con carácter exclusivamente informativo y sin modificar el precio de venta del combo.
+ - **Confirmación Administrativa de Revisión:** Admite la confirmación de una o varias configuraciones seleccionadas explícitamente mediante el envío de cada `reviewToken` observado junto con su `configurationId` (rechazando comodines implícitos). Confirma y marca como atendidos **únicamente** los `changeId` correspondientes a los tokens observados. Si concurren cambios adicionales posteriores a la observación, dichos cambios se conservan como pendientes y la configuración mantiene el estado `REVIEW_REQUIRED`. La operación devuelve o identifica en su recibo los `changeId` efectivamente atendidos, sin modificar en ningún caso el `unitPrice`, los `ComboSlot`, las `ComboOption` ni el estado administrativo de opciones retiradas, y sin generar una nueva revisión comercial.
+ 
+-<a id="104-interfaz-de-resolución-neta-de-insumos-para-orders"></a>
+ ### 10.4 Interfaz de Resolución Neta de Insumos para Orders
+ 
+ - **Propósito:** Resolver la descomposición neta exacta de insumos y cantidades físicas requeridas para una línea de comanda al momento de su confirmación mediante integración lógica inter-servicio.
+@@ -1538,7 +1449,6 @@ Esta sección consolida las interfaces lógicas confirmadas por las fuentes auto
+   $$\{ \text{inventoryItemId}, \, \text{quantityTotal}, \, \text{unit} \}$$
+   aplicando estrictamente la precedencia de `OMIT` antes de `ADD` y confinado exclusivamente al componente seleccionado.
+ 
+-<a id="105-intercambio-lógico-con-inventory"></a>
+ ### 10.5 Intercambio Lógico con Inventory
+ 
+ - **Publicación de Requerimientos de Insumos (Menu → Inventory):** Menu publica de forma separada y desacoplada:
+@@ -1559,7 +1469,6 @@ Esta sección consolida las interfaces lógicas confirmadas por las fuentes auto
+ 
+ Esta sección documenta exclusivamente los intercambios lógicos respaldados por las fuentes autorizadas (`Decisiones-cierre-invariantes.md` — ADR-001, ADR-003; `Auditoria-3.md`; Refinamiento de Disponibilidad Granular del 2026-09-16). No se introducen códigos de eventos arbitrarios ni nombres técnicos o payloads físicos no normados; los contratos formales de red permanecen delimitados en OPEN-007.
+ 
+-<a id="111-eventos-emitidos-por-menu"></a>
+ ### 11.1 Mensajes y Notificaciones Emitidas por Menu
+ 
+ 1. **Publicación de Requerimientos Base e Incrementales de Insumos:**
+@@ -1574,7 +1483,6 @@ Esta sección documenta exclusivamente los intercambios lógicos respaldados por
+    - **Propósito Lógico:** Notificar a los consumidores de catálogo que el estado comercial ha cambiado y que sus proyecciones locales de consulta requieren refresco contra las interfaces autorizadas de lectura de catálogo.
+    - **Delimitación de Alcance:** Se retiran receptores concretos, campos de payload y cualquier ruta específica hacia POS; los nombres de eventos, destinatarios, esquemas de payload y protocolos de transporte permanecen diferidos bajo la cuestión abierta OPEN-007.
+ 
+-<a id="112-eventos-consumidos-por-menu"></a>
+ ### 11.2 Evaluaciones y Mensajes Consumidos por Menu
+ 
+ 1. **Evaluación Granular de Disponibilidad Operacional:**
+@@ -1589,7 +1497,6 @@ Esta sección documenta exclusivamente los intercambios lógicos respaldados por
+ 
+ Esta sección delimita estrictamente el ownership de datos entre bounded contexts conforme a las decisiones aprobadas:
+ 
+-<a id="121-dependencias-con-inventory"></a>
+ ### 12.1 Dependencias con Inventory
+ 
+ | Dato Requerido | Propietario Exclusivo | Finalidad en Menu | Modo de Referencia o Consumo |
+@@ -1601,7 +1508,6 @@ Esta sección delimita estrictamente el ownership de datos entre bounded context
+ 
+ *Ownership:* Menu **no** posee inventario físico, costos de compra, existencias en almacén, mermas ni bodegas. Inventory es el propietario exclusivo de las existencias y de las evaluaciones operacionales de disponibilidad. La adopción de la estrategia de disponibilidad granular modifica el contrato, el cálculo y las proyecciones de disponibilidad, pero no transfiere el ownership comercial de `MenuItem`, `MenuItemVariant`, `ModifierGroup`, `ModifierOption`, `ComboConfiguration`, `ComboSlot` o `ComboOption` a Inventory, ni convierte la disponibilidad operacional en estado administrativo, elegibilidad estructural o estado de revisión (`reviewStatus`). Estado administrativo, elegibilidad estructural, disponibilidad operacional y `reviewStatus` permanecen estrictamente ortogonales. Menu publica `BaseRequirements` y `ModifierRequirements` de forma separada manteniendo la información `OMIT`/`ADD` para que Inventory evalúe configuraciones efectivas sin convertir los requerimientos base crudos en una precondición independiente.
+ 
+-<a id="122-dependencias-con-orders"></a>
+ ### 12.2 Dependencias con Orders
+ 
+ | Dato Requerido | Propietario Exclusivo | Finalidad en Menu | Modo de Referencia o Consumo |
+@@ -1610,7 +1516,6 @@ Esta sección delimita estrictamente el ownership de datos entre bounded context
+ 
+ *Ownership:* Orders es el propietario exclusivo del ciclo de vida transaccional de órdenes, carritos, líneas de comanda y los snapshots inmutables de precio y versión capturados al momento de la venta. Menu **no** almacena comandas ni requiere como entrada los snapshots custodiados por Orders.
+ 
+-<a id="123-dependencias-con-pos--kds"></a>
+ ### 12.3 Interacción con POS / KDS
+ 
+ Los clientes de punto de venta (POS) y estaciones de cocina (KDS) actúan como consumidores de las interfaces de consulta y notificaciones de catálogo. Menu no requiere entradas de estado ni identificación de dispositivos o estaciones por parte de los clientes terminales.
+@@ -1623,25 +1528,21 @@ Los clientes de punto de venta (POS) y estaciones de cocina (KDS) actúan como c
+ 
+ Conforme a las reglas de consolidación normativas, los aspectos no resueltos por las fuentes autorizadas permanecen formalmente registrados como **cuestiones abiertas**. Queda estrictamente prohibido introducir decisiones arbitrarias o supuestos no fundamentados.
+ 
+-<a id="131-open-002-emparejamiento-de-slots-y-conflictos-en-copia-masiva"></a>
+ ### 13.1 OPEN-002: Emparejamiento de Slots y Conflictos en Copia Masiva
+ - **Problema:** En operaciones de copia masiva entre configuraciones de combo con distinta cardinalidad o semántica de slots, no está definido el algoritmo de emparejamiento automático (*slot matching*) ni el comportamiento detallado ante fallos parciales en lotes grandes cuando no aplica una política simple de `FAIL` o `REPLACE`.
+ - **Impacto:** Posible ambigüedad operativa o inconsistencias estructurales si el administrador copia slots entre combos asimétricos.
+ - **Información Faltante:** Reglas comerciales sobre emparejamiento por nombre exacto vs orden posicional de slots, y estrategia de reversión fina en lotes heterogéneos.
+ 
+-<a id="132-open-007-especificación-técnica-formal-de-contratos-externos-y-transporte"></a>
+ ### 13.2 OPEN-007: Especificación Técnica Formal de Contratos Externos, Invalidación y Transporte
+ - **Problema:** Los contratos lógicos de integración entre Menu, Inventory y Orders están delimitados a nivel funcional (desacoplamiento de disponibilidad, snapshots de línea de comanda y resolución neta; delimitando expresamente que el patrón Transactional Outbox aplica en Orders conforme a ADR-003 y no constituye una decisión vigente ni un patrón obligatorio para Menu), pero los contratos técnicos formales —incluyendo destinatarios concretos, nombres de eventos, esquemas de payload normalizados, transporte (gRPC vs REST/JSON vs broker Pub/Sub) y la especificación técnica concreta de las notificaciones de invalidación de catálogo y su ruta hacia los clientes— no fueron definidos en las fuentes autorizadas.
+ - **Impacto:** Bloqueo en la interoperabilidad de red a bajo nivel y en la definición formal de esquemas, destinatarios y canales entre microservicios.
+ - **Información Faltante:** Destinatarios concretos, especificación formal de invalidación de catálogo, selección de protocolo de transporte, esquemas formales de payload (Protobuf / JSON Schema), nombres definitivos de eventos o tópicos y catálogo estandarizado de códigos de error de integración.
+ 
+-<a id="133-open-009-precios-de-componentes-fraccionados-y-modificadores-repetidos-en-combos"></a>
+ ### 13.3 OPEN-009: Precios de Componentes Fraccionados y Modificadores Repetidos en Combos
+ - **Problema:** Las fuentes no definen la regla de tarificación comercial cuando un combo suministra porciones fraccionadas de un producto hoja (ej. media pizza dentro de un combo individual) ni la política de cálculo cuando un mismo modificador con costo adicional se selecciona repetidamente en múltiples componentes del mismo combo.
+ - **Impacto:** Incertidumbre en la lógica de cálculo de precios para casos comerciales avanzados de combos y bundles complejos.
+ - **Información Faltante:** Definición comercial de coeficientes de precio por porción y reglas de agregación o bonificación de modificadores repetidos dentro de paquetes.
+ 
+-<a id="134-open-010-rangos-numéricos-exhaustivos-y-restricciones-de-dominio"></a>
+ ### 13.4 OPEN-010: Rangos Numéricos Exhaustivos y Restricciones de Dominio
+ - **Problema:** Aunque se fijaron los límites de no negatividad ($\ge 0$) y orden relativo de enteros ($0 \le \text{min} \le \text{max}$), no se han determinado los límites máximos permitidos para: precios monetarios absolutos, deltas de modificadores, longitud física de almacenamiento de cadenas de texto (nombres y descripciones), ni el tipo de dato decimal exacto en persistencia física (`DECIMAL(12,2)` vs `DECIMAL(18,4)`).
+ - **Impacto:** Falta de restricciones de validación a nivel de capa de presentación y selección de tipos físicos estrictos en motores de persistencia.
+@@ -1651,7 +1552,6 @@ Conforme a las reglas de consolidación normativas, los aspectos no resueltos po
+ 
+ ## 14. Matriz de Trazabilidad
+ 
+-<a id="141-trazabilidad-de-requisitos-funcionales-46-requisitos-por-apartados"></a>
+ ### 14.1 Trazabilidad de Requisitos Funcionales (46 Requisitos por Apartados)
+ 
+ La siguiente matriz documenta la consideración y el estado normativo exacto de los 46 requisitos del servicio Menu:
+@@ -1707,7 +1607,6 @@ La siguiente matriz documenta la consideración y el estado normativo exacto de
+ 
+ ---
+ 
+-<a id="142-trazabilidad-de-reglas-de-negocio-e-invariantes"></a>
+ ### 14.2 Trazabilidad de Reglas de Negocio e Invariantes
+ 
+ | Identificador | Concepto Normativo | Fuente Autorizada | Relación y Justificación |
+@@ -1735,7 +1634,6 @@ La siguiente matriz documenta la consideración y el estado normativo exacto de
+ 
+ ---
+ 
+-<a id="143-trazabilidad-de-requisitos-no-funcionales-y-adrs"></a>
+ ### 14.3 Trazabilidad de Requisitos No Funcionales y ADRs
+ 
+ | Decisión Arquitectónica | Título de la Decisión | Fuente Autorizada | Estado en la Especificación Final |

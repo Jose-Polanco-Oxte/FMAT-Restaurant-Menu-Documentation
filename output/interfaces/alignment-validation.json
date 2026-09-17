@@ -1,6 +1,0 @@
-{
-  "result": "PASS",
-  "checks": 280,
-  "scope": "Schemas, negative examples, arithmetic fixtures, endpoint inventory and bilingual structural parity only. No service/state-machine/integration/UI/performance tests.",
-  "errors": []
-}

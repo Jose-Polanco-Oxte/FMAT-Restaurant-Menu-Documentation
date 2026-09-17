@@ -1,0 +1,397 @@
+diff --git a/docs/md/spec.md b/docs/md/spec.md
+index 55fd301..6f3003c 100644
+--- a/docs/md/spec.md
++++ b/docs/md/spec.md
+@@ -2,7 +2,7 @@
+ 
+ **Documento:** Especificación Técnica, Funcional y de Arquitectura de Dominio Consolidada  
+ **Servicio:** Menu (Sistema de Comandas para Restaurantes)  
+-**Versión:** 1.1.5 (Consolidada Vigente)
++**Versión:** 1.1.6 (Consolidada Vigente)
+ **Estado:** Vigente / Aprobado  
+ **Fecha:** 2026-09-16  
+ 
+@@ -88,7 +88,7 @@
+ <a id="21-identificación-y-propósito"></a>
+ ### 2.1 Identificación y Propósito
+ 
+-El presente documento constituye la especificación técnica, funcional, estructural y de arquitectura consolidada y vigente para el servicio **Menu**, componente central del sistema de comandas y gestión de restaurantes. Su objetivo es constituirse como la **única fuente autorizada de verdad**, autosuficiente y verificable, reemplazando ambigüedades, documentos transitorios y discusiones previas. La versión 1.1.1 incorporó formalmente el refinamiento de disponibilidad operacional granular adoptado el 2026-09-16 y aclaró la composición efectiva OMIT/ADD y la señal lógica de capacidad de Inventory. La versión 1.1.2 complementa y formaliza de manera implementable las aclaraciones normativas sobre la derivación entera y dimensional de evaluatedCapacity, el cálculo de capacidad en grupos obligatorios ante valores enteros y nulos, la reevaluación obligatoria de VariantAvailability ante cualquier reducción de capacidad con no propagación circunscrita a casos opcionales o con capacidad remanente, y la definición de opciones seleccionables y availableCapacity en ComboSlot. La versión 1.1.3 corrige y formaliza la derivación de capacidad evaluada (`evaluatedCapacity`) y límites de modificadores (`availableMaxQuantity`) basándola estrictamente en el inventario remanente tras descontar los requerimientos base netos efectivos tras OMIT ($\text{StockRemanente}(k) = \max(0, \text{StockDisponible}(k) - \text{BaseNetoTrasOMIT}(k))$), sustituyendo el cálculo sobre stock bruto para impedir que una opción o variante se declare disponible utilizando inventario ya consumido por los requerimientos base efectivos, y clarifica que la satisfacibilidad en `VariantAvailability` evalúa la demanda neta integral (base tras OMIT más ADD). La versión 1.1.4 corrige el caso de verificación de la directiva OMIT en REQ-MENU-044 —eliminando toda interpretación de reducción parcial sobre la base para establecer $\text{BaseNetoTrasOMIT} = 0$ y su consecuente recálculo de capacidad remanente— y corrige el ancla HTML y enlace de índice de trazabilidad de la sección 14.1. La versión 1.1.5 formaliza la revisión transversal de consistencia del modelo vigente: ratifica la ortogonalidad estricta entre estado administrativo (`status`), elegibilidad estructural, disponibilidad operacional (proyecciones desacopladas) y estado de revisión (`reviewStatus`), clarificando que ninguna proyección operacional constituye un estado administrativo persistente; explicita la prohibición de formulaciones heredadas basadas en peor caso, requerimientos base crudos aislados o cálculo sobre stock bruto; ratifica la derivación de `VariantAvailability`, `ModifierAvailability` y `ComboConfigurationAvailability` sobre capacidad residual y opciones seleccionables; y explicita las inconsistencias semánticas identificadas en los diagramas para su resolución diferida sin alterar el estilo ni renumerar requisitos.
++El presente documento constituye la especificación técnica, funcional, estructural y de arquitectura consolidada y vigente para el servicio **Menu**, componente central del sistema de comandas y gestión de restaurantes. Su objetivo es constituirse como la **única fuente autorizada de verdad**, autosuficiente y verificable, reemplazando ambigüedades, documentos transitorios y discusiones previas. La versión 1.1.1 incorporó formalmente el refinamiento de disponibilidad operacional granular adoptado el 2026-09-16 y aclaró la composición efectiva OMIT/ADD y la señal lógica de capacidad de Inventory. La versión 1.1.2 complementa y formaliza de manera implementable las aclaraciones normativas sobre la derivación entera y dimensional de evaluatedCapacity, el cálculo de capacidad en grupos obligatorios ante valores enteros y nulos, la reevaluación obligatoria de VariantAvailability ante cualquier reducción de capacidad con no propagación circunscrita a casos opcionales o con capacidad remanente, y la definición de opciones seleccionables y availableCapacity en ComboSlot. La versión 1.1.3 corrige y formaliza la derivación de capacidad evaluada (`evaluatedCapacity`) y límites de modificadores (`availableMaxQuantity`) basándola estrictamente en el inventario remanente tras descontar los requerimientos base netos efectivos tras OMIT ($\text{StockRemanente}(k) = \max(0, \text{StockDisponible}(k) - \text{BaseNetoTrasOMIT}(k))$), sustituyendo el cálculo sobre stock bruto para impedir que una opción o variante se declare disponible utilizando inventario ya consumido por los requerimientos base efectivos, y clarifica que la satisfacibilidad en `VariantAvailability` evalúa la demanda neta integral (base tras OMIT más ADD). La versión 1.1.4 corrige el caso de verificación de la directiva OMIT en REQ-MENU-044 —eliminando toda interpretación de reducción parcial sobre la base para establecer $\text{BaseNetoTrasOMIT} = 0$ y su consecuente recálculo de capacidad remanente— y corrige el ancla HTML y enlace de índice de trazabilidad de la sección 14.1. La versión 1.1.5 formaliza la revisión transversal de consistencia del modelo vigente: ratifica la ortogonalidad estricta entre estado administrativo (`status`), elegibilidad estructural, disponibilidad operacional (proyecciones desacopladas) y estado de revisión (`reviewStatus`), clarificando que ninguna proyección operacional constituye un estado administrativo persistente; explicita la prohibición de formulaciones heredadas basadas en peor caso, requerimientos base crudos aislados o cálculo sobre stock bruto; ratifica la derivación de `VariantAvailability`, `ModifierAvailability` y `ComboConfigurationAvailability` sobre capacidad residual y opciones seleccionables; y explicita las inconsistencias semánticas identificadas en los diagramas para su resolución diferida sin alterar el estilo ni renumerar requisitos. La versión 1.1.6 formaliza la corrección y alineación exhaustiva de los diagramas visuales con el modelo de dominio y las invariantes vigentes: representa a `MenuItem` como raíz de agregado con discriminador (`PREPARED`, `STOCKED`, `COMBO`), circunscribe variantes, dimensiones y modificadores exclusivamente a items hoja y separa las entidades persistentes de los read models desacoplados; incorpora en el diagrama de estados las cuatro dimensiones ortogonales distinguiendo los ciclos de vida de item y variante, rotulando la activación mediante capacidad estructural (INV-MENU-005) y modelando el ciclo de supervisión de `reviewStatus`; reformula el flujo de propagación de disponibilidad para ilustrar la publicación desacoplada de requerimientos, la evaluación de inventario con capacidad residual y la propagación no obstructiva hacia variantes, combos y slots; y delimita el diagrama de contexto estrictamente a la frontera de integración directa de Menu anotando la invalidación bajo OPEN-007, retirando notas de discrepancias diferidas sin alterar requisitos ni la numeración normativa.
+ 
+ Cualquier ingeniero, arquitecto o auditor debe ser capaz de entender e implementar el comportamiento normativo del servicio Menu a partir exclusivamente de este texto, sin requerir reconstrucción arqueológica de versiones descartadas.
+ 
+@@ -1024,31 +1024,35 @@ El dominio se estructura en torno a tres límites de agregado (*Aggregate Roots*
+ 
+ ```mermaid
+ classDiagram
+-    class MenuEntry {
+-        <<Abstract>>
++    class MenuItem {
++        <<Aggregate Root>>
+         +UUID id
++        +UUID menuId
+         +String name
+         +String description
++        +String imageRef
++        +MenuItemType type
+         +Status status
++        +UUID itemCategoryId
++        +UUID comboCategoryId
++        +CommercialClassification commercialClassification
+         +String version
+     }
+ 
+-    class MenuItem {
+-        <<Abstract>>
+-        +MenuItemType type
+-    }
+-
+-    class LeafMenuItem {
+-        +CommercialClassification classification
+-        +UUID itemCategoryId
++    class LeafMenuItemConcept {
++        <<Conceptual Taxonomy>>
++        PREPARED o STOCKED
+     }
+ 
+-    class ComboMenuItem {
+-        +UUID comboCategoryId
++    class ComboMenuItemConcept {
++        <<Conceptual Taxonomy>>
++        COMBO
+     }
+ 
+     class MenuItemVariant {
++        <<Entity>>
+         +UUID id
++        +UUID menuItemId
+         +Decimal unitPrice
+         +VariantStatus status
+         +String recipeRevisionId
+@@ -1057,45 +1061,59 @@ classDiagram
+     }
+ 
+     class VariantDimension {
++        <<Entity>>
+         +UUID id
++        +UUID menuItemId
+         +String name
+     }
+ 
+     class VariantValue {
++        <<Entity>>
+         +UUID id
++        +UUID dimensionId
+         +String name
+     }
+ 
+     class ModifierGroup {
++        <<Entity>>
+         +UUID id
++        +UUID menuItemId
+         +String name
+         +int minSelections
+         +int maxSelections
+     }
+ 
+     class ModifierOption {
++        <<Entity>>
+         +UUID id
++        +UUID modifierGroupId
+         +String name
+         +ModifierOptionConfig generalConfig
+     }
+ 
+     class VariantModifierConfig {
++        <<Entity>>
+         +UUID id
+         +UUID variantId
++        +UUID modifierOptionId
+         +boolean enabled
+         +Decimal priceDelta
+         +int maxQuantity
+     }
+ 
+     class ComboConfiguration {
++        <<Entity>>
+         +UUID id
++        +UUID menuItemId
+         +String name
+         +Decimal unitPrice
+         +ReviewStatus reviewStatus
+     }
+ 
+     class ComboSlot {
++        <<Entity>>
+         +UUID id
++        +UUID comboConfigurationId
+         +String name
+         +int minSelections
+         +int maxSelections
+@@ -1103,7 +1121,9 @@ classDiagram
+     }
+ 
+     class ComboOption {
++        <<Entity>>
+         +UUID id
++        +UUID comboSlotId
+         +UUID itemVariantId
+         +int quantity
+         +Decimal priceDelta
+@@ -1112,18 +1132,36 @@ classDiagram
+     }
+ 
+     class Recipe {
++        <<Aggregate Root>>
+         +UUID id
+         +String name
+         +String version
+     }
+ 
+     class RecipeComponent {
++        <<Entity>>
++        +UUID id
++        +UUID recipeId
+         +String inventoryItemId
+         +Decimal quantity
+         +String unit
+     }
+ 
++    class InventoryItemRef {
++        <<External Reference>>
++        +String inventoryItemId
++    }
++
++    class CatalogItemProjection {
++        <<Read Model>>
++        +UUID menuItemId
++        +String name
++        +String displayPrice
++        +boolean isAvailable
++    }
++
+     class VariantAvailability {
++        <<Read Model>>
+         +UUID variantId
+         +boolean available
+         +String revision
+@@ -1132,6 +1170,7 @@ classDiagram
+     }
+ 
+     class ModifierAvailability {
++        <<Read Model>>
+         +UUID variantId
+         +UUID modifierOptionId
+         +boolean available
+@@ -1142,6 +1181,7 @@ classDiagram
+     }
+ 
+     class ComboConfigurationAvailability {
++        <<Read Model>>
+         +UUID configurationId
+         +boolean available
+         +String revision
+@@ -1149,64 +1189,77 @@ classDiagram
+         +DateTime validUntil
+     }
+ 
+-    MenuEntry <|-- MenuItem
+-    MenuItem <|-- LeafMenuItem : PREPARED / STOCKED
+-    MenuItem <|-- ComboMenuItem : COMBO
++    MenuItem <|-- LeafMenuItemConcept : conceptual (PREPARED / STOCKED)
++    MenuItem <|-- ComboMenuItemConcept : conceptual (COMBO)
+ 
+-    LeafMenuItem "1" *-- "1..*" MenuItemVariant : contiene (solo hoja)
+-    LeafMenuItem "1" *-- "0..*" VariantDimension : define
++    LeafMenuItemConcept "1" *-- "1..*" MenuItemVariant : contiene (solo hoja)
++    LeafMenuItemConcept "1" *-- "0..*" VariantDimension : define (solo hoja)
+     VariantDimension "1" *-- "1..*" VariantValue : contiene
+-    MenuItemVariant "1" o-- "0..*" VariantValue : selecciona
++    MenuItemVariant "1" o-- "0..*" VariantValue : selecciona (max 1 por dimension)
+ 
+-    LeafMenuItem "1" *-- "0..*" ModifierGroup : posee (hoja)
++    LeafMenuItemConcept "1" *-- "0..*" ModifierGroup : posee (solo hoja)
+     ModifierGroup "1" *-- "1..*" ModifierOption : agrupa
+-    MenuItemVariant "1" ..> "0..*" VariantModifierConfig : especializa
+-    ModifierOption "1" ..> "0..*" VariantModifierConfig : configurada en
++    MenuItemVariant "1" *-- "0..*" VariantModifierConfig : especializa (1 por variantId)
++    ModifierOption "1" *-- "0..*" VariantModifierConfig : aplica (1 por modifierOptionId)
+ 
+-    ComboMenuItem "1" *-- "0..*" ComboConfiguration : define (0..* si MenuItem INACTIVE, 1..* si ACTIVE)
++    ComboMenuItemConcept "1" *-- "0..*" ComboConfiguration : define (0..* INACTIVE, 1..* ACTIVE)
+     ComboConfiguration "1" *-- "1..*" ComboSlot : estructura
+-    ComboSlot "1" *-- "0..*" ComboOption : contiene (0..* sin minimo forzado)
+-    ComboOption --> MenuItemVariant : referencia directa
++    ComboSlot "1" *-- "0..*" ComboOption : admite (0..* opciones)
++    ComboOption "0..*" --> "1" MenuItemVariant : referencia directa hoja
+ 
+-    MenuItemVariant ..> Recipe : referencia revision
++    MenuItemVariant ..> Recipe : vincula revision (solo PREPARED)
+     Recipe "1" *-- "1..*" RecipeComponent : compone
++    MenuItemVariant ..> InventoryItemRef : referencia externa (solo STOCKED)
++    RecipeComponent ..> InventoryItemRef : referencia externa (insumo)
+ 
+-    MenuItemVariant ..> VariantAvailability : evaluacion operacional
+-    ModifierOption ..> ModifierAvailability : evaluacion operacional
++    MenuItemVariant ..> VariantAvailability : evaluacion operacional (demanda neta OMIT/ADD)
++    MenuItemVariant ..> ModifierAvailability : contexto conjunto (variantId)
++    ModifierOption ..> ModifierAvailability : contexto conjunto (modifierOptionId)
++    ComboOption ..> VariantAvailability : deriva available en runtime (señal efímera)
+     ComboConfiguration ..> ComboConfigurationAvailability : evaluacion operacional
+-```
+ 
+-> [!NOTE]
+-> **Identificación de Inconsistencias Semánticas en Diagramas (Sección 7.5) para Corrección en Run Posterior:**
+-> Sin redibujar los diagramas por estilo en el presente run, se identifican las siguientes contradicciones semánticas respecto al modelo vigente para su corrección en la fase gráfica dedicada:
+-> 1. **Fusión indebida entre capacidad estructural y disponibilidad operacional en `stateDiagram-v2`:** La transición `INACTIVE --> ACTIVE` figura rotulada como "Validación de Capacidad Completa", confundiendo la completitud y capacidad estructural de catálogo (INV-MENU-005: contar con opciones habilitadas de items activos suficientes para cubrir `minSelections`) con la capacidad y disponibilidad física de Inventory. Debe rotularse como capacidad estructural conforme a INV-MENU-005.
+-> 2. **Omisión de la dimensión ortogonal de revisión en `stateDiagram-v2`:** El diagrama de estados omite el ciclo de vida de `reviewStatus` (`UP_TO_DATE` / `REVIEW_REQUIRED`), el cual constituye un estado paralelo ortogonal que no altera el estado administrativo (`AdminState`) ni la disponibilidad operacional (`AvailabilityState`).
+-> 3. **Contexto de `ModifierAvailability` y derivación de `ComboOption` en `classDiagram`:** En el diagrama de clases, `ModifierAvailability` se vincula de forma directa a `ModifierOption`, cuando la disponibilidad operacional y `availableMaxQuantity` residen en el contexto de una variante hoja específica `(variantId, modifierOptionId)` evaluado sobre la capacidad residual tras satisfacer la base neta tras `OMIT`. Asimismo, `ComboOption` porta `available` como señal operacional derivada en runtime de `VariantAvailability.available` y no como atributo persistente.
+-> 4. **Aislamiento de modificadores opcionales en el modelo de propagación:** En el diagrama de flujo de disponibilidad, debe clarificarse que la reducción en `ModifierAvailability` obliga a reevaluar `VariantAvailability`, pero una opción puramente opcional agotada no propaga indisponibilidad a la variante si esta conserva al menos una configuración completa satisfacible.
++    MenuItem ..> CatalogItemProjection : proyecta catalogo
++    VariantAvailability ..> CatalogItemProjection : compone
++    ComboConfigurationAvailability ..> CatalogItemProjection : compone
++```
+ 
+ #### Ciclo de Vida y Ortogonalidad de Estados
+ 
+ ```mermaid
+ stateDiagram-v2
+-    state "Estado Administrativo" as AdminState {
+-        [*] --> INACTIVE : Creación (permite incompletos)
+-        INACTIVE --> ACTIVE : Validación de Capacidad Completa
+-        ACTIVE --> INACTIVE : Retiro temporal voluntario
+-        ACTIVE --> ARCHIVED : Archivar variante (Permanente)
+-        INACTIVE --> ARCHIVED : Archivar variante (Permanente)
+-        ARCHIVED --> [*]
++    state "1. Estado Administrativo (Catálogo Menu)" as AdminDimension {
++        state "MenuItem" as MenuItemAdmin {
++            [*] --> ItemInactive : Creación (permite incompletos)
++            ItemInactive --> ItemActive : Activación con capacidad estructural (INV-MENU-005)
++            ItemActive --> ItemInactive : Retiro temporal voluntario
++        }
++        state "MenuItemVariant" as VariantAdmin {
++            [*] --> VariantInactive : Creación (permite incompletos)
++            VariantInactive --> VariantActive : Activación con capacidad estructural (INV-MENU-005)
++            VariantActive --> VariantInactive : Desactivación temporal
++            VariantActive --> VariantArchived : Archivado irreversible (REQ-MENU-026)
++            VariantInactive --> VariantArchived : Archivado irreversible (REQ-MENU-026)
++            VariantArchived --> [*]
++        }
+     }
+ 
+-    state "Elegibilidad Estructural" as EligibilityState {
++    state "2. Elegibilidad Estructural (Reglas de Negocio / Invariantes)" as EligibilityDimension {
+         [*] --> NoElegible
+-        NoElegible --> Elegible : Cumple reglas y capacidad min
+-        Elegible --> NoElegible : Componente archivado o slot incumplido
++        NoElegible --> Elegible : Cumple reglas y minSelections en slots obligatorios
++        Elegible --> NoElegible : Componente archivado o slot obligatorio incumplido
+     }
+ 
+-    state "Disponibilidad Operacional Granular (Inventory)" as AvailabilityState {
+-        [*] --> UNAVAILABLE : Sin evaluacion positiva vigente
+-        UNAVAILABLE --> AVAILABLE : Evaluacion positiva vigente (validUntil)
+-        AVAILABLE --> UNAVAILABLE : Stock agotado o validUntil expirado
++    state "3. Disponibilidad Operacional (Inventory / Runtime)" as AvailabilityDimension {
++        [*] --> UNAVAILABLE : Sin evaluación positiva vigente satisfacible
++        UNAVAILABLE --> AVAILABLE : Evaluación positiva satisfacible (validUntil y demanda neta)
++        AVAILABLE --> UNAVAILABLE : Capacidad residual agotada o validUntil expirado
++    }
++
++    state "4. Estado de Revisión (reviewStatus de Combo / ComboConfiguration)" as ReviewDimension {
++        [*] --> UP_TO_DATE : Creación inicial sin dependencias pendientes
++        UP_TO_DATE --> REVIEW_REQUIRED : Cambio no atendido en componente (PRICE, COMPOSITION, MODIFIERS, STATUS)
++        REVIEW_REQUIRED --> UP_TO_DATE : Confirmación observada (reviewToken) sin cambios pendientes
++        REVIEW_REQUIRED --> REVIEW_REQUIRED : Confirmación parcial (persisten cambios concurrentes)
+     }
+ ```
+ 
+@@ -1214,13 +1267,43 @@ stateDiagram-v2
+ 
+ ```mermaid
+ flowchart TD
+-    Inv["Evaluaciones de Inventory\n(BaseRequirements / ModifierRequirements con validUntil y evaluatedCapacity)"] --> VA["Disponibilidad de MenuItemVariant\n(VariantAvailability: configuracion efectiva satisfacible OMIT/ADD)"]
+-    Inv --> MA["Disponibilidad de ModifierOption\n(ModifierAvailability: available / availableMaxQuantity derivado)"]
+-    VA --> COA["Disponibilidad de ComboOption\n(ComboOption.available heredada)"]
+-    COA --> CSA["Capacidad Disponible de ComboSlot\n(availableCapacity: conteo de opciones seleccionables >= minSelections)"]
+-    CSA --> CCA["Disponibilidad de ComboConfiguration\n(ComboConfigurationAvailability: todos los slots obligatorios cubiertos)"]
+-    VA --> MIA["Disponibilidad Agregada de MenuItem Hoja\n(Existe al menos 1 variante disponible)"]
+-    CCA --> MIC["Disponibilidad Agregada de MenuItem COMBO\n(Existe al menos 1 configuracion disponible)"]
++    subgraph MenuPubLayer["Publicación de Requerimientos desde Menu"]
++        MenuPub["Menu publica requerimientos desacoplados con directivas OMIT y ADD:<br/>- BaseRequirements -ingredientes de receta o SKU de stock-<br/>- ModifierRequirements -ResolvedVariantModifier por variante y opcion-"]
++    end
++
++    subgraph InvLayer["Evaluación Lógica en Inventory"]
++        InvEval["Inventory evalúa existencias físicas y emite evaluaciones:<br/>revisión, evaluationRevision, validUntil y evaluatedCapacity residual"]
++    end
++
++    subgraph MenuDerivLayer["Derivación Granular en Menu -Proyecciones Read Model Desacopladas-"]
++        MA["ModifierAvailability -variantId, modifierOptionId-<br/>- available booleano<br/>- availableMaxQuantity = min -configurado, evaluatedCapacity-"]
++        VA["VariantAvailability -MenuItemVariant-<br/>- Demanda neta satisfacible: Base tras OMIT + directivas ADD<br/>- Requiere cobertura de minSelections en grupos obligatorios"]
++
++        EvalRule["Regla de Reevaluación y No Propagación Indebida:<br/>Toda reducción de ModifierAvailability obliga a reevaluar VariantAvailability;<br/>solo produce indisponibilidad si grupo obligatorio no cubre minSelections o no queda configuración satisfacible<br/>-modificador opcional agotado no propaga indisponibilidad a la variante-"]
++
++        COA["ComboOption.available<br/>Señal operacional heredada directamente de VariantAvailability"]
++        SelPred["Predicado de Opción Seleccionable<br/>enabled = true + variante elegible + available = true"]
++        CSA["ComboSlot.availableCapacity<br/>Conteo de opciones seleccionables >= minSelections<br/>cada opción aporta como máximo 1 selección independientemente de quantity"]
++        CCA["ComboConfigurationAvailability<br/>Todos los slots obligatorios cubiertos: availableCapacity >= minSelections"]
++
++        MIA["Disponibilidad Agregada de MenuItem Hoja<br/>isAvailable: existe al menos 1 variante elegible disponible"]
++        MIC["Disponibilidad Agregada de MenuItem COMBO<br/>isAvailable: existe al menos 1 configuración elegible disponible"]
++    end
++
++    MenuPub --> InvEval
++    InvEval -->|Evaluación de capacidad residual| MA
++    InvEval -->|Evaluación de demanda neta integral| VA
++
++    MA --> EvalRule
++    EvalRule --> VA
++
++    VA --> COA
++    COA --> SelPred
++    SelPred --> CSA
++    CSA --> CCA
++
++    VA --> MIA
++    CCA --> MIC
+ ```
+ 
+ ---
+@@ -1240,27 +1323,20 @@ flowchart LR
+     end
+ 
+     subgraph CoreServices["Servicios de Dominio"]
+-        Menu["Servicio MENU\n(Catálogo, Recetas, Precios)"]
+-        Orders["Servicio ORDERS\n(Comandas, Snapshots)"]
+-        Inventory["Servicio INVENTORY\n(Stock Físico, Movimientos)"]
++        Menu["Servicio MENU<br/>-Catálogo, Recetas, Precios-"]
++        Orders["Servicio ORDERS<br/>-Comandas, Snapshots-"]
++        Inventory["Servicio INVENTORY<br/>-Stock Físico, Movimientos-"]
++        NoteOpen007["Anotación OPEN-007:<br/>Notificación lógica de invalidación comercial emitida ante cambios de catálogo;<br/>destinatarios, canales y transporte permanecen diferidos"]
+     end
+ 
+     POS -->|Consulta Catálogo Proyectado| Menu
+-    POS -->|Crea / Edita Comanda| Orders
+-    Orders -->|Solicita Resolución de Insumos| Menu
+-    Orders -->|Solicita Descuento Atómico de Insumos| Inventory
+-    Orders -->|Envía Comanda Confirmada| KDS
+-
+-    Menu -->|Publicación de Requerimientos Base e Incrementales\n(separados con directivas OMIT/ADD)| Inventory
+-    Inventory -->|Evaluación Lógica de Disponibilidad Granular\n(revisión, evaluationRevision, validUntil, evaluatedCapacity)| Menu
+-    Menu -.->|Notificación Lógica de Invalidación de Catálogo\n(destinatarios y transporte abiertos bajo OPEN-007)| ClientLayer
+-```
++    KDS -->|Consulta Catálogo Proyectado| Menu
++    Orders -->|Solicita Resolución Neta de Insumos| Menu
+ 
+-> [!NOTE]
+-> **Identificación de Inconsistencias Semánticas en Diagrama de Contexto (Sección 8.1) para Corrección en Run Posterior:**
+-> Sin alterar el diagrama por estilo en este run, se identifican las siguientes contradicciones semánticas para su corrección gráfica en la fase posterior:
+-> 1. **Flujos fuera de la frontera del bounded context Menu:** El diagrama incluye interacciones directas entre servicios externos (`Orders --> Inventory` para descuento de insumos y `Orders --> KDS` para envío de comandas confirmadas) que no corresponden al ownership ni a las responsabilidades del servicio Menu.
+-> 2. **Destino de notificaciones de invalidación de catálogo:** La flecha de notificación apunta genéricamente hacia `ClientLayer`, mientras que el texto normativo y la cuestión abierta OPEN-007 establecen que los destinatarios concretos, canales y protocolos de transporte de las invalidaciones de catálogo comercial permanecen formalmente diferidos en v1.
++    Menu -->|Publicación de requerimientos desacoplados con directivas OMIT y ADD| Inventory
++    Inventory -->|Evaluación lógica de disponibilidad granular: validUntil y evaluatedCapacity| Menu
++    Menu -.- NoteOpen007
++```
+ 
+ <a id="82-patrones-de-interacción-y-comunicación"></a>
+ ### 8.2 Patrones de Interacción y Comunicación

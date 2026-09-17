@@ -1,6 +1,8 @@
-# Documentation Integration Workflow
+# Agents
 
-## Scope Authority
+## Documentation Integration Workflow
+
+### Scope Authority
 
 The user's request is the authority for what the run is allowed to accomplish.
 
@@ -8,11 +10,11 @@ Repository context may be read to understand the request. Reading a file does no
 
 Do not convert discovered repository problems into work unless fixing that exact problem is directly required for the requested outcome.
 
-## Configuration
+### Configuration
 
 Don't forget to update the version and specification (if applicable) in any configuration file or within a document that includes a configuration section. Do this only if that file has been modified (or, in the case of a specific document, if the file or files referenced by that configuration have been modified).
 
-## Workflow
+### Workflow
 
 The workflow is:
 
@@ -22,7 +24,7 @@ The workflow is:
 
 All agent work occurs in an isolated Git worktree. The main repository is never an agent workspace.
 
-## Analyst
+### Analyst
 
 The Analyst is read-only.
 
@@ -39,7 +41,7 @@ It must not expand the task into:
 
 A secondary file belongs in `affected_files` only when changing that exact file is directly necessary to satisfy the original request.
 
-## Surgical Editor
+### Surgical Editor
 
 The Editor is invoked once per writable target.
 
@@ -55,7 +57,7 @@ If another write seems necessary, it must stop and return:
 
 The harness validates the actual Git delta after every attempt. Unauthorized writes are rolled back automatically and the same target is retried with corrective feedback.
 
-## Auditor
+### Auditor
 
 The Auditor checks the requested outcome and scope discipline.
 
@@ -68,7 +70,7 @@ It should fail:
 - contradictions introduced by the candidate;
 - unnecessary candidate changes outside request scope.
 
-## Protected Workflow Files
+### Protected Workflow Files
 
 Documentation runs never modify:
 
@@ -78,12 +80,16 @@ Documentation runs never modify:
 - `.ai/**`
 - `scripts/**`
 
-## Git Safety
+### Git Safety
 
 Agents never stage, commit, reset, restore, clean, or manipulate Git history.
 
 The harness owns checkpoints, rollback, deletion, reports, and final application.
 
-## Automatic Editor Recovery
+### Automatic Editor Recovery
 
 A successful process exit is not enough. CREATE/MODIFY must produce a real delta on the one allowed target, the target must remain a file, Git HEAD must remain under harness control, and protected workflow files must remain unchanged. Failed attempts are rolled back and retried automatically.
+
+## UI Specification Architecture
+
+The UI Specification Architecture is a set of principles and practices for producing a UI specification. Follow the principles and practices described in [ui-spec-arch.md](docs/ui-spec-arch.md) to produce a UI specification that is consistent, complete, and maintainable.

@@ -1,0 +1,69 @@
+{
+  "change_id": "spec-coherencia-disponibilidad-granular",
+  "objective": "Revisar y corregir exclusivamente docs/md/spec.md para que requisitos, reglas, invariantes, modelos, contratos, eventos y dependencias expresen una única estrategia vigente de disponibilidad granular, sin introducir decisiones ni capacidades nuevas.",
+  "decisions": [
+    {
+      "id": "D1",
+      "decision": "Tratar VariantAvailability por MenuItemVariant como fuente operacional principal para items hoja; MenuItem.isAvailable seguirá siendo una derivación agregada de catálogo, nunca un estado autoritativo."
+    },
+    {
+      "id": "D2",
+      "decision": "Mantener separadas la habilitación y el estado administrativo, la elegibilidad estructural, la disponibilidad operacional y el estado de revisión."
+    },
+    {
+      "id": "D3",
+      "decision": "Representar ModifierAvailability y availableMaxQuantity por contexto de variante; una opción opcional indisponible no bloqueará la variante mientras exista una configuración completa válida que satisfaga todas las restricciones obligatorias."
+    },
+    {
+      "id": "D4",
+      "decision": "Derivar ComboOption.available de la variante hoja referenciada y ComboConfigurationAvailability de la capacidad de sus slots, sin convertir esas señales en estados administrativos persistentes."
+    },
+    {
+      "id": "D5",
+      "decision": "Registrar como OPEN cualquier inconsistencia que exija una decisión no contenida en las reglas confirmadas; no completar vacíos con supuestos."
+    }
+  ],
+  "invariants": [
+    "No renombrar ni renumerar identificadores REQ-* ni alterar sus anclas por iniciativa propia.",
+    "No rediseñar partes ya consistentes ni introducir capacidades, patrones técnicos o contratos no confirmados.",
+    "No sincronizar traducciones, documentos históricos, artefactos derivados ni ningún archivo distinto de docs/md/spec.md.",
+    "Inventory conserva la propiedad del inventario físico y sus evaluaciones; Menu deriva y materializa las proyecciones comerciales operacionales sin republicar resultados de Inventory.",
+    "Los cambios puramente operacionales de disponibilidad no alteran estados administrativos, elegibilidad estructural, estados de revisión, precios ni revisiones comerciales.",
+    "Los diagramas no se rehacen por estilo; las contradicciones semánticas encontradas se identifican de forma explícita para su corrección en un run posterior.",
+    "Al modificar el documento, actualizar coherentemente su versión y la descripción del cambio en la configuración documental."
+  ],
+  "affected_files": [
+    {
+      "path": "docs/md/spec.md",
+      "operation": "MODIFY",
+      "instructions": [
+        "Realizar una revisión transversal de las secciones de requisitos funcionales, reglas de negocio, invariantes, glosario, modelo de dominio, estados, modelo lógico de datos, APIs, eventos, dependencias y trazabilidad.",
+        "Eliminar o corregir formulaciones heredadas que calculen disponibilidad por peor caso, exijan aisladamente BaseRequirements crudos, utilicen stock bruto para availableMaxQuantity, traten MenuItem.isAvailable como fuente autoritativa o atribuyan a ComboOption una disponibilidad independiente.",
+        "Alinear VariantAvailability con la existencia de al menos una configuración completa válida cuya demanda neta satisfaga Inventory y cuyos grupos obligatorios alcancen minSelections; mantener aisladas las personalizaciones opcionales cuando no invaliden esa condición.",
+        "Alinear ModifierAvailability(variantId, modifierOptionId) y availableMaxQuantity con la capacidad residual aplicable, preservando la diferencia entre cero y null y la reevaluación de la variante ante reducciones de capacidad.",
+        "Alinear ComboOption.available como señal derivada de la MenuItemVariant hoja y ComboConfigurationAvailability como derivación de que cada ComboSlot obligatorio alcance su mínimo con opciones actualmente seleccionables.",
+        "Clarificar, especialmente en las secciones 3.4, 7.2, 7.4, 9.1 y 10.5–12.1, que estado administrativo, elegibilidad estructural, disponibilidad operacional y reviewStatus son conceptos ortogonales; ninguna proyección operacional debe presentarse como estado administrativo persistente.",
+        "Revisar los diagramas únicamente para detectar contradicciones semánticas —incluida cualquier mezcla entre capacidad estructural y disponibilidad operacional— y dejar identificada la corrección futura sin redibujarlos por estilo.",
+        "Cuando la estrategia confirmada no determine una solución única, añadir una cuestión abierta concreta con evidencia, información conocida, dato faltante e impacto, sin inventar la decisión.",
+        "Actualizar la versión documental posterior a 1.1.4 y resumir esta revisión de consistencia en la sección de configuración, manteniendo coherentes las referencias de trazabilidad afectadas."
+      ],
+      "acceptance": [
+        "Todo el documento expresa una única estrategia de disponibilidad granular y no conserva comportamientos incompatibles con ella.",
+        "La disponibilidad de MenuItemVariant, ModifierOption, ComboOption, ComboSlot, ComboConfiguration y MenuItem se describe con la fuente y derivación correctas en todas las capas documentales.",
+        "Estado administrativo, elegibilidad, disponibilidad y estado de revisión permanecen diferenciados en texto, modelos, contratos y datos.",
+        "El conjunto, nombres y numeración de REQ-* permanecen sin cambios; sus anclas y referencias internas continúan válidas.",
+        "Las cuestiones no resolubles desde decisiones confirmadas quedan como OPEN y no como obligaciones inventadas.",
+        "La versión y el historial descriptivo del documento reflejan la revisión realizada.",
+        "Verify: Comparar el conjunto de identificadores REQ-* y sus anclas antes y después para confirmar que no hubo renombrado, renumeración, duplicados ni referencias colgantes.",
+        "Verify: Buscar referencias a disponibilidad, elegibilidad, status, reviewStatus, isAvailable, availableMaxQuantity, VariantAvailability y ComboConfigurationAvailability para comprobar que no quedan definiciones contradictorias.",
+        "Verify: Verificar que las menciones de peor caso, stock bruto o BaseRequirements aislados aparecen únicamente como comportamientos expresamente prohibidos.",
+        "Verify: Comprobar enlaces del índice, anclas internas, fórmulas y matriz de trazabilidad afectadas.",
+        "Verify: Confirmar mediante el delta de Git que el único archivo de contenido modificado por este plan es docs/md/spec.md y ejecutar una comprobación de whitespace/diff sin modificar el repositorio.",
+        "Las verificaciones no detectan contradicciones semánticas residuales dentro del alcance solicitado.",
+        "No existen cambios fuera de docs/md/spec.md.",
+        "El Markdown conserva estructura, enlaces y trazabilidad válidos."
+      ]
+    }
+  ],
+  "blockers": []
+}

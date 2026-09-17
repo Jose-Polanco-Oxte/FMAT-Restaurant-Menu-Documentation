@@ -1,0 +1,34 @@
+{
+  "version": 52,
+  "run_id": "20260916-193035",
+  "round": 2,
+  "max_rounds": 5,
+  "editor_retry_limit": 3,
+  "next_stage": "NONE",
+  "status": "COMPLETED",
+  "baseline_ref": "HEAD",
+  "baseline_commit": "d76135676ea6d292bfa4fd3c26c8aae703ca0367",
+  "candidate_commit": "2dec02399e3c019a0c73f1bcd83c1871d1fcc9a6",
+  "worktree_path": "C:\\Users\\tony\\AppData\\Local\\Temp\\docflow-worktrees\\FMAT-Restaurant-Specification-20260916-193035",
+  "write_scope": [
+    "docs/md/spec.md"
+  ],
+  "round_checkpoint": "64f82a4c0588350f11a29daf8178e33202320e4a",
+  "current_target_index": 1,
+  "editor_attempt": 1,
+  "editor_attempt_checkpoint": null,
+  "editor_protected_before": null,
+  "editor_last_violations": [],
+  "editor_last_feedback": null,
+  "round_created_files": [],
+  "round_modified_files": [
+    "docs/md/spec.md"
+  ],
+  "round_deleted_files": [],
+  "authorized_write_history": [
+    "docs/md/spec.md"
+  ],
+  "created_at": "2026-09-16T19:30:36.0798016-06:00",
+  "updated_at": "2026-09-16T20:01:45.0924490-06:00",
+  "last_error": null
+}

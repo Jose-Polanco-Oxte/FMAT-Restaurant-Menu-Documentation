@@ -4,6 +4,10 @@
 
 El objetivo de este documento es cerrar decisiones abiertas sobre el modelo, la API y el comportamiento de los combos, que no se han resuelto en la documentación de diseño original. Se debe propagar las decisiones y transformarlas en requisitos, contratos, invariantes y reglas de negocio que puedan ser implementadas y verificadas.
 
+## Invariantes
+
+Se resolveran las decisiones únicamente con base en lo que se describe aquí (para opens especificados de como resolverlos) o en el ers original. No consultar cualquiero otra fuente. La fuente de verdad es `output/ers/spec.md`.
+
 ## Tarea
 
 Modificar `/output/ers/spec.md` para reflejar las decisiones tomadas en este documento.

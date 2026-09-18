@@ -1,6 +1,6 @@
-# FMAT Restaurant Specification
-
 <div align="center">
+
+# FMAT Restaurant Specification
 
 ![Tipo](https://img.shields.io/badge/tipo-especificaci%C3%B3n%20y%20dise%C3%B1o-111111)
 ![Idioma](https://img.shields.io/badge/idioma-espa%C3%B1ol-444444)
@@ -43,6 +43,7 @@ El repositorio funciona como una **fuente de especificación y diseño**. En su 
 ├── output/
 │   ├── diagrams/            Diagramas de procesos y flujos
 │   ├── ers/                 Especificación consolidada del servicio Menu
+│   ├── ui-spec/             Especificación semántica de la interfaz de usuario
 │   └── mockup/              Entregables visuales por versión
 ├── scripts/                 Automatización y validación del flujo documental
 ├── AGENTS.md                Reglas de colaboración y control de alcance
@@ -63,7 +64,10 @@ Aquí se encuentran los artefactos preparados para consulta y revisión:
 
 - `output/ers/spec.md` es la especificación vigente y consolidada del servicio `Menu`.
 - `output/diagrams/` contiene diagramas exportados para comunicar procesos del dominio.
+- `output/ui-spec/` contiene la especificación semántica de la interfaz: vistas, navegación, estados, flujos y auditorías de consistencia.
 - `output/mockup/` organiza los mockups por versión. Cada entrega puede incluir archivos HTML, capturas PNG y su README de alcance y validación.
+
+La arquitectura de la especificación de interfaz se documenta en [`docs/ui-spec-arch.md`](docs/ui-spec-arch.md). Los artefactos semánticos de `output/ui-spec/` son la referencia para describir qué existe en cada vista y cómo se relacionan sus acciones, estados y requisitos; los mockups representan la posterior exploración visual.
 
 ### `.stitch/`: sistema visual
 
@@ -92,6 +96,8 @@ pnpm lint:mermaid -- output/ui-spec/flows/configure-sellable-item.md
 - [Modelo pre-final del dominio](docs/md/Modelo-Pre-Final.md)
 - [Requisitos funcionales aprobados](docs/md/Req-F-Aproved.md)
 - [Especificación vigente del servicio `Menu`](output/ers/spec.md)
+- [Especificación semántica de interfaz](output/ui-spec/configuration.md)
+- [Arquitectura de la especificación de interfaz](docs/ui-spec-arch.md)
 - [Diagrama del flujo de ordenar](output/diagrams/flujo-ordenar.md)
 - [Mockups de la versión 1.2](output/mockup/1.2/README.md)
 - [Sistema visual de FMAT Restaurant](.stitch/DESIGN.md)
@@ -104,8 +110,9 @@ Se recomienda seguir este orden:
 1. Revisar el [problema inicial](docs/md/Problema-Inicial.md) y el [modelo pre-final](docs/md/Modelo-Pre-Final.md) para entender el contexto y el lenguaje del dominio.
 2. Consultar los [requisitos funcionales aprobados](docs/md/Req-F-Aproved.md) para identificar las obligaciones del sistema.
 3. Usar la [especificación consolidada](output/ers/spec.md) como referencia principal del servicio `Menu`.
-4. Revisar los diagramas y los mockups para relacionar el comportamiento del dominio con los flujos de usuario.
-5. Consultar las auditorías, decisiones y solicitudes archivadas cuando sea necesario conocer el razonamiento o la evolución de una decisión.
+4. Revisar la [especificación semántica de interfaz](output/ui-spec/configuration.md), sus vistas, estados, navegación y flujos para relacionar los requisitos con la experiencia de usuario.
+5. Revisar los diagramas y los mockups para contrastar el comportamiento del dominio con los flujos de usuario y su representación visual.
+6. Consultar las auditorías, decisiones y solicitudes archivadas cuando sea necesario conocer el razonamiento o la evolución de una decisión.
 
 ## Convenciones del proyecto
 

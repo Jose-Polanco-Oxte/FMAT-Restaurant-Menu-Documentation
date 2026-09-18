@@ -13,9 +13,31 @@ param(
     [ValidateRange(1, 10)]
     [int]$MaxRounds = 5,
 
-    # Automatic retries for each individual Editor target.
+    # Automatic retries for each individual Editor target when the model
+    # completed normally but violated the editing contract.
     [ValidateRange(1, 5)]
     [int]$EditorRetryLimit = 3,
+
+    # Retries for transient CLI/process failures (network, stream, timeout).
+    # These retries are separate from EditorRetryLimit.
+    [ValidateRange(1, 5)]
+    [int]$ProcessRetryLimit = 3,
+
+    [ValidateRange(0, 300)]
+    [int]$ProcessRetryDelaySeconds = 15,
+
+    # Hard watchdogs. A value of 0 disables that stage timeout.
+    [ValidateRange(0, 240)]
+    [int]$AnalystTimeoutMinutes = 25,
+
+    [ValidateRange(0, 240)]
+    [int]$AuditorTimeoutMinutes = 20,
+
+    [ValidateRange(0, 240)]
+    [int]$EditorProcessTimeoutMinutes = 20,
+
+    [ValidateRange(10, 600)]
+    [int]$HeartbeatSeconds = 60,
 
     # Optional HARD write boundary.
     #
@@ -31,7 +53,7 @@ param(
 
     [string]$BaselineRef = "HEAD",
 
-    # A V5.2 run always starts from the committed baseline.
+    # A V5.3 run still uses the V5.2-compatible state contract and starts from the committed baseline.
     # This switch only suppresses the safety refusal when main contains
     # non-workflow uncommitted documentation/application changes.
     [switch]$AllowDirtyBaseline,
@@ -391,13 +413,72 @@ function Test-PathInWriteScope {
     return $false
 }
 
+function Stop-ChildProcessTree {
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Diagnostics.Process]$Process,
+        [string]$Reason = "cleanup"
+    )
+
+    try {
+        if ($Process.HasExited) {
+            return
+        }
+    }
+    catch {
+        return
+    }
+
+    try {
+        # PowerShell 7 runs on modern .NET where Kill(true) terminates the
+        # complete descendant tree. This prevents orphaned codex/agy children
+        # after timeout or Ctrl+C.
+        $Process.Kill($true)
+    }
+    catch {
+        try {
+            $Process.Kill()
+        }
+        catch {
+            return
+        }
+    }
+
+    try {
+        [void]$Process.WaitForExit(10000)
+    }
+    catch {
+        # Best effort: the caller is already handling cancellation/failure.
+    }
+}
+
+function Get-AsyncTextResult {
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Threading.Tasks.Task[string]]$Task,
+        [ValidateRange(100, 30000)][int]$WaitMilliseconds = 5000
+    )
+
+    try {
+        if (-not $Task.Wait($WaitMilliseconds)) {
+            return ""
+        }
+
+        return [string]$Task.GetAwaiter().GetResult()
+    }
+    catch {
+        return ""
+    }
+}
+
 function Invoke-CapturedProcess {
     param(
         [Parameter(Mandatory = $true)][string]$FileName,
         [Parameter(Mandatory = $true)][string[]]$Arguments,
         [Parameter(Mandatory = $true)][string]$WorkingDirectory,
         [Parameter(Mandatory = $true)][string]$Activity,
-        [ValidateRange(10, 600)][int]$HeartbeatSeconds = 60
+        [ValidateRange(10, 600)][int]$HeartbeatSeconds = 60,
+        [ValidateRange(0, 86400)][int]$HardTimeoutSeconds = 0
     )
 
     $StartInfo = [System.Diagnostics.ProcessStartInfo]::new()
@@ -410,7 +491,7 @@ function Invoke-CapturedProcess {
     $StartInfo.StandardOutputEncoding = $Utf8NoBom
     $StartInfo.StandardErrorEncoding = $Utf8NoBom
 
-    foreach ($Argument in $Arguments) {
+    foreach ($Argument in @($Arguments)) {
         [void]$StartInfo.ArgumentList.Add([string]$Argument)
     }
 
@@ -418,29 +499,165 @@ function Invoke-CapturedProcess {
     $Process.StartInfo = $StartInfo
 
     $Stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    $Started = $false
+    $TimedOut = $false
+    $Killed = $false
+    $ProcessId = $null
+    $StdoutTask = $null
+    $StderrTask = $null
+    $Stdout = ""
+    $Stderr = ""
+    $ExitCode = -1
+    $LastCpuSeconds = 0.0
 
     try {
         if (-not $Process.Start()) {
             throw "Failed to start process: $FileName"
         }
 
+        $Started = $true
+        $ProcessId = $Process.Id
+
+        try {
+            $LastCpuSeconds = $Process.TotalProcessorTime.TotalSeconds
+        }
+        catch {
+            $LastCpuSeconds = 0.0
+        }
+
         $StdoutTask = $Process.StandardOutput.ReadToEndAsync()
         $StderrTask = $Process.StandardError.ReadToEndAsync()
 
-        while (-not $Process.WaitForExit($HeartbeatSeconds * 1000)) {
-            Write-Host (
+        while ($true) {
+            $WaitSeconds = $HeartbeatSeconds
+
+            if ($HardTimeoutSeconds -gt 0) {
+                $RemainingSeconds = $HardTimeoutSeconds - $Stopwatch.Elapsed.TotalSeconds
+
+                if ($RemainingSeconds -le 0) {
+                    $TimedOut = $true
+                    break
+                }
+
+                $WaitSeconds = [math]::Min(
+                    [double]$HeartbeatSeconds,
+                    [double]$RemainingSeconds
+                )
+            }
+
+            $WaitMilliseconds = [math]::Max(
+                100,
+                [int][math]::Ceiling($WaitSeconds * 1000)
+            )
+
+            if ($Process.WaitForExit($WaitMilliseconds)) {
+                break
+            }
+
+            $CpuDelta = $null
+            $CpuTotal = $null
+            $MemoryMb = $null
+
+            try {
+                $Process.Refresh()
+                $CpuTotal = $Process.TotalProcessorTime.TotalSeconds
+                $CpuDelta = $CpuTotal - $LastCpuSeconds
+                $LastCpuSeconds = $CpuTotal
+                $MemoryMb = $Process.WorkingSet64 / 1MB
+            }
+            catch {
+                # Process telemetry is diagnostic only.
+            }
+
+            $Parts = [System.Collections.Generic.List[string]]::new()
+            [void]$Parts.Add(
                 "    still running... {0}" -f
                 (Format-Duration -Elapsed $Stopwatch.Elapsed)
             )
+            [void]$Parts.Add("PID $ProcessId")
+
+            if ($null -ne $CpuDelta) {
+                [void]$Parts.Add(
+                    "CPU +{0:0.00}s" -f [math]::Max(0.0, $CpuDelta)
+                )
+            }
+
+            if ($null -ne $MemoryMb) {
+                [void]$Parts.Add("mem {0:0.0}MB" -f $MemoryMb)
+            }
+
+            if ($HardTimeoutSeconds -gt 0) {
+                $Remaining = [math]::Max(
+                    0,
+                    $HardTimeoutSeconds - $Stopwatch.Elapsed.TotalSeconds
+                )
+                [void]$Parts.Add(
+                    "timeout in {0}" -f
+                    (Format-Duration -Elapsed ([TimeSpan]::FromSeconds($Remaining)))
+                )
+            }
+
+            Write-Host ($Parts -join " | ")
         }
 
-        $Process.WaitForExit()
+        if ($TimedOut) {
+            Write-Host (
+                "    {0} hard timeout reached after {1}; killing PID {2} process tree..." -f
+                $Activity,
+                (Format-Duration -Elapsed $Stopwatch.Elapsed),
+                $ProcessId
+            )
 
-        $Stdout = $StdoutTask.GetAwaiter().GetResult()
-        $Stderr = $StderrTask.GetAwaiter().GetResult()
-        $ExitCode = $Process.ExitCode
+            Stop-ChildProcessTree `
+                -Process $Process `
+                -Reason "hard timeout"
+
+            $Killed = $true
+        }
+        else {
+            # Flush async process streams after normal termination.
+            try {
+                $Process.WaitForExit()
+            }
+            catch {
+                # Has already exited or cancellation is in progress.
+            }
+        }
+
+        if ($null -ne $StdoutTask) {
+            $Stdout = Get-AsyncTextResult -Task $StdoutTask
+        }
+
+        if ($null -ne $StderrTask) {
+            $Stderr = Get-AsyncTextResult -Task $StderrTask
+        }
+
+        try {
+            if ($Process.HasExited) {
+                $ExitCode = $Process.ExitCode
+            }
+        }
+        catch {
+            $ExitCode = -1
+        }
     }
     finally {
+        # Crucial Ctrl+C guarantee: if PowerShell aborts WaitForExit or any
+        # other statement, do not leave codex.exe / agy.exe orphaned.
+        if ($Started) {
+            try {
+                if (-not $Process.HasExited) {
+                    Stop-ChildProcessTree `
+                        -Process $Process `
+                        -Reason "PowerShell cancellation/finally"
+                    $Killed = $true
+                }
+            }
+            catch {
+                # Never mask the original interruption/error.
+            }
+        }
+
         $Stopwatch.Stop()
         $Process.Dispose()
     }
@@ -451,7 +668,135 @@ function Invoke-CapturedProcess {
         Stderr = $Stderr
         Elapsed = $Stopwatch.Elapsed
         Activity = $Activity
+        ProcessId = $ProcessId
+        TimedOut = $TimedOut
+        Killed = $Killed
+        HardTimeoutSeconds = $HardTimeoutSeconds
     }
+}
+
+function Test-TransientProcessFailure {
+    param([Parameter(Mandatory = $true)]$Result)
+
+    if ([bool]$Result.TimedOut) {
+        return $true
+    }
+
+    $Text = (
+        ([string]$Result.Stderr) + "`n" +
+        ([string]$Result.Stdout)
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Text)) {
+        return $false
+    }
+
+    return $Text -match (
+        '(?is)' +
+        'no such host|' +
+        'name or service not known|' +
+        'temporary failure|' +
+        'timed?\s*out|' +
+        'timeout|' +
+        'connection reset|' +
+        'connection refused|' +
+        'connection aborted|' +
+        'connection closed|' +
+        'broken pipe|' +
+        'network.*(?:error|unreachable)|' +
+        'dns|' +
+        'tls.*(?:error|failed)|' +
+        'socket.*(?:error|closed)|' +
+        'stream.*(?:closed|disconnect|error)|' +
+        'transport.*(?:error|closed)|' +
+        'unexpected eof|' +
+        '\b429\b|' +
+        'rate.?limit|' +
+        '\b502\b|' +
+        '\b503\b|' +
+        '\b504\b|' +
+        'loadCodeAssist'
+    )
+}
+
+function Invoke-WithProcessRetry {
+    param(
+        [Parameter(Mandatory = $true)][string]$StageName,
+        [Parameter(Mandatory = $true)][scriptblock]$Operation,
+        [ValidateRange(1, 10)][int]$RetryLimit = 3,
+        [ValidateRange(0, 300)][int]$RetryDelaySeconds = 15,
+        [scriptblock]$BeforeRetry
+    )
+
+    for ($Attempt = 1; $Attempt -le $RetryLimit; $Attempt++) {
+        if ($Attempt -gt 1) {
+            Write-Host (
+                "    {0} process retry {1}/{2}..." -f
+                $StageName,
+                $Attempt,
+                $RetryLimit
+            )
+        }
+
+        $Result = & $Operation
+
+        if (
+            -not [bool]$Result.TimedOut -and
+            [int]$Result.ExitCode -eq 0
+        ) {
+            $Result | Add-Member `
+                -NotePropertyName ProcessAttempt `
+                -NotePropertyValue $Attempt `
+                -Force
+
+            return $Result
+        }
+
+        $Transient = Test-TransientProcessFailure -Result $Result
+
+        if (-not $Transient -or $Attempt -ge $RetryLimit) {
+            $Result | Add-Member `
+                -NotePropertyName ProcessAttempt `
+                -NotePropertyValue $Attempt `
+                -Force
+
+            return $Result
+        }
+
+        $Reason = if ([bool]$Result.TimedOut) {
+            "hard timeout"
+        }
+        elseif (-not [string]::IsNullOrWhiteSpace([string]$Result.Stderr)) {
+            ([string]$Result.Stderr).Trim()
+        }
+        else {
+            ([string]$Result.Stdout).Trim()
+        }
+
+        if ($Reason.Length -gt 240) {
+            $Reason = $Reason.Substring(0, 240) + "..."
+        }
+
+        Write-Host (
+            "    transient {0} failure detected: {1}" -f
+            $StageName,
+            $Reason
+        )
+
+        if ($null -ne $BeforeRetry) {
+            & $BeforeRetry $Result $Attempt
+        }
+
+        if ($RetryDelaySeconds -gt 0) {
+            Write-Host (
+                "    retrying in {0}s..." -f
+                $RetryDelaySeconds
+            )
+            Start-Sleep -Seconds $RetryDelaySeconds
+        }
+    }
+
+    throw "Unreachable process retry state for $StageName."
 }
 
 function Throw-ProcessFailure {
@@ -474,8 +819,25 @@ function Throw-ProcessFailure {
         "(no process output)"
     }
 
+    $TimeoutText = if ([bool]$Result.TimedOut) {
+        " (hard timeout)"
+    }
+    else {
+        ""
+    }
+
+    $AttemptText = if (
+        $null -ne $Result.PSObject.Properties["ProcessAttempt"]
+    ) {
+        " after process attempt $($Result.ProcessAttempt)"
+    }
+    else {
+        ""
+    }
+
     throw @"
-$StageName failed with exit code $($Result.ExitCode).
+$StageName failed with exit code $($Result.ExitCode)$TimeoutText$AttemptText.
+PID: $($Result.ProcessId)
 
 $Details
 "@
@@ -2053,7 +2415,9 @@ Return only the IntegrationPlan required by the output schema.
         -FileName (Get-CommandPath "codex") `
         -Arguments $Arguments `
         -WorkingDirectory $Worktree `
-        -Activity "Analyst"
+        -Activity "Analyst" `
+        -HeartbeatSeconds $HeartbeatSeconds `
+        -HardTimeoutSeconds ($AnalystTimeoutMinutes * 60)
 }
 
 function Invoke-EditorTarget {
@@ -2093,7 +2457,9 @@ DONE
         -FileName (Get-CommandPath "agy") `
         -Arguments $Arguments `
         -WorkingDirectory $Worktree `
-        -Activity "Editor"
+        -Activity "Editor" `
+        -HeartbeatSeconds $HeartbeatSeconds `
+        -HardTimeoutSeconds ($EditorProcessTimeoutMinutes * 60)
 }
 
 function Invoke-Auditor {
@@ -2145,7 +2511,9 @@ Return only the AuditReport required by the output schema.
         -FileName (Get-CommandPath "codex") `
         -Arguments $Arguments `
         -WorkingDirectory $Worktree `
-        -Activity "Auditor"
+        -Activity "Auditor" `
+        -HeartbeatSeconds $HeartbeatSeconds `
+        -HardTimeoutSeconds ($AuditorTimeoutMinutes * 60)
 }
 
 # ============================================================
@@ -2347,7 +2715,7 @@ if (
     $PSBoundParameters.ContainsKey("WriteScope") -and
     ($Resume -or -not [string]::IsNullOrWhiteSpace($ResumeRunId))
 ) {
-    throw "WriteScope is fixed when a V5.1 run starts."
+    throw "WriteScope is fixed when a V5.2-compatible run starts."
 }
 
 $Worktree = [string]$State.worktree_path
@@ -2464,7 +2832,7 @@ if ($ResumeFrom -ne "Auto") {
 
 Write-Host ""
 Write-Host "============================================================"
-Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.2.3"
+Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.3 WATCHDOG"
 Write-Host "============================================================"
 Write-Host ("Run:           {0}" -f $State.run_id)
 Write-Host ("Round:         {0}/{1}" -f $State.round, $State.max_rounds)
@@ -2472,6 +2840,14 @@ Write-Host ("Stage:         {0}" -f $State.next_stage)
 Write-Host ("Baseline:      {0}" -f $State.baseline_commit)
 Write-Host ("Candidate:     {0}" -f $Worktree)
 Write-Host ("Editor retries:{0}" -f $State.editor_retry_limit)
+Write-Host ("Process retries:{0} | retry delay: {1}s" -f $ProcessRetryLimit, $ProcessRetryDelaySeconds)
+Write-Host (
+    "Watchdogs:     Analyst {0}m | Editor {1}m | Auditor {2}m | heartbeat {3}s" -f
+    $AnalystTimeoutMinutes,
+    $EditorProcessTimeoutMinutes,
+    $AuditorTimeoutMinutes,
+    $HeartbeatSeconds
+)
 
 if (@($Scopes).Count -gt 0) {
     Write-Host ("WriteScope:     {0}" -f ($Scopes -join ", "))
@@ -2512,11 +2888,27 @@ try {
 
                 Sync-ControlPlaneToWorktree -Worktree $Worktree
 
-                $Result = Invoke-Analyst `
-                    -Worktree $Worktree `
-                    -Scopes $Scopes
+                $Result = Invoke-WithProcessRetry `
+                    -StageName "Analyst" `
+                    -RetryLimit $ProcessRetryLimit `
+                    -RetryDelaySeconds $ProcessRetryDelaySeconds `
+                    -Operation {
+                        # Never let a stale prior-round plan masquerade as the
+                        # output of a restarted Analyst process.
+                        Set-Content `
+                            -LiteralPath $PlanPath `
+                            -Value "{}" `
+                            -Encoding utf8
 
-                if ($Result.ExitCode -ne 0) {
+                        Invoke-Analyst `
+                            -Worktree $Worktree `
+                            -Scopes $Scopes
+                    }
+
+                if (
+                    [bool]$Result.TimedOut -or
+                    [int]$Result.ExitCode -ne 0
+                ) {
                     Throw-ProcessFailure -Result $Result -StageName "Analyst"
                 }
 
@@ -2640,7 +3032,7 @@ try {
                         )
                         blockers = @()
                         notes = @(
-                            "Execution report synthesized by the V5.2.3 orchestrator.",
+                            "Execution report synthesized by the V5.3 watchdog orchestrator.",
                             "Each CREATE/MODIFY target was executed in an isolated one-file Editor invocation.",
                             "Unauthorized Editor writes were rolled back automatically before acceptance.",
                             "DELETE operations were performed by the orchestrator.",
@@ -2713,9 +3105,30 @@ try {
                     $RetryLimit
                 )
 
-                $Result = Invoke-EditorTarget -Worktree $Worktree
+                $Result = Invoke-WithProcessRetry `
+                    -StageName "Editor" `
+                    -RetryLimit $ProcessRetryLimit `
+                    -RetryDelaySeconds $ProcessRetryDelaySeconds `
+                    -Operation {
+                        Invoke-EditorTarget -Worktree $Worktree
+                    } `
+                    -BeforeRetry {
+                        param($FailedResult, $ProcessAttempt)
 
-                if ($Result.ExitCode -ne 0) {
+                        # A transient CLI/network failure may happen after AGY
+                        # partially touched the target. Always restore the exact
+                        # attempt checkpoint before starting a fresh process.
+                        Restore-CandidateCheckpoint `
+                            -Worktree $Worktree `
+                            -Checkpoint $AttemptCheckpoint
+
+                        Sync-ControlPlaneToWorktree -Worktree $Worktree
+                    }
+
+                if (
+                    [bool]$Result.TimedOut -or
+                    [int]$Result.ExitCode -ne 0
+                ) {
                     Restore-CandidateCheckpoint `
                         -Worktree $Worktree `
                         -Checkpoint $AttemptCheckpoint
@@ -3085,11 +3498,27 @@ try {
                 $State.last_error = $null
                 Save-State -State $State
 
-                $Result = Invoke-Auditor `
-                    -Worktree $Worktree `
-                    -Scopes $Scopes
+                $Result = Invoke-WithProcessRetry `
+                    -StageName "Auditor" `
+                    -RetryLimit $ProcessRetryLimit `
+                    -RetryDelaySeconds $ProcessRetryDelaySeconds `
+                    -Operation {
+                        # Avoid accidentally consuming a stale PASS/FAIL if a
+                        # restarted auditor process never writes its output.
+                        Set-Content `
+                            -LiteralPath $AuditPath `
+                            -Value "{}" `
+                            -Encoding utf8
 
-                if ($Result.ExitCode -ne 0) {
+                        Invoke-Auditor `
+                            -Worktree $Worktree `
+                            -Scopes $Scopes
+                    }
+
+                if (
+                    [bool]$Result.TimedOut -or
+                    [int]$Result.ExitCode -ne 0
+                ) {
                     Throw-ProcessFailure `
                         -Result $Result `
                         -StageName "Auditor"

@@ -3,14 +3,15 @@ view:
   name: Modifier Configuration View
   purpose: >
     Provide the menu administrator with a centralized semantic interface to configure modifier groups and
-    options owned by leaf MenuItems (PREPARED and STOCKED), author baseline general configurations (default
-    priceDelta, default maxQuantity >= 0, and ADD, OMIT, or empty-effect culinary ingredientEffects), manage
+    options owned by leaf MenuItems (PREPARED and STOCKED), author baseline general configurations (generalConfig:
+    priceDelta in exact DECIMAL(12,2) in range -9999999999.99..9999999999.99 in menu ISO 4217 currency,
+    maxQuantity as integer in 0..99, and ADD, OMIT, or empty-effect culinary ingredientEffects), manage
     per-variant specializations (VariantModifierConfig overrides for enabled, priceDelta, maxQuantity, and
-    ingredientEffects), execute administrative copy operations between variants of the same item with dry-run
-    simulation, explicit FAIL/REPLACE collision resolution, and atomic rollback, and validate structural capacity
-    against minSelections constraints, while permitting incomplete-INACTIVE saves with structured warnings and
-    strictly excluding modifier ownership from COMBO items and avoiding duplicating operational availability as
-    editable commercial configuration.
+    ingredientEffects adhering to the same bounds and ensuring non-negative effective variant prices >= 0.00),
+    execute administrative copy operations between variants of the same item with dry-run simulation, explicit
+    FAIL/REPLACE collision resolution, and atomic rollback, and validate structural capacity against minSelections
+    constraints, while permitting incomplete-INACTIVE saves with structured warnings and strictly excluding modifier
+    ownership from COMBO items and avoiding duplicating operational availability as editable commercial configuration.
   actors:
     - ADMINISTRATOR
   requirements:
@@ -25,6 +26,12 @@ view:
     - REQ-MENU-LIF-002
     - REQ-MENU-LIF-003
     - INV-MENU-005
+    - INV-MENU-007
+    - INV-MENU-008
+    - INV-MENU-009
+    - INV-MENU-010
+    - INV-MENU-011
+    - INV-MENU-012
   inputs:
     - name: menuItemId
       type: UUID
@@ -68,7 +75,7 @@ view:
         - variantFocusSelector
     - id: modifierGroupsRegion
       role: primary
-      description: "Semantic region for managing ModifierGroup entities owned by the leaf MenuItem, including group name, display ordering, and minSelections/maxSelections integer bounds."
+      description: "Semantic region for managing ModifierGroup entities owned by the leaf MenuItem, including group name (1..120 Unicode characters after trim), display ordering, and minSelections/maxSelections integer bounds (0 <= minSelections <= maxSelections <= 99)."
       data:
         - modifierGroups
       controls:
@@ -78,7 +85,7 @@ view:
         - updateMaxSelectionsInput
     - id: modifierOptionsGeneralRegion
       role: primary
-      description: "Semantic region for defining ModifierOption entities within each group and configuring their general baseline (generalConfig): default priceDelta, default maxQuantity >= 0, and ingredientEffects (ADD, OMIT, or empty-effect culinary instructions)."
+      description: "Semantic region for defining ModifierOption entities within each group (option name 1..120 Unicode characters after trim) and configuring their general baseline (generalConfig: priceDelta in exact DECIMAL(12,2) within -9999999999.99..9999999999.99 in menu ISO 4217 currency, maxQuantity integer in 0..99, and ADD, OMIT, or empty-effect culinary ingredientEffects)."
       data:
         - modifierGroups.options
       controls:
@@ -95,7 +102,7 @@ view:
         - clearGeneralIngredientEffectsAction
     - id: variantSpecializationRegion
       role: primary
-      description: "Semantic region for configuring variant-specific overrides (VariantModifierConfig) on a selected MenuItemVariant and option, defining specialized enablement, priceDelta, maxQuantity, and ingredientEffects."
+      description: "Semantic region for configuring variant-specific overrides (VariantModifierConfig) on a selected MenuItemVariant and option, defining specialized enablement, priceDelta (exact DECIMAL(12,2) within -9999999999.99..9999999999.99 in menu ISO 4217 currency, enforcing effective variant price >= 0.00), maxQuantity (integer in 0..99), and ingredientEffects."
       data:
         - variantSpecializations
         - resolvedVariantModifiersProjection
@@ -125,7 +132,7 @@ view:
         - clearCopyBufferAction
     - id: validationAndWarningsRegion
       role: supporting
-      description: "Semantic region displaying real-time structural capacity evaluation (sum(maxQuantity) >= minSelections across enabled options), blocking validation errors for ACTIVE status under INV-MENU-005, and structured capacity deficit warnings for INACTIVE saves under REQ-MENU-LIF-002 and REQ-MENU-LIF-003."
+      description: "Semantic region displaying real-time structural capacity evaluation (sum(maxQuantity) >= minSelections across enabled options), non-negative effective price validation (effective variant price >= 0.00 in menu ISO 4217 currency under INV-MENU-010), bounds validation (1..120 chars for names after trim, integers 0..99 for minSelections, maxSelections, maxQuantity with 0 <= minSelections <= maxSelections <= 99, and DECIMAL(12,2) in -9999999999.99..9999999999.99 for priceDelta), blocking validation errors for ACTIVE status under INV-MENU-005 and INV-MENU-010, and structured capacity deficit warnings for INACTIVE saves under REQ-MENU-LIF-002 and REQ-MENU-LIF-003."
       data:
         - structuralValidationStatus
         - incompleteCapacityWarnings
@@ -155,6 +162,10 @@ view:
           type: String
           description: "Administrative status ('ACTIVE' or 'INACTIVE') of the leaf MenuItem."
           trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002"
+        - name: currencyCode
+          type: String
+          description: "Read-only ISO 4217 3-character alphabetic currency code (e.g. 'MXN', 'USD') inherited from the owning menu catalog, establishing the fixed currency context for all variant unit prices and modifier price deltas."
+          trace: "INV-MENU-007"
         - name: version
           type: String
           description: "Current immutable commercial revision token formatted as '<number>_<ISO8601>'."
@@ -177,13 +188,17 @@ view:
               trace: "REQ-MENU-MOD-003, REQ-MENU-LIF-002"
             - name: unitPrice
               type: Decimal
-              description: "Authoritative absolute selling unit price of the variant."
-              trace: "REQ-MENU-MOD-003"
+              description: "Authoritative absolute selling unit price of the variant in exact DECIMAL(12,2) in range 0.00..9999999999.99 qualified by currencyCode."
+              trace: "REQ-MENU-MOD-003, INV-MENU-008, INV-MENU-009"
+            - name: currencyCode
+              type: String
+              description: "Read-only ISO 4217 3-character alphabetic currency code qualifying this variant's unitPrice."
+              trace: "INV-MENU-007"
             - name: specializationsCount
               type: Integer
               description: "Count of explicit VariantModifierConfig overrides configured for this variant."
               trace: "REQ-MENU-MOD-003"
-      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-003, REQ-MENU-VER-001"
+      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-003, REQ-MENU-VER-001, INV-MENU-007, INV-MENU-008, INV-MENU-009"
     - id: modifierGroups
       name: Modifier Groups and Options
       type: "List<ModifierGroupProjection>"
@@ -199,16 +214,16 @@ view:
           trace: "REQ-MENU-MOD-001"
         - name: name
           type: String
-          description: "Commercial display name of the modifier group (e.g. 'Aderezos', 'Tipo de Pan', 'Término de Cocción', 'Extras')."
-          trace: "REQ-MENU-MOD-001"
+          description: "Commercial display name of the modifier group (1..120 Unicode characters after trim, e.g. 'Aderezos', 'Tipo de Pan', 'Término de Cocción', 'Extras')."
+          trace: "REQ-MENU-MOD-001, INV-MENU-012"
         - name: minSelections
           type: Integer
-          description: "Minimum number of options that must be selected in this group (0 <= minSelections <= maxSelections)."
-          trace: "REQ-MENU-MOD-001"
+          description: "Minimum number of options that must be selected in this group, constrained to an integer in 0..99 (0 <= minSelections <= maxSelections <= 99)."
+          trace: "REQ-MENU-MOD-001, INV-MENU-011"
         - name: maxSelections
           type: Integer
-          description: "Maximum number of options that may be selected in this group."
-          trace: "REQ-MENU-MOD-001"
+          description: "Maximum number of options that may be selected in this group, constrained to an integer in 0..99 (minSelections <= maxSelections <= 99)."
+          trace: "REQ-MENU-MOD-001, INV-MENU-011"
         - name: optionsCount
           type: Integer
           description: "Total count of ModifierOptions defined in this group."
@@ -235,20 +250,20 @@ view:
               trace: "REQ-MENU-MOD-002"
             - name: name
               type: String
-              description: "Commercial name of the option (e.g. 'Extra queso', 'Sin cebolla', 'Término medio')."
-              trace: "REQ-MENU-MOD-002"
+              description: "Commercial name of the option (1..120 Unicode characters after trim, e.g. 'Extra queso', 'Sin cebolla', 'Término medio')."
+              trace: "REQ-MENU-MOD-002, INV-MENU-012"
             - name: generalConfig
               type: ModifierOptionConfigProjection
               description: "Mandatory baseline general configuration governing any variant that does not register a specific override."
               fields:
                 - name: priceDelta
                   type: Decimal
-                  description: "Default commercial price delta added to variant unitPrice when selected (signed decimal, e.g. +25.00, 0.00)."
-                  trace: "REQ-MENU-MOD-002"
+                  description: "Baseline commercial price delta added to variant unitPrice when selected, expressed in exact DECIMAL(12,2) in range -9999999999.99..9999999999.99 with at most 2 decimal places and no implicit rounding, qualified by menu ISO 4217 currencyCode."
+                  trace: "REQ-MENU-MOD-002, INV-MENU-007, INV-MENU-008, INV-MENU-009"
                 - name: maxQuantity
                   type: Integer
-                  description: "Default maximum quantity of this option selectable in a single order line (integer >= 0)."
-                  trace: "REQ-MENU-MOD-002"
+                  description: "Baseline maximum quantity of this option selectable in a single order line, constrained to an integer in range 0..99."
+                  trace: "REQ-MENU-MOD-002, INV-MENU-011"
                 - name: ingredientEffects
                   type: "List<IngredientEffectProjection>"
                   description: "List of ingredient directives (ADD, OMIT) applied to preparation inventory. An empty list denotes a culinary instruction without inventory consumption."
@@ -278,8 +293,8 @@ view:
                   type: Boolean
                   description: "Derived flag: true if ingredientEffects is empty, representing cooking, service, or culinary notes (e.g. 'Término medio', 'Salsa aparte') without stock impact."
                   trace: "REQ-MENU-MOD-007"
-              trace: "REQ-MENU-MOD-002"
-      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-002, REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-007, INV-MENU-005"
+              trace: "REQ-MENU-MOD-002, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-011"
+      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-002, REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-007, INV-MENU-005, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-011, INV-MENU-012"
     - id: variantSpecializations
       name: Variant Specializations
       type: VariantSpecializationProjection
@@ -303,16 +318,16 @@ view:
               trace: "REQ-MENU-MOD-001"
             - name: groupName
               type: String
-              description: "Name of the modifier group."
-              trace: "REQ-MENU-MOD-001"
+              description: "Name of the modifier group (1..120 Unicode characters after trim)."
+              trace: "REQ-MENU-MOD-001, INV-MENU-012"
             - name: minSelections
               type: Integer
-              description: "Minimum selections required for this group."
-              trace: "REQ-MENU-MOD-001"
+              description: "Minimum selections required for this group, constrained to an integer in 0..99 (0 <= minSelections <= maxSelections <= 99)."
+              trace: "REQ-MENU-MOD-001, INV-MENU-011"
             - name: maxSelections
               type: Integer
-              description: "Maximum selections permitted for this group."
-              trace: "REQ-MENU-MOD-001"
+              description: "Maximum selections permitted for this group, constrained to an integer in 0..99 (minSelections <= maxSelections <= 99)."
+              trace: "REQ-MENU-MOD-001, INV-MENU-011"
             - name: variantCalculatedCapacity
               type: Integer
               description: "Variant-specific structural capacity: sum of effectiveMaxQuantity across enabled options for this variant."
@@ -331,24 +346,32 @@ view:
                   trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-003"
                 - name: optionName
                   type: String
-                  description: "Commercial name of the option."
-                  trace: "REQ-MENU-MOD-002"
+                  description: "Commercial name of the option (1..120 Unicode characters after trim)."
+                  trace: "REQ-MENU-MOD-002, INV-MENU-012"
                 - name: hasOverride
                   type: Boolean
                   description: "True if a VariantModifierConfig entity is registered for this (variantId, modifierOptionId) tuple; false if inheriting generalConfig."
                   trace: "REQ-MENU-MOD-003"
                 - name: effectiveEnabled
                   type: Boolean
-                  description: "Effective enablement status: override.enabled if hasOverride else true (default baseline)."
+                  description: "Effective enablement status: override.enabled if hasOverride else true (generalConfig baseline)."
                   trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008"
                 - name: effectivePriceDelta
                   type: Decimal
-                  description: "Effective price delta: override.priceDelta if hasOverride else generalConfig.priceDelta."
-                  trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008"
+                  description: "Effective price delta: override.priceDelta if hasOverride else generalConfig.priceDelta, expressed in exact DECIMAL(12,2) in range -9999999999.99..9999999999.99 qualified by menu ISO 4217 currencyCode."
+                  trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008, INV-MENU-007, INV-MENU-008, INV-MENU-009"
                 - name: effectiveMaxQuantity
                   type: Integer
-                  description: "Effective configured maximum selectable quantity: override.maxQuantity if hasOverride else generalConfig.maxQuantity."
-                  trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008"
+                  description: "Effective configured maximum selectable quantity: override.maxQuantity if hasOverride else generalConfig.maxQuantity, constrained to an integer in range 0..99."
+                  trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008, INV-MENU-011"
+                - name: effectiveVariantPrice
+                  type: Decimal
+                  description: "Effective unit price of the focused variant with this option selected (unitPrice + effectivePriceDelta) in exact DECIMAL(12,2) qualified by menu ISO 4217 currencyCode; must be >= 0.00 under INV-MENU-010."
+                  trace: "REQ-MENU-MOD-003, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010"
+                - name: isNegativePriceViolation
+                  type: Boolean
+                  description: "True if effectiveVariantPrice (unitPrice + effectivePriceDelta) < 0.00, surfacing a blocking price validation error under INV-MENU-010."
+                  trace: "INV-MENU-010"
                 - name: effectiveIngredientEffects
                   type: "List<IngredientEffectProjection>"
                   description: "Effective ingredient directives: override.ingredientEffects if hasOverride else generalConfig.ingredientEffects."
@@ -367,18 +390,18 @@ view:
                       trace: "REQ-MENU-MOD-003"
                     - name: priceDelta
                       type: Decimal
-                      description: "Specialized price delta for this specific variant."
-                      trace: "REQ-MENU-MOD-003"
+                      description: "Specialized price delta for this specific variant expressed in exact DECIMAL(12,2) in range -9999999999.99..9999999999.99 with at most 2 decimal places and no implicit rounding, qualified by menu ISO 4217 currencyCode."
+                      trace: "REQ-MENU-MOD-003, INV-MENU-007, INV-MENU-008, INV-MENU-009"
                     - name: maxQuantity
                       type: Integer
-                      description: "Specialized maximum quantity limit (>= 0) for this specific variant."
-                      trace: "REQ-MENU-MOD-003"
+                      description: "Specialized maximum quantity limit constrained to an integer in range 0..99 for this specific variant."
+                      trace: "REQ-MENU-MOD-003, INV-MENU-011"
                     - name: ingredientEffects
                       type: "List<IngredientEffectProjection>"
                       description: "Specialized ingredient effects for this specific variant (e.g. 90g instead of 40g)."
                       trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-007"
                   trace: "REQ-MENU-MOD-003"
-      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-003, REQ-MENU-MOD-008, INV-MENU-005"
+      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-003, REQ-MENU-MOD-008, INV-MENU-005, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, INV-MENU-012"
     - id: resolvedVariantModifiersProjection
       name: Resolved Variant Modifiers Projection
       type: "List<ResolvedVariantModifierProjection>"
@@ -400,25 +423,25 @@ view:
           trace: "REQ-MENU-MOD-008"
         - name: name
           type: String
-          description: "Commercial display name of the option."
-          trace: "REQ-MENU-MOD-008"
+          description: "Commercial display name of the option (1..120 Unicode characters after trim)."
+          trace: "REQ-MENU-MOD-008, INV-MENU-012"
         - name: enabled
           type: Boolean
           description: "Effective administrative enablement status."
           trace: "REQ-MENU-MOD-008"
         - name: priceDelta
           type: Decimal
-          description: "Resolved commercial price adjustment."
-          trace: "REQ-MENU-MOD-008"
+          description: "Resolved commercial price adjustment expressed in exact DECIMAL(12,2) in range -9999999999.99..9999999999.99 qualified by menu ISO 4217 currencyCode."
+          trace: "REQ-MENU-MOD-008, INV-MENU-007, INV-MENU-008, INV-MENU-009"
         - name: maxQuantity
           type: Integer
-          description: "Resolved configured commercial maximum quantity (>= 0)."
-          trace: "REQ-MENU-MOD-008"
+          description: "Resolved configured commercial maximum quantity constrained to an integer in range 0..99."
+          trace: "REQ-MENU-MOD-008, INV-MENU-011"
         - name: ingredientEffects
           type: "List<IngredientEffectProjection>"
           description: "Resolved list of ingredient directives (ADD, OMIT, or empty for culinary instruction)."
           trace: "REQ-MENU-MOD-008"
-      trace: "REQ-MENU-MOD-008"
+      trace: "REQ-MENU-MOD-008, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-011, INV-MENU-012"
     - id: administrativeCopyBuffer
       name: Administrative Copy Buffer and Report
       type: AdministrativeCopyBufferProjection
@@ -500,19 +523,23 @@ view:
           trace: "REQ-MENU-MOD-004"
       trace: "REQ-MENU-MOD-004"
     - id: structuralValidationStatus
-      name: Structural Validation Status
+      name: Structural and Pricing Validation Status
       type: StructuralValidationStatusProjection
-      description: "Real-time evaluation of structural constraints required for transitioning or saving the leaf MenuItem in ACTIVE administrative status."
+      description: "Real-time evaluation of structural capacity constraints, quantitative bounds, and monetary invariants (non-negative effective variant prices in menu ISO 4217 currency) required for persistence and for transitioning or saving the leaf MenuItem in ACTIVE administrative status."
       fields:
         - name: isEligibleForActive
           type: Boolean
-          description: "True if all modifier groups across the item and all active variants satisfy Capacidad(ModifierGroup) >= minSelections under INV-MENU-005."
-          trace: "REQ-MENU-MOD-001, INV-MENU-005"
+          description: "True if all modifier groups across the item and all active variants satisfy Capacidad(ModifierGroup) >= minSelections under INV-MENU-005 and zero blocking validation errors exist under INV-MENU-007..012."
+          trace: "REQ-MENU-MOD-001, INV-MENU-005, INV-MENU-010"
+        - name: hasNegativePriceViolation
+          type: Boolean
+          description: "True if any option priceDelta applied to a variant results in an effective variant price (unitPrice + effectivePriceDelta) < 0.00 under INV-MENU-010."
+          trace: "INV-MENU-010"
         - name: blockingValidationErrors
           type: "List<String>"
-          description: "List of blocking errors preventing transition to ACTIVE (e.g. 'El grupo obligatorio Aderezos carece de capacidad suficiente para minSelections=2')."
-          trace: "REQ-MENU-MOD-001, INV-MENU-005"
-      trace: "REQ-MENU-MOD-001, INV-MENU-005"
+          description: "List of blocking errors preventing transition to ACTIVE or persistence (e.g. 'El grupo obligatorio Aderezos carece de capacidad suficiente para minSelections=2', 'El precio resultante para la variante Simple con el modificador Descuento no puede ser negativo (-5.00 MXN)', 'El nombre del grupo debe tener entre 1 y 120 caracteres tras trim', 'minSelections y maxSelections deben ser enteros en 0..99 con 0 <= minSelections <= maxSelections <= 99', 'maxQuantity debe ser un entero en 0..99', 'priceDelta debe ser DECIMAL(12,2) en -9999999999.99..9999999999.99')."
+          trace: "REQ-MENU-MOD-001, INV-MENU-005, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, INV-MENU-012"
+      trace: "REQ-MENU-MOD-001, INV-MENU-005, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, INV-MENU-012"
     - id: incompleteCapacityWarnings
       name: Incomplete Capacity Warnings
       type: "List<IncompleteCapacityWarningItem>"
@@ -560,44 +587,44 @@ view:
       type: input
       operatesOn: modifierGroups.name
       triggersAction: setModifierGroupName
-      description: "Semantic text input for the commercial display name of a ModifierGroup."
-      trace: "REQ-MENU-MOD-001"
+      description: "Semantic text input for the commercial display name of a ModifierGroup (1..120 Unicode characters after trim)."
+      trace: "REQ-MENU-MOD-001, INV-MENU-012"
     - id: updateMinSelectionsInput
       type: input
       operatesOn: modifierGroups.minSelections
       triggersAction: setModifierGroupSelectionLimits
-      description: "Semantic numeric input for minimum required selections in a group (integer >= 0, <= maxSelections)."
-      trace: "REQ-MENU-MOD-001"
+      description: "Semantic numeric input for minimum required selections in a group (integer in range 0..99, requiring 0 <= minSelections <= maxSelections <= 99)."
+      trace: "REQ-MENU-MOD-001, INV-MENU-011"
     - id: updateMaxSelectionsInput
       type: input
       operatesOn: modifierGroups.maxSelections
       triggersAction: setModifierGroupSelectionLimits
-      description: "Semantic numeric input for maximum permitted selections in a group (integer >= minSelections)."
-      trace: "REQ-MENU-MOD-001"
+      description: "Semantic numeric input for maximum permitted selections in a group (integer in range 0..99, requiring minSelections <= maxSelections <= 99)."
+      trace: "REQ-MENU-MOD-001, INV-MENU-011"
     - id: addModifierOptionAction
       type: action
       operatesOn: modifierGroups.options
       triggersAction: createModifierOption
-      description: "Semantic action to define a new ModifierOption within a ModifierGroup."
+      description: "Semantic action to define a new ModifierOption within a ModifierGroup with baseline generalConfig (priceDelta and maxQuantity)."
       trace: "REQ-MENU-MOD-002"
     - id: updateOptionNameInput
       type: input
       operatesOn: modifierGroups.options.name
       triggersAction: setModifierOptionName
-      description: "Semantic text input for the commercial name of a ModifierOption."
-      trace: "REQ-MENU-MOD-002"
+      description: "Semantic text input for the commercial name of a ModifierOption (1..120 Unicode characters after trim)."
+      trace: "REQ-MENU-MOD-002, INV-MENU-012"
     - id: updateGeneralPriceDeltaInput
       type: input
       operatesOn: modifierGroups.options.generalConfig.priceDelta
       triggersAction: setGeneralPriceDelta
-      description: "Semantic numeric input for default price delta added when the option is selected (signed decimal, e.g. +25.00, 0.00)."
-      trace: "REQ-MENU-MOD-002"
+      description: "Semantic numeric input for baseline price delta in generalConfig added when the option is selected (signed exact DECIMAL(12,2) within range -9999999999.99..9999999999.99 with at most 2 decimal places and no implicit rounding, qualified by menu ISO 4217 currency; must not cause any effective variant price to become negative under INV-MENU-010)."
+      trace: "REQ-MENU-MOD-002, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010"
     - id: updateGeneralMaxQuantityInput
       type: input
       operatesOn: modifierGroups.options.generalConfig.maxQuantity
       triggersAction: setGeneralMaxQuantity
-      description: "Semantic numeric input for default maximum quantity selectable for this option (integer >= 0)."
-      trace: "REQ-MENU-MOD-002"
+      description: "Semantic numeric input for baseline maximum quantity in generalConfig selectable for this option (integer in range 0..99)."
+      trace: "REQ-MENU-MOD-002, INV-MENU-011"
     - id: addGeneralIngredientEffectAction
       type: action
       operatesOn: modifierGroups.options.generalConfig.ingredientEffects
@@ -656,14 +683,14 @@ view:
       type: input
       operatesOn: variantSpecializations.optionOverrides.overrideConfig.priceDelta
       triggersAction: setVariantPriceDelta
-      description: "Semantic numeric input for specialized price delta on the focused variant."
-      trace: "REQ-MENU-MOD-003"
+      description: "Semantic numeric input for specialized price delta on the focused variant (signed exact DECIMAL(12,2) within range -9999999999.99..9999999999.99 with at most 2 decimal places and no implicit rounding, qualified by menu ISO 4217 currency; must not cause effective variant price to become negative under INV-MENU-010)."
+      trace: "REQ-MENU-MOD-003, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010"
     - id: setVariantMaxQuantityInput
       type: input
       operatesOn: variantSpecializations.optionOverrides.overrideConfig.maxQuantity
       triggersAction: setVariantMaxQuantity
-      description: "Semantic numeric input for specialized maximum selectable quantity on the focused variant (integer >= 0)."
-      trace: "REQ-MENU-MOD-003"
+      description: "Semantic numeric input for specialized maximum selectable quantity on the focused variant (integer in range 0..99)."
+      trace: "REQ-MENU-MOD-003, INV-MENU-011"
     - id: addVariantIngredientEffectAction
       type: action
       operatesOn: variantSpecializations.optionOverrides.overrideConfig.ingredientEffects
@@ -781,22 +808,24 @@ view:
       effect: "Sets variantSpecializations.focusedVariantId and populates optionOverrides with effective parameters and active overrides."
       trace: "REQ-MENU-MOD-003"
     - id: createModifierGroup
-      description: "Add a new ModifierGroup to the leaf MenuItem with default selection limits (0..1)."
+      description: "Add a new ModifierGroup to the leaf MenuItem with selection limits constrained to 0 <= minSelections <= maxSelections <= 99."
       parameters:
         - name: name
           type: String
-          description: "Commercial name for the modifier group."
+          description: "Commercial name for the modifier group (1..120 Unicode characters after trim)."
         - name: minSelections
           type: Integer
-          description: "Minimum selections required (default 0)."
+          description: "Minimum selections required (integer in 0..99, default 0)."
         - name: maxSelections
           type: Integer
-          description: "Maximum selections permitted (default 1)."
+          description: "Maximum selections permitted (integer in 0..99, default 1)."
       preconditions:
         - "The leaf MenuItem must be of type PREPARED or STOCKED."
-        - "0 <= minSelections <= maxSelections."
+        - "name after trim must have 1..120 Unicode characters (INV-MENU-012)."
+        - "minSelections and maxSelections must be integers in range [0, 99] (INV-MENU-011)."
+        - "0 <= minSelections <= maxSelections <= 99 (INV-MENU-011)."
       effect: "Appends a new ModifierGroup entity to modifierGroups with unique UUID and updates capacity calculations."
-      trace: "REQ-MENU-MOD-001"
+      trace: "REQ-MENU-MOD-001, INV-MENU-011, INV-MENU-012"
     - id: setModifierGroupName
       description: "Update the commercial display name of an existing ModifierGroup."
       parameters:
@@ -805,11 +834,12 @@ view:
           description: "Identifier of the target group."
         - name: name
           type: String
-          description: "New non-empty commercial name."
+          description: "New non-empty commercial name (1..120 Unicode characters after trim)."
       preconditions:
         - "modifierGroupId must exist on this leaf MenuItem."
+        - "name after trim must have 1..120 Unicode characters (INV-MENU-012)."
       effect: "Updates modifierGroups.name."
-      trace: "REQ-MENU-MOD-001"
+      trace: "REQ-MENU-MOD-001, INV-MENU-012"
     - id: setModifierGroupSelectionLimits
       description: "Update the selection bounds (minSelections and maxSelections) of a ModifierGroup."
       parameters:
@@ -818,14 +848,16 @@ view:
           description: "Identifier of the target group."
         - name: minSelections
           type: Integer
-          description: "New minimum selection bound (integer >= 0)."
+          description: "New minimum selection bound (integer in range 0..99)."
         - name: maxSelections
           type: Integer
-          description: "New maximum selection bound (integer >= minSelections)."
+          description: "New maximum selection bound (integer in range 0..99)."
       preconditions:
-        - "0 <= minSelections <= maxSelections."
+        - "modifierGroupId must exist on this leaf MenuItem."
+        - "minSelections and maxSelections must be integers in range [0, 99] (INV-MENU-011)."
+        - "0 <= minSelections <= maxSelections <= 99 (INV-MENU-011)."
       effect: "Updates group minSelections and maxSelections, re-evaluating structural capacity across generalConfig and variant specializations."
-      trace: "REQ-MENU-MOD-001, INV-MENU-005"
+      trace: "REQ-MENU-MOD-001, INV-MENU-005, INV-MENU-011"
     - id: createModifierOption
       description: "Add a new ModifierOption to a ModifierGroup with initial baseline generalConfig."
       parameters:
@@ -834,18 +866,21 @@ view:
           description: "Identifier of the parent group."
         - name: name
           type: String
-          description: "Commercial name of the option."
-        - name: defaultPriceDelta
+          description: "Commercial name of the option (1..120 Unicode characters after trim)."
+        - name: priceDelta
           type: Decimal
-          description: "Initial priceDelta (defaults to 0.00)."
-        - name: defaultMaxQuantity
+          description: "Initial generalConfig.priceDelta in exact DECIMAL(12,2) in range -9999999999.99..9999999999.99 in menu ISO 4217 currency (defaults to 0.00)."
+        - name: maxQuantity
           type: Integer
-          description: "Initial maxQuantity (defaults to 1, integer >= 0)."
+          description: "Initial generalConfig.maxQuantity constrained to an integer in range 0..99 (defaults to 1)."
       preconditions:
-        - "modifierGroupId must exist."
-        - "defaultMaxQuantity >= 0."
-      effect: "Appends new ModifierOption with generalConfig to the target group and recalculates group capacity."
-      trace: "REQ-MENU-MOD-002, INV-MENU-005"
+        - "modifierGroupId must exist on this leaf MenuItem."
+        - "name after trim must have 1..120 Unicode characters (INV-MENU-012)."
+        - "priceDelta must be exact DECIMAL(12,2) with at most 2 decimal places in range [-9999999999.99, 9999999999.99] in menu ISO 4217 currency (INV-MENU-007, INV-MENU-008, INV-MENU-009)."
+        - "maxQuantity must be an integer in range [0, 99] (INV-MENU-011)."
+        - "For any variant inheriting generalConfig, effective variant price (unitPrice + priceDelta) must be >= 0.00 (INV-MENU-010)."
+      effect: "Appends new ModifierOption with generalConfig (priceDelta, maxQuantity, ingredientEffects: []) to the target group and recalculates group capacity and effective variant prices."
+      trace: "REQ-MENU-MOD-002, INV-MENU-005, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, INV-MENU-012"
     - id: setModifierOptionName
       description: "Update the commercial name of a ModifierOption."
       parameters:
@@ -854,33 +889,41 @@ view:
           description: "Identifier of the option."
         - name: name
           type: String
-          description: "New commercial name."
+          description: "New commercial name (1..120 Unicode characters after trim)."
+      preconditions:
+        - "modifierOptionId must exist."
+        - "name after trim must have 1..120 Unicode characters (INV-MENU-012)."
       effect: "Updates option name."
-      trace: "REQ-MENU-MOD-002"
+      trace: "REQ-MENU-MOD-002, INV-MENU-012"
     - id: setGeneralPriceDelta
-      description: "Update the baseline default price delta on an option's generalConfig."
+      description: "Update the baseline price delta on an option's generalConfig."
       parameters:
         - name: modifierOptionId
           type: UUID
           description: "Identifier of the option."
         - name: priceDelta
           type: Decimal
-          description: "Commercial price delta added to variant unit price."
-      effect: "Updates generalConfig.priceDelta and refreshes ResolvedVariantModifier for non-overridden variants."
-      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-008"
+          description: "Commercial price delta in exact DECIMAL(12,2) within range -9999999999.99..9999999999.99 with at most 2 decimal places and no implicit rounding, qualified by menu ISO 4217 currency."
+      preconditions:
+        - "modifierOptionId must exist."
+        - "priceDelta must be exact DECIMAL(12,2) with at most 2 decimal places in range [-9999999999.99, 9999999999.99] (INV-MENU-008, INV-MENU-009)."
+        - "For any variant inheriting generalConfig, effective variant price (unitPrice + priceDelta) must be >= 0.00 (INV-MENU-010)."
+      effect: "Updates generalConfig.priceDelta, validates non-negative effective variant prices across non-overridden variants, and refreshes ResolvedVariantModifier."
+      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-008, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010"
     - id: setGeneralMaxQuantity
-      description: "Update the baseline default maximum selectable quantity on an option's generalConfig."
+      description: "Update the baseline maximum selectable quantity on an option's generalConfig."
       parameters:
         - name: modifierOptionId
           type: UUID
           description: "Identifier of the option."
         - name: maxQuantity
           type: Integer
-          description: "Maximum quantity limit (integer >= 0)."
+          description: "Maximum quantity limit constrained to an integer in range 0..99."
       preconditions:
-        - "maxQuantity >= 0."
+        - "modifierOptionId must exist."
+        - "maxQuantity must be an integer in range [0, 99] (INV-MENU-011)."
       effect: "Updates generalConfig.maxQuantity, re-evaluating baseline group capacity and refreshing ResolvedVariantModifier."
-      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-008, INV-MENU-005"
+      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-008, INV-MENU-005, INV-MENU-011"
     - id: addGeneralIngredientEffect
       description: "Add an ingredient directive (ADD or OMIT) to the option's baseline generalConfig."
       parameters:
@@ -1037,9 +1080,14 @@ view:
           description: "Target option identifier."
         - name: priceDelta
           type: Decimal
-          description: "Specialized price delta."
-      effect: "Updates VariantModifierConfig.priceDelta and updates ResolvedVariantModifier for this variant."
-      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008"
+          description: "Specialized price delta in exact DECIMAL(12,2) within range -9999999999.99..9999999999.99 with at most 2 decimal places and no implicit rounding, qualified by menu ISO 4217 currency."
+      preconditions:
+        - "variantId must belong to this leaf MenuItem."
+        - "modifierOptionId must belong to a group of the same leaf MenuItem."
+        - "priceDelta must be exact DECIMAL(12,2) with at most 2 decimal places in range [-9999999999.99, 9999999999.99] (INV-MENU-008, INV-MENU-009)."
+        - "Effective variant price (variant unitPrice + priceDelta) must be >= 0.00 (INV-MENU-010)."
+      effect: "Updates VariantModifierConfig.priceDelta, validates non-negative effective variant price, and updates ResolvedVariantModifier for this variant."
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010"
     - id: setVariantMaxQuantity
       description: "Set specialized maxQuantity for this variant via VariantModifierConfig."
       parameters:
@@ -1051,11 +1099,13 @@ view:
           description: "Target option identifier."
         - name: maxQuantity
           type: Integer
-          description: "Specialized maximum quantity limit (>= 0)."
+          description: "Specialized maximum quantity limit constrained to an integer in range 0..99."
       preconditions:
-        - "maxQuantity >= 0."
+        - "variantId must belong to this leaf MenuItem."
+        - "modifierOptionId must belong to a group of the same leaf MenuItem."
+        - "maxQuantity must be an integer in range [0, 99] (INV-MENU-011)."
       effect: "Updates VariantModifierConfig.maxQuantity and re-evaluates variant-specific group capacity."
-      trace: "REQ-MENU-MOD-003, INV-MENU-005"
+      trace: "REQ-MENU-MOD-003, INV-MENU-005, INV-MENU-011"
     - id: addVariantIngredientEffect
       description: "Add a specialized ingredient directive (ADD or OMIT) on the variant's VariantModifierConfig."
       parameters:
@@ -1230,7 +1280,7 @@ view:
       effect: "Updates administrativeCopyBuffer.policy."
       trace: "REQ-MENU-MOD-004"
     - id: dryRunCopyVariantModifierConfigs
-      description: "Simulate the administrative copy operation from source to target variants without persisting changes, detecting collisions and projecting outcomes."
+      description: "Simulate the administrative copy operation from source to target variants without persisting changes, detecting collisions, validating non-negative effective variant prices, and projecting outcomes."
       parameters: []
       preconditions:
         - "sourceVariantId must be selected."
@@ -1238,10 +1288,12 @@ view:
         - "policy in ['FAIL', 'REPLACE']."
       effect: >
         Inspects all VariantModifierConfig entries on sourceVariantId. Identifies collisions on targetVariantIds
-        where a VariantModifierConfig already exists for the same modifierOptionId. Compiles collisions into
-        administrativeCopyBuffer.lastReport with outcome ('SIMULATION_CLEAN', 'SIMULATION_COLLISIONS_BLOCKED', or
-        'SIMULATION_REPLACE_ANTICIPATED'). Emits copyReportNotification without mutating domain entities.
-      trace: "REQ-MENU-MOD-004"
+        where a VariantModifierConfig already exists for the same modifierOptionId. Validates that copied overrides
+        would satisfy non-negative effective variant price (unitPrice + priceDelta >= 0.00) on all target variants
+        under INV-MENU-010. Compiles collisions and diagnostics into administrativeCopyBuffer.lastReport with outcome
+        ('SIMULATION_CLEAN', 'SIMULATION_COLLISIONS_BLOCKED', or 'SIMULATION_REPLACE_ANTICIPATED'). Emits
+        copyReportNotification without mutating domain entities.
+      trace: "REQ-MENU-MOD-004, INV-MENU-010"
     - id: executeCopyVariantModifierConfigs
       description: "Execute the administrative copy definitively and atomically from source to target variants."
       parameters: []
@@ -1249,15 +1301,17 @@ view:
         - "sourceVariantId must be selected."
         - "targetVariantIds must contain at least one target variant."
         - "policy in ['FAIL', 'REPLACE']."
+        - "All resulting effective variant prices on target variants must remain non-negative (>= 0.00) under INV-MENU-010."
       effect: >
-        Evaluates collisions on target variants.
-        If policy == 'FAIL' and any collision is detected: aborts the entire transaction immediately, performs
-        an atomic rollback leaving target variants completely unchanged (zero partial writes), and records
-        outcome 'ABORTED_ON_CONFLICT_ROLLBACK' with isAtomicRollback = true.
-        If policy == 'REPLACE' or zero collisions: copies all source VariantModifierConfigs to all target variants,
-        overwriting existing configs where collisions occur, in a single atomic transaction. Updates variant
-        capacities and structural validation status.
-      trace: "REQ-MENU-MOD-004"
+        Evaluates collisions and non-negative price rules on target variants.
+        If policy == 'FAIL' and any collision is detected, or if any resulting effective variant price would be
+        negative: aborts the entire transaction immediately, performs an atomic rollback leaving target variants
+        completely unchanged (zero partial writes), and records outcome 'ABORTED_ON_CONFLICT_ROLLBACK' with
+        isAtomicRollback = true.
+        If policy == 'REPLACE' or zero collisions, and all prices valid: copies all source VariantModifierConfigs
+        to all target variants, overwriting existing configs where collisions occur, in a single atomic transaction.
+        Updates variant capacities, pricing evaluations, and structural validation status.
+      trace: "REQ-MENU-MOD-004, INV-MENU-010"
     - id: resetCopyBuffer
       description: "Reset copy selections and clear copy results report."
       parameters: []
@@ -1268,25 +1322,33 @@ view:
       parameters: []
       preconditions:
         - "Item must be a leaf MenuItem (PREPARED or STOCKED)."
-        - "All selection bounds must satisfy 0 <= minSelections <= maxSelections."
-        - "All maxQuantity values must be >= 0."
+        - "All group and option names must have 1..120 Unicode characters after trim (INV-MENU-012)."
+        - "All selection bounds must satisfy 0 <= minSelections <= maxSelections <= 99 with integers in [0, 99] (INV-MENU-011)."
+        - "All maxQuantity values across generalConfig and VariantModifierConfig must be integers in [0, 99] (INV-MENU-011)."
+        - "All priceDelta values must be exact DECIMAL(12,2) within range [-9999999999.99, 9999999999.99] in menu ISO 4217 currency with at most 2 decimal places and no implicit rounding (INV-MENU-007, INV-MENU-008, INV-MENU-009)."
+        - "All effective variant prices (unitPrice + effectivePriceDelta) must be >= 0.00 (INV-MENU-010)."
       effect: >
         Persists modifier groups, options, generalConfigs, and VariantModifierConfigs. Generates a new immutable
         commercial revision (<number>_<ISO8601>). Populates incompleteCapacityWarnings with entityId, entityType
         ('ModifierGroup'), minSelections, and calculatedCapacity for each group with capacity < minSelections under
         REQ-MENU-LIF-002 and REQ-MENU-LIF-003. Emits savedMenuItemId and newRevisionToken.
-      trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002, REQ-MENU-LIF-003, REQ-MENU-VER-001"
+      trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002, REQ-MENU-LIF-003, REQ-MENU-VER-001, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, INV-MENU-012"
     - id: saveModifierConfigurationAndActivate
       description: "Validate complete structural capacity and persist modifier configuration with MenuItem status ACTIVE."
       parameters: []
       preconditions:
         - "structuralValidationStatus.isEligibleForActive must be true."
+        - "All group and option names must have 1..120 Unicode characters after trim (INV-MENU-012)."
+        - "All selection bounds must satisfy 0 <= minSelections <= maxSelections <= 99 with integers in [0, 99] (INV-MENU-011)."
+        - "All maxQuantity values across generalConfig and VariantModifierConfig must be integers in [0, 99] (INV-MENU-011)."
+        - "All priceDelta values must be exact DECIMAL(12,2) within range [-9999999999.99, 9999999999.99] in menu ISO 4217 currency with at most 2 decimal places and no implicit rounding (INV-MENU-007, INV-MENU-008, INV-MENU-009)."
+        - "All effective variant prices (unitPrice + effectivePriceDelta) must be >= 0.00 (INV-MENU-010)."
         - "Every mandatory modifier group (minSelections > 0) must satisfy Capacidad(ModifierGroup) >= minSelections under generalConfig and across all active variants under INV-MENU-005."
       effect: >
         Persists modifier groups, options, generalConfigs, and VariantModifierConfigs with MenuItem status ACTIVE.
         Generates a new immutable commercial revision (<number>_<ISO8601>). Emits savedMenuItemId, newRevisionToken,
         and returnToItemEditorSignal.
-      trace: "REQ-MENU-MOD-001, INV-MENU-005, REQ-MENU-VER-001"
+      trace: "REQ-MENU-MOD-001, INV-MENU-005, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, INV-MENU-012, REQ-MENU-VER-001"
     - id: cancelConfiguration
       description: "Discard unsaved modifier configuration edits and return to MenuItemEditorView."
       parameters: []
@@ -1294,7 +1356,7 @@ view:
       trace: "docs/ui-spec-arch.md"
   states:
     - id: viewingGeneralConfiguration
-      description: "Administrator is inspecting or authoring baseline generalConfig for modifier groups and options across the leaf MenuItem, applicable to all variants by default."
+      description: "Administrator is inspecting or authoring baseline generalConfig for modifier groups and options across the leaf MenuItem, governing all variants that do not register a specific override."
       condition: "variantSpecializations.focusedVariantId == null."
       trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-002"
     - id: variantSpecializationEditing
@@ -1341,6 +1403,14 @@ view:
       description: "Configuration saved in ACTIVE status with all mandatory modifier groups satisfying structural capacity Capacidad(ModifierGroup) >= minSelections."
       condition: "leafItemContext.status == 'ACTIVE' and structuralValidationStatus.isEligibleForActive == true."
       trace: "REQ-MENU-MOD-001, INV-MENU-005"
+    - id: negativeEffectivePriceValidationBlocked
+      description: "One or more modifier options configure a negative priceDelta that would cause an effective variant selling price (unitPrice + effectivePriceDelta) to become strictly negative (< 0.00), violating INV-MENU-010. Surfaces blocking validation errors in structuralValidationStatus and prevents persistence."
+      condition: "structuralValidationStatus.hasNegativePriceViolation == true or any optionOverride has effectiveVariantPrice < 0.00."
+      trace: "INV-MENU-010"
+    - id: boundsValidationViolationBlocked
+      description: "One or more input fields violate quantitative bounds or string length limits before persistence (name length not in 1..120 characters after trim, minSelections, maxSelections, or maxQuantity not an integer in 0..99, minSelections > maxSelections, or priceDelta with > 2 decimal places or outside [-9999999999.99, 9999999999.99]), blocking persistence under INV-MENU-008, INV-MENU-009, INV-MENU-011, and INV-MENU-012."
+      condition: "structuralValidationStatus.blockingValidationErrors.count > 0 and (any name length not in 1..120 or any selection bound not in 0..99 or any priceDelta out of bounds)."
+      trace: "INV-MENU-008, INV-MENU-009, INV-MENU-011, INV-MENU-012"
   constraints:
     - id: C-MOD-001
       description: >
@@ -1353,20 +1423,25 @@ view:
       trace: "REQ-MENU-MOD-001"
     - id: C-MOD-002
       description: >
-        Group Selection Bounds and Structural Capacity Validation:
-        Each ModifierGroup enforces integer limits 0 <= minSelections <= maxSelections. In runtime sales, selections
-        must satisfy minSelections <= sum(selected quantities) <= maxSelections, and each option must respect its
-        effective maxQuantity. For commercial activation (status = ACTIVE), the group must satisfy the structural
-        capacity invariant Capacidad(ModifierGroup) = sum(effectiveMaxQuantity of enabled options) >= minSelections
-        under INV-MENU-005.
-      trace: "REQ-MENU-MOD-001, INV-MENU-005"
+        Group Selection Bounds, Text Lengths, and Structural Capacity Validation:
+        Each ModifierGroup enforces commercial display names of 1..120 Unicode characters after trimming whitespace
+        (INV-MENU-012) and integer selection limits 0 <= minSelections <= maxSelections <= 99 with minSelections and
+        maxSelections restricted to integers in [0, 99] (INV-MENU-011). In runtime sales, selections must satisfy
+        minSelections <= sum(selected quantities) <= maxSelections, and each option must respect its effective maxQuantity.
+        For commercial activation (status = ACTIVE), the group must satisfy the structural capacity invariant
+        Capacidad(ModifierGroup) = sum(effectiveMaxQuantity of enabled options) >= minSelections under INV-MENU-005.
+      trace: "REQ-MENU-MOD-001, INV-MENU-005, INV-MENU-011, INV-MENU-012"
     - id: C-MOD-003
       description: >
         General Option Configuration Baseline (generalConfig):
-        Every ModifierOption must define a generalConfig (ModifierOptionConfig) containing default priceDelta
-        (signed decimal), default maxQuantity (integer >= 0), and ingredientEffects. If no variant-specific
-        override is registered for a variant, generalConfig governs fully and unconditionally.
-      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-003"
+        Every ModifierOption must define a commercial name of 1..120 Unicode characters after trim (INV-MENU-012)
+        and a baseline generalConfig (ModifierOptionConfig) containing priceDelta (signed exact DECIMAL(12,2) in range
+        -9999999999.99..9999999999.99 with at most 2 decimal places in menu ISO 4217 currency, INV-MENU-007, INV-MENU-008,
+        INV-MENU-009), maxQuantity (integer in 0..99, INV-MENU-011), and ingredientEffects. If no variant-specific
+        override is registered for a variant, generalConfig governs fully and unconditionally. Baseline priceDelta must
+        not cause any variant inheriting it to produce a negative effective variant price (unitPrice + priceDelta >= 0.00,
+        INV-MENU-010).
+      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-003, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, INV-MENU-012"
     - id: C-MOD-004
       description: >
         Variant Specialization and Effective Precedence:
@@ -1374,8 +1449,11 @@ view:
         enablement, or ingredient dosage, a VariantModifierConfig entity mapped to (variantId, modifierOptionId)
         is registered. Both the variant and the modifier group must belong to the same leaf MenuItem.
         Effective configuration strictly follows the precedence: VariantModifierConfig overrides generalConfig
-        for that variant; absent an override, generalConfig governs.
-      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008"
+        for that variant; absent an override, generalConfig governs. VariantModifierConfig enforces the same bounds:
+        priceDelta in DECIMAL(12,2) within [-9999999999.99, 9999999999.99] in menu ISO 4217 currency (INV-MENU-007,
+        INV-MENU-008, INV-MENU-009), maxQuantity in [0, 99] (INV-MENU-011), and effective variant price (unitPrice +
+        priceDelta) >= 0.00 (INV-MENU-010).
+      trace: "REQ-MENU-MOD-003, REQ-MENU-MOD-008, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011"
     - id: C-MOD-005
       description: >
         Administrative Copy Scope, Dry-Run Simulation, and Atomic Collision Resolution:
@@ -1435,3 +1513,32 @@ view:
         item search or creation (inventoryItemId is an opaque SKU reference), automatic scaling of ingredient
         quantities across variant dimensions, or autosave/draft recovery.
       trace: "docs/ui-spec-arch.md, REQ-MENU-MOD-001"
+    - id: C-MOD-011
+      description: >
+        Menu Currency and Monetary Precision / Range Invariants:
+        All monetary amounts within the view operate under the single fixed ISO 4217 currency code of the owning menu
+        catalog (INV-MENU-007). Multi-currency menus and runtime currency conversions are strictly prohibited.
+        All commercial price adjustments (generalConfig.priceDelta and VariantModifierConfig.priceDelta) are expressed
+        in exact DECIMAL(12,2) with exactly two decimal places; inputs with more than two decimal places are strictly
+        rejected without rounding (INV-MENU-008). Relative price adjustments are constrained to the range
+        [-9999999999.99, +9999999999.99] (INV-MENU-009).
+      trace: "INV-MENU-007, INV-MENU-008, INV-MENU-009"
+    - id: C-MOD-012
+      description: >
+        Final Non-Negative Effective Price Invariant:
+        Any relative price delta configured in baseline generalConfig or specialized in VariantModifierConfig must ensure
+        that the effective selling price of any leaf variant with the modifier selected remains non-negative:
+        Effective Variant Price = variant.unitPrice + effectivePriceDelta >= 0.00.
+        Any configuration that reduces effective variant price below 0.00 is strictly invalid, surfaces blocking validation
+        errors in the interface, and is rejected before persistence under INV-MENU-010.
+      trace: "INV-MENU-010"
+    - id: C-MOD-013
+      description: >
+        Quantitative Selection Limits and String Length Bounds:
+        All selection limits (minSelections, maxSelections) in ModifierGroup and selectable capacity limits (maxQuantity)
+        in generalConfig and VariantModifierConfig are strictly constrained to integers in [0, 99], with 0 <= minSelections
+        <= maxSelections <= 99 (INV-MENU-011). Commercial display names of modifier groups and modifier options
+        (ModifierGroup.name and ModifierOption.name) are strictly constrained to 1..120 Unicode characters after trimming
+        leading and trailing whitespace (INV-MENU-012).
+      trace: "INV-MENU-011, INV-MENU-012"
+

@@ -4,8 +4,9 @@ view:
   purpose: >
     Provide POS and KDS consumers with a semantic interface to inspect and form a valid sellable unit
     selection—either a configured leaf product (PREPARED or STOCKED) with selected variant dimensions and
-    resolved modifier choices, or a combo package (COMBO) with selected slot options and component-level
-    modifier choices—validating all structural and operational availability constraints and computing absolute
+    resolved modifier choices, or a combo package (COMBO) with selected slot options and physical component
+    instances holding their own modifier choices—validating all structural, operational availability, and
+    price non-negativity constraints, exposing ISO 4217 currency and quantitative bounds, and computing absolute
     prices before emitting the completed selection to the external ordering context, without owning the order
     lifecycle, cart lines, or payment.
   actors:
@@ -31,6 +32,7 @@ view:
     - REQ-MENU-COM-002
     - REQ-MENU-COM-003
     - REQ-MENU-COM-006
+    - REQ-MENU-ING-001
     - REQ-MENU-AVL-002
     - REQ-MENU-AVL-004
     - REQ-MENU-AVL-005
@@ -38,9 +40,17 @@ view:
     - REQ-MENU-AVL-007
     - NFR-MENU-PERF-02
     - NFR-MENU-RESI-01
+    - BR-MENU-008
     - BR-MENU-016
     - BR-MENU-017
     - BR-MENU-018
+    - BR-MENU-029
+    - INV-MENU-007
+    - INV-MENU-008
+    - INV-MENU-009
+    - INV-MENU-010
+    - INV-MENU-011
+    - INV-MENU-012
   inputs:
     - name: menuItemId
       type: UUID
@@ -73,6 +83,9 @@ view:
         - name: itemType
           type: String
           description: "Item discriminator ('PREPARED', 'STOCKED', or 'COMBO')."
+        - name: currencyCode
+          type: String
+          description: "Applicable 3-character ISO 4217 currency code (e.g. 'MXN', 'USD') fixed per menu (INV-MENU-007)."
         - name: selectedVariantId
           type: "UUID | null"
           description: "Identifier of the selected MenuItemVariant (populated for leaf items; null for combos)."
@@ -91,73 +104,73 @@ view:
               description: "Identifier of the selected ModifierOption."
             - name: quantity
               type: Integer
-              description: "Selected quantity (> 0)."
+              description: "Selected quantity (> 0 and <= 99)."
             - name: priceDelta
               type: Decimal
-              description: "Signed price adjustment applied per unit selected (supports positive, zero, or negative decimal values)."
-        - name: selectedComboOptions
-          type: "List<SelectedComboOptionPayload>"
+              description: "Signed price adjustment applied per unit selected (supports positive, zero, or negative decimal values in DECIMAL(12,2))."
+        - name: selectedSlots
+          type: "List<SelectedSlotPayload>"
           description: >
-            List of chosen combo options per slot (combos only). Each entry carries slot and variant identifiers,
-            quantity, signed priceDelta, and componentModifiers (nested list of selected modifier choices for the component leaf variant,
-            explicitly correlated with slotId, comboOptionId, itemVariantId, modifierGroupId, modifierOptionId, quantity, and signed priceDelta).
+            Collection of chosen combo slot selections (combos only). Keeps selected options as a collection
+            per slot, preserving slot cardinality within minSelections..maxSelections (REQ-MENU-COM-002, REQ-MENU-ING-001).
           fields:
             - name: slotId
               type: UUID
               description: "Identifier of the ComboSlot."
-            - name: comboOptionId
-              type: UUID
-              description: "Identifier of the chosen ComboOption."
-            - name: itemVariantId
-              type: UUID
-              description: "Identifier of the concrete referenced leaf MenuItemVariant."
-            - name: quantity
-              type: Integer
-              description: "Positive physical quantity supplied by the combo option."
-            - name: priceDelta
-              type: Decimal
-              description: "Signed price delta added to base price when this option is selected (supports positive, zero, or negative decimal values)."
-            - name: componentModifiers
-              type: "List<SelectedComboComponentModifierPayload>"
-              description: >
-                List of selected modifier choices configured on this component's leaf variant.
-                Each entry is explicitly correlated with slotId, comboOptionId, itemVariantId,
-                modifierGroupId, modifierOptionId, quantity (> 0), and signed priceDelta.
-                Modifier effects and constraints are confined strictly to this component (BR-MENU-016, BR-MENU-017).
+            - name: selectedOptions
+              type: "List<SelectedComboOptionPayload>"
+              description: "Collection of chosen combo options for this slot."
               fields:
-                - name: slotId
-                  type: UUID
-                  description: "Identifier of the enclosing ComboSlot."
                 - name: comboOptionId
                   type: UUID
-                  description: "Identifier of the enclosing ComboOption."
+                  description: "Identifier of the chosen ComboOption."
                 - name: itemVariantId
                   type: UUID
-                  description: "Identifier of the component leaf MenuItemVariant."
-                - name: modifierGroupId
-                  type: UUID
-                  description: "Identifier of the ModifierGroup declared by the leaf variant."
-                - name: modifierOptionId
-                  type: UUID
-                  description: "Identifier of the selected ModifierOption."
+                  description: "Identifier of the concrete referenced leaf MenuItemVariant."
                 - name: quantity
                   type: Integer
-                  description: "Selected quantity (> 0) within effectiveMaxQuantity."
+                  description: "Positive physical quantity supplied by the combo option (integer 1..99, INV-MENU-011)."
                 - name: priceDelta
                   type: Decimal
-                  description: "Signed price delta applied per unit selected (supports positive, zero, or negative decimal values)."
+                  description: "Signed price delta added to configuration base unitPrice when this option is selected (DECIMAL(12,2))."
+                - name: instances
+                  type: "List<PhysicalComponentInstancePayload>"
+                  description: >
+                    Explicit physical component instances numbered from 1 through ComboOption.quantity (exactly quantity instances).
+                    Each instance holds its own modifier selections and quantities independently (BR-MENU-008, BR-MENU-029).
+                  fields:
+                    - name: instanceIndex
+                      type: Integer
+                      description: "Correlative physical instance number in the range [1, ComboOption.quantity]."
+                    - name: selectedModifiers
+                      type: "List<SelectedComboInstanceModifierPayload>"
+                      description: "List of modifier options selected specifically for this physical component instance."
+                      fields:
+                        - name: modifierGroupId
+                          type: UUID
+                          description: "Identifier of the ModifierGroup declared by the leaf variant."
+                        - name: modifierOptionId
+                          type: UUID
+                          description: "Identifier of the selected ModifierOption."
+                        - name: quantity
+                          type: Integer
+                          description: "Selected quantity (> 0 and <= 99) within effectiveMaxQuantity for this instance."
+                        - name: priceDelta
+                          type: Decimal
+                          description: "Signed price delta applied per unit selected on this instance (DECIMAL(12,2))."
         - name: totalCalculatedPrice
           type: Decimal
           description: >
-            Total computed commercial price combining absolute base unitPrice and all applied deltas
-            (leaf modifiers for leaf items; combo options and component modifiers for combos; all deltas signed).
-            Commercial pricing rules for fractional portion multipliers or repeated modifier aggregation/discounting
-            across components remain explicitly unmodeled per OPEN-009.
-      trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-001, REQ-MENU-COM-001, REQ-MENU-COM-003, REQ-MENU-MOD-001, REQ-MENU-MOD-008, BR-MENU-016, BR-MENU-017, docs/ui-spec-arch.md"
+            Total computed commercial price combining absolute base unitPrice and all applied deltas in DECIMAL(12,2)
+            (leaf modifiers for leaf items; combo options and physical component instance modifiers for combos; all deltas signed).
+            Calculated as ComboConfiguration.unitPrice plus sum of selected option priceDelta plus sum of instance modifier priceDelta * quantity.
+            Never adds MenuItemVariant.unitPrice, deduplicates repeated modifiers, or applies implicit discounts (BR-MENU-008, BR-MENU-029).
+            Must satisfy totalCalculatedPrice >= 0.00 (INV-MENU-010).
+      trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-001, REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-ING-001, REQ-MENU-MOD-001, REQ-MENU-MOD-008, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, docs/ui-spec-arch.md"
   regions:
     - id: itemHeaderRegion
       role: primary
-      description: "Semantic region displaying commercial definition, item type discriminator, and catalog reference price."
+      description: "Semantic region displaying commercial definition, item type discriminator, ISO 4217 currency, and catalog reference price."
       data:
         - itemCommercialHeader
       controls: []
@@ -174,21 +187,23 @@ view:
       role: primary
       description: >
         Semantic region active when itemType is COMBO, containing combo configuration selection, slot option choices,
-        and component-level modifier customization for selected leaf variants.
+        and component-level modifier customization for each physical component instance (1..quantity) of selected leaf variants.
       data:
         - comboConfigurations
         - comboSlots
       controls:
         - comboConfigurationSelector
         - comboOptionSelector
+        - comboComponentInstanceSelector
         - comboComponentModifierQuantityAdjuster
     - id: selectionSummaryRegion
       role: secondary
-      description: "Semantic region displaying the running configuration summary, total calculated price, and satisfaction of min/max constraints."
+      description: "Semantic region displaying the running configuration summary, total calculated price, satisfaction of min/max constraints, and domain bounds."
       data:
         - selectionState
         - runningTotalPrice
         - configurationValidationStatus
+        - domainBounds
       controls:
         - resetSelection
         - confirmSelection
@@ -224,6 +239,10 @@ view:
           type: String
           description: "Immutable discriminator of the item ('PREPARED', 'STOCKED', or 'COMBO')."
           trace: "REQ-MENU-ITM-001, BR-MENU-018"
+        - name: currencyCode
+          type: String
+          description: "Applicable 3-character ISO 4217 currency code (e.g. 'MXN', 'USD') fixed per menu (INV-MENU-007)."
+          trace: "INV-MENU-007"
         - name: catalogDisplayPrice
           type: String
           description: "Formatted catalog reference price string (e.g. '$140' or 'Desde $120')."
@@ -232,7 +251,7 @@ view:
           type: Boolean
           description: "Aggregate operational availability projection from catalog browse."
           trace: "REQ-MENU-AVL-007"
-      trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-002, REQ-MENU-AVL-007, BR-MENU-018"
+      trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-002, REQ-MENU-AVL-007, BR-MENU-018, INV-MENU-007"
     - id: leafVariants
       name: Leaf Item Variants
       type: "List<LeafVariantProjection>"
@@ -420,12 +439,12 @@ view:
           trace: "REQ-MENU-COM-002"
         - name: minSelections
           type: Integer
-          description: "Minimum number of options that must be selected in this slot (0 <= minSelections <= maxSelections)."
-          trace: "REQ-MENU-COM-002"
+          description: "Minimum number of options that must be selected in this slot (0 <= minSelections <= maxSelections <= 99)."
+          trace: "REQ-MENU-COM-002, INV-MENU-011"
         - name: maxSelections
           type: Integer
-          description: "Maximum number of options that may be selected in this slot."
-          trace: "REQ-MENU-COM-002"
+          description: "Maximum number of options that may be selected in this slot (0 <= maxSelections <= 99)."
+          trace: "REQ-MENU-COM-002, INV-MENU-011"
         - name: availableCapacity
           type: Integer
           description: >
@@ -434,8 +453,8 @@ view:
           trace: "REQ-MENU-AVL-006"
         - name: currentSelectedCount
           type: Integer
-          description: "Number of options currently chosen in this slot."
-          trace: "REQ-MENU-COM-002"
+          description: "Number of options currently chosen in this slot (satisfying minSelections <= currentSelectedCount <= maxSelections)."
+          trace: "REQ-MENU-COM-002, INV-MENU-011"
         - name: isSlotSatisfied
           type: Boolean
           description: "True if minSelections <= currentSelectedCount <= maxSelections."
@@ -462,12 +481,18 @@ view:
               trace: "REQ-MENU-COM-003"
             - name: quantity
               type: Integer
-              description: "Positive physical quantity supplied by this option (e.g. 6 pieces, 1 cup). Does not scale availableCapacity contribution."
-              trace: "REQ-MENU-COM-003, REQ-MENU-AVL-006"
+              description: >
+                Positive physical quantity supplied by this option as an integer in the range [1, 99] (INV-MENU-011).
+                Fractional quantities or inferred fractional price coefficients are strictly prohibited; fractional
+                commercial portions must be modeled as separately selected leaf MenuItemVariants with their own distinct recipes
+                and authoritative unit prices (REQ-MENU-COM-003, INV-MENU-011). Does not scale availableCapacity contribution.
+              trace: "REQ-MENU-COM-003, REQ-MENU-AVL-006, INV-MENU-011"
             - name: priceDelta
               type: Decimal
-              description: "Signed price delta added to configuration base unitPrice when this option is selected (supports positive, zero, or negative decimal values)."
-              trace: "REQ-MENU-COM-003"
+              description: >
+                Signed price delta added to configuration base unitPrice when this option is selected
+                (supports positive, zero, or negative decimal values in DECIMAL(12,2), range [-9999999999.99, +9999999999.99]).
+              trace: "REQ-MENU-COM-003, INV-MENU-008, INV-MENU-009"
             - name: enabled
               type: Boolean
               description: "Administrative enablement status configured on the ComboOption."
@@ -490,10 +515,12 @@ view:
               type: "List<ModifierGroupProjection>"
               description: >
                 Collection of modifier groups and resolved variant modifier definitions belonging to the referenced
-                leaf variant (itemVariantId), exposed when this ComboOption is selected. Each group defines minSelections
-                and maxSelections, satisfaction status, and available options with administrative enablement, signed priceDelta
-                (positive, zero, or negative), configuredMaxQuantity, operational availability (isAvailable, availableMaxQuantity),
-                and effectiveMaxQuantity. Modifiers and ingredient effects are strictly confined to this component (BR-MENU-016, BR-MENU-017).
+                leaf variant (itemVariantId), exposed when this ComboOption is selected. When chosen, each of its explicit
+                physical component instances (numbered 1 through ComboOption.quantity) can be configured independently across these groups.
+                Each group defines minSelections and maxSelections (within [0, 99]), satisfaction status, and available options with
+                administrative enablement, signed priceDelta (positive, zero, or negative in DECIMAL(12,2)), configuredMaxQuantity (within [0, 99]),
+                operational availability (isAvailable, availableMaxQuantity), and effectiveMaxQuantity. Modifiers and ingredient effects
+                are strictly confined to each specific component instance (BR-MENU-016, BR-MENU-017, BR-MENU-029).
               fields:
                 - name: modifierGroupId
                   type: UUID
@@ -505,12 +532,12 @@ view:
                   trace: "REQ-MENU-MOD-001"
                 - name: minSelections
                   type: Integer
-                  description: "Minimum total quantity selections required for this component group (0 <= minSelections <= maxSelections)."
-                  trace: "REQ-MENU-MOD-001"
+                  description: "Minimum total quantity selections required for this component group (0 <= minSelections <= maxSelections <= 99)."
+                  trace: "REQ-MENU-MOD-001, INV-MENU-011"
                 - name: maxSelections
                   type: Integer
-                  description: "Maximum total quantity selections permitted for this component group."
-                  trace: "REQ-MENU-MOD-001"
+                  description: "Maximum total quantity selections permitted for this component group (0 <= maxSelections <= 99)."
+                  trace: "REQ-MENU-MOD-001, INV-MENU-011"
                 - name: currentSelectionsCount
                   type: Integer
                   description: "Sum of currently selected modifier option quantities in this component group."
@@ -541,12 +568,12 @@ view:
                       trace: "REQ-MENU-MOD-008"
                     - name: priceDelta
                       type: Decimal
-                      description: "Signed price adjustment applied per unit selected (supports positive, zero, or negative decimal values)."
-                      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-003, REQ-MENU-MOD-008"
+                      description: "Signed price adjustment applied per unit selected (supports positive, zero, or negative decimal values in DECIMAL(12,2))."
+                      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-003, REQ-MENU-MOD-008, INV-MENU-008, INV-MENU-009"
                     - name: configuredMaxQuantity
                       type: Integer
-                      description: "Commercially configured maximum quantity selectable from ResolvedVariantModifier."
-                      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-003, REQ-MENU-MOD-008"
+                      description: "Commercially configured maximum quantity selectable from ResolvedVariantModifier (0 <= configuredMaxQuantity <= 99)."
+                      trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-003, REQ-MENU-MOD-008, INV-MENU-011"
                     - name: ingredientEffects
                       type: "List<IngredientEffectProjection>"
                       description: "List of ingredient effects (ADD, OMIT, or culinary instruction) confined to this component's recipe."
@@ -567,8 +594,8 @@ view:
                       type: Integer
                       description: "Effective upper limit: 0 if !enabled or !isAvailable; min(configuredMaxQuantity, availableMaxQuantity) if non-null; configuredMaxQuantity if null and available."
                       trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-008, REQ-MENU-AVL-005"
-              trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-002, REQ-MENU-MOD-003, REQ-MENU-MOD-008, REQ-MENU-AVL-005, BR-MENU-016, BR-MENU-017"
-      trace: "REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-AVL-006, BR-MENU-016, BR-MENU-017"
+              trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-002, REQ-MENU-MOD-003, REQ-MENU-MOD-008, REQ-MENU-AVL-005, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-008, INV-MENU-009, INV-MENU-011"
+      trace: "REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-AVL-006, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-008, INV-MENU-009, INV-MENU-011"
     - id: selectionState
       name: Current Selection State
       type: SelectionStateProjection
@@ -586,75 +613,182 @@ view:
           type: "UUID | null"
           description: "Selected combo configuration identifier for COMBO items."
           trace: "REQ-MENU-COM-001"
+        - name: activeInstanceIndex
+          type: "Integer | null"
+          description: "Currently focused physical component instance index (1..quantity) for modifier customization in the UI."
+          trace: "BR-MENU-008, BR-MENU-029, INV-MENU-011"
         - name: selectedModifiers
           type: "List<SelectedModifierEntry>"
-          description: "List of entries with modifierGroupId, modifierOptionId, selected quantity (> 0), and signed priceDelta (leaf items only)."
-          trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-008"
-        - name: selectedComboOptions
-          type: "List<SelectedComboOptionEntry>"
+          description: "List of entries with modifierGroupId, modifierOptionId, selected quantity (> 0 and <= 99), and signed priceDelta (leaf items only)."
+          trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-008, INV-MENU-011"
+        - name: selectedSlots
+          type: "List<SelectedSlotEntry>"
           description: >
-            List of entries with slotId, comboOptionId, itemVariantId, quantity, signed priceDelta,
-            and componentModifiers (nested list of selected modifier choices for the component leaf variant,
-            each explicitly correlated with slotId, comboOptionId, itemVariantId, modifierGroupId, modifierOptionId,
-            quantity > 0, and signed priceDelta).
-          trace: "REQ-MENU-COM-002, REQ-MENU-COM-003, BR-MENU-016, BR-MENU-017"
-      trace: "REQ-MENU-ITM-001, REQ-MENU-VAR-001, REQ-MENU-MOD-001, REQ-MENU-COM-001, REQ-MENU-COM-003, BR-MENU-016, BR-MENU-017"
+            Collection of chosen combo slot selections (combos only). Keeps selected options as a collection
+            per slot and preserves slot cardinality within minSelections..maxSelections (REQ-MENU-COM-002, REQ-MENU-ING-001).
+          fields:
+            - name: slotId
+              type: UUID
+              description: "Identifier of the ComboSlot."
+            - name: selectedOptions
+              type: "List<SelectedComboOptionEntry>"
+              description: "Collection of chosen combo options in this slot."
+              fields:
+                - name: comboOptionId
+                  type: UUID
+                  description: "Identifier of the chosen ComboOption."
+                - name: itemVariantId
+                  type: UUID
+                  description: "Identifier of the concrete referenced leaf MenuItemVariant."
+                - name: quantity
+                  type: Integer
+                  description: "Positive physical quantity supplied by the combo option (integer 1..99, INV-MENU-011)."
+                - name: priceDelta
+                  type: Decimal
+                  description: "Signed price delta added to base price when this option is selected."
+                - name: instances
+                  type: "List<PhysicalComponentInstanceEntry>"
+                  description: >
+                    Explicit physical component instances numbered from 1 through ComboOption.quantity (exactly quantity instances).
+                    Each instance holds its own modifier selections and quantities independently (BR-MENU-008, BR-MENU-029).
+                  fields:
+                    - name: instanceIndex
+                      type: Integer
+                      description: "Correlative physical instance number in the range [1, ComboOption.quantity]."
+                    - name: selectedModifiers
+                      type: "List<SelectedInstanceModifierEntry>"
+                      description: "Modifier options selected specifically for this physical component instance."
+                      fields:
+                        - name: modifierGroupId
+                          type: UUID
+                          description: "Identifier of the target ModifierGroup."
+                        - name: modifierOptionId
+                          type: UUID
+                          description: "Identifier of the selected ModifierOption."
+                        - name: quantity
+                          type: Integer
+                          description: "Selected quantity (> 0 and <= 99) within effectiveMaxQuantity for this instance."
+                        - name: priceDelta
+                          type: Decimal
+                          description: "Signed price delta applied per unit selected on this instance."
+          trace: "REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-ING-001, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-011"
+      trace: "REQ-MENU-ITM-001, REQ-MENU-VAR-001, REQ-MENU-MOD-001, REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-ING-001, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-011"
     - id: runningTotalPrice
       name: Running Total Price
       type: RunningPriceProjection
-      description: "Dynamic absolute price computation summing base price and applied deltas."
+      description: "Dynamic absolute price computation summing base price and applied deltas, enforcing non-negative final price."
       fields:
+        - name: currencyCode
+          type: String
+          description: "Applicable 3-character ISO 4217 currency code governing all monetary evaluations (INV-MENU-007)."
+          trace: "INV-MENU-007"
         - name: baseUnitPrice
           type: Decimal
-          description: "Absolute unit price from selected leaf variant or combo configuration."
-          trace: "REQ-MENU-PRC-001, REQ-MENU-COM-001"
+          description: "Absolute unit price from selected leaf variant or combo configuration in DECIMAL(12,2) (range [0.00, 9999999999.99])."
+          trace: "REQ-MENU-PRC-001, REQ-MENU-COM-001, INV-MENU-008, INV-MENU-009"
         - name: modifiersTotalDelta
           type: Decimal
-          description: "Sum of (quantity * signed priceDelta) across all selected modifiers on a leaf item (leaf items only)."
-          trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-008"
+          description: "Sum of (quantity * signed priceDelta) across all selected modifiers on a leaf item in DECIMAL(12,2) (leaf items only)."
+          trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-008, INV-MENU-008, INV-MENU-009"
         - name: comboOptionsTotalDelta
           type: Decimal
-          description: "Sum of signed priceDelta across all selected combo options (combos only)."
-          trace: "REQ-MENU-COM-003"
+          description: "Sum of signed priceDelta across all selected combo options across slots in DECIMAL(12,2) (combos only)."
+          trace: "REQ-MENU-COM-003, BR-MENU-008, INV-MENU-008, INV-MENU-009"
         - name: comboComponentModifiersTotalDelta
           type: Decimal
           description: >
-            Sum of (quantity * signed priceDelta) across all selected component-level modifiers within chosen combo options
-            (combos only). Fractional portion multipliers and repeated modifier aggregation/discounting policies across components
-            remain explicitly unmodeled per OPEN-009.
-          trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-008, REQ-MENU-COM-003, BR-MENU-016, BR-MENU-017, OPEN-009"
+            Sum of (quantity * signed priceDelta) across all selected component-level modifiers calculated independently
+            for every physical component instance (i = 1..ComboOption.quantity) of chosen combo options in DECIMAL(12,2) (combos only).
+            Charges apply independently per instance without deduplication, grouping, or implicit discounts (BR-MENU-008, BR-MENU-029).
+          trace: "REQ-MENU-MOD-002, REQ-MENU-MOD-008, REQ-MENU-COM-003, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-008, INV-MENU-009"
         - name: totalPrice
           type: Decimal
           description: >
             Authoritative calculated total price: baseUnitPrice + modifiersTotalDelta for leaf items;
-            baseUnitPrice + comboOptionsTotalDelta + comboComponentModifiersTotalDelta for combos (all price deltas signed).
-            Fractional multipliers and repeat modifier aggregation rules remain open under OPEN-009.
-          trace: "REQ-MENU-PRC-001, REQ-MENU-COM-001, REQ-MENU-MOD-008, REQ-MENU-COM-003, BR-MENU-016, BR-MENU-017, OPEN-009"
-      trace: "REQ-MENU-PRC-001, REQ-MENU-COM-001, REQ-MENU-MOD-002, REQ-MENU-MOD-008, REQ-MENU-COM-003, BR-MENU-016, BR-MENU-017, OPEN-009"
+            baseUnitPrice + comboOptionsTotalDelta + comboComponentModifiersTotalDelta for combos (all price deltas signed, in DECIMAL(12,2)).
+            Never adds MenuItemVariant.unitPrice, deduplicates repeated modifiers, or applies implicit discounts (BR-MENU-008, BR-MENU-029).
+            Must satisfy totalPrice >= 0.00 (INV-MENU-010); negative totals are rejected by domain validation.
+          trace: "REQ-MENU-PRC-001, REQ-MENU-COM-001, REQ-MENU-MOD-008, REQ-MENU-COM-003, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-008, INV-MENU-009, INV-MENU-010"
+        - name: isNegative
+          type: Boolean
+          description: "True if totalPrice < 0.00, violating INV-MENU-010 and blocking confirmation."
+          trace: "INV-MENU-010"
+      trace: "REQ-MENU-PRC-001, REQ-MENU-COM-001, REQ-MENU-MOD-002, REQ-MENU-MOD-008, REQ-MENU-COM-003, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010"
     - id: configurationValidationStatus
       name: Configuration Validation Status
       type: ValidationStatusProjection
-      description: "Real-time evaluation of all domain invariants and selection completeness."
+      description: "Real-time evaluation of all domain invariants, price non-negativity, and selection completeness."
       fields:
         - name: isValid
           type: Boolean
           description: >
-            True if all selection requirements are satisfied and no domain rules are violated.
+            True if all selection requirements are satisfied, total price is non-negative (totalPrice >= 0.00), and no domain rules are violated.
             For leaf items: selected variant eligible/available and all mandatory modifier groups satisfied.
-            For combos: configuration eligible/available, all mandatory slots satisfied, and all mandatory
-            modifier groups on every selected component leaf variant satisfied.
-          trace: "REQ-MENU-VAR-006, REQ-MENU-MOD-001, REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-AVL-004, REQ-MENU-AVL-006, BR-MENU-016, BR-MENU-017"
+            For combos: configuration eligible/available, all mandatory slots satisfied (minSelections <= selectedOptions.count <= maxSelections),
+            all mandatory modifier groups on every physical component instance (1..ComboOption.quantity) of each selected combo option satisfied,
+            and total calculated price is non-negative (totalPrice >= 0.00).
+          trace: "REQ-MENU-VAR-006, REQ-MENU-MOD-001, REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-AVL-004, REQ-MENU-AVL-006, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-010, INV-MENU-011"
         - name: pendingRequirements
           type: "List<String>"
           description: >
             Human-readable semantic list of unsatisfied constraints (e.g. 'Seleccione al menos 1 opción en Bebida',
-            'Seleccione término en Platillo Principal > Hamburguesa').
+            'Seleccione término en Platillo Principal > Hamburguesa (Instancia 1)').
           trace: "REQ-MENU-MOD-001, REQ-MENU-COM-002, BR-MENU-016"
         - name: blockingErrors
           type: "List<String>"
-          description: "List of blocking errors (e.g. 'Variante seleccionada no disponible', 'Capacidad excedida')."
-          trace: "REQ-MENU-AVL-004, REQ-MENU-AVL-005, REQ-MENU-AVL-006"
-      trace: "REQ-MENU-VAR-006, REQ-MENU-MOD-001, REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-AVL-004, REQ-MENU-AVL-005, REQ-MENU-AVL-006, BR-MENU-016, BR-MENU-017"
+          description: "List of blocking errors (e.g. 'Variante seleccionada no disponible', 'Capacidad excedida', 'El precio total no puede ser inferior a 0.00')."
+          trace: "REQ-MENU-AVL-004, REQ-MENU-AVL-005, REQ-MENU-AVL-006, INV-MENU-010"
+      trace: "REQ-MENU-VAR-006, REQ-MENU-MOD-001, REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-AVL-004, REQ-MENU-AVL-005, REQ-MENU-AVL-006, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-010, INV-MENU-011"
+    - id: domainBounds
+      name: Domain Bounds and Constraints
+      type: DomainBoundsProjection
+      description: "Authoritative SRS monetary, quantity, and currency bounds applicable to configuration."
+      fields:
+        - name: currencyCode
+          type: String
+          description: "Applicable 3-character ISO 4217 currency code governing all monetary evaluations (INV-MENU-007)."
+          trace: "INV-MENU-007"
+        - name: minPrice
+          type: Decimal
+          description: "Minimum valid final commercial price (0.00) (INV-MENU-010)."
+          trace: "INV-MENU-010"
+        - name: maxMonetaryAmount
+          type: Decimal
+          description: "Maximum absolute monetary amount (9999999999.99) in DECIMAL(12,2) (INV-MENU-008, INV-MENU-009)."
+          trace: "INV-MENU-008, INV-MENU-009"
+        - name: minPriceDelta
+          type: Decimal
+          description: "Minimum relative price delta (-9999999999.99) in DECIMAL(12,2) (INV-MENU-009)."
+          trace: "INV-MENU-009"
+        - name: maxPriceDelta
+          type: Decimal
+          description: "Maximum relative price delta (+9999999999.99) in DECIMAL(12,2) (INV-MENU-009)."
+          trace: "INV-MENU-009"
+        - name: minSelectionLimit
+          type: Integer
+          description: "Lower bound for minSelections, maxSelections, and maxQuantity (0) (INV-MENU-011)."
+          trace: "INV-MENU-011"
+        - name: maxSelectionLimit
+          type: Integer
+          description: "Upper bound for minSelections, maxSelections, and maxQuantity (99) (INV-MENU-011)."
+          trace: "INV-MENU-011"
+        - name: minComboOptionQuantity
+          type: Integer
+          description: "Minimum physical component quantity delivered by a ComboOption (1) (INV-MENU-011)."
+          trace: "INV-MENU-011"
+        - name: maxComboOptionQuantity
+          type: Integer
+          description: "Maximum physical component quantity delivered by a ComboOption (99) (INV-MENU-011)."
+          trace: "INV-MENU-011"
+        - name: maxNameLength
+          type: Integer
+          description: "Maximum Unicode character length for commercial names (120) (INV-MENU-012)."
+          trace: "INV-MENU-012"
+        - name: maxDescriptionLength
+          type: Integer
+          description: "Maximum Unicode character length for commercial descriptions (1000) (INV-MENU-012)."
+          trace: "INV-MENU-012"
+      trace: "INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, INV-MENU-012"
     - id: operationalStatusNotice
       name: Operational Status Notice
       type: "Object | null"
@@ -700,28 +834,38 @@ view:
       trace: "REQ-MENU-COM-001, REQ-MENU-COM-006, REQ-MENU-AVL-006"
     - id: comboOptionSelector
       type: selection
-      operatesOn: selectionState.selectedComboOptions
+      operatesOn: selectionState.selectedSlots
       triggersAction: toggleComboOption
       description: >
         Semantic selection control to pick or toggle options within a ComboSlot, distinguishing adding an unselected
-        option from removing an already-selected option. The requirement that isSelectable == true (enabled == true,
+        option from removing an already-selected option. Keeps selected options as a collection per slot, preserving slot
+        cardinality within minSelections..maxSelections. The requirement that isSelectable == true (enabled == true,
         leaf variant structurally eligible, and leaf variant operationally available) and slot.maxSelections capacity
         restrict additions only. An already-selected option can be removed by slotId and comboOptionId regardless of
         whether the option has become disabled, structurally ineligible, operationally unavailable, or the slot is
         currently at capacity.
-      trace: "REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-AVL-006"
+      trace: "REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-AVL-006, INV-MENU-011"
+    - id: comboComponentInstanceSelector
+      type: selection
+      operatesOn: selectionState.activeInstanceIndex
+      triggersAction: selectComboComponentInstance
+      description: >
+        Semantic instance selection control to choose and distinguish among explicit physical component instances
+        (numbered from 1 through ComboOption.quantity) of a chosen combo option to inspect and configure its modifiers independently.
+      trace: "REQ-MENU-COM-003, BR-MENU-008, BR-MENU-029, INV-MENU-011"
     - id: comboComponentModifierQuantityAdjuster
       type: quantity_control
-      operatesOn: selectionState.selectedComboOptions
+      operatesOn: selectionState.selectedSlots
       triggersAction: setComboComponentModifierQuantity
       description: >
-        Semantic integer quantity adjustment control for an individual modifier option of a selected leaf variant
-        within a combo slot. Confined strictly to the referenced component (BR-MENU-016, BR-MENU-017). Enforces individual
-        lower bound 0 and dynamic upper bound effectiveMaxQuantity based on the leaf variant's ResolvedVariantModifier and
-        inventory availability (respecting the null-vs-zero rule). Rejects increments that would cause the component's
-        group total selections to exceed maxSelections. Supports signed priceDelta (positive, zero, or negative);
-        fractional multipliers and repeated modifier aggregation across components remain open under OPEN-009.
-      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-008, REQ-MENU-AVL-005, BR-MENU-016, BR-MENU-017, OPEN-009"
+        Semantic integer quantity adjustment control for an individual modifier option of a specific physical component
+        instance (instanceIndex in 1..ComboOption.quantity) of a selected leaf variant within a combo slot. Confined strictly
+        to the referenced component instance (BR-MENU-016, BR-MENU-017, BR-MENU-029). Enforces individual lower bound 0 and
+        dynamic upper bound effectiveMaxQuantity based on the leaf variant's ResolvedVariantModifier and inventory availability
+        (respecting the null-vs-zero rule and maxQuantity in [0, 99]). Rejects increments that would cause the instance's
+        group total selections to exceed maxSelections. Supports signed priceDelta (positive, zero, or negative in DECIMAL(12,2));
+        charges apply independently per physical instance without deduplication or implicit discounts (BR-MENU-008, BR-MENU-029).
+      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-008, REQ-MENU-AVL-005, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-008, INV-MENU-009, INV-MENU-011"
     - id: resetSelection
       type: action
       operatesOn: selectionState
@@ -733,12 +877,14 @@ view:
       operatesOn:
         - selectionState
         - configurationValidationStatus
+        - runningTotalPrice
       triggersAction: confirmSelection
       description: >
-        Semantic confirmation action validating complete domain constraints (min/max bounds, availability, eligibility)
-        and emitting the configuredSelection output payload to the external POS/KDS context.
+        Semantic confirmation action validating complete domain constraints (min/max bounds, availability, eligibility,
+        and non-negative price) and emitting the configuredSelection output payload to the external POS/KDS context.
+        Disabled or rejected if totalPrice < 0.00 (INV-MENU-010).
         Does not submit an order line, persist an order aggregate, or manage cart state.
-      trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-001, REQ-MENU-COM-001, docs/ui-spec-arch.md"
+      trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-001, REQ-MENU-COM-001, INV-MENU-010, docs/ui-spec-arch.md"
   actions:
     - id: selectVariant
       description: "Choose a specific MenuItemVariant for a leaf item, updating selectedVariantId and recalculating available modifiers and base price."
@@ -770,38 +916,6 @@ view:
         - "Resulting group total selections must not exceed group.maxSelections."
       effect: "Updates selectedModifiers entry, adjusts runningTotalPrice.modifiersTotalDelta with signed priceDelta, and recalculates group satisfaction."
       trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-008, REQ-MENU-AVL-005"
-    - id: setComboComponentModifierQuantity
-      description: "Set the selected quantity for a modifier option of a leaf variant chosen within a combo slot."
-      parameters:
-        - name: slotId
-          type: UUID
-          description: "Identifier of the target ComboSlot."
-        - name: comboOptionId
-          type: UUID
-          description: "Identifier of the chosen ComboOption containing the component leaf variant."
-        - name: modifierGroupId
-          type: UUID
-          description: "Identifier of the target ModifierGroup defined by the component's leaf variant."
-        - name: modifierOptionId
-          type: UUID
-          description: "Identifier of the target ModifierOption."
-        - name: quantity
-          type: Integer
-          description: "Requested quantity (0 <= quantity <= effectiveMaxQuantity)."
-      preconditions:
-        - "The item must be of type COMBO, and a valid ComboConfiguration must be selected."
-        - "The target comboOptionId must be currently selected in slotId."
-        - "The target modifier option must belong to a modifier group of the referenced leaf variant."
-        - "The target option must have enabled == true and isAvailable == true (or quantity == 0) for that component variant."
-        - "Requested quantity must not exceed option effectiveMaxQuantity."
-        - "Resulting group total selections within this component variant must not exceed group.maxSelections."
-      effect: >
-        Updates the component modifier entry within selectionState.selectedComboOptions,
-        adjusts runningTotalPrice.comboComponentModifiersTotalDelta and runningTotalPrice.totalPrice
-        using signed priceDelta, and recalculates group satisfaction for the component variant.
-        Modification is strictly confined to this component (BR-MENU-016). Unmodeled fractional
-        multipliers and repeated modifier aggregation remain open per OPEN-009.
-      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-002, REQ-MENU-MOD-008, REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-AVL-005, BR-MENU-016, BR-MENU-017, OPEN-009"
     - id: selectComboConfiguration
       description: "Choose an active ComboConfiguration for a COMBO MenuItem."
       parameters:
@@ -811,10 +925,10 @@ view:
       preconditions:
         - "The item must be of type COMBO."
         - "The chosen configuration must have isStructurallyEligible == true and isAvailable == true."
-      effect: "Sets selectionState.selectedConfigurationId to configurationId, updates runningTotalPrice.baseUnitPrice, loads corresponding comboSlots, and clears previous slot and component modifier selections."
-      trace: "REQ-MENU-COM-001, REQ-MENU-COM-006, REQ-MENU-AVL-006"
+      effect: "Sets selectionState.selectedConfigurationId to configurationId, updates runningTotalPrice.baseUnitPrice, loads corresponding comboSlots, initializes selectedSlots with empty selectedOptions collections, resets activeInstanceIndex, and clears previous slot and component modifier selections."
+      trace: "REQ-MENU-COM-001, REQ-MENU-COM-006, REQ-MENU-AVL-006, INV-MENU-009"
     - id: toggleComboOption
-      description: "Select or deselect a ComboOption within a ComboSlot of a combo configuration, distinguishing addition of an unselected option from removal of an already-selected option."
+      description: "Select or deselect a ComboOption within a ComboSlot of a combo configuration, maintaining selected options as a collection per slot within minSelections..maxSelections."
       parameters:
         - name: slotId
           type: UUID
@@ -824,31 +938,87 @@ view:
           description: "Identifier of the target ComboOption."
       preconditions:
         - "The item must be of type COMBO, and a valid ComboConfiguration must be selected."
-        - "For adding an unselected option: requires isSelectable == true (enabled == true, referenced variant structurally eligible, and referenced variant operationally available) and currentSelectedCount < slot.maxSelections."
+        - "For adding an unselected option: requires isSelectable == true (enabled == true, referenced variant structurally eligible, and referenced variant operationally available) and current selected options count in slot < slot.maxSelections (maxSelections <= 99)."
         - "For removing an already-selected option: requires only that the option is already selected under the matching slotId and comboOptionId. Removal remains allowed when the option has become disabled, structurally ineligible, operationally unavailable, or the slot is currently at capacity."
       effect: >
-        For addition: adds the option to selectionState.selectedComboOptions, updates runningTotalPrice.comboOptionsTotalDelta
-        with signed priceDelta, initializes component modifier choices for the referenced leaf variant, and recalculates slot
-        satisfaction and validation status.
-        For removal: deletes the selected option and its component-modifier context, reverses the option and component-modifier
-        price deltas, and recalculates slot satisfaction and validation status.
-      trace: "REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-AVL-006, BR-MENU-016, BR-MENU-017"
+        For addition: adds the option to the slot's selectedOptions collection in selectionState.selectedSlots,
+        initializes explicit physical component instances numbered 1 through ComboOption.quantity (each holding its own
+        empty or default modifier selections), sets activeInstanceIndex to 1, updates runningTotalPrice.comboOptionsTotalDelta
+        with signed priceDelta, and recalculates slot satisfaction, running total price, and validation status.
+        For removal: deletes the selected option and all its physical component instances from the slot's selectedOptions collection,
+        reverses option priceDelta and all component instance modifier price deltas from runningTotalPrice,
+        and recalculates slot satisfaction, running total price, and validation status.
+      trace: "REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-AVL-006, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-010, INV-MENU-011"
+    - id: selectComboComponentInstance
+      description: "Focus an explicit physical component instance (1..quantity) of a chosen combo option to inspect and adjust its specific modifier choices."
+      parameters:
+        - name: slotId
+          type: UUID
+          description: "Identifier of the target ComboSlot."
+        - name: comboOptionId
+          type: UUID
+          description: "Identifier of the target ComboOption."
+        - name: instanceIndex
+          type: Integer
+          description: "Physical component instance index in the range [1, ComboOption.quantity]."
+      preconditions:
+        - "The item must be of type COMBO, and a valid ComboConfiguration must be selected."
+        - "The target comboOptionId must be currently selected in slotId."
+        - "instanceIndex must be an integer in the range [1, ComboOption.quantity]."
+      effect: "Sets selectionState.activeInstanceIndex to instanceIndex and focuses modifier controls on that physical component instance."
+      trace: "REQ-MENU-COM-003, BR-MENU-008, BR-MENU-029, INV-MENU-011"
+    - id: setComboComponentModifierQuantity
+      description: "Set the selected quantity for a modifier option of a specific physical component instance of a leaf variant chosen within a combo slot."
+      parameters:
+        - name: slotId
+          type: UUID
+          description: "Identifier of the target ComboSlot."
+        - name: comboOptionId
+          type: UUID
+          description: "Identifier of the chosen ComboOption containing the component leaf variant."
+        - name: instanceIndex
+          type: Integer
+          description: "Correlative physical component instance number in the range [1, ComboOption.quantity]."
+        - name: modifierGroupId
+          type: UUID
+          description: "Identifier of the target ModifierGroup defined by the component's leaf variant."
+        - name: modifierOptionId
+          type: UUID
+          description: "Identifier of the target ModifierOption."
+        - name: quantity
+          type: Integer
+          description: "Requested quantity (0 <= quantity <= effectiveMaxQuantity, with maxQuantity in [0, 99])."
+      preconditions:
+        - "The item must be of type COMBO, and a valid ComboConfiguration must be selected."
+        - "The target comboOptionId must be currently selected in slotId."
+        - "instanceIndex must be an integer in the range [1, ComboOption.quantity]."
+        - "The target modifier option must belong to a modifier group of the referenced leaf variant."
+        - "The target option must have enabled == true and isAvailable == true (or quantity == 0) for that component variant."
+        - "Requested quantity must not exceed option effectiveMaxQuantity."
+        - "Resulting group total selections within this specific physical component instance must not exceed group.maxSelections."
+      effect: >
+        Updates the modifier entry for physical component instance (instanceIndex) within selectionState.selectedSlots,
+        adjusts runningTotalPrice.comboComponentModifiersTotalDelta and runningTotalPrice.totalPrice using signed priceDelta
+        (calculated independently per instance without deduplication per BR-MENU-008 and BR-MENU-029), and recalculates group
+        satisfaction for the instance, total price, and validation status. Modification is strictly confined to this component instance (BR-MENU-016).
+      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-002, REQ-MENU-MOD-008, REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-AVL-005, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-010, INV-MENU-011"
     - id: resetSelection
       description: "Clear all current selections, resetting the view to its initial unconfigured or default state."
       parameters: []
-      effect: "Clears selectedModifiers, selectedComboOptions (including all component-level modifier selections), resets selectedConfigurationId, and rebinds default variant if applicable."
+      effect: "Clears selectedModifiers, selectedSlots (including all options and physical component instances), resets selectedConfigurationId, activeInstanceIndex, and rebinds default variant if applicable."
       trace: "NFR-MENU-PERF-02"
     - id: confirmSelection
       description: "Validate the formed selection against all domain rules and emit the configuredSelection handoff payload."
       parameters: []
       preconditions:
         - "configurationValidationStatus.isValid must be true."
+        - "runningTotalPrice.totalPrice must be greater than or equal to 0.00 (INV-MENU-010); negative prices are strictly rejected."
         - "All mandatory modifier groups (for leaf items) must satisfy minSelections <= currentSelectionsCount <= maxSelections."
-        - "All mandatory slots (for combos) must satisfy minSelections <= currentSelectedCount <= maxSelections."
-        - "All mandatory modifier groups on every selected combo option's component leaf variant must be satisfied (minSelections <= currentSelectionsCount <= maxSelections) before handoff."
+        - "All mandatory slots (for combos) must satisfy minSelections <= selectedOptions.count <= maxSelections."
+        - "All mandatory modifier groups on every physical component instance (1..ComboOption.quantity) of every selected combo option must be satisfied (minSelections <= currentSelectionsCount <= maxSelections) before handoff."
         - "No selected option or unit may be unavailable or exceeding allowed limits."
       effect: "Emits configuredSelection output payload to external POS/KDS context. Does not create an order line or cart line."
-      trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-001, REQ-MENU-COM-001, REQ-MENU-MOD-001, BR-MENU-016, BR-MENU-017, docs/ui-spec-arch.md"
+      trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-001, REQ-MENU-COM-001, REQ-MENU-ING-001, REQ-MENU-MOD-001, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-010, docs/ui-spec-arch.md"
   states:
     - id: leafSingleDefaultVariant
       description: "Leaf item has only a single technical DEFAULT variant. Variant is automatically selected behind the scenes, dimension choices are suppressed, and modifier customization is active."
@@ -871,24 +1041,29 @@ view:
       condition: "itemType == 'COMBO' and selectedConfigurationId == null."
       trace: "REQ-MENU-COM-001"
     - id: comboSlotsConfiguring
-      description: "A ComboConfiguration is selected, and slot options or component modifiers are being configured."
+      description: "A ComboConfiguration is selected, and slot options or physical component instances (1..quantity) are being configured."
       condition: "itemType == 'COMBO' and selectedConfigurationId != null."
-      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, BR-MENU-016, BR-MENU-017"
+      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-003, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029"
     - id: comboConfigurationComplete
       description: >
         Combo configuration is complete and valid: all mandatory slots satisfy minSelections <= count <= maxSelections
-        with selectable options, all mandatory modifier groups on every selected component leaf variant are satisfied,
-        and total price is computed (including combo option deltas and component modifier deltas).
+        with selectable options, all mandatory modifier groups on every physical component instance (1..ComboOption.quantity)
+        of every selected component leaf variant are satisfied, and total price is non-negative (totalPrice >= 0.00) and computed
+        using the normative formula (ComboConfiguration.unitPrice + option deltas + component modifier deltas per physical instance).
       condition: >
         itemType == 'COMBO' and selectedConfigurationId != null and all mandatory slots satisfied
-        and all mandatory modifier groups of all selected component leaf variants satisfied.
-      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-MOD-001, REQ-MENU-AVL-006, BR-MENU-016, BR-MENU-017"
+        and all mandatory modifier groups on all physical component instances satisfied and runningTotalPrice.totalPrice >= 0.00.
+      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-MOD-001, REQ-MENU-AVL-006, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-010, INV-MENU-011"
     - id: comboComponentModifierPending
       description: >
-        One or more selected combo options reference leaf variants with mandatory modifier groups (minSelections > 0)
-        that have not yet reached minSelections, preventing confirmation until satisfied.
-      condition: "itemType == 'COMBO' and any selected combo option component variant has unsatisfied mandatory modifier groups."
-      trace: "REQ-MENU-MOD-001, REQ-MENU-COM-002, BR-MENU-016, BR-MENU-017"
+        One or more selected combo options reference leaf variants where one or more physical component instances (1..ComboOption.quantity)
+        have mandatory modifier groups (minSelections > 0) that have not yet reached minSelections, preventing confirmation until satisfied.
+      condition: "itemType == 'COMBO' and any physical component instance of a selected combo option has unsatisfied mandatory modifier groups."
+      trace: "REQ-MENU-MOD-001, REQ-MENU-COM-002, REQ-MENU-COM-003, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-011"
+    - id: comboPriceNegative
+      description: "The calculated total price for the combo configuration is negative (< 0.00), violating INV-MENU-010 and strictly blocking confirmation."
+      condition: "itemType == 'COMBO' and runningTotalPrice.totalPrice < 0.00."
+      trace: "INV-MENU-010"
     - id: optionCapacityExhausted
       description: "One or more modifier options have evaluatedCapacity == 0, resulting in availableMaxQuantity = 0 and isAvailable = false, blocking addition while leaving unaffected options available."
       condition: "Any modifier option has evaluatedCapacity == 0 and isAvailable == false."
@@ -909,8 +1084,8 @@ view:
         (configuration selection, slots, and component options). In the Combo v1 model, ModifierGroup and ModifierOption
         belong exclusively to leaf products and are absent from the COMBO MenuItem aggregate structure (BR-MENU-017),
         but when a leaf variant is selected within a combo slot, its modifier groups and resolved options are exposed
-        for component-level customization strictly confined to that component (BR-MENU-016).
-      trace: "REQ-MENU-ITM-001, REQ-MENU-MOD-001, REQ-MENU-COM-001, BR-MENU-016, BR-MENU-017, BR-MENU-018"
+        for component-level customization strictly confined to that specific physical component instance (BR-MENU-016, BR-MENU-029).
+      trace: "REQ-MENU-ITM-001, REQ-MENU-MOD-001, REQ-MENU-COM-001, BR-MENU-016, BR-MENU-017, BR-MENU-018, BR-MENU-029"
     - id: C-SIC-002
       description: >
         When a leaf item has no commercial dimensions, its single technical DEFAULT variant is automatically selected
@@ -936,10 +1111,11 @@ view:
     - id: C-SIC-006
       description: >
         Modifier options present commercially resolved definitions from ResolvedVariantModifier, distinguishing
-        administrative enabled status, signed priceDelta (supports positive, zero, or negative decimal values),
-        commercial configuredMaxQuantity, operational availability isAvailable, and dynamic limit availableMaxQuantity.
-        Operational changes never alter commercial configuration. No domain or presentation rule limits priceDelta to zero or positive.
-      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-002, REQ-MENU-MOD-003, REQ-MENU-MOD-008"
+        administrative enabled status, signed priceDelta (DECIMAL(12,2) supporting positive, zero, or negative values
+        bounded by [-9999999999.99, +9999999999.99]), commercial configuredMaxQuantity (bounded by [0, 99]), operational
+        availability isAvailable, and dynamic limit availableMaxQuantity. Operational changes never alter commercial configuration.
+        No domain or presentation rule limits priceDelta to zero or positive.
+      trace: "REQ-MENU-MOD-001, REQ-MENU-MOD-002, REQ-MENU-MOD-003, REQ-MENU-MOD-008, INV-MENU-008, INV-MENU-009, INV-MENU-011"
     - id: C-SIC-007
       description: >
         Dynamic modifier quantity limits follow the strict null-versus-zero rule: evaluatedCapacity == 0 results
@@ -950,12 +1126,13 @@ view:
       trace: "REQ-MENU-AVL-005"
     - id: C-SIC-008
       description: >
-        Within each ModifierGroup (whether on a leaf item or on a leaf variant selected inside a combo slot),
-        selected quantities must satisfy minSelections <= sum(q) <= maxSelections. Total contributed capacity
-        sum(c(o)) across available options must be >= minSelections; if an obligatory group cannot satisfy
-        minSelections, the parent variant becomes unavailable. For combos, all mandatory modifier groups of each
-        selected component variant must be satisfied before confirmation.
-      trace: "REQ-MENU-MOD-001, REQ-MENU-AVL-004, REQ-MENU-AVL-005, BR-MENU-016, BR-MENU-017"
+        Within each ModifierGroup (whether on a leaf item or on a specific physical component instance of a leaf variant
+        selected inside a combo slot), selected quantities must satisfy minSelections <= sum(q) <= maxSelections, with
+        limits bounded by [0, 99]. Total contributed capacity sum(c(o)) across available options must be >= minSelections;
+        if an obligatory group cannot satisfy minSelections, the parent variant becomes unavailable. For combos, all
+        mandatory modifier groups on every physical component instance (1..ComboOption.quantity) of each selected component
+        variant must be satisfied before confirmation.
+      trace: "REQ-MENU-MOD-001, REQ-MENU-AVL-004, REQ-MENU-AVL-005, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-011"
     - id: C-SIC-009
       description: >
         Ingredient effects apply OMIT before ADD: OMIT discounts/nullifies the base recipe ingredient before computing
@@ -964,24 +1141,29 @@ view:
       trace: "REQ-MENU-MOD-005, REQ-MENU-MOD-006, REQ-MENU-MOD-007, REQ-MENU-AVL-005"
     - id: C-SIC-010
       description: >
-        Every ComboConfiguration has an authoritative absolute unitPrice (unitPrice >= 0). Total combo price is
-        ComboConfiguration.unitPrice + sum(selectedComboOption.priceDelta) + sum(componentModifier.quantity * componentModifier.priceDelta),
-        where all price deltas admit signed decimal values (positive, zero, or negative). Commercial pricing rules for
-        fractional portions or aggregation/discounting of duplicate modifiers across multiple components remain explicitly
-        unmodeled per OPEN-009.
-      trace: "REQ-MENU-COM-001, REQ-MENU-COM-003, REQ-MENU-MOD-002, REQ-MENU-MOD-008, BR-MENU-016, BR-MENU-017, OPEN-009"
+        Every ComboConfiguration has an authoritative absolute unitPrice (unitPrice >= 0.00, bounded by [0.00, 9999999999.99]).
+        Total combo price is computed strictly as ComboConfiguration.unitPrice + sum(selectedComboOption.priceDelta) +
+        sum(instanceModifier.quantity * instanceModifier.priceDelta) summed independently across all physical component instances
+        (1..ComboOption.quantity) of all selected options. Combo pricing strictly never adds MenuItemVariant.unitPrice of component
+        variants, never deduplicates repeated modifiers across multiple physical instances, and never applies implicit package discounts
+        (BR-MENU-008, BR-MENU-029). All price deltas are signed DECIMAL(12,2) in [-9999999999.99, +9999999999.99]. The final total price
+        must be greater than or equal to 0.00 (INV-MENU-010); configurations resulting in a negative total price are invalid and confirmation is rejected.
+      trace: "REQ-MENU-COM-001, REQ-MENU-COM-003, REQ-MENU-MOD-002, REQ-MENU-MOD-008, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-008, INV-MENU-009, INV-MENU-010"
     - id: C-SIC-011
       description: >
-        Within each ComboSlot, selected options count must satisfy minSelections <= count <= maxSelections.
-        Slot availableCapacity is strictly the count of currently selectable options. Each selectable option
-        contributes at most 1 to availableCapacity regardless of ComboOption.quantity.
-      trace: "REQ-MENU-COM-002, REQ-MENU-AVL-006"
+        Within each ComboSlot, selected options count must satisfy minSelections <= count <= maxSelections (bounded in [0, 99]).
+        Selected options are held as a collection per slot. Slot availableCapacity is strictly the count of currently selectable options.
+        Each selectable option contributes at most 1 to availableCapacity regardless of ComboOption.quantity.
+      trace: "REQ-MENU-COM-002, REQ-MENU-AVL-006, INV-MENU-011"
     - id: C-SIC-012
       description: >
-        ComboOptions point directly to a concrete leaf MenuItemVariant (itemVariantId) and define a positive physical
-        quantity supplied and a signed priceDelta (may be positive, zero, or negative). When selected, the component's
-        modifier groups are exposed and configurable, but the view does not interpret internal dimensions of component items.
-      trace: "REQ-MENU-COM-003, REQ-MENU-AVL-006, BR-MENU-016, BR-MENU-017"
+        ComboOptions point directly to a concrete leaf MenuItemVariant (itemVariantId) and define a positive integer physical
+        quantity supplied (quantity in [1, 99]) and a signed priceDelta (bounded in [-9999999999.99, +9999999999.99]).
+        Each unit from 1 through ComboOption.quantity represents an explicit, independently customizable physical component instance.
+        Commercial fractional portions are represented strictly by selecting distinct leaf variants; fractional quantities or inferred
+        fractional price coefficients are prohibited. When selected, each physical instance's modifier groups are exposed and configurable,
+        but the view does not interpret internal dimensions of component items.
+      trace: "REQ-MENU-COM-003, REQ-MENU-AVL-006, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-009, INV-MENU-011"
     - id: C-SIC-013
       description: >
         A ComboConfiguration is structurally eligible if the parent COMBO is ACTIVE and all mandatory slots have enough
@@ -1001,15 +1183,26 @@ view:
       trace: "docs/ui-spec-arch.md, REQ-MENU-ITM-001"
     - id: C-SIC-016
       description: >
-        Modifier customization for combo components is strictly confined to the leaf variant chosen within the slot (BR-MENU-016).
-        Modifiers applied to one component never affect the recipe or inventory deduction of other components.
-        All mandatory modifier groups (minSelections > 0) of each selected component leaf variant must satisfy
-        minSelections <= sum(q) <= maxSelections before the combo configuration handoff can be confirmed.
-      trace: "REQ-MENU-MOD-001, REQ-MENU-COM-002, BR-MENU-016, BR-MENU-017"
+        Modifier customization for combo components is strictly confined to the specific physical component instance (1..ComboOption.quantity)
+        of the leaf variant chosen within the slot (BR-MENU-016, BR-MENU-029). Modifiers applied to one physical instance never affect the recipe,
+        inventory deduction, or pricing of other physical instances. All mandatory modifier groups (minSelections > 0) of every physical component
+        instance must satisfy minSelections <= sum(q) <= maxSelections before the combo configuration handoff can be confirmed.
+      trace: "REQ-MENU-MOD-001, REQ-MENU-COM-002, REQ-MENU-COM-003, BR-MENU-008, BR-MENU-016, BR-MENU-017, BR-MENU-029, INV-MENU-011"
     - id: C-SIC-017
       description: >
-        Price calculation and payload handoff explicitly preserve the unmodeled scope of OPEN-009:
-        pricing multipliers for fractional component portions (e.g. half-portions in combos) and policies for
-        aggregating or discounting duplicate modifier options across different components of the same combo are
-        not arbitrarily invented or resolved by this view.
-      trace: "REQ-MENU-PRC-001, REQ-MENU-COM-001, REQ-MENU-COM-003, OPEN-009"
+        Normative resolution of combo component customization and pricing: every physical unit supplied by a chosen ComboOption
+        is instantiated as an explicit component instance (numbered 1 through ComboOption.quantity) with independent modifier selections
+        and quantities. Modifier price adjustments are computed independently per physical instance and multiplied by modifier quantity
+        without cross-instance deduplication or implicit package discounts (BR-MENU-008, BR-MENU-029). Commercial fractional portions
+        must be modeled and selected as separate leaf MenuItemVariants rather than fractional quantities or inferred price multipliers.
+        The overall combo price must never be negative (INV-MENU-010).
+      trace: "REQ-MENU-PRC-001, REQ-MENU-COM-001, REQ-MENU-COM-003, REQ-MENU-ING-001, BR-MENU-008, BR-MENU-016, BR-MENU-029, INV-MENU-010, INV-MENU-011"
+    - id: C-SIC-018
+      description: >
+        Commercial and quantitative values strictly adhere to SRS domain bounds: all monetary prices and deltas are expressed in
+        a single ISO 4217 currency code (INV-MENU-007) with DECIMAL(12,2) scale (INV-MENU-008). Absolute prices are bounded in
+        [0.00, 9999999999.99], price deltas in [-9999999999.99, +9999999999.99], and calculated total prices must be >= 0.00 (INV-MENU-009, INV-MENU-010).
+        Slot selection limits, modifier group selection limits, and modifier option max quantities are bounded by integer range [0, 99] (INV-MENU-011).
+        ComboOption quantities are bounded by positive integer range [1, 99] (INV-MENU-011). Item names are bounded by 1..120 characters and descriptions
+        by 0..1000 characters (INV-MENU-012).
+      trace: "INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, INV-MENU-012"

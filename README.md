@@ -73,6 +73,19 @@ Contiene el sistema visual y los metadatos utilizados para mantener consistencia
 
 Incluye automatizaciones para capturar cambios documentales, ejecutar el flujo de trabajo y validar que las modificaciones respeten las reglas del repositorio.
 
+La sintaxis Mermaid de todos los archivos Markdown se valida con la API oficial de Mermaid:
+
+```powershell
+pnpm install
+pnpm lint:mermaid
+```
+
+El linter reporta el archivo y la línea Markdown correspondiente a cada bloque inválido. También acepta rutas concretas:
+
+```powershell
+pnpm lint:mermaid -- output/ui-spec/flows/configure-sellable-item.md
+```
+
 ## Documentos de entrada y entregables principales
 
 - [Problema inicial](docs/md/Problema-Inicial.md)

@@ -4,8 +4,8 @@ view:
   purpose: >
     Provide the menu administrator with a specialized semantic interface to create culinary recipes,
     inspect immutable revision histories, and author new recipe revisions consisting of a descriptive
-    name and a list of RecipeComponent entries (specifying opaque inventoryItemId, positive quantity,
-    and measurement unit). Enforces strict version immutability (INV-MENU-004) where any modification
+    name (constrained to 1..120 Unicode characters after trim) and a list of RecipeComponent entries (specifying opaque inventoryItemId, positive quantity,
+    and measurement unit) through design-neutral reference controls (with acquisition interaction unresolved in issues tracker), while enforcing input length bounds. Enforces strict version immutability (INV-MENU-004) where any modification
     produces a new immutable revision formatted as '<number>_<ISO8601>' and never mutates earlier revisions,
     while establishing that PREPARED MenuItemVariants referencing previous revisions retain their prior
     recipeRevisionId until explicit adoption elsewhere, without inventing inventory search, catalog lookup,
@@ -17,6 +17,7 @@ view:
     - REQ-MENU-FUL-003
     - REQ-MENU-FUL-004
     - INV-MENU-004
+    - INV-MENU-012
   inputs:
     - name: recipeId
       type: "UUID | null"
@@ -57,7 +58,7 @@ view:
         - revisionSelector
     - id: recipeComponentsRegion
       role: primary
-      description: "Semantic region for managing RecipeComponent entries (opaque inventoryItemId, positive quantity, and measurement unit) for the working recipe revision."
+      description: "Semantic region for managing RecipeComponent entries (opaque inventoryItemId reference with unresolved acquisition interaction, positive quantity, and measurement unit) for the working recipe revision."
       data:
         - recipeComponents
       controls:
@@ -82,7 +83,7 @@ view:
       controls: []
     - id: revisionCommitRegion
       role: supporting
-      description: "Semantic region evaluating structural invariants and providing actions to commit a new immutable revision or discard pending edits."
+      description: "Semantic region evaluating structural invariants and input bounds (1..120 Unicode characters after trim) and providing actions to commit a new immutable revision or discard pending edits."
       data:
         - recipeValidationStatus
       controls:
@@ -100,8 +101,8 @@ view:
           trace: "REQ-MENU-FUL-003"
         - name: name
           type: String
-          description: "Descriptive culinary name of the Recipe (e.g. 'Salsa Pomodoro Especial', 'Masa Tradicional Pizza')."
-          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+          description: "Descriptive culinary name of the Recipe (1..120 Unicode characters after trimming leading and trailing whitespace, e.g. 'Salsa Pomodoro Especial', 'Masa Tradicional Pizza')."
+          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-012"
         - name: currentRevision
           type: "String | null"
           description: "Active immutable revision token formatted as '<number>_<ISO8601>'; null for a new unpersisted recipe."
@@ -118,7 +119,7 @@ view:
           type: Boolean
           description: "True if inspecting an earlier historical revision in read-only mode, locking inputs against accidental in-place alteration."
           trace: "REQ-MENU-FUL-004, INV-MENU-004"
-      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004, INV-MENU-012"
     - id: recipeComponents
       name: Recipe Components
       type: "List<RecipeComponentProjection>"
@@ -130,8 +131,8 @@ view:
           trace: "REQ-MENU-FUL-003"
         - name: inventoryItemId
           type: String
-          description: "Foreign opaque inventory identifier or SKU; kept strictly opaque with no inventory search or lookup behavior."
-          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+          description: "Foreign opaque inventory identifier or SKU; preserved as a required external reference whose concrete human interaction modality (typing, selection, or search/picker) remains unresolved in issues tracker (human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition), without inventing inventory search or lookup behavior."
+          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
         - name: quantity
           type: Decimal
           description: "Required ingredient quantity for the recipe preparation (quantity > 0)."
@@ -140,7 +141,7 @@ view:
           type: String
           description: "Formal metric or operational inventory unit of measurement (e.g. 'g', 'ml', 'piezas', 'kg')."
           trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
-      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
     - id: revisionHistory
       name: Recipe Revision History
       type: "List<RecipeRevisionHistoryEntryProjection>"
@@ -192,24 +193,24 @@ view:
     - id: recipeValidationStatus
       name: Recipe Revision Validation Status
       type: RecipeValidationStatusProjection
-      description: "Real-time evaluation of structural constraints required to commit and persist a recipe revision."
+      description: "Real-time evaluation of structural constraints and input bounds (name length 1..120 Unicode characters after trim, component presence and validity) required to commit and persist a recipe revision."
       fields:
         - name: isValid
           type: Boolean
-          description: "True if recipe name is non-empty, at least one component is present, and every component has non-empty inventoryItemId, quantity > 0, and non-empty unit."
-          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+          description: "True if recipe name has 1..120 Unicode characters after trim, at least one component is present, and every component has non-empty inventoryItemId, quantity > 0, and non-empty unit."
+          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004, INV-MENU-012"
         - name: validationErrors
           type: "List<String>"
-          description: "List of validation error messages preventing revision commitment."
-          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
-      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+          description: "List of validation error messages preventing revision commitment (e.g. 'El nombre de la receta debe contener entre 1 y 120 caracteres tras recortar espacios', 'La receta debe contener al menos un componente de ingrediente', 'El identificador de inventario es requerido', 'La cantidad del componente debe ser mayor a 0', 'La unidad de medida es requerida')."
+          trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004, INV-MENU-012"
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004, INV-MENU-012"
   controls:
     - id: nameInput
       type: input
       operatesOn: recipeIdentity.name
       triggersAction: updateRecipeNameField
-      description: "Semantic text input for the descriptive culinary name of the Recipe."
-      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+      description: "Semantic text input for the descriptive culinary name of the Recipe (constrained to 1..120 Unicode characters after trimming leading and trailing whitespace)."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-012"
     - id: revisionSelector
       type: selection
       operatesOn: recipeIdentity.currentRevision
@@ -229,11 +230,11 @@ view:
       description: "Semantic action to remove a RecipeComponent entry from the working revision buffer."
       trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
     - id: componentInventoryItemIdInput
-      type: input
+      type: control
       operatesOn: recipeComponents.inventoryItemId
       triggersAction: updateComponentInventoryItemId
-      description: "Semantic text input for the foreign opaque inventory item identifier (SKU); records no inventory search, catalog lookup, or selector behavior."
-      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+      description: "Design-neutral reference control for the required foreign opaque inventory item identifier (inventoryItemId / SKU); preserves the mandatory component reference without assuming the administrator types the identifier directly (concrete entry, selection, or search/picker interaction remains explicitly unresolved in issues tracker; does not specify Inventory integration or lookup behavior)."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
     - id: componentQuantityInput
       type: input
       operatesOn: recipeComponents.quantity
@@ -265,8 +266,8 @@ view:
         - recipeComponents
         - recipeValidationStatus
       triggersAction: commitRecipeRevision
-      description: "Primary semantic action to validate components and persist the recipe revision. Creates an initial immutable revision '<number>_<ISO8601>' for new recipes or an incremented immutable revision for existing recipes, never mutating earlier revisions."
-      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+      description: "Primary semantic action to validate name bounds (1..120 Unicode characters after trim) and components, and persist the recipe revision. Creates an initial immutable revision '<number>_<ISO8601>' for new recipes or an incremented immutable revision for existing recipes, never mutating earlier revisions."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004, INV-MENU-012"
     - id: cancelEditAction
       type: action
       operatesOn: null
@@ -275,15 +276,16 @@ view:
       trace: "docs/ui-spec-arch.md"
   actions:
     - id: updateRecipeNameField
-      description: "Update the recipe descriptive name in the working revision buffer."
+      description: "Update the recipe descriptive name in the working revision buffer, enforcing the 1..120 Unicode characters bound after trim."
       parameters:
         - name: newName
           type: String
-          description: "New commercial culinary name for the recipe."
+          description: "New commercial culinary name for the recipe (1..120 Unicode characters after trim)."
       preconditions:
         - "recipeIdentity.isHistoricalReadOnly must be false."
-      effect: "Updates working copy of recipeIdentity.name."
-      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+        - "newName after trim must have 1..120 Unicode characters (INV-MENU-012)."
+      effect: "Updates working copy of recipeIdentity.name; updates recipeValidationStatus if bounds are violated."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-012"
     - id: selectRevisionForInspection
       description: "Select an immutable revision from revisionHistory to inspect in the view."
       parameters:
@@ -312,18 +314,19 @@ view:
       effect: "Removes the component entry from recipeComponents."
       trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
     - id: updateComponentInventoryItemId
-      description: "Update the opaque foreign inventory identifier / SKU for a specific component entry."
+      description: "Bind or update the required opaque foreign inventory identifier / SKU for a specific component entry via a design-neutral reference control (concrete human interaction modality tracked as unresolved in issues tracker; does not specify Inventory integration or lookup behavior)."
       parameters:
         - name: componentId
           type: UUID
           description: "Identifier of the target component."
         - name: inventoryItemId
           type: String
-          description: "Foreign opaque inventory identifier string."
+          description: "Foreign opaque inventory identifier string (preserves required external reference; acquisition modality unresolved)."
       preconditions:
         - "recipeIdentity.isHistoricalReadOnly must be false."
-      effect: "Updates component.inventoryItemId in the working buffer without triggering inventory search or lookup."
-      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004"
+        - "inventoryItemId must be non-empty."
+      effect: "Updates component.inventoryItemId in the working buffer without specifying inventory integration or lookup behavior."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
     - id: updateComponentQuantity
       description: "Update the positive ingredient quantity for a specific component entry."
       parameters:
@@ -376,7 +379,7 @@ view:
       parameters: []
       preconditions:
         - "recipeValidationStatus.isValid must be true."
-        - "recipeIdentity.name must be non-empty."
+        - "recipeIdentity.name after trim must be 1..120 Unicode characters (INV-MENU-012)."
         - "recipeComponents must contain at least one component (count >= 1)."
         - "All components must have non-empty inventoryItemId, quantity > 0, and non-empty unit."
         - "recipeIdentity.isHistoricalReadOnly must be false."
@@ -388,7 +391,7 @@ view:
         (INV-MENU-004). MenuItemVariants referencing prior revisions retain their prior recipeRevisionId unchanged;
         variant adoption is not performed by this action and must be explicitly executed in MenuItemEditorView
         (REQ-MENU-FUL-002, REQ-MENU-FUL-004). Emits savedRecipeId, newRecipeRevisionId, and returnToOriginSignal.
-      trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004"
+      trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004, INV-MENU-012"
     - id: cancelRecipeEdit
       description: "Discard unsaved modifications in the working buffer and return to calling origin view."
       parameters: []
@@ -407,6 +410,14 @@ view:
       description: "Editor is displaying an earlier immutable revision for historical inspection and audit. All modification controls are disabled to preserve historical integrity."
       condition: "recipeIdentity.isHistoricalReadOnly == true."
       trace: "REQ-MENU-FUL-004, INV-MENU-004"
+    - id: invalidRecipeNameLength
+      description: "Recipe descriptive name violates length bounds before persistence (not within 1..120 Unicode characters after trimming leading/trailing whitespace), surfacing a validation error in recipeValidationStatus and blocking revision commitment."
+      condition: "recipeValidationStatus.isValid == false and (recipeIdentity.name == null or recipeIdentity.name.trim().length < 1 or recipeIdentity.name.trim().length > 120)."
+      trace: "REQ-MENU-FUL-003, INV-MENU-012"
+    - id: recipeValidationFailed
+      description: "Recipe revision fails validation constraints (name length outside 1..120 Unicode characters after trim, missing components, empty inventoryItemId reference, non-positive quantity, or empty unit), surfacing validation errors in recipeValidationStatus and disabling revision saving."
+      condition: "recipeValidationStatus.isValid == false."
+      trace: "REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004, INV-MENU-012"
   constraints:
     - id: C-REC-001
       description: >
@@ -417,10 +428,11 @@ view:
       trace: "REQ-MENU-FUL-004, INV-MENU-004"
     - id: C-REC-002
       description: >
-        Culinary Recipe and Component Definition (REQ-MENU-FUL-003): A recipe definition requires a descriptive name
-        and at least one RecipeComponent entry. Each RecipeComponent must specify the foreign inventory item identifier
+        Culinary Recipe and Component Definition (REQ-MENU-FUL-003, INV-MENU-012): A recipe definition requires a descriptive
+        name constrained to 1..120 Unicode characters after trimming leading and trailing whitespace, and at least one
+        RecipeComponent entry. Each RecipeComponent must specify the required foreign inventory item identifier
         (inventoryItemId), a positive required quantity (quantity > 0), and a formal unit of measurement (unit).
-      trace: "REQ-MENU-FUL-003"
+      trace: "REQ-MENU-FUL-003, INV-MENU-012"
     - id: C-REC-003
       description: >
         Decoupled Variant Adoption (REQ-MENU-FUL-002, REQ-MENU-FUL-004): Variant adoption is not implied or executed
@@ -430,10 +442,13 @@ view:
       trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004"
     - id: C-REC-004
       description: >
-        Opaque Inventory Identifiers: Inventory item identifiers (inventoryItemId) are foreign opaque strings (SKUs).
-        The view records no inventory search, catalog lookup, stock level queries, or warehouse management behavior
-        absent from the SRS.
-      trace: "REQ-MENU-FUL-001, REQ-MENU-FUL-003, docs/ui-spec-arch.md"
+        Required Opaque Inventory Reference and Unresolved Interaction Modality (REQ-MENU-FUL-001, REQ-MENU-FUL-003):
+        Inventory item identifiers (inventoryItemId) are required foreign opaque strings (SKUs) on each RecipeComponent.
+        The view provides design-neutral reference controls without assuming the administrator directly types or pastes
+        raw strings. The concrete human interaction modality (direct typing, selection list, or search/picker dialog)
+        is the sole remaining open UI-blocking question tracked in issues-tracker.md. The view specifies no Inventory
+        service integration, catalog lookup protocols, stock queries, or warehouse management behavior absent from the SRS.
+      trace: "REQ-MENU-FUL-001, REQ-MENU-FUL-003, docs/ui-spec-arch.md, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
     - id: C-REC-005
       description: >
         Independent Variant Recipe Association (REQ-MENU-FUL-002): Each MenuItemVariant of a PREPARED item resolves
@@ -446,3 +461,9 @@ view:
         revision from revisionHistory, the view enforces read-only presentation. To modify or adapt a historical recipe,
         the administrator must explicitly branch a new revision, ensuring earlier versions cannot be overwritten.
       trace: "REQ-MENU-FUL-004, INV-MENU-004"
+    - id: C-REC-007
+      description: >
+        Recipe Name Text Length Constraint (INV-MENU-012): The descriptive culinary name of the recipe (Recipe.name)
+        must contain 1..120 Unicode characters after trimming leading and trailing whitespace. Inputs violating this bound
+        fail validation and block commitment of new recipe revisions.
+      trace: "REQ-MENU-FUL-003, INV-MENU-012"

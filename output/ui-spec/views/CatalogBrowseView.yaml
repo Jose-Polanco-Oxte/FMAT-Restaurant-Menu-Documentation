@@ -3,8 +3,8 @@ view:
   name: Catalog Browse View
   purpose: >
     Provide POS and KDS clients with a semantic interface to browse, search, and filter the active
-    commercial menu catalog, inspecting sellable items, their projected catalog prices, and operational
-    availability before selecting an item to configure.
+    commercial menu catalog, inspecting sellable items, their projected catalog prices and unambiguous menu
+    currency context, and operational availability before selecting an item to configure.
   actors:
     - POS_CLIENT
     - KDS_CLIENT
@@ -19,12 +19,13 @@ view:
     - NFR-MENU-RESI-01
     - BR-MENU-018
     - BR-MENU-019
+    - INV-MENU-007
   inputs:
     - name: menuId
       type: UUID
       required: false
-      description: "Identifier of the target menu catalog; defaults to the active menu of the store."
-      trace: "REQ-MENU-ITM-001, REQ-MENU-AVL-001"
+      description: "Identifier of the target menu catalog; defaults to the active menu of the store, establishing the menu context and its ISO 4217 currencyCode."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-AVL-001, INV-MENU-007"
     - name: initialCategoryId
       type: UUID
       required: false
@@ -121,8 +122,12 @@ view:
           trace: "REQ-MENU-ITM-001"
         - name: displayPrice
           type: String
-          description: "Formatted catalog price string: '$X' if uniform, 'Desde $X' if prices vary, or omitted if ineligible."
-          trace: "REQ-MENU-PRC-002, REQ-MENU-PRC-003"
+          description: "Formatted catalog price string preserving SRS semantics ('$X' if uniform, 'Desde $X' if prices vary, or omitted if ineligible), disambiguated by accompanying menu currencyCode without inventing locale-specific formatting rules."
+          trace: "REQ-MENU-PRC-002, REQ-MENU-PRC-003, INV-MENU-007"
+        - name: currencyCode
+          type: String
+          description: "Read-only ISO 4217 3-character alphabetic currency code of the menu (e.g., 'MXN', 'USD') carried alongside the price projection to make every displayed catalog monetary value unambiguous."
+          trace: "INV-MENU-007, REQ-MENU-PRC-002"
         - name: isAvailable
           type: Boolean
           description: "Aggregate operational availability projection; true if at least one eligible unit is AVAILABLE."
@@ -139,7 +144,7 @@ view:
           type: "String | null"
           description: "Commercial classification ('PLATILLO', 'BEBIDA', 'POSTRE', 'COMPLEMENTO') for leaf items only."
           trace: "BR-MENU-018, REQ-MENU-ITM-001"
-      trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-002, REQ-MENU-PRC-003, REQ-MENU-AVL-001, REQ-MENU-AVL-002, REQ-MENU-AVL-007, BR-MENU-018, BR-MENU-019"
+      trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-002, REQ-MENU-PRC-003, REQ-MENU-AVL-001, REQ-MENU-AVL-002, REQ-MENU-AVL-007, BR-MENU-018, BR-MENU-019, INV-MENU-007"
     - id: inventoryStatusNotice
       name: Inventory Operational Notice
       type: "Object | null"
@@ -188,7 +193,7 @@ view:
         - name: query
           type: String
           description: "Search query text."
-      effect: "Updates activeSearchQuery and requests and displays corresponding catalog items matching the search query; concrete matching and search algorithms are deferred to the issues tracker under 'Undefined Category Administration and Search Semantics'."
+      effect: "Updates activeSearchQuery and requests and displays corresponding catalog items matching the search query; concrete matching and search algorithms are deferred to the issues tracker under 'Catalog Keyword Search and Matching Semantics'."
       trace: "NFR-MENU-PERF-02, docs/issues-tracker.md"
     - id: filterByCategory
       description: "Update activeCategoryFilter to restrict catalog items to a specific category or show all."
@@ -215,9 +220,9 @@ view:
       trace: "NFR-MENU-PERF-02, REQ-MENU-ITM-001, REQ-MENU-AVL-007"
   states:
     - id: normal
-      description: "Catalog contains active items with valid Inventory evaluations; items display name, imageRef, displayPrice, and isAvailable."
+      description: "Catalog contains active items with valid Inventory evaluations; items display name, imageRef, displayPrice with menu currencyCode, and isAvailable."
       condition: "Catalog has eligible items, filters match >= 1 item, and Inventory evaluations are valid."
-      trace: "REQ-MENU-AVL-001, REQ-MENU-PRC-002, REQ-MENU-AVL-007"
+      trace: "REQ-MENU-AVL-001, REQ-MENU-PRC-002, REQ-MENU-AVL-007, INV-MENU-007"
     - id: emptyCatalog
       description: "No active menu items with eligible sellable units exist in the menu."
       condition: "Total count of active eligible items in catalog is 0."
@@ -239,8 +244,13 @@ view:
       description: "Only MenuItems with status ACTIVE and at least one structurally eligible sellable unit may appear in the catalog view."
       trace: "REQ-MENU-ITM-001, REQ-MENU-PRC-003, REQ-MENU-LIF-001"
     - id: C-CAT-002
-      description: "The displayPrice field must strictly project '$X' for single or uniform eligible unit prices, 'Desde $X' for varied eligible unit prices, and omit numeric price when no eligible units exist."
-      trace: "REQ-MENU-PRC-002, REQ-MENU-PRC-003"
+      description: >
+        The displayPrice field must strictly project '$X' for single or uniform eligible unit prices,
+        'Desde $X' for varied eligible unit prices, and omit numeric price when no eligible units exist.
+        Each catalog price projection carries the menu's read-only ISO 4217 currencyCode (INV-MENU-007)
+        to make every displayed catalog monetary value unambiguous without inventing locale-specific
+        formatting rules.
+      trace: "REQ-MENU-PRC-002, REQ-MENU-PRC-003, INV-MENU-007"
     - id: C-CAT-003
       description: "MenuItems without eligible MenuItemVariant or ComboConfiguration units are excluded from public catalog offer and display no numeric price."
       trace: "REQ-MENU-PRC-003"
@@ -260,6 +270,6 @@ view:
       description: >
         Search matching semantics and algorithms (such as exact match, substring containment, tokenization,
         case or accent normalization, indexed fields, or debouncing) are not defined in the SRS and are explicitly
-        deferred to the issues tracker under 'Undefined Category Administration and Search Semantics'. The view provides
+        deferred to the issues tracker under 'Catalog Keyword Search and Matching Semantics'. The view provides
         semantic query submission and displays corresponding results or the noResults state without prescribing an algorithmic matching criteria.
       trace: "NFR-MENU-PERF-02, docs/issues-tracker.md, docs/ui-spec-arch.md"

@@ -7,13 +7,16 @@ view:
     flags and aggregate COMBO MenuItem review statuses resulting from unacknowledged component changes
     restricted strictly to allowed reasons (PRICE, COMPOSITION, MODIFIERS, STATUS), displaying observed
     reviewToken values, pending changeIds, and informational slot reference values (saved, current, and
-    signed difference). Provides explicit selection of one or more configurationId/reviewToken pairs for
-    atomic confirmation acknowledging only the observed changeIds, while ensuring that concurrent later
-    changes remain pending and preserve REVIEW_REQUIRED status. Strictly enforces that review status is
-    orthogonal to administrative status and availability, that informational price differences cannot mutate
-    combo selling prices, that wildcard or implicit confirm-all operations are prohibited, and that review
-    confirmation never alters combo unit prices, slots, options, retired-option states, administrative
-    statuses, or immutable commercial revision tokens.
+    signed difference) associated with the menu ISO 4217 currency and current monetary bounds. Clarifies
+    that saved, current, and difference values remain the REQ-MENU-REV-005 informational reference based on
+    component list prices and ComboOption.quantity (whole units 1..99), mathematically distinct from the
+    authoritative sale-price calculation resolved by OPEN-009. Provides explicit selection of one or more
+    configurationId/reviewToken pairs for atomic confirmation acknowledging only the observed changeIds, while
+    ensuring that concurrent later changes remain pending and preserve REVIEW_REQUIRED status. Strictly enforces
+    that review status is orthogonal to administrative status and availability, that informational price differences
+    cannot mutate combo selling prices, that wildcard or implicit confirm-all operations are prohibited, and that review
+    confirmation strictly preserves a non-mutating review workflow that never alters combo unit prices, slots,
+    options, retired-option states, administrative statuses, or immutable commercial revision tokens.
   actors:
     - ADMINISTRATOR
   requirements:
@@ -23,6 +26,12 @@ view:
     - REQ-MENU-REV-003
     - REQ-MENU-REV-004
     - REQ-MENU-REV-005
+    - REQ-MENU-COM-003
+    - INV-MENU-007
+    - INV-MENU-008
+    - INV-MENU-009
+    - INV-MENU-010
+    - INV-MENU-011
   inputs:
     - name: filterMenuItemId
       type: "UUID | null"
@@ -77,7 +86,7 @@ view:
         - navigateToComboItemAction
     - id: slotPriceReferenceRegion
       role: secondary
-      description: "Semantic informational region displaying slot pricing reference comparisons for the focused ComboConfiguration and its designated baseOptionIds, exposing saved unit price sum (saved), current unit price sum (current), and signed difference (difference = current - saved), strictly without mutating combo selling prices."
+      description: "Semantic informational region displaying slot pricing reference comparisons for the focused ComboConfiguration and its designated baseOptionIds, exposing saved unit price sum (saved), current unit price sum (current), and signed difference (difference = current - saved) in menu ISO 4217 currency within normative monetary bounds. Clarifies that saved/current/difference values remain the REQ-MENU-REV-005 informational reference based on component list prices and ComboOption.quantity (whole units 1..99), mathematically distinct from the authoritative combo sale-price calculation resolved by OPEN-009, and strictly non-mutating."
       data:
         - focusedSlotPriceReferences
       controls: []
@@ -140,6 +149,10 @@ view:
           type: String
           description: "Commercial name of the COMBO MenuItem."
           trace: "REQ-MENU-REV-002"
+        - name: currencyCode
+          type: String
+          description: "Read-only ISO 4217 3-character alphabetic currency code (e.g. 'MXN', 'USD') inherited from the menu catalog, qualifying all combo configuration unit prices and component monetary values (INV-MENU-007)."
+          trace: "INV-MENU-007, REQ-MENU-REV-005"
         - name: administrativeStatus
           type: String
           description: "Administrative lifecycle status ('ACTIVE' or 'INACTIVE') of the COMBO item, strictly separate and orthogonal to reviewStatus."
@@ -170,8 +183,8 @@ view:
               trace: "REQ-MENU-REV-002"
             - name: unitPrice
               type: Decimal
-              description: "Authoritative absolute selling unit price (unitPrice >= 0), preserved unaltered by review confirmation."
-              trace: "REQ-MENU-REV-004, REQ-MENU-REV-005"
+              description: "Authoritative absolute selling unit price expressed in DECIMAL(12,2) within monetary bounds [0.00, 9999999999.99] in menu ISO 4217 currency (INV-MENU-007, INV-MENU-008, INV-MENU-009), preserved completely unaltered by review confirmation (REQ-MENU-REV-004)."
+              trace: "REQ-MENU-REV-004, REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009"
             - name: reviewStatus
               type: String
               description: "Configuration-level supervisory review status: strictly 'REVIEW_REQUIRED'."
@@ -272,7 +285,7 @@ view:
     - id: focusedSlotPriceReferences
       name: Focused Slot Price References
       type: FocusedSlotPriceReferenceProjection
-      description: "Informational pricing reference data for each ComboSlot of a focused ComboConfiguration, exposing saved, current, and signed difference sums for designated baseOptionIds. Strictly informational; cannot mutate combo unitPrice."
+      description: "Informational pricing reference data for each ComboSlot of a focused ComboConfiguration, exposing saved, current, and signed difference sums for designated baseOptionIds in menu ISO 4217 currency within normative monetary bounds. Strictly the REQ-MENU-REV-005 informational reference based on component list prices and whole-unit ComboOption.quantity (1..99), mathematically distinct from the authoritative sale-price calculation resolved by OPEN-009, and cannot mutate combo unitPrice."
       fields:
         - name: configurationId
           type: "UUID | null"
@@ -282,10 +295,14 @@ view:
           type: "String | null"
           description: "Commercial name of the inspected configuration."
           trace: "REQ-MENU-REV-005"
+        - name: currencyCode
+          type: String
+          description: "Read-only ISO 4217 3-character alphabetic currency code (e.g. 'MXN', 'USD') inherited from the menu catalog, qualifying all displayed monetary reference values (INV-MENU-007)."
+          trace: "INV-MENU-007, REQ-MENU-REV-005"
         - name: comboUnitPrice
           type: "Decimal | null"
-          description: "Authoritative selling price of the combo configuration (unitPrice >= 0), unaffected by slot price references."
-          trace: "REQ-MENU-REV-004, REQ-MENU-REV-005"
+          description: "Authoritative absolute selling price of the combo configuration in DECIMAL(12,2) within monetary bounds [0.00, 9999999999.99] in menu ISO 4217 currency (INV-MENU-007, INV-MENU-008, INV-MENU-009). Governed by OPEN-009 sale price calculation and strictly unaffected by slot price references or review confirmation."
+          trace: "REQ-MENU-REV-004, REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009, BR-MENU-008"
         - name: slots
           type: "List<SlotPriceReferenceDetailItem>"
           description: "Per-slot informational pricing breakdown based on designated baseOptionIds."
@@ -304,19 +321,19 @@ view:
               trace: "REQ-MENU-REV-005"
             - name: savedSum
               type: Decimal
-              description: "Sum of leaf MenuItemVariant.unitPrice recorded when options were saved multiplied by ComboOption.quantity (saved = sum(savedUnitPrice * quantity))."
-              trace: "REQ-MENU-REV-005"
+              description: "Informational sum of leaf MenuItemVariant.unitPrice recorded when options were saved multiplied by ComboOption.quantity (saved = sum(savedUnitPrice * quantity)) in DECIMAL(12,2) within bounds [0.00, 9999999999.99] in menu ISO 4217 currency. Represents the REQ-MENU-REV-005 baseline component list-price reference, distinct from the authoritative combo selling price resolved by OPEN-009."
+              trace: "REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009"
             - name: currentSum
               type: Decimal
-              description: "Sum of current leaf MenuItemVariant.unitPrice multiplied by ComboOption.quantity (current = sum(currentUnitPrice * quantity))."
-              trace: "REQ-MENU-REV-005"
+              description: "Informational sum of current leaf MenuItemVariant.unitPrice multiplied by ComboOption.quantity (current = sum(currentUnitPrice * quantity)) in DECIMAL(12,2) within bounds [0.00, 9999999999.99] in menu ISO 4217 currency. Represents the REQ-MENU-REV-005 current component list-price reference, distinct from the authoritative combo selling price resolved by OPEN-009."
+              trace: "REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009"
             - name: difference
               type: Decimal
-              description: "Explicit signed price difference: difference = current - saved. Positive indicates component price increases; negative indicates decreases."
-              trace: "REQ-MENU-REV-005"
+              description: "Informational signed price difference: difference = current - saved in DECIMAL(12,2) within signed monetary bounds [-9999999999.99, +9999999999.99] in menu ISO 4217 currency under REQ-MENU-REV-005. Strictly informational audit reference based on component list prices; cannot mutate combo selling price and is distinct from the authoritative sale-price calculation resolved by OPEN-009."
+              trace: "REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009"
             - name: isInformationalOnly
               type: Boolean
-              description: "Informational marker (always true); enforces that slot price differences do not mutate ComboConfiguration.unitPrice."
+              description: "Informational marker (always true); enforces that slot price differences remain REQ-MENU-REV-005 informational references and do not mutate ComboConfiguration.unitPrice or alter the OPEN-009 sale price calculation."
               trace: "REQ-MENU-REV-005"
             - name: options
               type: "List<SlotOptionPriceReferenceItem>"
@@ -336,27 +353,27 @@ view:
                   trace: "REQ-MENU-REV-005"
                 - name: quantity
                   type: Integer
-                  description: "Physical delivered quantity multiplier (quantity >= 1)."
-                  trace: "REQ-MENU-REV-005"
+                  description: "Whole-unit physical delivered quantity multiplier constrained to integer range 1..99 without fractional coefficients (INV-MENU-011, REQ-MENU-COM-003, OPEN-009)."
+                  trace: "REQ-MENU-REV-005, REQ-MENU-COM-003, INV-MENU-011"
                 - name: savedUnitPrice
                   type: Decimal
-                  description: "Historical unit price of the leaf variant recorded when the option was configured."
-                  trace: "REQ-MENU-REV-005"
+                  description: "Historical list unit price of the leaf variant recorded when the option was configured, expressed in DECIMAL(12,2) within monetary bounds [0.00, 9999999999.99] in menu ISO 4217 currency (INV-MENU-007, INV-MENU-008, INV-MENU-009)."
+                  trace: "REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009"
                 - name: currentUnitPrice
                   type: Decimal
-                  description: "Current active unit price of the leaf variant."
-                  trace: "REQ-MENU-REV-005"
+                  description: "Current active list unit price of the leaf variant, expressed in DECIMAL(12,2) within monetary bounds [0.00, 9999999999.99] in menu ISO 4217 currency (INV-MENU-007, INV-MENU-008, INV-MENU-009)."
+                  trace: "REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009"
                 - name: priceDelta
                   type: Decimal
-                  description: "Signed commercial price delta configured on the option."
-                  trace: "REQ-MENU-REV-005"
+                  description: "Signed commercial price delta configured on the option in DECIMAL(12,2) within range [-9999999999.99, +9999999999.99] in menu ISO 4217 currency (INV-MENU-007, INV-MENU-008, INV-MENU-009)."
+                  trace: "REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009"
                 - name: isBaseOption
                   type: Boolean
                   description: "True if this option is part of slot.baseOptionIds."
                   trace: "REQ-MENU-REV-005"
-              trace: "REQ-MENU-REV-005"
-          trace: "REQ-MENU-REV-005"
-      trace: "REQ-MENU-REV-005"
+              trace: "REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-011"
+          trace: "REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009"
+      trace: "REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-011"
     - id: confirmationExecutionReceipt
       name: Review Confirmation Execution Receipt
       type: "ReviewConfirmationReceiptProjection | null"
@@ -461,8 +478,8 @@ view:
       type: action
       operatesOn: focusedSlotPriceReferences
       triggersAction: selectConfigurationForSlotPricing
-      description: "Semantic action to focus on a specific ComboConfiguration and display its informational slot price reference breakdown (saved, current, difference)."
-      trace: "REQ-MENU-REV-005"
+      description: "Semantic action to focus on a specific ComboConfiguration and display its informational slot price reference breakdown (saved, current, difference) in menu ISO 4217 currency within normative monetary bounds."
+      trace: "REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009"
     - id: confirmSelectedReviewsAction
       type: primary_action
       operatesOn:
@@ -541,15 +558,15 @@ view:
       effect: "Empties selectedConfigurationsToConfirm."
       trace: "REQ-MENU-REV-003"
     - id: selectConfigurationForSlotPricing
-      description: "Select a ComboConfiguration to inspect its slot informational price references (saved, current, difference)."
+      description: "Select a ComboConfiguration to inspect its slot informational price references (saved, current, difference) based on component list prices and whole-unit ComboOption.quantity (1..99), strictly distinct from the authoritative OPEN-009 sale price calculation."
       parameters:
         - name: configurationId
           type: UUID
           description: "Target ComboConfiguration identifier."
       preconditions:
         - "configurationId must exist on a displayed COMBO item."
-      effect: "Loads focusedSlotPriceReferences with slot saved, current, and signed difference values for designated baseOptionIds."
-      trace: "REQ-MENU-REV-005"
+      effect: "Loads focusedSlotPriceReferences with slot saved, current, and signed difference values for designated baseOptionIds in menu ISO 4217 currency within normative monetary bounds."
+      trace: "REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-011"
     - id: confirmObservedReviews
       description: >
         Execute atomic review confirmation for the explicitly selected (configurationId, reviewToken) pairs:
@@ -559,8 +576,9 @@ view:
         3. If all pending changes for a configuration are attended, configuration.reviewStatus transitions to UP_TO_DATE.
         4. Reevaluates aggregate COMBO MenuItem reviewStatus (remains REVIEW_REQUIRED if any configuration still requires review).
         5. Emits confirmationExecutionReceipt detailing attended changeIds and remaining pending changes per configuration.
-        6. Strictly does NOT modify ComboConfiguration.unitPrice, ComboSlots, ComboOptions, administrative enablement,
-           retired-option states, MenuItem.status, or commercial revision tokens (<number>_<ISO8601>).
+        6. Strictly preserves a non-mutating review workflow: does NOT modify ComboConfiguration.unitPrice, ComboSlots,
+           ComboOptions (quantities 1..99, deltas), administrative enablement, retired-option states, MenuItem.status,
+           or commercial revision tokens (<number>_<ISO8601>).
       parameters:
         - name: selectedPairs
           type: "List<SelectedConfigurationTokenPairItem>"
@@ -577,7 +595,8 @@ view:
         - If remainingPendingChangeIds is empty, sets ComboConfiguration.reviewStatus = 'UP_TO_DATE'; otherwise preserves 'REVIEW_REQUIRED'.
         - Updates aggregate COMBO MenuItem reviewStatus to 'UP_TO_DATE' only if all configurations of that item are 'UP_TO_DATE'.
         - Populates confirmationExecutionReceipt with attendedChangeIds, remainingPendingChangeIds, and confirmation flags.
-        - Preserves ComboConfiguration.unitPrice, ComboSlots, ComboOptions, MenuItem.status, and commercial revision token completely unaltered.
+        - Strictly preserves the non-mutating review workflow: ComboConfiguration.unitPrice, ComboSlots, ComboOptions,
+          MenuItem.status, and commercial revision token remain completely unaltered.
         - Clears selectedConfigurationsToConfirm.
       trace: "REQ-MENU-REV-003, REQ-MENU-REV-004, REQ-MENU-REV-002"
     - id: dismissConfirmationReceipt
@@ -620,9 +639,9 @@ view:
       condition: "confirmationExecutionReceipt != null and any item in confirmationExecutionReceipt.attendedConfigurations has remainingPendingChangeIds.count > 0."
       trace: "REQ-MENU-REV-003, REQ-MENU-REV-004"
     - id: slotPriceReferenceInspected
-      description: "Administrator is actively inspecting slot informational price reference calculations (saved, current, difference) for a specific configuration."
+      description: "Administrator is actively inspecting slot informational price reference calculations (saved, current, difference) based on component list prices and whole-unit ComboOption.quantity (1..99) in menu ISO 4217 currency, strictly separate from the authoritative OPEN-009 combo sale price calculation."
       condition: "focusedSlotPriceReferences.configurationId != null."
-      trace: "REQ-MENU-REV-005"
+      trace: "REQ-MENU-REV-005, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-011"
   constraints:
     - id: C-CRV-001
       description: >
@@ -669,11 +688,12 @@ view:
       trace: "REQ-MENU-REV-003"
     - id: C-CRV-005
       description: >
-        Conservation of Commercial Configuration Upon Confirmation:
-        Confirming a reviewToken acknowledges receipt of observed component changes and strictly:
+        Conservation of Commercial Configuration and Non-Mutating Review Workflow:
+        Confirming a reviewToken acknowledges receipt of observed component changes and strictly preserves a
+        non-mutating review workflow:
         1. Does NOT modify the combo configuration selling unitPrice (ComboConfiguration.unitPrice).
         2. Does NOT alter ComboSlot definitions, slot boundaries (minSelections, maxSelections), or option groupings.
-        3. Does NOT alter ComboOption definitions, quantities, or price deltas.
+        3. Does NOT alter ComboOption definitions, whole-unit quantities (1..99), or price deltas.
         4. Does NOT reactivate retired or disabled options (retired-option states are preserved).
         5. Does NOT modify the administrative status (MenuItem.status) of the containing COMBO MenuItem.
         6. Does NOT generate a new commercial revision or increment the immutable commercial revision token
@@ -681,12 +701,37 @@ view:
       trace: "REQ-MENU-REV-004, REQ-MENU-VER-001"
     - id: C-CRV-006
       description: >
-        Informational Slot Price Reference and Pricing Non-Mutation:
+        Informational Slot Price Reference and Separation from Authoritative Combo Sale Price (OPEN-009):
         For each ComboSlot and its designated baseOptionIds, the view exposes:
         - saved = sum(savedUnitPrice * ComboOption.quantity)
         - current = sum(currentUnitPrice * ComboOption.quantity)
         - difference = current - saved (signed)
-        under REQ-MENU-REV-005. These values are strictly informational to assist administrative evaluation.
+        under REQ-MENU-REV-005. These values represent an informational audit reference comparing component list
+        prices (MenuItemVariant.unitPrice recorded at save time vs. current active list prices) scaled by whole-unit
+        ComboOption.quantity (constrained to integers 1..99 under INV-MENU-011 and OPEN-009).
+        These informational references are mathematically distinct from the authoritative combo sale-price calculation
+        resolved by OPEN-009 (where combo selling price = ComboConfiguration.unitPrice + sum(option price deltas) +
+        sum(modifier price deltas per physical instance and quantity), which strictly excludes component list prices
+        and guarantees final price >= 0.00 under BR-MENU-008 and INV-MENU-010).
         Informational price differences cannot mutate, adjust, or overwrite ComboConfiguration.unitPrice, which
         remains fixed and authoritative unless explicitly modified in ComboConfigurationView.
-      trace: "REQ-MENU-REV-005"
+      trace: "REQ-MENU-REV-005, REQ-MENU-COM-003, INV-MENU-010, INV-MENU-011, BR-MENU-008, BR-MENU-029"
+    - id: C-CRV-007
+      description: >
+        Monetary Precision, Absolute Ranges, and ISO 4217 Currency Context:
+        All monetary amounts displayed in ComboReviewView operate under a single ISO 4217 currency code defined at the
+        menu catalog level (INV-MENU-007). All unit prices (ComboConfiguration.unitPrice, savedUnitPrice, currentUnitPrice)
+        and sums (savedSum, currentSum) must be exact DECIMAL(12,2) with at most two decimal places (INV-MENU-008) in the
+        non-negative closed range [0.00, 9999999999.99] (INV-MENU-009). All signed price differences (difference) and option
+        price deltas (priceDelta) must be exact DECIMAL(12,2) with at most two decimal places in the signed closed range
+        [-9999999999.99, +9999999999.99] (INV-MENU-009). Inputs or displays exceeding two decimal places are strictly prohibited.
+      trace: "INV-MENU-007, INV-MENU-008, INV-MENU-009"
+    - id: C-CRV-008
+      description: >
+        Whole-Unit Physical Delivered Quantities and Non-Mutating Review Semantics:
+        Component option quantities (ComboOption.quantity) displayed in review reference breakdowns are strictly
+        constrained to whole physical units in the integer range [1, 99] without fractional coefficients or proportional
+        split pricing under INV-MENU-011 and OPEN-009. The review workflow is strictly non-mutating and token-bound:
+        review confirmation acknowledges observed changeIds without modifying quantities, prices, slots, options,
+        or commercial configurations.
+      trace: "REQ-MENU-COM-003, REQ-MENU-REV-003, REQ-MENU-REV-004, INV-MENU-011"

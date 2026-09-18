@@ -3,18 +3,24 @@ view:
   name: Combo Configuration View
   purpose: >
     Provide the menu administrator with a dedicated semantic interface to configure COMBO MenuItems, authoring
-    and managing ComboConfiguration entities (each with a descriptive commercial name, authoritative absolute
-    unitPrice >= 0, read-only supervisory reviewStatus tracking confirmed exclusively in ComboReviewView via
+    and managing ComboConfiguration entities (each with a descriptive commercial name of 1..120 Unicode characters
+    after trim, authoritative absolute unitPrice in DECIMAL(12,2) range 0.00..9999999999.99 qualified by the menu-level
+    ISO 4217 currency context, read-only supervisory reviewStatus tracking confirmed exclusively in ComboReviewView via
     configurationId/reviewToken and observed changeIds, and contained ComboSlots), defining ComboSlot selection
-    boundaries (0 <= minSelections <= maxSelections), configuring ComboOption entities that reference concrete leaf
-    MenuItemVariants directly via itemVariantId with positive physical quantities (quantity >= 1), explicit
-    signed priceDelta, and administrative enablement, executing same-item administrative configuration copy
-    with regenerated destination identities, executing atomic multi-configuration option assignment across
-    configurations of the same item, and evaluating structural eligibility against slot capacity while permitting
-    incomplete definitions only while the containing COMBO MenuItem is INACTIVE, strictly excluding combo-owned
-    modifiers, configuration administrative status, automatic slot matching, and destructive deletion of configurations,
-    slots, or options, while preserving the absence of any obligation to create or automatically inject a DEFAULT
-    configuration.
+    boundaries (0 <= minSelections <= maxSelections <= 99), configuring ComboOption entities that reference concrete leaf
+    MenuItemVariants directly via itemVariantId with positive physical quantities (integer quantity in 1..99 with no fractional
+    coefficients), explicit signed priceDelta in DECIMAL(12,2) range -9999999999.99..+9999999999.99, non-negative resulting
+    combo price validation, and administrative enablement, executing administrative batch copying with explicit mode selection
+    for FULL_CLONE (requiring destination owner targetMenuItemId, creating a new configuration, regenerating configuration/slot/option
+    UUIDs, preserving structure and order, and exposing complete idMappings) and COPY_TO_EXISTING (requiring targetConfigurationId
+    and exhaustive slotMappings where every sourceSlotId maps to targetSlotId or explicitly requests createNewSlot, prohibiting
+    heuristic matching), user-selected predictive simulation (dryRun: true/false) with zero side effects, separate per-mode
+    idempotency, per-destination atomicity with local FAIL/REPLACE conflict policies, partial success between destinations,
+    indivisible per-destination execution (no partial rollback per slot), and individual destination SUCCESS/FAILED diagnostics with
+    retryable state, and evaluating structural eligibility against slot capacity while permitting incomplete definitions only while the
+    containing COMBO MenuItem is INACTIVE, strictly excluding combo-owned modifiers, configuration administrative status, heuristic
+    slot matching, and destructive deletion of configurations, slots, or options, while preserving the absence of any obligation to
+    create or automatically inject a DEFAULT configuration.
   actors:
     - ADMINISTRATOR
   requirements:
@@ -28,7 +34,17 @@ view:
     - REQ-MENU-LIF-002
     - REQ-MENU-LIF-003
     - REQ-MENU-VER-001
+    - BR-MENU-026
+    - BR-MENU-027
+    - BR-MENU-028
+    - BR-MENU-029
     - INV-MENU-005
+    - INV-MENU-007
+    - INV-MENU-008
+    - INV-MENU-009
+    - INV-MENU-010
+    - INV-MENU-011
+    - INV-MENU-012
   inputs:
     - name: menuItemId
       type: UUID
@@ -58,14 +74,10 @@ view:
       type: Boolean
       description: "Navigation trigger returning the administrator to MenuItemEditorView upon save, completion, or cancellation."
       trace: "docs/ui-spec-arch.md"
-    - name: copyConfigurationReportNotification
-      type: "CopyConfigurationReport | null"
-      description: "Structured notification payload emitted upon execution of an administrative configuration copy operation."
-      trace: "REQ-MENU-COM-004"
-    - name: bulkAssignmentReportNotification
-      type: "BulkOptionAssignmentReport | null"
-      description: "Structured notification payload emitted upon definitive execution of an atomic multi-configuration option assignment."
-      trace: "REQ-MENU-COM-005"
+    - name: batchCopyReportNotification
+      type: "BatchCopyReport | null"
+      description: "Structured notification payload emitted upon execution (definitive or dryRun simulation) of an administrative configuration batch copy operation, reporting per-destination status, counts, idMappings, and diagnostics."
+      trace: "REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026, BR-MENU-027, BR-MENU-028"
   regions:
     - id: comboItemHeaderRegion
       role: primary
@@ -104,27 +116,24 @@ view:
         - toggleOptionEnabledToggle
         - updateOptionQuantityInput
         - updateOptionPriceDeltaInput
-    - id: administrativeCopyRegion
+    - id: batchCopyRegion
       role: secondary
-      description: "Semantic region for executing the administrative copy of an entire configuration structure (all ComboSlots and ComboOptions) from a source ComboConfiguration to a target ComboConfiguration of the same COMBO MenuItem, regenerating unique destination identities and deferring undefined slot-matching behavior to the issues tracker."
+      description: "Semantic region for configuring and executing administrative batch copy operations across combo configurations (FULL_CLONE creating new configurations under destination owner targetMenuItemId with regenerated IDs and complete idMappings, and COPY_TO_EXISTING copying slots/options into targetConfigurationId via exhaustive explicit slotMappings prohibiting heuristic matching), supporting user-selected predictive simulation (dryRun), separate per-mode idempotency, per-destination atomicity with local FAIL/REPLACE conflict policies, partial success between destinations, indivisibility without partial rollback per slot, and individual retryable diagnostics."
       data:
-        - administrativeCopyBuffer
+        - batchCopyBuffer
       controls:
-        - copySourceConfigurationSelector
-        - copyTargetConfigurationSelector
-        - executeCopyConfigurationAction
-        - resetCopyBufferAction
-    - id: atomicBulkAssignmentRegion
-      role: secondary
-      description: "Semantic region for selecting a batch of ComboOption definitions and atomically assigning them to multiple ComboConfigurations of the same COMBO MenuItem in a single administrative transaction with all-or-nothing rollback on validation failure, deferring undefined slot-matching behavior to the issues tracker."
-      data:
-        - bulkAssignmentBuffer
-      controls:
-        - selectBulkOptionsToAssignSelector
-        - selectBulkTargetConfigurationsSelector
-        - selectBulkTargetSlotNameInput
-        - executeBulkOptionAssignmentAction
-        - resetBulkAssignmentBufferAction
+        - selectBatchCopySourceSelector
+        - toggleBatchCopyDryRunToggle
+        - addBatchCopyOperationAction
+        - removeBatchCopyOperationAction
+        - selectOperationModeSelector
+        - inputOperationTargetMenuItemInput
+        - inputOperationNewConfigNameInput
+        - selectOperationTargetConfigSelector
+        - selectOperationConflictPolicySelector
+        - configureOperationSlotMappingsAction
+        - executeBatchCopyAction
+        - resetBatchCopyBufferAction
     - id: structuralValidationAndWarningsRegion
       role: supporting
       description: "Semantic region displaying real-time structural capacity evaluation for each mandatory slot (count of enabled options whose referenced variants satisfy the complete REQ-MENU-VAR-006 predicate >= minSelections under INV-MENU-005 and REQ-MENU-COM-006), blocking validation errors for ACTIVE status (rejecting zero-slot configurations and zero-option slots), and structured capacity deficit or incomplete definition warnings (entityId, entityType: 'ComboSlot', minSelections, calculatedCapacity) for INACTIVE saves under REQ-MENU-LIF-002 and REQ-MENU-LIF-003."
@@ -145,10 +154,18 @@ view:
           type: UUID
           description: "Unique identifier of the COMBO MenuItem aggregate root."
           trace: "REQ-MENU-COM-001"
+        - name: menuId
+          type: UUID
+          description: "Identifier of the owning commercial menu catalog."
+          trace: "REQ-MENU-COM-001, INV-MENU-007"
+        - name: currencyCode
+          type: String
+          description: "Read-only ISO 4217 3-character alphabetic currency code (e.g. 'MXN', 'USD') inherited from the menu catalog, establishing the single currency context for all combo pricing."
+          trace: "INV-MENU-007, REQ-MENU-PRC-001"
         - name: name
           type: String
-          description: "Commercial name of the COMBO product (e.g. 'Paquete Hamburguesa Clásica')."
-          trace: "REQ-MENU-COM-001"
+          description: "Commercial name of the COMBO product (1..120 Unicode characters after trimming leading/trailing whitespace, e.g. 'Paquete Hamburguesa Clásica')."
+          trace: "REQ-MENU-COM-001, INV-MENU-012"
         - name: type
           type: String
           description: "Immutable item type discriminator: strictly 'COMBO'. Products of type COMBO have no MenuItemVariant or ModifierGroup entities."
@@ -177,7 +194,7 @@ view:
           type: Integer
           description: "Count of ComboConfigurations flagged with reviewStatus = 'REVIEW_REQUIRED' due to dependency archival or modification (informational read-only metric; confirmation occurs exclusively in ComboReviewView)."
           trace: "REQ-MENU-LIF-001, REQ-MENU-COM-001, REQ-MENU-REV-002"
-      trace: "REQ-MENU-COM-001, REQ-MENU-COM-006, REQ-MENU-LIF-001, REQ-MENU-VER-001"
+      trace: "REQ-MENU-COM-001, REQ-MENU-COM-006, REQ-MENU-LIF-001, REQ-MENU-VER-001, INV-MENU-007, INV-MENU-012"
     - id: comboConfigurations
       name: Combo Configurations Collection
       type: "List<ComboConfigurationSummaryProjection>"
@@ -193,12 +210,12 @@ view:
           trace: "REQ-MENU-COM-001"
         - name: name
           type: String
-          description: "Commercial name of the configuration (e.g. 'Paquete Personal', 'Paquete Familiar', 'Combo Doble')."
-          trace: "REQ-MENU-COM-001"
+          description: "Commercial name of the configuration (1..120 Unicode characters after trim, e.g. 'Paquete Personal', 'Paquete Familiar', 'Combo Doble')."
+          trace: "REQ-MENU-COM-001, INV-MENU-012"
         - name: unitPrice
           type: Decimal
-          description: "Authoritative absolute selling unit price of this combo configuration (unitPrice >= 0). This is not an adjustment; it is an absolute price."
-          trace: "REQ-MENU-COM-001, INV-MENU-005"
+          description: "Authoritative absolute selling unit price of this combo configuration expressed in DECIMAL(12,2) with exactly two decimals in range 0.00..9999999999.99 in menu ISO 4217 currency. This is not an adjustment; it is an absolute price."
+          trace: "REQ-MENU-COM-001, INV-MENU-005, INV-MENU-007, INV-MENU-008, INV-MENU-009"
         - name: reviewStatus
           type: String
           description: "Informational read-only supervisory review status: 'UP_TO_DATE' or 'REVIEW_REQUIRED'. Set to 'REVIEW_REQUIRED' when an underlying component variant is archived or modified (REQ-MENU-LIF-001). This status cannot be cleared or confirmed from this view; confirmation occurs exclusively in ComboReviewView via configurationId/reviewToken and observed changeIds."
@@ -215,7 +232,7 @@ view:
           type: "String | null"
           description: "Diagnostic explanation if configuration is not structurally eligible (e.g. 'Configuración carece de slots', 'Slot Refresco no contiene opciones', or 'Slot Refresco carece de opciones elegibles para alcanzar minSelections=1')."
           trace: "REQ-MENU-COM-006, REQ-MENU-VAR-006"
-      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-VAR-006, REQ-MENU-LIF-001, INV-MENU-005"
+      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-VAR-006, REQ-MENU-LIF-001, INV-MENU-005, INV-MENU-008, INV-MENU-009, INV-MENU-012"
     - id: focusedConfigurationDetails
       name: Focused Configuration Details
       type: FocusedConfigurationDetailProjection
@@ -227,12 +244,12 @@ view:
           trace: "REQ-MENU-COM-001"
         - name: name
           type: String
-          description: "Commercial name of the focused configuration."
-          trace: "REQ-MENU-COM-001"
+          description: "Commercial name of the focused configuration (1..120 Unicode characters after trim)."
+          trace: "REQ-MENU-COM-001, INV-MENU-012"
         - name: unitPrice
           type: Decimal
-          description: "Authoritative absolute unit price (unitPrice >= 0)."
-          trace: "REQ-MENU-COM-001"
+          description: "Authoritative absolute unit price in DECIMAL(12,2) range 0.00..9999999999.99 in menu ISO 4217 currency."
+          trace: "REQ-MENU-COM-001, INV-MENU-005, INV-MENU-007, INV-MENU-008, INV-MENU-009"
         - name: reviewStatus
           type: String
           description: "Informational read-only supervisory review status ('UP_TO_DATE' or 'REVIEW_REQUIRED'). This status cannot be cleared or confirmed from this view; confirmation occurs exclusively in ComboReviewView via configurationId/reviewToken and observed changeIds."
@@ -255,16 +272,16 @@ view:
               trace: "REQ-MENU-COM-002"
             - name: name
               type: String
-              description: "Representative display name of the slot (e.g. 'Platillo Principal', 'Acompañamiento', 'Bebida')."
-              trace: "REQ-MENU-COM-002"
+              description: "Representative display name of the slot (1..120 Unicode characters after trim, e.g. 'Platillo Principal', 'Acompañamiento', 'Bebida')."
+              trace: "REQ-MENU-COM-002, INV-MENU-012"
             - name: minSelections
               type: Integer
-              description: "Minimum number of options the customer must select (integer >= 0, <= maxSelections)."
-              trace: "REQ-MENU-COM-002"
+              description: "Minimum number of options the customer must select (integer in range 0..99, satisfying 0 <= minSelections <= maxSelections <= 99)."
+              trace: "REQ-MENU-COM-002, BR-MENU-011, INV-MENU-011"
             - name: maxSelections
               type: Integer
-              description: "Maximum number of options the customer may select (integer >= minSelections)."
-              trace: "REQ-MENU-COM-002"
+              description: "Maximum number of options the customer may select (integer in range 0..99, satisfying minSelections <= maxSelections <= 99)."
+              trace: "REQ-MENU-COM-002, BR-MENU-011, INV-MENU-011"
             - name: calculatedCapacity
               type: Integer
               description: "Structural capacity: count of enabled ComboOptions whose referenced leaf variants satisfy the complete REQ-MENU-VAR-006 structural predicate (owning leaf MenuItem ACTIVE, variant ACTIVE and not ARCHIVED, complete PREPARED or STOCKED supply linkage, and satisfiable mandatory modifier groups), with each option contributing at most one selection regardless of quantity, and explicitly excluding VariantAvailability and other momentary Inventory stock availability."
@@ -319,146 +336,175 @@ view:
                   trace: "REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-VAR-006"
                 - name: quantity
                   type: Integer
-                  description: "Positive physical delivered quantity multiplier (integer >= 1). Dictates stock/recipe withdrawal in runtime, while contributing at most 1 selection to slot capacity."
-                  trace: "REQ-MENU-COM-003, REQ-MENU-ING-001"
+                  description: "Positive physical delivered quantity multiplier (integer in range 1..99 with no fractional coefficients). Dictates stock/recipe withdrawal in runtime without scaling slot capacity (each option contributes at most 1 selection to calculatedCapacity regardless of quantity)."
+                  trace: "REQ-MENU-COM-003, REQ-MENU-ING-001, INV-MENU-011, BR-MENU-008"
                 - name: priceDelta
                   type: Decimal
-                  description: "Explicit signed commercial price delta added to the configuration unitPrice when this option is chosen (e.g. +15.00, 0.00)."
-                  trace: "REQ-MENU-COM-003"
+                  description: "Explicit signed commercial price delta in DECIMAL(12,2) with exactly two decimals in range -9999999999.99..+9999999999.99 added to configuration unitPrice. Resulting combo price (unitPrice + deltas) must be non-negative (>= 0.00)."
+                  trace: "REQ-MENU-COM-003, INV-MENU-008, INV-MENU-009, INV-MENU-010, BR-MENU-008"
                 - name: enabled
                   type: Boolean
                   description: "Administrative enablement flag of the option within this slot. If false, option is excluded from slot capacity and runtime sales."
                   trace: "REQ-MENU-COM-003, REQ-MENU-COM-006"
                 - name: savedUnitPrice
                   type: Decimal
-                  description: "Historical unit price of the leaf variant recorded when the option was saved, preserved for informative 'saved' calculation."
-                  trace: "REQ-MENU-COM-003"
+                  description: "Historical unit price of the leaf variant in DECIMAL(12,2) recorded when the option was saved, preserved for informative 'saved' calculation."
+                  trace: "REQ-MENU-COM-003, INV-MENU-008, INV-MENU-009"
                 - name: isBaseOption
                   type: Boolean
                   description: "True if this option's ID is included in slot.baseOptionIds."
                   trace: "REQ-MENU-COM-002"
-              trace: "REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-VAR-006, REQ-MENU-ING-001"
-          trace: "REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-VAR-006, INV-MENU-005"
-      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-VAR-006, INV-MENU-005"
-    - id: administrativeCopyBuffer
-      name: Administrative Configuration Copy Buffer
-      type: AdministrativeCopyBufferProjection
-      description: "Buffer managing the source-supported administrative copy of an entire configuration structure (all slots and options) from a source ComboConfiguration to a target ComboConfiguration of the SAME COMBO MenuItem, regenerating all unique identities. Undefined slot-matching behavior is deferred to the issues tracker."
+              trace: "REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-VAR-006, REQ-MENU-ING-001, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, BR-MENU-008"
+          trace: "REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-VAR-006, INV-MENU-005, INV-MENU-011, INV-MENU-012"
+      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-VAR-006, INV-MENU-005, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, INV-MENU-012"
+    - id: batchCopyBuffer
+      name: Administrative Configuration Batch Copy Buffer
+      type: BatchCopyBufferProjection
+      description: "Operational buffer configuring and tracking administrative batch copy operations across combo configurations (POST /v1/menus/{menuId}/combos/configurations/batch-copy), supporting FULL_CLONE (generating new configuration under targetMenuItemId with regenerated IDs) and COPY_TO_EXISTING (mapping slots to targetConfigurationId), user-selected predictive simulation (dryRun), separate per-mode idempotency, per-destination atomicity with local FAIL/REPLACE conflict policies, partial success, and indivisibility without partial slot rollback."
       fields:
         - name: sourceConfigurationId
           type: "UUID | null"
-          description: "Identifier of the source ComboConfiguration to copy slots and options from."
+          description: "Identifier of the source ComboConfiguration whose structure (slots and options) is to be copied."
           trace: "REQ-MENU-COM-004"
-        - name: targetConfigurationId
-          type: "UUID | null"
-          description: "Identifier of an existing target ComboConfiguration of the same COMBO MenuItem, or null if copying into a newly instantiated configuration."
-          trace: "REQ-MENU-COM-004"
-        - name: isNewConfigurationTarget
+        - name: dryRun
           type: Boolean
-          description: "True if copying into a brand new configuration rather than overwriting an existing one."
-          trace: "REQ-MENU-COM-004"
-        - name: targetConfigurationName
-          type: "String | null"
-          description: "Proposed name for the destination configuration when copying into a new configuration."
-          trace: "REQ-MENU-COM-004"
-        - name: targetConfigurationUnitPrice
-          type: "Decimal | null"
-          description: "Proposed absolute unit price for the destination configuration when copying into a new configuration."
-          trace: "REQ-MENU-COM-004"
-        - name: slotsToCopyCount
-          type: Integer
-          description: "Number of ComboSlots that will be copied."
-          trace: "REQ-MENU-COM-004"
-        - name: optionsToCopyCount
-          type: Integer
-          description: "Total number of ComboOptions across all slots that will be copied."
-          trace: "REQ-MENU-COM-004"
-        - name: lastCopyReport
-          type: "CopyReportDetail | null"
-          description: "Outcome report from the most recently executed copy operation."
-          fields:
-            - name: sourceConfigurationId
-              type: UUID
-              description: "Source configuration identifier."
-              trace: "REQ-MENU-COM-004"
-            - name: destinationConfigurationId
-              type: UUID
-              description: "Destination configuration identifier."
-              trace: "REQ-MENU-COM-004"
-            - name: regeneratedSlotsCount
-              type: Integer
-              description: "Number of ComboSlots created with newly regenerated unique UUIDs."
-              trace: "REQ-MENU-COM-004"
-            - name: regeneratedOptionsCount
-              type: Integer
-              description: "Number of ComboOptions created with newly regenerated unique UUIDs."
-              trace: "REQ-MENU-COM-004"
-            - name: status
-              type: String
-              description: "Execution status: 'SUCCESS' or 'FAILED'."
-              trace: "REQ-MENU-COM-004"
-          trace: "REQ-MENU-COM-004"
-      trace: "REQ-MENU-COM-004"
-    - id: bulkAssignmentBuffer
-      name: Atomic Bulk Option Assignment Buffer
-      type: BulkAssignmentBufferProjection
-      description: "Operational buffer for selecting a batch of ComboOption specifications and applying them atomically to multiple ComboConfigurations of the same COMBO MenuItem. Any validation failure aborts the entire transaction with zero partial writes. Undefined slot-matching behavior is deferred to the issues tracker."
-      fields:
-        - name: selectedOptionDefinitions
-          type: "List<BulkOptionDefinitionItem>"
-          description: "Batch of option definitions (itemVariantId, positive quantity >= 1, priceDelta, enabled) to assign."
-          fields:
-            - name: itemVariantId
-              type: UUID
-              description: "Direct leaf MenuItemVariant reference."
-              trace: "REQ-MENU-COM-003, REQ-MENU-COM-005"
-            - name: variantName
-              type: String
-              description: "Resolved name of the leaf variant."
-              trace: "REQ-MENU-COM-003, REQ-MENU-COM-005"
-            - name: quantity
-              type: Integer
-              description: "Positive physical quantity multiplier (integer >= 1)."
-              trace: "REQ-MENU-COM-003, REQ-MENU-COM-005"
-            - name: priceDelta
-              type: Decimal
-              description: "Signed price delta."
-              trace: "REQ-MENU-COM-003, REQ-MENU-COM-005"
-            - name: enabled
-              type: Boolean
-              description: "Option enablement flag."
-              trace: "REQ-MENU-COM-003, REQ-MENU-COM-005"
-          trace: "REQ-MENU-COM-003, REQ-MENU-COM-005"
-        - name: targetConfigurationIds
-          type: "List<UUID>"
-          description: "List of target ComboConfiguration identifiers belonging to the same COMBO MenuItem to receive the options."
-          trace: "REQ-MENU-COM-005"
-        - name: targetSlotName
+          description: "User choice to execute a predictive simulation (dryRun = true) with complete validation, projected counts, and deterministic simulated idMappings without database writes, Pub/Sub event publication, revision increments, or status changes, or definitive execution (dryRun = false)."
+          trace: "REQ-MENU-COM-005, BR-MENU-027"
+        - name: idempotencyKey
           type: String
-          description: "Explicit slot name identifying the target ComboSlot within each destination configuration (e.g. 'Bebida' or 'Acompañamiento'). Heuristic automatic slot matching is strictly prohibited and deferred to the issues tracker."
-          trace: "REQ-MENU-COM-005"
-        - name: lastBulkReport
-          type: "BulkAssignmentReportDetail | null"
-          description: "Report emitted from the latest atomic bulk assignment execution."
+          description: "Client-supplied UUID idempotency token isolated in separate logical spaces for dryRun and definitive modes; repeating the same key and mode deterministically reproduces identical results, while altering payload under the same key yields IDEMPOTENCY_CONFLICT."
+          trace: "REQ-MENU-COM-005, BR-MENU-027"
+        - name: operations
+          type: "List<BatchCopyOperationItem>"
+          description: "List of copy destination operations to execute within the batch."
           fields:
-            - name: targetConfigurationsCount
-              type: Integer
-              description: "Number of configurations targeted."
-              trace: "REQ-MENU-COM-005"
-            - name: optionsAssignedPerConfigurationCount
-              type: Integer
-              description: "Count of options inserted per targeted configuration."
-              trace: "REQ-MENU-COM-005"
-            - name: outcome
+            - name: operationId
               type: String
-              description: "Atomic outcome: 'EXECUTED_SUCCESSFULLY' or 'ABORTED_ON_VALIDATION_ERROR'."
+              description: "Local client identifier for the operation item within the buffer."
               trace: "REQ-MENU-COM-005"
-            - name: isAtomicRollback
+            - name: mode
+              type: String
+              description: "Mandatory mode discriminator: 'FULL_CLONE' (structural cloning creating new ComboConfiguration under targetMenuItemId) or 'COPY_TO_EXISTING' (granular copy into pre-existing targetConfigurationId via explicit slotMappings)."
+              trace: "REQ-MENU-COM-004, BR-MENU-026"
+            - name: targetMenuItemId
+              type: "UUID | null"
+              description: "Identifier of the destination owner COMBO MenuItem aggregate root. Mandatory for FULL_CLONE; null for COPY_TO_EXISTING."
+              trace: "REQ-MENU-COM-004, BR-MENU-026"
+            - name: newConfigurationName
+              type: "String | null"
+              description: "Commercial name for the new cloned configuration in FULL_CLONE mode. Nullable and optional; omission retains the source configuration name. When supplied, constrained to 1..120 Unicode characters after trim."
+              trace: "REQ-MENU-COM-004, INV-MENU-012"
+            - name: targetConfigurationId
+              type: "UUID | null"
+              description: "Identifier of the pre-existing destination ComboConfiguration. Mandatory for COPY_TO_EXISTING; null for FULL_CLONE."
+              trace: "REQ-MENU-COM-004, BR-MENU-026"
+            - name: conflictPolicy
+              type: String
+              description: "Local conflict resolution policy evaluated per destination in COPY_TO_EXISTING: 'FAIL' (aborts that destination on existing options collision) or 'REPLACE' (removes pre-existing options in target slot and inserts copied options)."
+              trace: "REQ-MENU-COM-005, BR-MENU-027"
+            - name: slotMappings
+              type: "List<BatchCopySlotMappingItem>"
+              description: "Exhaustive slot mapping collection for COPY_TO_EXISTING; every sourceSlotId must explicitly map to a targetSlotId or specify createNewSlot: true. Automatic matching by name, order, or position is strictly prohibited."
+              fields:
+                - name: sourceSlotId
+                  type: UUID
+                  description: "Identifier of the source ComboSlot being mapped."
+                  trace: "REQ-MENU-COM-004, BR-MENU-026"
+                - name: targetSlotId
+                  type: "UUID | null"
+                  description: "Identifier of an existing destination ComboSlot within targetConfigurationId; null when createNewSlot is true."
+                  trace: "REQ-MENU-COM-004, BR-MENU-026"
+                - name: createNewSlot
+                  type: Boolean
+                  description: "True if a new ComboSlot should be created in the destination configuration with regenerated UUID, copying source slot name and bounds."
+                  trace: "REQ-MENU-COM-004, BR-MENU-026"
+              trace: "REQ-MENU-COM-004, BR-MENU-026"
+          trace: "REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026, BR-MENU-027"
+        - name: lastBatchReport
+          type: "BatchCopyReportDetail | null"
+          description: "Detailed report emitted from the most recent batch copy execution (definitive or dryRun simulation)."
+          fields:
+            - name: dryRun
               type: Boolean
-              description: "True if transaction rolled back completely on error leaving all configurations untouched."
-              trace: "REQ-MENU-COM-005"
-          trace: "REQ-MENU-COM-005"
-      trace: "REQ-MENU-COM-005"
+              description: "Indicates whether the report reflects a predictive dryRun simulation or a definitive persistence execution."
+              trace: "REQ-MENU-COM-005, BR-MENU-027"
+            - name: results
+              type: "List<BatchCopyDestinationResultItem>"
+              description: "Individual outcome report per destination unit, allowing partial success across destinations while each destination remains indivisible."
+              fields:
+                - name: mode
+                  type: String
+                  description: "Operation mode: 'FULL_CLONE' or 'COPY_TO_EXISTING'."
+                  trace: "REQ-MENU-COM-004, BR-MENU-026"
+                - name: targetMenuItemId
+                  type: "UUID | null"
+                  description: "Owner destination MenuItem identifier (for FULL_CLONE)."
+                  trace: "REQ-MENU-COM-004"
+                - name: targetConfigurationId
+                  type: "UUID | null"
+                  description: "Target configuration identifier (for COPY_TO_EXISTING)."
+                  trace: "REQ-MENU-COM-004"
+                - name: createdConfigurationId
+                  type: "UUID | null"
+                  description: "Newly generated UUID of the created ComboConfiguration entity in FULL_CLONE mode; null for COPY_TO_EXISTING or failed operations."
+                  trace: "REQ-MENU-COM-004, BR-MENU-026"
+                - name: status
+                  type: String
+                  description: "Per-destination execution status: 'SUCCESS' or 'FAILED'."
+                  trace: "REQ-MENU-COM-005, BR-MENU-027"
+                - name: createdSlotsCount
+                  type: Integer
+                  description: "Number of ComboSlots created with newly regenerated unique UUIDs (0 on failure)."
+                  trace: "REQ-MENU-COM-004, BR-MENU-026"
+                - name: createdOptionsCount
+                  type: Integer
+                  description: "Number of ComboOptions created with newly regenerated unique UUIDs (0 on failure)."
+                  trace: "REQ-MENU-COM-004, BR-MENU-026"
+                - name: idMappings
+                  type: "BatchCopyIdMappingsDetail | null"
+                  description: "Complete identifier correspondence mappings returned for SUCCESS outcomes in both definitive and dryRun modes. For FULL_CLONE, includes exactly 1 configuration mapping; across all successful modes, |idMappings.slots| == createdSlotsCount and |idMappings.options| == createdOptionsCount. Null for FAILED."
+                  fields:
+                    - name: configurationId
+                      type: "IdMappingPair | null"
+                      description: "Source and target configuration UUID pair { source, target }."
+                      trace: "REQ-MENU-COM-004, BR-MENU-026"
+                    - name: slots
+                      type: "List<IdMappingSlotPair>"
+                      description: "List of sourceSlotId to targetSlotId mappings for all created/mapped slots."
+                      trace: "REQ-MENU-COM-004, BR-MENU-026"
+                    - name: options
+                      type: "List<IdMappingOptionPair>"
+                      description: "List of sourceOptionId to targetOptionId mappings for all created/mapped options."
+                      trace: "REQ-MENU-COM-004, BR-MENU-026"
+                  trace: "REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026"
+                - name: diagnostics
+                  type: "List<BatchCopyDiagnosticItem>"
+                  description: "Structured diagnostic items for errors or conflicts on this destination."
+                  fields:
+                    - name: field
+                      type: String
+                      description: "Path to the field causing failure."
+                      trace: "REQ-MENU-COM-005"
+                    - name: issue
+                      type: String
+                      description: "Diagnostic issue code (e.g. 'SLOT_CONFLICT_UNDER_FAIL_POLICY', 'SLOT_MAPPING_MISSING')."
+                      trace: "REQ-MENU-COM-005"
+                    - name: rejectedValue
+                      type: "String | null"
+                      description: "Rejected value or identifier."
+                      trace: "REQ-MENU-COM-005"
+                    - name: message
+                      type: String
+                      description: "Human-readable diagnostic explanation."
+                      trace: "REQ-MENU-COM-005"
+                  trace: "REQ-MENU-COM-005"
+                - name: retryable
+                  type: Boolean
+                  description: "Flag indicating whether this destination failure can be retried (e.g. after resolving conflict or transient dependency issue)."
+                  trace: "REQ-MENU-COM-005, BR-MENU-027"
+              trace: "REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026, BR-MENU-027, BR-MENU-028"
+          trace: "REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026, BR-MENU-027, BR-MENU-028"
+      trace: "REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026, BR-MENU-027, BR-MENU-028, INV-MENU-012"
     - id: structuralValidationStatus
       name: Structural Validation Status
       type: StructuralValidationStatusProjection
@@ -528,14 +574,14 @@ view:
       type: input
       operatesOn: focusedConfigurationDetails.name
       triggersAction: setConfigurationName
-      description: "Semantic text input for the commercial name of the focused ComboConfiguration."
-      trace: "REQ-MENU-COM-001"
+      description: "Semantic text input for the commercial name of the focused ComboConfiguration (1..120 Unicode characters after trimming leading/trailing whitespace)."
+      trace: "REQ-MENU-COM-001, INV-MENU-012"
     - id: updateConfigurationUnitPriceInput
       type: input
       operatesOn: focusedConfigurationDetails.unitPrice
       triggersAction: setConfigurationUnitPrice
-      description: "Semantic numeric input for the authoritative absolute selling base price of the focused ComboConfiguration (unitPrice >= 0)."
-      trace: "REQ-MENU-COM-001, INV-MENU-005"
+      description: "Semantic numeric input for the authoritative absolute selling base price of the focused ComboConfiguration expressed in DECIMAL(12,2) with exactly two decimals in closed range 0.00..9999999999.99 in menu ISO 4217 currency (unitPrice >= 0.00)."
+      trace: "REQ-MENU-COM-001, INV-MENU-005, INV-MENU-007, INV-MENU-008, INV-MENU-009"
     - id: addComboSlotAction
       type: action
       operatesOn: focusedConfigurationDetails.slots
@@ -546,20 +592,20 @@ view:
       type: input
       operatesOn: focusedConfigurationDetails.slots.name
       triggersAction: setSlotName
-      description: "Semantic text input for the representative display name of a ComboSlot (e.g. 'Platillo Principal', 'Bebida')."
-      trace: "REQ-MENU-COM-002"
+      description: "Semantic text input for the representative display name of a ComboSlot (1..120 Unicode characters after trim, e.g. 'Platillo Principal', 'Bebida')."
+      trace: "REQ-MENU-COM-002, INV-MENU-012"
     - id: updateSlotMinSelectionsInput
       type: input
       operatesOn: focusedConfigurationDetails.slots.minSelections
       triggersAction: setSlotSelectionBounds
-      description: "Semantic numeric input for the minimum selections bound in a ComboSlot (integer >= 0, <= maxSelections)."
-      trace: "REQ-MENU-COM-002"
+      description: "Semantic numeric input for the minimum selections bound in a ComboSlot (integer in range 0..99, satisfying 0 <= minSelections <= maxSelections <= 99)."
+      trace: "REQ-MENU-COM-002, BR-MENU-011, INV-MENU-011"
     - id: updateSlotMaxSelectionsInput
       type: input
       operatesOn: focusedConfigurationDetails.slots.maxSelections
       triggersAction: setSlotSelectionBounds
-      description: "Semantic numeric input for the maximum selections bound in a ComboSlot (integer >= minSelections)."
-      trace: "REQ-MENU-COM-002"
+      description: "Semantic numeric input for the maximum selections bound in a ComboSlot (integer in range 0..99, satisfying minSelections <= maxSelections <= 99)."
+      trace: "REQ-MENU-COM-002, BR-MENU-011, INV-MENU-011"
     - id: addComboOptionAction
       type: action
       operatesOn: focusedConfigurationDetails.slots.options
@@ -582,67 +628,85 @@ view:
       type: input
       operatesOn: focusedConfigurationDetails.slots.options.quantity
       triggersAction: setOptionQuantity
-      description: "Semantic numeric input for the positive physical delivered quantity multiplier (integer >= 1). Dictates stock/recipe deduction in runtime without scaling slot selection count."
-      trace: "REQ-MENU-COM-003, REQ-MENU-ING-001"
+      description: "Semantic numeric input for the positive physical delivered quantity multiplier (integer in range 1..99 with no fractional coefficients). Dictates runtime inventory/recipe consumption without scaling slot selection count."
+      trace: "REQ-MENU-COM-003, REQ-MENU-ING-001, INV-MENU-011, BR-MENU-008"
     - id: updateOptionPriceDeltaInput
       type: input
       operatesOn: focusedConfigurationDetails.slots.options.priceDelta
       triggersAction: setOptionPriceDelta
-      description: "Semantic numeric input for explicit signed price adjustment added to the configuration base price when selected (e.g. +15.00, 0.00)."
-      trace: "REQ-MENU-COM-003"
-    - id: copySourceConfigurationSelector
+      description: "Semantic numeric input for explicit signed price adjustment in DECIMAL(12,2) in range -9999999999.99..+9999999999.99 added to configuration base unitPrice when selected, validating non-negative resulting combo unit price (unitPrice + deltas >= 0.00)."
+      trace: "REQ-MENU-COM-003, INV-MENU-008, INV-MENU-009, INV-MENU-010, BR-MENU-008"
+    - id: selectBatchCopySourceSelector
       type: selection
-      operatesOn: administrativeCopyBuffer.sourceConfigurationId
-      triggersAction: setCopySourceConfiguration
-      description: "Semantic selector choosing the source ComboConfiguration of this COMBO item whose slots and options are to be copied."
+      operatesOn: batchCopyBuffer.sourceConfigurationId
+      triggersAction: setBatchCopySourceConfiguration
+      description: "Semantic selector choosing the source ComboConfiguration whose entire structure (slots and options) is to be copied."
       trace: "REQ-MENU-COM-004"
-    - id: copyTargetConfigurationSelector
-      type: selection
-      operatesOn: administrativeCopyBuffer.targetConfigurationId
-      triggersAction: setCopyTargetConfiguration
-      description: "Semantic selector choosing an existing target ComboConfiguration of the same COMBO item, or specifying creation of a new target configuration."
-      trace: "REQ-MENU-COM-004"
-    - id: executeCopyConfigurationAction
+    - id: toggleBatchCopyDryRunToggle
+      type: toggle
+      operatesOn: batchCopyBuffer.dryRun
+      triggersAction: toggleBatchCopyDryRun
+      description: "Semantic toggle choosing predictive dryRun simulation (dryRun = true: full validation, projected counts, and deterministic simulated idMappings with zero database writes, zero Pub/Sub events, and zero revision increments) or definitive execution (dryRun = false)."
+      trace: "REQ-MENU-COM-005, BR-MENU-027"
+    - id: addBatchCopyOperationAction
       type: action
-      operatesOn: administrativeCopyBuffer
-      triggersAction: executeCopyConfiguration
-      description: "Semantic action to execute the administrative copy of all slots and options from source to destination configuration, regenerating unique UUID identities on all copied entities. Undefined slot-matching behavior is deferred to the issues tracker."
-      trace: "REQ-MENU-COM-004"
-    - id: resetCopyBufferAction
+      operatesOn: batchCopyBuffer.operations
+      triggersAction: addBatchCopyOperation
+      description: "Semantic action to add a new copy destination operation item to the batch buffer."
+      trace: "REQ-MENU-COM-005"
+    - id: removeBatchCopyOperationAction
       type: action
-      operatesOn: administrativeCopyBuffer
-      triggersAction: resetCopyBuffer
-      description: "Semantic action to clear configuration copy selections and report."
-      trace: "REQ-MENU-COM-004"
-    - id: selectBulkOptionsToAssignSelector
-      type: selection
-      operatesOn: bulkAssignmentBuffer.selectedOptionDefinitions
-      triggersAction: setBulkOptionsToAssign
-      description: "Semantic multi-selection control to choose or author a batch of option definitions (leaf variant, quantity >= 1, priceDelta, enabled) for atomic bulk assignment."
+      operatesOn: batchCopyBuffer.operations
+      triggersAction: removeBatchCopyOperation
+      description: "Semantic action to remove a destination operation item from the batch buffer."
       trace: "REQ-MENU-COM-005"
-    - id: selectBulkTargetConfigurationsSelector
+    - id: selectOperationModeSelector
       type: selection
-      operatesOn: bulkAssignmentBuffer.targetConfigurationIds
-      triggersAction: setBulkTargetConfigurations
-      description: "Semantic multi-selection control choosing multiple target ComboConfigurations of the same COMBO MenuItem to receive the options."
-      trace: "REQ-MENU-COM-005"
-    - id: selectBulkTargetSlotNameInput
+      operatesOn: batchCopyBuffer.operations.mode
+      triggersAction: configureBatchCopyOperation
+      description: "Semantic selector choosing the normative copy mode: 'FULL_CLONE' (creating new configuration under targetMenuItemId) or 'COPY_TO_EXISTING' (copying into targetConfigurationId via explicit slot mappings)."
+      trace: "REQ-MENU-COM-004, BR-MENU-026"
+    - id: inputOperationTargetMenuItemInput
       type: input
-      operatesOn: bulkAssignmentBuffer.targetSlotName
-      triggersAction: setBulkTargetSlotName
-      description: "Semantic text input specifying the explicit slot name in destination configurations to receive the options, avoiding heuristic auto-matching which is deferred to the issues tracker."
-      trace: "REQ-MENU-COM-005"
-    - id: executeBulkOptionAssignmentAction
+      operatesOn: batchCopyBuffer.operations.targetMenuItemId
+      triggersAction: configureBatchCopyOperation
+      description: "Semantic input specifying the destination owner COMBO MenuItem identifier (targetMenuItemId) required for FULL_CLONE operations."
+      trace: "REQ-MENU-COM-004, BR-MENU-026"
+    - id: inputOperationNewConfigNameInput
+      type: input
+      operatesOn: batchCopyBuffer.operations.newConfigurationName
+      triggersAction: configureBatchCopyOperation
+      description: "Semantic text input for the commercial name of the new cloned configuration in FULL_CLONE mode. Nullable and optional; omission retains the source configuration name. When supplied, constrained to 1..120 Unicode characters after trim."
+      trace: "REQ-MENU-COM-004, INV-MENU-012"
+    - id: selectOperationTargetConfigSelector
+      type: selection
+      operatesOn: batchCopyBuffer.operations.targetConfigurationId
+      triggersAction: configureBatchCopyOperation
+      description: "Semantic selector choosing the pre-existing destination ComboConfiguration identifier (targetConfigurationId) required for COPY_TO_EXISTING operations."
+      trace: "REQ-MENU-COM-004, BR-MENU-026"
+    - id: selectOperationConflictPolicySelector
+      type: selection
+      operatesOn: batchCopyBuffer.operations.conflictPolicy
+      triggersAction: configureBatchCopyOperation
+      description: "Semantic selector setting the local conflict policy ('FAIL' or 'REPLACE') evaluated per destination in COPY_TO_EXISTING mode."
+      trace: "REQ-MENU-COM-005, BR-MENU-027"
+    - id: configureOperationSlotMappingsAction
       type: action
-      operatesOn: bulkAssignmentBuffer
-      triggersAction: executeBulkOptionAssignment
-      description: "Semantic action executing atomic multi-configuration option assignment. If any validation or invariant error occurs on any targeted configuration, the entire operation rolls back with zero partial writes."
-      trace: "REQ-MENU-COM-005"
-    - id: resetBulkAssignmentBufferAction
+      operatesOn: batchCopyBuffer.operations.slotMappings
+      triggersAction: setBatchCopySlotMappings
+      description: "Semantic action to define exhaustive slot mappings for COPY_TO_EXISTING; every sourceSlotId must explicitly map to a targetSlotId or specify createNewSlot: true, strictly prohibiting heuristic matching."
+      trace: "REQ-MENU-COM-004, BR-MENU-026"
+    - id: executeBatchCopyAction
       type: action
-      operatesOn: bulkAssignmentBuffer
-      triggersAction: resetBulkAssignmentBuffer
-      description: "Semantic action to clear bulk assignment selections and report."
+      operatesOn: batchCopyBuffer
+      triggersAction: executeBatchCopy
+      description: "Semantic action executing the administrative batch copy operation across all specified destinations with per-destination atomicity, local conflict policy evaluation, mixed success between destinations, and retryable diagnostics."
+      trace: "REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026, BR-MENU-027, BR-MENU-028"
+    - id: resetBatchCopyBufferAction
+      type: action
+      operatesOn: batchCopyBuffer
+      triggersAction: resetBatchCopyBuffer
+      description: "Semantic action to clear batch copy buffer selections, operations, and last report."
       trace: "REQ-MENU-COM-005"
     - id: saveDraftInactiveAction
       type: action
@@ -683,98 +747,102 @@ view:
       effect: "Sets focusedConfigurationDetails to the selected configuration and populates slots and options."
       trace: "REQ-MENU-COM-001"
     - id: createComboConfiguration
-      description: "Create a new ComboConfiguration entity for this COMBO MenuItem with initial commercial name and absolute unitPrice (>= 0)."
+      description: "Create a new ComboConfiguration entity for this COMBO MenuItem with initial commercial name (1..120 Unicode chars after trim) and absolute unitPrice in DECIMAL(12,2) [0.00..9999999999.99]."
       parameters:
         - name: name
           type: String
-          description: "Commercial name for the configuration (e.g. 'Paquete Personal')."
+          description: "Commercial name for the configuration (1..120 Unicode characters after trim)."
         - name: unitPrice
           type: Decimal
-          description: "Absolute unit price (unitPrice >= 0)."
+          description: "Authoritative absolute base unit price in DECIMAL(12,2) within [0.00, 9999999999.99]."
       preconditions:
         - "The containing MenuItem must be of type COMBO."
-        - "name must be a non-empty string."
-        - "unitPrice >= 0."
+        - "name must have a trimmed length of 1..120 Unicode characters (INV-MENU-012)."
+        - "unitPrice must be an exact DECIMAL(12,2) with at most two decimal digits in [0.00, 9999999999.99] (INV-MENU-008, INV-MENU-009)."
+        - "The containing MenuItem must operate under an authoritative ISO 4217 single currency context (INV-MENU-007)."
       effect: "Instantiates a new ComboConfiguration with a newly generated UUID, default initial reviewStatus 'UP_TO_DATE', and empty slots list. Focuses the newly created configuration. Note: At least one ComboSlot must be added before persistence; configurations with zero slots are strictly rejected upon both INACTIVE and ACTIVE save."
-      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, INV-MENU-005"
+      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, INV-MENU-005, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-012"
     - id: setConfigurationName
-      description: "Update the commercial display name of the focused ComboConfiguration."
+      description: "Update the commercial display name of the focused ComboConfiguration (1..120 Unicode characters after trim)."
       parameters:
         - name: configurationId
           type: UUID
           description: "Identifier of the configuration."
         - name: name
           type: String
-          description: "New non-empty commercial name."
+          description: "New commercial name (1..120 Unicode characters after trim)."
       preconditions:
         - "configurationId exists."
-        - "name is non-empty."
+        - "name must have a trimmed length of 1..120 Unicode characters (INV-MENU-012)."
       effect: "Updates configuration name."
-      trace: "REQ-MENU-COM-001"
+      trace: "REQ-MENU-COM-001, INV-MENU-012"
     - id: setConfigurationUnitPrice
-      description: "Update the authoritative absolute base unit price of the focused ComboConfiguration."
+      description: "Update the authoritative absolute base unit price of the focused ComboConfiguration in DECIMAL(12,2) [0.00..9999999999.99]."
       parameters:
         - name: configurationId
           type: UUID
           description: "Identifier of the configuration."
         - name: unitPrice
           type: Decimal
-          description: "New absolute unit price (unitPrice >= 0)."
+          description: "New absolute unit price in DECIMAL(12,2) within [0.00, 9999999999.99]."
       preconditions:
-        - "unitPrice >= 0."
+        - "unitPrice must be an exact DECIMAL(12,2) with at most two decimal digits in [0.00, 9999999999.99] (INV-MENU-008, INV-MENU-009)."
+        - "Resulting combo price across valid selections must satisfy final price >= 0.00 (INV-MENU-010, BR-MENU-008)."
       effect: "Updates configuration unitPrice."
-      trace: "REQ-MENU-COM-001, INV-MENU-005"
+      trace: "REQ-MENU-COM-001, INV-MENU-005, INV-MENU-008, INV-MENU-009, INV-MENU-010"
     - id: createComboSlot
-      description: "Add a new ComboSlot selection space to the focused ComboConfiguration."
+      description: "Add a new ComboSlot selection space to the focused ComboConfiguration with name (1..120 chars) and selection bounds in 0..99."
       parameters:
         - name: configurationId
           type: UUID
           description: "Target ComboConfiguration identifier."
         - name: name
           type: String
-          description: "Representative display name of the slot."
+          description: "Representative display name of the slot (1..120 Unicode characters after trim)."
         - name: minSelections
           type: Integer
-          description: "Minimum selections required (default 0)."
+          description: "Minimum selections required in 0..99 (default 0)."
         - name: maxSelections
           type: Integer
-          description: "Maximum selections permitted (default 1)."
+          description: "Maximum selections permitted in 0..99 (default 1)."
       preconditions:
         - "configurationId exists."
-        - "0 <= minSelections <= maxSelections."
+        - "name must have a trimmed length of 1..120 Unicode characters (INV-MENU-012)."
+        - "0 <= minSelections <= maxSelections <= 99 (INV-MENU-011, BR-MENU-011)."
       effect: "Appends a new ComboSlot with generated UUID, empty options list, and recalculates structural capacity."
-      trace: "REQ-MENU-COM-002, INV-MENU-005"
+      trace: "REQ-MENU-COM-002, INV-MENU-005, INV-MENU-011, INV-MENU-012"
     - id: setSlotName
-      description: "Update the display name of a ComboSlot."
+      description: "Update the display name of a ComboSlot (1..120 Unicode characters after trim)."
       parameters:
         - name: slotId
           type: UUID
           description: "Target slot identifier."
         - name: name
           type: String
-          description: "New slot name."
+          description: "New slot name (1..120 Unicode characters after trim)."
       preconditions:
-        - "name is non-empty."
+        - "slotId exists."
+        - "name must have a trimmed length of 1..120 Unicode characters (INV-MENU-012)."
       effect: "Updates slot name."
-      trace: "REQ-MENU-COM-002"
+      trace: "REQ-MENU-COM-002, INV-MENU-012"
     - id: setSlotSelectionBounds
-      description: "Update the selection boundaries (minSelections and maxSelections) of a ComboSlot."
+      description: "Update the selection boundaries (minSelections and maxSelections) of a ComboSlot within range 0..99."
       parameters:
         - name: slotId
           type: UUID
           description: "Target slot identifier."
         - name: minSelections
           type: Integer
-          description: "Minimum selection limit (integer >= 0)."
+          description: "Minimum selection limit in 0..99 (integer >= 0)."
         - name: maxSelections
           type: Integer
-          description: "Maximum selection limit (integer >= minSelections)."
+          description: "Maximum selection limit in 0..99 (integer >= minSelections)."
       preconditions:
-        - "0 <= minSelections <= maxSelections."
+        - "0 <= minSelections <= maxSelections <= 99 (INV-MENU-011, BR-MENU-011)."
       effect: "Updates slot selection limits and re-evaluates isCapacitySatisfied and configuration structural eligibility."
-      trace: "REQ-MENU-COM-002, REQ-MENU-COM-006, INV-MENU-005"
+      trace: "REQ-MENU-COM-002, REQ-MENU-COM-006, INV-MENU-005, INV-MENU-011"
     - id: createComboOption
-      description: "Add a new ComboOption pointing directly to a concrete leaf MenuItemVariant."
+      description: "Add a new ComboOption pointing directly to a concrete leaf MenuItemVariant with integer quantity in 1..99 and priceDelta in DECIMAL(12,2)."
       parameters:
         - name: slotId
           type: UUID
@@ -784,19 +852,21 @@ view:
           description: "Direct reference to a leaf MenuItemVariant."
         - name: quantity
           type: Integer
-          description: "Positive physical delivered quantity multiplier (default 1, integer >= 1)."
+          description: "Positive physical delivered quantity multiplier restricted to integer range 1..99 without fractional coefficients (default 1)."
         - name: priceDelta
           type: Decimal
-          description: "Signed price adjustment (default 0.00)."
+          description: "Signed price adjustment in DECIMAL(12,2) within [-9999999999.99, +9999999999.99] (default 0.00)."
         - name: enabled
           type: Boolean
           description: "Option enablement status (default true)."
       preconditions:
         - "slotId exists."
         - "itemVariantId identifies an existing leaf MenuItemVariant (PREPARED or STOCKED)."
-        - "quantity >= 1 (positive physical quantity)."
+        - "quantity is an integer in 1..99 representing complete physical units without fractional coefficients (INV-MENU-011, REQ-MENU-COM-003)."
+        - "priceDelta is an exact DECIMAL(12,2) with at most two decimal digits in [-9999999999.99, +9999999999.99] (INV-MENU-008, INV-MENU-009)."
+        - "Resulting combo price across valid selections must satisfy final price >= 0.00 (INV-MENU-010, BR-MENU-008)."
       effect: "Appends new ComboOption entity to the target slot, captures savedUnitPrice from variant, and re-evaluates slot capacity and structural eligibility based on the complete REQ-MENU-VAR-006 predicate."
-      trace: "REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-VAR-006, INV-MENU-005"
+      trace: "REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-VAR-006, INV-MENU-005, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011"
     - id: setOptionItemVariant
       description: "Update the direct leaf MenuItemVariant reference of a ComboOption."
       parameters:
@@ -824,143 +894,188 @@ view:
       effect: "Updates option.enabled and recalculates slot structural capacity (only enabled options whose referenced variants satisfy the complete REQ-MENU-VAR-006 predicate contribute, contributing at most 1 selection regardless of quantity)."
       trace: "REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-VAR-006, INV-MENU-005"
     - id: setOptionQuantity
-      description: "Update the positive physical delivered quantity multiplier of a ComboOption."
+      description: "Update the positive physical delivered quantity multiplier of a ComboOption (integer 1..99 without fractional coefficients)."
       parameters:
         - name: optionId
           type: UUID
           description: "Identifier of the option."
         - name: quantity
           type: Integer
-          description: "Physical delivered quantity multiplier (integer >= 1)."
+          description: "Physical delivered quantity multiplier restricted to integer range 1..99 without fractional coefficients."
       preconditions:
-        - "quantity >= 1."
+        - "quantity is an integer in 1..99 representing complete physical units without fractional coefficients (INV-MENU-011, REQ-MENU-COM-003)."
       effect: "Updates option.quantity. Note: Does not scale slot selection capacity (each option still contributes at most 1 selection to calculatedCapacity regardless of quantity)."
-      trace: "REQ-MENU-COM-003, REQ-MENU-VAR-006, REQ-MENU-ING-001"
+      trace: "REQ-MENU-COM-003, REQ-MENU-VAR-006, REQ-MENU-ING-001, INV-MENU-011"
     - id: setOptionPriceDelta
-      description: "Update the signed price delta of a ComboOption."
+      description: "Update the signed price delta of a ComboOption in DECIMAL(12,2) [-9999999999.99..+9999999999.99]."
       parameters:
         - name: optionId
           type: UUID
           description: "Identifier of the option."
         - name: priceDelta
           type: Decimal
-          description: "Signed price adjustment."
+          description: "Signed price adjustment in DECIMAL(12,2) within [-9999999999.99, +9999999999.99]."
+      preconditions:
+        - "priceDelta is an exact DECIMAL(12,2) with at most two decimal digits in [-9999999999.99, +9999999999.99] (INV-MENU-008, INV-MENU-009)."
+        - "Resulting combo price across valid selections must satisfy final price >= 0.00 (INV-MENU-010, BR-MENU-008)."
       effect: "Updates option.priceDelta."
-      trace: "REQ-MENU-COM-003"
-    - id: setCopySourceConfiguration
-      description: "Select the source ComboConfiguration for an administrative copy operation."
+      trace: "REQ-MENU-COM-003, INV-MENU-008, INV-MENU-009, INV-MENU-010"
+    - id: setBatchCopySourceConfiguration
+      description: "Select the source ComboConfiguration for an administrative batch copy operation."
       parameters:
         - name: configurationId
           type: UUID
-          description: "Source configuration identifier."
+          description: "Source ComboConfiguration identifier."
       preconditions:
-        - "configurationId must belong to this COMBO MenuItem."
-      effect: "Updates administrativeCopyBuffer.sourceConfigurationId and loads source structure."
-      trace: "REQ-MENU-COM-004"
-    - id: setCopyTargetConfiguration
-      description: "Select the target ComboConfiguration or choose to instantiate a new target configuration."
+        - "configurationId must exist and belong to this COMBO MenuItem."
+      effect: "Sets batchCopyBuffer.sourceConfigurationId and loads source configuration structure."
+      trace: "REQ-MENU-COM-004, BR-MENU-026"
+    - id: toggleBatchCopyDryRun
+      description: "Toggle predictive dryRun simulation mode for the batch copy operation."
       parameters:
-        - name: configurationId
-          type: "UUID | null"
-          description: "Existing target configuration identifier or null for new configuration."
-        - name: isNew
+        - name: dryRun
           type: Boolean
-          description: "True if creating a new configuration as destination."
-        - name: newName
-          type: "String | null"
-          description: "Name for the new configuration (required if isNew is true)."
-        - name: newUnitPrice
-          type: "Decimal | null"
-          description: "Absolute unit price for the new configuration (required if isNew is true, >= 0)."
-      preconditions:
-        - "If not isNew, configurationId must belong to this COMBO MenuItem and be distinct from sourceConfigurationId."
-        - "If isNew, newName must be non-empty and newUnitPrice >= 0."
-      effect: "Updates administrativeCopyBuffer target fields."
-      trace: "REQ-MENU-COM-004"
-    - id: executeCopyConfiguration
-      description: "Execute the administrative copy of all ComboSlots and contained ComboOptions from source to destination configuration, regenerating unique identities for every entity in destination."
-      parameters: []
-      preconditions:
-        - "sourceConfigurationId must be selected and exist on this COMBO MenuItem."
-        - "Destination must be defined (either valid existing configuration or valid new configuration parameters)."
-      effect: >
-        Clones all ComboSlots and ComboOptions from the source configuration into the destination. Every copied
-        ComboSlot receives a newly generated UUID (id). Every copied ComboOption receives a newly generated UUID (id)
-        and updated comboSlotId referencing its new parent slot. All attributes (name, minSelections, maxSelections,
-        itemVariantId, quantity, priceDelta, enabled, savedUnitPrice) are duplicated faithfully. Emits
-        copyConfigurationReportNotification with regeneratedSlotsCount and regeneratedOptionsCount. Updates
-        structural validation status. Note: Undefined slot-matching or conflict behavior when copying into an
-        existing configuration with prior slots is deferred to the issues tracker.
-      trace: "REQ-MENU-COM-004"
-    - id: resetCopyBuffer
-      description: "Reset configuration copy buffer selections and report."
-      parameters: []
-      effect: "Clears administrativeCopyBuffer."
-      trace: "REQ-MENU-COM-004"
-    - id: setBulkOptionsToAssign
-      description: "Populate the batch of ComboOption definitions to be assigned across multiple configurations."
+          description: "True for predictive dry-run simulation without persistence or side effects; false for definitive execution."
+      preconditions: []
+      effect: "Updates batchCopyBuffer.dryRun. When dryRun is true, execution performs full business, domain, and conflict validation, predicts created counts, and deterministically simulates UUID idMappings with ZERO persistence, ZERO Pub/Sub event publication, ZERO revision increments, and ZERO administrative or review status changes."
+      trace: "REQ-MENU-COM-005, BR-MENU-027"
+    - id: addBatchCopyOperation
+      description: "Add a new destination operation entry to the batch copy buffer."
       parameters:
-        - name: optionDefinitions
-          type: "List<BulkOptionDefinitionItem>"
-          description: "List of option definitions with itemVariantId, quantity >= 1, priceDelta, enabled."
-      preconditions:
-        - "optionDefinitions is not empty."
-        - "All items have quantity >= 1 and valid leaf itemVariantId."
-      effect: "Updates bulkAssignmentBuffer.selectedOptionDefinitions."
-      trace: "REQ-MENU-COM-005"
-    - id: setBulkTargetConfigurations
-      description: "Select multiple ComboConfigurations of this COMBO MenuItem to receive the bulk option assignment."
-      parameters:
-        - name: configurationIds
-          type: "List<UUID>"
-          description: "List of target configuration identifiers."
-      preconditions:
-        - "configurationIds has at least one item."
-        - "All configurationIds belong to this COMBO MenuItem."
-      effect: "Updates bulkAssignmentBuffer.targetConfigurationIds."
-      trace: "REQ-MENU-COM-005"
-    - id: setBulkTargetSlotName
-      description: "Specify the explicit slot name in destination configurations that will receive the options."
-      parameters:
-        - name: slotName
+        - name: mode
           type: String
-          description: "Target slot name (e.g. 'Bebida', 'Acompañamiento')."
+          description: "Normative copy mode: 'FULL_CLONE' or 'COPY_TO_EXISTING'."
+        - name: targetMenuItemId
+          type: "UUID | null"
+          description: "Destination COMBO MenuItem identifier (required if mode is FULL_CLONE)."
+        - name: newConfigurationName
+          type: "String | null"
+          description: "Commercial name for the newly cloned configuration in FULL_CLONE mode. Nullable and optional; omission retains the source configuration name. When supplied, constrained to 1..120 Unicode characters after trim."
+        - name: targetConfigurationId
+          type: "UUID | null"
+          description: "Pre-existing target ComboConfiguration identifier (required if mode is COPY_TO_EXISTING)."
+        - name: conflictPolicy
+          type: String
+          description: "Local conflict policy ('FAIL' or 'REPLACE', default 'FAIL', applicable to COPY_TO_EXISTING)."
       preconditions:
-        - "slotName is non-empty."
-      effect: "Updates bulkAssignmentBuffer.targetSlotName."
+        - "mode is either 'FULL_CLONE' or 'COPY_TO_EXISTING' (BR-MENU-026)."
+        - "If mode is 'FULL_CLONE', targetMenuItemId must be non-null and identify a valid COMBO MenuItem."
+        - "If newConfigurationName is supplied, its trimmed length must be 1..120 Unicode characters (INV-MENU-012); omission retains the source configuration name."
+        - "If mode is 'COPY_TO_EXISTING', targetConfigurationId must be non-null and identify an existing ComboConfiguration."
+        - "conflictPolicy must be 'FAIL' or 'REPLACE' (BR-MENU-027)."
+      effect: "Appends a new BatchCopyOperationItem to batchCopyBuffer.operations with default empty slotMappings."
+      trace: "REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026, BR-MENU-027, INV-MENU-012"
+    - id: removeBatchCopyOperation
+      description: "Remove a destination operation entry from the batch copy buffer."
+      parameters:
+        - name: operationIndex
+          type: Integer
+          description: "Zero-based index of the operation item to remove."
+      preconditions:
+        - "0 <= operationIndex < batchCopyBuffer.operations.length."
+      effect: "Removes the operation item at operationIndex from batchCopyBuffer.operations."
       trace: "REQ-MENU-COM-005"
-    - id: executeBulkOptionAssignment
-      description: "Atomically assign the selected batch of ComboOptions to the specified target slot across all targeted ComboConfigurations of this COMBO MenuItem."
-      parameters: []
+    - id: configureBatchCopyOperation
+      description: "Update parameters of an existing destination operation entry in the batch copy buffer."
+      parameters:
+        - name: operationIndex
+          type: Integer
+          description: "Zero-based index of the operation item."
+        - name: mode
+          type: String
+          description: "Normative copy mode: 'FULL_CLONE' or 'COPY_TO_EXISTING'."
+        - name: targetMenuItemId
+          type: "UUID | null"
+          description: "Destination COMBO MenuItem identifier (for FULL_CLONE)."
+        - name: newConfigurationName
+          type: "String | null"
+          description: "Commercial name for the newly cloned configuration in FULL_CLONE mode. Nullable and optional; omission retains the source configuration name. When supplied, constrained to 1..120 Unicode characters after trim."
+        - name: targetConfigurationId
+          type: "UUID | null"
+          description: "Target ComboConfiguration identifier (for COPY_TO_EXISTING)."
+        - name: conflictPolicy
+          type: String
+          description: "Local conflict policy: 'FAIL' or 'REPLACE'."
       preconditions:
-        - "bulkAssignmentBuffer.selectedOptionDefinitions is non-empty."
-        - "bulkAssignmentBuffer.targetConfigurationIds is non-empty."
-        - "bulkAssignmentBuffer.targetSlotName is non-empty."
+        - "0 <= operationIndex < batchCopyBuffer.operations.length."
+        - "mode is either 'FULL_CLONE' or 'COPY_TO_EXISTING'."
+        - "If mode is 'FULL_CLONE', targetMenuItemId is required; if newConfigurationName is supplied, its trimmed length must be 1..120 Unicode characters (INV-MENU-012); omission retains the source configuration name."
+        - "If mode is 'COPY_TO_EXISTING', targetConfigurationId is required."
+        - "conflictPolicy is 'FAIL' or 'REPLACE'."
+      effect: "Updates operation attributes at operationIndex in batchCopyBuffer.operations."
+      trace: "REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026, BR-MENU-027, INV-MENU-012"
+    - id: setBatchCopySlotMappings
+      description: "Set exhaustive slot mappings for a COPY_TO_EXISTING destination operation in the batch copy buffer."
+      parameters:
+        - name: operationIndex
+          type: Integer
+          description: "Zero-based index of the operation item."
+        - name: slotMappings
+          type: "List<BatchCopySlotMappingItem>"
+          description: "Exhaustive list of slot mappings where every sourceSlotId maps to a targetSlotId or sets createNewSlot: true."
+      preconditions:
+        - "0 <= operationIndex < batchCopyBuffer.operations.length."
+        - "batchCopyBuffer.operations[operationIndex].mode == 'COPY_TO_EXISTING'."
+        - "slotMappings must provide exhaustive mappings for all source slots: every sourceSlotId in the source configuration must be present and either specify a valid targetSlotId in the destination configuration or have createNewSlot: true (BR-MENU-026)."
+        - "Automatic, heuristic, name-based, or position-based slot matching is strictly prohibited (BR-MENU-026)."
+      effect: "Updates slotMappings on the specified operation in batchCopyBuffer.operations."
+      trace: "REQ-MENU-COM-004, BR-MENU-026"
+    - id: executeBatchCopy
+      description: "Execute the administrative batch copy operation across all configured destinations with per-destination atomicity, local conflict policy, and predictive simulation support."
+      parameters:
+        - name: idempotencyKey
+          type: "String | null"
+          description: "Client-supplied idempotency key isolated by execution mode (dryRun vs definitive)."
+      preconditions:
+        - "batchCopyBuffer.sourceConfigurationId must be selected and exist on this COMBO MenuItem."
+        - "batchCopyBuffer.operations must contain at least one operation item."
+        - "For each operation in batchCopyBuffer.operations: if mode is FULL_CLONE, targetMenuItemId must be valid, and if newConfigurationName is supplied, its trimmed length must be 1..120 Unicode characters (omission retains the source configuration name); if mode is COPY_TO_EXISTING, targetConfigurationId must be valid and slotMappings must be exhaustive for all source slots."
       effect: >
-        Executes an atomic administrative transaction across all targeted configurations:
-        For each configuration in targetConfigurationIds, locates the ComboSlot matching targetSlotName.
-        If any targeted configuration lacks a slot matching targetSlotName or any validation fails, the entire
-        transaction aborts immediately with full atomic rollback (zero partial writes), populating lastBulkReport
-        with outcome = 'ABORTED_ON_VALIDATION_ERROR' and isAtomicRollback = true.
-        If all checks pass, appends newly generated ComboOption entities (with regenerated UUIDs) to each target
-        slot. Emits bulkAssignmentReportNotification and recalculates capacities across all affected configurations.
-        Note: Heuristic auto-matching of slots across disparate configuration topologies is strictly excluded and
-        deferred to the issues tracker.
-      trace: "REQ-MENU-COM-005"
-    - id: resetBulkAssignmentBuffer
-      description: "Clear bulk assignment buffer selections and report."
+        Executes administrative batch copy conforming strictly to REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026,
+        BR-MENU-027, and BR-MENU-028:
+        1. Unit of Atomicity and Mixed Success: Each destination operation constitutes an independent atomic transaction.
+           The batch permits mixed/partial success across destinations: a failure or conflict in one destination does
+           not roll back or invalidate successful modifications in other destinations.
+        2. Indivisibility Without Partial Slot Rollback: Within each individual destination, modifications are applied
+           completely or not at all (no partial slot rollback within a configuration).
+        3. Local Conflict Policy: In COPY_TO_EXISTING mode, if targetSlotId already contains active options, 'FAIL'
+           marks that destination FAILED without modification; 'REPLACE' removes prior options in targetSlotId and
+           writes copied options.
+        4. Identity Regeneration & Complete idMappings: In FULL_CLONE, creates a new ComboConfiguration under
+           targetMenuItemId (using newConfigurationName if supplied or retaining the source configuration name if omitted
+           or null), regenerating unique UUID identities for the configuration, all slots, and all options,
+           preserving descriptive order and structure. Populates idMappings with configurationId mapping, slots mappings
+           (|idMappings.slots| == createdSlotsCount), and options mappings (|idMappings.options| == createdOptionsCount).
+           In COPY_TO_EXISTING, creates new slots for createNewSlot: true and regenerates option UUIDs.
+        5. Predictive dryRun Simulation: If batchCopyBuffer.dryRun is true, executes complete validation, projects
+           createdSlotsCount and createdOptionsCount, and deterministically simulates UUID idMappings with ZERO database
+           persistence, ZERO Pub/Sub events, ZERO revision increments, and ZERO status changes.
+        6. Mode-Separated Idempotency: idempotencyKey is evaluated in separate logical spaces for dryRun and definitive modes.
+           Identical replay in the same mode deterministically returns identical UUIDs; prior dryRun does not block a
+           subsequent definitive execution with the same key.
+        7. Diagnostics and Reporting: Populates batchCopyBuffer.lastBatchReport with per-destination outcomes ('SUCCESS' or
+           'FAILED' with structured diagnostics [{ field, issue, rejectedValue, message }] and retryable flag). If dryRun is
+           false and at least one destination succeeds, commercial revision increments (<number>_<ISO8601>) under REQ-MENU-VER-001.
+           Emits batchCopyReportNotification.
+      trace: "REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026, BR-MENU-027, BR-MENU-028, REQ-MENU-VER-001, INV-MENU-012"
+    - id: resetBatchCopyBuffer
+      description: "Reset batch copy buffer selections, operations, and last report."
       parameters: []
-      effect: "Clears bulkAssignmentBuffer."
+      effect: "Clears batchCopyBuffer."
       trace: "REQ-MENU-COM-005"
     - id: saveComboConfigurationsInactive
       description: "Persist combo configurations and slots with COMBO MenuItem status INACTIVE, requiring at least one slot per configuration, and permitting zero-option slots or capacity deficits with structured warnings."
       parameters: []
       preconditions:
         - "Item must be a COMBO MenuItem."
+        - "The containing MenuItem must operate under an authoritative ISO 4217 single currency context (INV-MENU-007)."
         - "Every ComboConfiguration must contain at least one ComboSlot (configurations with zero slots are strictly rejected and cannot be persisted in either INACTIVE or ACTIVE status)."
-        - "All selection bounds must satisfy 0 <= minSelections <= maxSelections."
-        - "All configuration unit prices must be >= 0."
-        - "All option quantities must be >= 1."
+        - "All configuration names and slot names must have a trimmed length of 1..120 Unicode characters (INV-MENU-012)."
+        - "All selection bounds must satisfy 0 <= minSelections <= maxSelections <= 99 (INV-MENU-011, BR-MENU-011)."
+        - "All configuration unit prices must be exact DECIMAL(12,2) with at most two decimal digits in [0.00, 9999999999.99] (INV-MENU-008, INV-MENU-009)."
+        - "All option quantities must be integers in 1..99 representing complete physical units without fractional coefficients (INV-MENU-011, REQ-MENU-COM-003)."
+        - "All option price adjustments must be exact DECIMAL(12,2) with at most two decimal digits in [-9999999999.99, +9999999999.99] (INV-MENU-008, INV-MENU-009)."
+        - "Resulting combo price across valid selections must satisfy final price >= 0.00 (INV-MENU-010, BR-MENU-008)."
       effect: >
         Persists all ComboConfigurations, ComboSlots, and ComboOptions. Persisting a ComboSlot with zero options
         is permitted only when COMBO MenuItem status is INACTIVE, generating an incomplete-definition warning.
@@ -968,24 +1083,28 @@ view:
         incompleteCapacityWarnings with entityId, entityType ('ComboSlot'), configurationId, configurationName,
         slotName, minSelections, and calculatedCapacity for each slot with zero options or where calculatedCapacity <
         minSelections under REQ-MENU-LIF-002 and REQ-MENU-LIF-003. Emits savedMenuItemId and newRevisionToken.
-      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-LIF-002, REQ-MENU-LIF-003, REQ-MENU-VER-001"
+      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-LIF-002, REQ-MENU-LIF-003, REQ-MENU-VER-001, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, INV-MENU-012"
     - id: saveComboConfigurationsAndActivate
       description: "Validate complete structural capacity and persist combo configurations with COMBO MenuItem status ACTIVE."
       parameters: []
       preconditions:
         - "structuralValidationStatus.isEligibleForActive must be true."
         - "Total configurations count must be >= 1."
+        - "The containing MenuItem must operate under an authoritative ISO 4217 single currency context (INV-MENU-007)."
         - "Every ComboConfiguration must contain at least one ComboSlot (zero-slot configurations are strictly rejected)."
         - "Every ComboSlot must contain at least one ComboOption (zero-option slots are prohibited in ACTIVE status; permitted only in INACTIVE status)."
         - "Every mandatory ComboSlot (minSelections > 0) across all configurations must satisfy calculatedCapacity >= minSelections under INV-MENU-005 and REQ-MENU-COM-006, where calculatedCapacity counts enabled options whose referenced leaf variants satisfy the complete REQ-MENU-VAR-006 predicate (owning leaf MenuItem ACTIVE, variant ACTIVE and not ARCHIVED, complete PREPARED or STOCKED supply linkage, and satisfiable mandatory modifier groups), with each option contributing at most 1 selection regardless of quantity, and explicitly excluding momentary Inventory availability."
-        - "All selection limits satisfy 0 <= minSelections <= maxSelections."
-        - "All configuration unit prices >= 0."
-        - "All option quantities >= 1."
+        - "All configuration names and slot names satisfy trimmed length 1..120 Unicode characters (INV-MENU-012)."
+        - "All selection limits satisfy 0 <= minSelections <= maxSelections <= 99 (INV-MENU-011, BR-MENU-011)."
+        - "All configuration unit prices are exact DECIMAL(12,2) with at most two decimal digits in [0.00, 9999999999.99] (INV-MENU-008, INV-MENU-009)."
+        - "All option quantities are integers in 1..99 representing complete physical units without fractional coefficients (INV-MENU-011, REQ-MENU-COM-003)."
+        - "All option price adjustments are exact DECIMAL(12,2) with at most two decimal digits in [-9999999999.99, +9999999999.99] (INV-MENU-008, INV-MENU-009)."
+        - "Resulting combo price across valid selections must satisfy final price >= 0.00 (INV-MENU-010, BR-MENU-008)."
       effect: >
         Persists combo configurations, slots, and options with COMBO MenuItem status ACTIVE. Generates a new immutable
         commercial revision token formatted as '<number>_<ISO8601>'. Emits savedMenuItemId, newRevisionToken, and
         returnToItemEditorSignal.
-      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-VAR-006, INV-MENU-005, REQ-MENU-VER-001"
+      trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-VAR-006, INV-MENU-005, INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011, INV-MENU-012, REQ-MENU-VER-001"
     - id: cancelConfiguration
       description: "Discard unsaved combo configuration edits and return to MenuItemEditorView."
       parameters: []
@@ -1020,18 +1139,22 @@ view:
       description: "The configuration has reviewStatus = 'REVIEW_REQUIRED' due to dependency archival or modification under REQ-MENU-LIF-001. Read-only informational indicator; confirmation occurs exclusively in ComboReviewView via configurationId/reviewToken and observed changeIds."
       condition: "focusedConfigurationDetails.reviewStatus == 'REVIEW_REQUIRED'."
       trace: "REQ-MENU-COM-001, REQ-MENU-LIF-001, REQ-MENU-REV-003"
-    - id: copyConfigurationExecutionSuccess
-      description: "Administrative copy operation executed successfully, regenerating unique UUID identities on all copied slots and options in the destination configuration."
-      condition: "administrativeCopyBuffer.lastCopyReport != null and administrativeCopyBuffer.lastCopyReport.status == 'SUCCESS'."
-      trace: "REQ-MENU-COM-004"
-    - id: bulkAssignmentExecutionSuccess
-      description: "Atomic bulk option assignment completed successfully across all target configurations."
-      condition: "bulkAssignmentBuffer.lastBulkReport != null and bulkAssignmentBuffer.lastBulkReport.outcome == 'EXECUTED_SUCCESSFULLY'."
-      trace: "REQ-MENU-COM-005"
-    - id: bulkAssignmentAbortedRollback
-      description: "Atomic bulk option assignment aborted on validation or slot error, maintaining zero partial writes via atomic rollback."
-      condition: "bulkAssignmentBuffer.lastBulkReport != null and bulkAssignmentBuffer.lastBulkReport.outcome == 'ABORTED_ON_VALIDATION_ERROR' and bulkAssignmentBuffer.lastBulkReport.isAtomicRollback == true."
-      trace: "REQ-MENU-COM-005"
+    - id: batchCopySimulationSuccess
+      description: "Predictive simulation (dryRun = true) completed successfully across all destination operations with zero persistence, zero Pub/Sub events, zero revision increment, deterministic simulated idMappings, and complete predictive validation."
+      condition: "batchCopyBuffer.lastBatchReport != null and batchCopyBuffer.lastBatchReport.dryRun == true and (all r in batchCopyBuffer.lastBatchReport.results have r.status == 'SUCCESS')."
+      trace: "REQ-MENU-COM-005, BR-MENU-027"
+    - id: batchCopyExecutionSuccess
+      description: "Administrative batch copy executed definitively (dryRun = false) with all destination operations completed successfully under per-destination atomicity and regenerated UUID identities."
+      condition: "batchCopyBuffer.lastBatchReport != null and batchCopyBuffer.lastBatchReport.dryRun == false and (all r in batchCopyBuffer.lastBatchReport.results have r.status == 'SUCCESS')."
+      trace: "REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026, BR-MENU-027"
+    - id: batchCopyPartialSuccess
+      description: "Administrative batch copy completed with mixed success across destinations (at least one destination 'SUCCESS' and at least one 'FAILED'), with per-destination atomicity preserving confirmed modifications without cross-destination rollback."
+      condition: "batchCopyBuffer.lastBatchReport != null and (any r in batchCopyBuffer.lastBatchReport.results has r.status == 'SUCCESS') and (any r in batchCopyBuffer.lastBatchReport.results has r.status == 'FAILED')."
+      trace: "REQ-MENU-COM-005, BR-MENU-027, BR-MENU-028"
+    - id: batchCopyExecutionFailed
+      description: "Administrative batch copy failed across all destination operations; each destination provides structured diagnostics and retryable status without partial slot corruption."
+      condition: "batchCopyBuffer.lastBatchReport != null and (all r in batchCopyBuffer.lastBatchReport.results have r.status == 'FAILED')."
+      trace: "REQ-MENU-COM-005, BR-MENU-027, BR-MENU-028"
     - id: inactiveSavedWithCapacityWarnings
       description: "Combo configurations saved with COMBO MenuItem in INACTIVE status with capacity deficits or incomplete definitions (persisted slots with zero options, or mandatory slots with calculatedCapacity < minSelections). Structured warnings expose entityId, entityType ('ComboSlot'), minSelections, and calculatedCapacity."
       condition: "comboItemContext.status == 'INACTIVE' and incompleteCapacityWarnings.count > 0."
@@ -1070,9 +1193,9 @@ view:
     - id: C-COM-004
       description: >
         Slot Selection Bounds, Structural Capacity Invariant, and Variant Eligibility Predicate:
-        Each ComboSlot enforces integer bounds 0 <= minSelections <= maxSelections. An option space definition where
-        minSelections > maxSelections is strictly invalid and rejected. In commercial sales, selections must satisfy
-        minSelections <= sum(chosen options) <= maxSelections.
+        Each ComboSlot enforces integer selection bounds 0 <= minSelections <= maxSelections <= 99 (INV-MENU-011, BR-MENU-011).
+        An option space definition where minSelections > maxSelections or values exceed 99 is strictly invalid and rejected.
+        In commercial sales, selections must satisfy minSelections <= sum(chosen options) <= maxSelections.
         For commercial activation (MenuItem status = ACTIVE), each mandatory slot (minSelections > 0) must satisfy
         the structural capacity invariant:
         Capacidad(ComboSlot) = count({o in EnabledOptions | isTargetVariantEligible(o.itemVariantId)}) >= minSelections
@@ -1087,19 +1210,23 @@ view:
         regardless of its physical delivered quantity multiplier. Variants lacking supply linkage or satisfiable
         mandatory modifier groups contribute zero. Momentary inventory stock availability (VariantAvailability)
         is strictly excluded and does not alter structural eligibility or capacity.
-      trace: "REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-VAR-006, INV-MENU-005"
+      trace: "REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-VAR-006, INV-MENU-005, INV-MENU-011"
     - id: C-COM-005
       description: >
         Direct Variant Referencing, Physical Quantity, and Price Delta:
         Each ComboOption must reference a concrete leaf MenuItemVariant directly via itemVariantId (referencing a
         PREPARED or STOCKED item). The legacy model of menuItemId + AllowedVariant is strictly discontinued. Each option
         specifies:
-        1. A positive physical delivered quantity multiplier (quantity >= 1), dictating runtime recipe/inventory
-           consumption without scaling slot selection count (each option contributes at most 1 selection to slot capacity
-           regardless of quantity).
-        2. An explicit signed commercial priceDelta added to the configuration base unitPrice.
+        1. A positive physical delivered quantity multiplier restricted strictly to the integer range 1..99 of complete
+           physical units with no fractional coefficients (INV-MENU-011, REQ-MENU-COM-003), dictating runtime
+           recipe/inventory consumption without scaling slot selection count (each option contributes at most 1 selection
+           to slot capacity regardless of quantity). Any commercial fractionated portion must be modeled as an independent
+           leaf MenuItemVariant rather than via fractional multipliers.
+        2. An explicit signed commercial priceDelta in exact DECIMAL(12,2) [-9999999999.99..+9999999999.99] added to the
+           configuration base unitPrice (INV-MENU-008, INV-MENU-009). The resulting combo price across valid selections
+           must always evaluate to >= 0.00 (INV-MENU-010, BR-MENU-008).
         3. An administrative enablement flag (enabled).
-      trace: "REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-VAR-006, REQ-MENU-ING-001, INV-MENU-005"
+      trace: "REQ-MENU-COM-003, REQ-MENU-COM-006, REQ-MENU-VAR-006, REQ-MENU-ING-001, INV-MENU-005, INV-MENU-008, INV-MENU-009, INV-MENU-010, INV-MENU-011"
     - id: C-COM-006
       description: >
         Exclusion of Combo-Owned Modifiers:
@@ -1110,19 +1237,38 @@ view:
       trace: "REQ-MENU-COM-001, REQ-MENU-MOD-001, REQ-MENU-ING-001"
     - id: C-COM-007
       description: >
-        Same-Item Configuration Copy and Identity Regeneration:
-        Administrative configuration copying is supported exclusively between ComboConfigurations of the SAME COMBO
-        MenuItem. Cross-item copying is unsupported. When executed, all ComboSlots and ComboOptions from the source
-        configuration are duplicated into the destination configuration with newly regenerated, unique UUID identities
-        for every slot and option entity.
-      trace: "REQ-MENU-COM-004"
+        Normative Batch Copy Modes, Identity Regeneration, and idMappings Completeness:
+        Administrative copying is executed via batch copy supporting two normative modes (FULL_CLONE and COPY_TO_EXISTING) across COMBO MenuItems (REQ-MENU-COM-004, BR-MENU-026, Section 10.2):
+        1. FULL_CLONE: Requires specifying the destination owner COMBO MenuItem (targetMenuItemId). The commercial
+           configuration name (newConfigurationName) is nullable and optional; if supplied, it must have a trimmed length of
+           1..120 Unicode characters, and if omitted or null, the source configuration name is retained. Creates a new ComboConfiguration
+           under targetMenuItemId, preserving the source hierarchical structure and descriptive slot order while regenerating
+           unique UUID identities for the configuration, all slots, and all options.
+        2. COPY_TO_EXISTING: Requires specifying an existing target ComboConfiguration (targetConfigurationId) and exhaustive
+           slot mappings (slotMappings) where every sourceSlotId explicitly maps to a targetSlotId or sets createNewSlot: true.
+           Automatic matching, name-based heuristics, fuzzy string matching, or positional alignment are strictly prohibited.
+        3. idMappings Completeness: Every successful result ('SUCCESS') in FULL_CLONE includes idMappings with exactly one
+           configuration mapping, |idMappings.slots| == createdSlotsCount, and |idMappings.options| == createdOptionsCount
+           across both definitive and dryRun modes. In FAILED results, idMappings is null and created counts are 0.
+      trace: "REQ-MENU-COM-004, BR-MENU-026, INV-MENU-012"
     - id: C-COM-008
       description: >
-        Atomic Multi-Configuration Option Assignment:
-        Administrative assignment of a batch of ComboOptions across multiple ComboConfigurations of the same COMBO
-        MenuItem must execute as a single atomic transaction. If any targeted configuration encounters an error or
-        inconsistency, the entire transaction aborts immediately with full atomic rollback (zero partial writes).
-      trace: "REQ-MENU-COM-005"
+        Per-Destination Atomicity, Local Conflict Policy, Partial Success, and Indivisibility without Partial Slot Rollback:
+        Administrative batch copy operates across multiple destinations under per-destination atomicity (REQ-MENU-COM-005, BR-MENU-027, BR-MENU-028):
+        1. Unit of Atomicity and Mixed Batch Success: Each destination operation (new configuration in FULL_CLONE or
+           targetConfigurationId in COPY_TO_EXISTING) constitutes an independent atomic transaction. Batch operations permit
+           partial/mixed success: failure in one destination does not roll back, invalidate, or abort successful modifications
+           in other destinations.
+        2. Local Conflict Policy: In COPY_TO_EXISTING, if targetSlotId contains pre-existing active options, conflictPolicy is
+           evaluated locally: 'FAIL' rejects that destination without modification; 'REPLACE' clears prior options in targetSlotId
+           and replaces them with copied options.
+        3. Indivisibility Without Partial Slot Rollback: Within any destination configuration, modifications are applied
+           indivisibly (all mapped slots/options succeed, or the entire destination is rolled back with status 'FAILED'). Partial
+           rollback per slot within a single configuration is strictly prohibited.
+        4. Structured Diagnostics and Retryable State: Each destination reports an individual outcome ('SUCCESS' or 'FAILED' with
+           structured diagnostics [{ field, issue, rejectedValue, message }] and a retryable flag), enabling selective correction
+           and resubmission.
+      trace: "REQ-MENU-COM-005, BR-MENU-027, BR-MENU-028"
     - id: C-COM-009
       description: >
         Strict Separation of Structural Eligibility from Operational Availability:
@@ -1149,25 +1295,48 @@ view:
       trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-006, REQ-MENU-VAR-006, REQ-MENU-LIF-002, REQ-MENU-LIF-003, INV-MENU-005"
     - id: C-COM-011
       description: >
-        Commercial Versioning on Accepted Persistence:
-        Every accepted commercial modification to combo configurations, slots, options, configuration copy, or bulk option
-        assignment increments the COMBO MenuItem commercial version and generates a new immutable revision token formatted
-        as '<number>_<ISO8601>' under REQ-MENU-VER-001.
-      trace: "REQ-MENU-VER-001"
+        Commercial Versioning on Accepted Definitive Persistence:
+        Every accepted commercial modification to combo configurations, slots, options, or definitive batch copy execution
+        (dryRun = false with at least one destination SUCCESS) increments the COMBO MenuItem commercial version and generates
+        a new immutable revision token formatted as '<number>_<ISO8601>' under REQ-MENU-VER-001. Predictive simulations
+        (dryRun = true) never increment commercial versions or revision tokens.
+      trace: "REQ-MENU-VER-001, BR-MENU-027"
     - id: C-COM-012
       description: >
-        Deferral of Undefined Slot-Matching and Merge Behaviors to Issues Tracker:
-        When copying configuration structures into an existing target configuration with prior slots, or when bulk-assigning
-        options across configurations with disparate slot topologies, the SRS does not specify automatic heuristic slot
-        matching or conflict resolution rules. In accordance with architectural principles, this specification does not
-        invent automatic slot matching or reconciliation heuristics; option assignment requires an explicit target slot
-        name match, and undefined heuristic slot-matching and merge behaviors are deferred to the issues tracker.
-      trace: "docs/ui-spec-arch.md, docs/requests/create-ui-spec.md"
+        Predictive Simulation (dryRun) and Mode-Separated Idempotency:
+        1. Predictive Simulation (dryRun = true): Allows the administrator to execute batch copy in simulation mode. Executes full
+           structural, entity, domain, and conflict validations, computes projected createdSlotsCount and createdOptionsCount, and
+           simulates deterministic UUID idMappings with ZERO database persistence, ZERO Pub/Sub event publication, ZERO revision
+           increments, and ZERO administrative or review status changes (BR-MENU-027, Section 10.2).
+        2. Mode-Separated Idempotency: idempotencyKey is managed in independent logical spaces for dryRun and definitive modes.
+           Identical key replay in the same mode deterministically returns identical cached results and assigned UUIDs. Prior
+           dryRun execution does NOT consume or block the key for subsequent definitive execution (dryRun = false), allowing
+           safe confirmation workflows. Idempotency key reuse with differing parameters within the same mode is rejected with
+           IDEMPOTENCY_CONFLICT.
+        Explicit slot mappings and per-destination atomicity replace all heuristic slot matching and legacy tracker deferrals.
+      trace: "REQ-MENU-COM-004, REQ-MENU-COM-005, BR-MENU-026, BR-MENU-027"
     - id: C-COM-013
       description: >
         Exclusion of Destructive Configuration Operations:
         ComboConfigurationView strictly excludes destructive operations (deletion or removal) of ComboConfiguration,
         ComboSlot, or ComboOption entities. All configuration authoring is accomplished through creation, commercial
-        attribute editing, same-item administrative copying, atomic bulk option assignment, and option enablement toggling,
+        attribute editing, normative administrative batch copying, and option enablement toggling,
         preserving structural history and preventing accidental destructive loss.
       trace: "REQ-MENU-COM-001, REQ-MENU-COM-002, REQ-MENU-COM-003"
+    - id: C-COM-014
+      description: >
+        Monetary Precision, Absolute Ranges, and ISO 4217 Currency Context:
+        All monetary amounts in ComboConfigurationView operate under a single ISO 4217 currency code defined at the menu level
+        (INV-MENU-007). All unit prices (ComboConfiguration.unitPrice, savedUnitPrice) and price adjustments (ComboOption.priceDelta)
+        must be exact DECIMAL(12,2) with at most two decimal digits (INV-MENU-008). Absolute prices must be in [0.00, 9999999999.99]
+        and price deltas in [-9999999999.99, +9999999999.99] (INV-MENU-009). The resulting combo sales price across valid
+        selections must satisfy final price >= 0.00 (INV-MENU-010, BR-MENU-008).
+      trace: "INV-MENU-007, INV-MENU-008, INV-MENU-009, INV-MENU-010"
+    - id: C-COM-015
+      description: >
+        Commercial Name Text Constraints:
+        Commercial names for ComboConfiguration and ComboSlot, as well as new cloned configuration names when supplied
+        (newConfigurationName is nullable and optional in FULL_CLONE, and omission retains the source configuration name),
+        must have a length of between 1 and 120 Unicode characters after trimming leading and trailing whitespace (strip())
+        under INV-MENU-012. Empty strings or strings exceeding 120 characters after trimming are strictly rejected when supplied.
+      trace: "INV-MENU-012"

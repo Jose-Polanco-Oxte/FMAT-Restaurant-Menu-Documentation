@@ -262,7 +262,7 @@ view:
         - name: query
           type: String
           description: "Search query text."
-      effect: "Updates activeSearchQuery and requests and displays corresponding administrative catalog items matching the search query; concrete matching and search algorithms are deferred to the issues tracker under 'Undefined Category Administration and Search Semantics'."
+      effect: "Updates activeSearchQuery and requests and displays corresponding administrative catalog items matching the search query; concrete matching and search algorithms are deferred to the issues tracker under 'Catalog Keyword Search and Matching Semantics'."
       trace: "REQ-MENU-ITM-001, docs/issues-tracker.md"
     - id: filterByStatus
       description: "Filter catalog items by administrative status."
@@ -355,6 +355,6 @@ view:
       description: >
         Search matching semantics and algorithms (such as exact match, substring containment, tokenization,
         case or accent normalization, indexed fields, or debouncing) are not defined in the SRS and are explicitly
-        deferred to the issues tracker under 'Undefined Category Administration and Search Semantics'. The view provides
+        deferred to the issues tracker under 'Catalog Keyword Search and Matching Semantics'. The view provides
         semantic query submission and displays corresponding results or the noResults state without prescribing an algorithmic matching criteria.
       trace: "REQ-MENU-ITM-001, docs/issues-tracker.md, docs/ui-spec-arch.md"

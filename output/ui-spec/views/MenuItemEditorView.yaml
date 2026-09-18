@@ -4,12 +4,14 @@ view:
   purpose: >
     Provide the menu administrator with a centralized semantic interface to inspect and configure the
     commercial identity, image reference, menu and category associations, immutable type discriminator,
-    administrative status, leaf presentations and dimensions, authoritative absolute unit prices, and
-    type-specific supply linkage (STOCKED inventory references and withdrawal quantities, or PREPARED
-    recipe-revision association and explicit adoption) of a MenuItem, as well as executing atomic
-    DEFAULT-to-explicit variant migrations, irreversible variant archival, and incomplete-INACTIVE saves
-    with structured capacity warnings, while enforcing full structural eligibility before commercial activation
-    without inventing image uploading, Inventory lookup, category CRUD, autosave, or destructive deletion.
+    administrative status, leaf presentations and dimensions, authoritative absolute unit prices qualified
+    by the menu-level ISO 4217 currency, and type-specific supply linkage (STOCKED inventory references and
+    withdrawal quantities, or PREPARED recipe-revision association and explicit adoption) of a MenuItem through
+    design-neutral reference controls (with acquisition interaction unresolved in the issues tracker), as well
+    as executing atomic DEFAULT-to-explicit variant migrations, irreversible variant archival, and incomplete-INACTIVE
+    saves with structured capacity warnings, while enforcing input format bounds (precision, range, text-length)
+    and full structural eligibility before commercial activation without inventing image uploading, Inventory lookup,
+    authentication, category CRUD, autosave, or destructive deletion.
   actors:
     - ADMINISTRATOR
   requirements:
@@ -31,6 +33,10 @@ view:
     - REQ-MENU-LIF-003
     - REQ-MENU-VER-001
     - REQ-MENU-AVL-002
+    - INV-MENU-007
+    - INV-MENU-008
+    - INV-MENU-009
+    - INV-MENU-012
   inputs:
     - name: menuItemId
       type: "UUID | null"
@@ -45,8 +51,8 @@ view:
     - name: initialMenuId
       type: "UUID | null"
       required: false
-      description: "Identifier of the target commercial menu catalog owning this item; defaults to the active store menu catalog."
-      trace: "REQ-MENU-ITM-001"
+      description: "Identifier of the target commercial menu catalog owning this item; defaults to the active store menu catalog, establishing the menu context and its read-only ISO 4217 currencyCode."
+      trace: "REQ-MENU-ITM-001, INV-MENU-007"
   outputs:
     - name: savedMenuItemId
       type: UUID
@@ -89,7 +95,7 @@ view:
         - administrativeStatusToggle
     - id: variantManagementRegion
       role: primary
-      description: "Semantic region active for leaf items (PREPARED and STOCKED) to manage variant dimensions, dimension values, sellable variants, combinations, unit prices, supply configurations, default-to-explicit migration, and variant archival."
+      description: "Semantic region active for leaf items (PREPARED and STOCKED) to manage variant dimensions, dimension values, sellable variants, combinations, unit prices in menu ISO 4217 currency, design-neutral supply configurations (inventory references and recipe revisions), default-to-explicit migration, and variant archival."
       data:
         - variantDimensions
         - leafVariants
@@ -121,8 +127,9 @@ view:
         - navigateToModifierConfigurationAction
     - id: validationAndWarningsRegion
       role: supporting
-      description: "Semantic region displaying real-time structural eligibility evaluation, blocking validation errors for ACTIVE state, and structured incomplete capacity warnings for INACTIVE saves."
+      description: "Semantic region displaying real-time input validation errors (surfacing invalid precision, range, and text-length violations before persistence), structural eligibility evaluation, blocking validation errors for ACTIVE state, and structured incomplete capacity warnings for INACTIVE saves."
       data:
+        - inputValidationStatus
         - structuralValidationStatus
         - incompleteCapacityWarnings
       controls:
@@ -141,12 +148,12 @@ view:
           trace: "REQ-MENU-ITM-001"
         - name: name
           type: String
-          description: "Commercial name of the MenuItem."
-          trace: "REQ-MENU-ITM-001"
+          description: "Commercial name of the MenuItem (1..120 Unicode characters after trimming leading/trailing whitespace)."
+          trace: "REQ-MENU-ITM-001, INV-MENU-012"
         - name: description
           type: String
-          description: "Commercial description of the MenuItem."
-          trace: "REQ-MENU-ITM-001"
+          description: "Commercial description of the MenuItem (0..1000 Unicode characters)."
+          trace: "REQ-MENU-ITM-001, INV-MENU-012"
         - name: imageRef
           type: String
           description: "Opaque reference URI string for item image representation; does not provide file uploading."
@@ -155,6 +162,10 @@ view:
           type: UUID
           description: "Identifier of the owning commercial menu catalog."
           trace: "REQ-MENU-ITM-001"
+        - name: currencyCode
+          type: String
+          description: "Read-only ISO 4217 3-character alphabetic currency code (e.g., 'MXN', 'USD') inherited from the owning menu catalog (menuId), providing the fixed currency context for all variant unit prices."
+          trace: "INV-MENU-007, REQ-MENU-PRC-001"
         - name: itemCategoryId
           type: "UUID | null"
           description: "Foreign reference identifier to an ItemCategory for leaf items (PREPARED or STOCKED); null for COMBO items."
@@ -187,7 +198,7 @@ view:
           type: Boolean
           description: "True if the editor is operating on a new item not yet saved to the catalog."
           trace: "REQ-MENU-ITM-001"
-      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-VER-001"
+      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-VER-001, INV-MENU-007, INV-MENU-012"
     - id: variantDimensions
       name: Variant Dimensions and Values
       type: "List<VariantDimensionProjection>"
@@ -199,8 +210,8 @@ view:
           trace: "REQ-MENU-VAR-002"
         - name: name
           type: String
-          description: "Commercial dimension name (e.g. 'Tamaño', 'Porción', 'Sabor')."
-          trace: "REQ-MENU-VAR-002"
+          description: "Commercial dimension name (e.g. 'Tamaño', 'Porción', 'Sabor') (1..120 Unicode characters after trim, unique within item)."
+          trace: "REQ-MENU-VAR-002, INV-MENU-012"
         - name: values
           type: "List<VariantValueProjection>"
           description: "Collection of configured values belonging to this dimension."
@@ -211,10 +222,10 @@ view:
               trace: "REQ-MENU-VAR-003"
             - name: name
               type: String
-              description: "Commercial value name (e.g. 'Chica', 'Mediana', 'Grande', '600 ml')."
-              trace: "REQ-MENU-VAR-003"
-          trace: "REQ-MENU-VAR-003"
-      trace: "REQ-MENU-VAR-002, REQ-MENU-VAR-003"
+              description: "Commercial value name (e.g. 'Chica', 'Mediana', 'Grande', '600 ml') (1..120 Unicode characters after trim, unique within dimension)."
+              trace: "REQ-MENU-VAR-003, INV-MENU-012"
+          trace: "REQ-MENU-VAR-003, INV-MENU-012"
+      trace: "REQ-MENU-VAR-002, REQ-MENU-VAR-003, INV-MENU-012"
     - id: leafVariants
       name: Leaf Item Variants
       type: "List<AdminLeafVariantProjection>"
@@ -263,12 +274,16 @@ view:
           trace: "REQ-MENU-VAR-004"
         - name: unitPrice
           type: Decimal
-          description: "Authoritative absolute selling unit price of this specific variant (unitPrice >= 0). Never derived from an item base price."
-          trace: "REQ-MENU-PRC-001"
+          description: "Authoritative absolute selling unit price of this specific variant expressed in exact DECIMAL(12,2) in range 0.00..9999999999.99 with no implicit rounding, qualified by the menu-level read-only ISO 4217 currencyCode. Never derived from an item base price."
+          trace: "REQ-MENU-PRC-001, INV-MENU-007, INV-MENU-008, INV-MENU-009"
+        - name: currencyCode
+          type: String
+          description: "Read-only ISO 4217 3-character alphabetic currency code from the owning menu catalog qualifying this variant's unitPrice."
+          trace: "INV-MENU-007, REQ-MENU-PRC-001"
         - name: recipeRevisionId
           type: "String | null"
-          description: "Immutable recipe revision token formatted as '<number>_<ISO8601>' linked for PREPARED items; null for STOCKED items."
-          trace: "REQ-MENU-FUL-002"
+          description: "Immutable recipe revision token formatted as '<number>_<ISO8601>' linked for PREPARED items; null for STOCKED items. Semantically required external reference whose concrete human interaction modality (typing, selection, or search/picker) remains unresolved in issues tracker (human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition)."
+          trace: "REQ-MENU-FUL-002, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
         - name: latestRecipeRevisionAvailable
           type: "String | null"
           description: "Latest known immutable revision of the linked recipe in Recipe aggregate, enabling explicit adoption comparison."
@@ -279,8 +294,8 @@ view:
           trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004, REQ-MENU-REV-001"
         - name: inventoryItemId
           type: "String | null"
-          description: "Opaque foreign inventory identifier or SKU for STOCKED items; null for PREPARED items."
-          trace: "REQ-MENU-FUL-001"
+          description: "Opaque foreign inventory identifier or SKU for STOCKED items; null for PREPARED items. Semantically required external reference whose concrete human interaction modality (typing, selection, or search/picker) remains unresolved in issues tracker (human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition)."
+          trace: "REQ-MENU-FUL-001, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
         - name: stockedQuantity
           type: "Decimal | null"
           description: "Positive physical warehouse withdrawal quantity required to supply this STOCKED presentation; null for PREPARED items."
@@ -293,7 +308,7 @@ view:
           type: Boolean
           description: "True if MenuItem is ACTIVE, variant is ACTIVE, not ARCHIVED, supply configuration is complete, and mandatory modifier groups can be satisfied."
           trace: "REQ-MENU-VAR-006"
-      trace: "REQ-MENU-VAR-001, REQ-MENU-VAR-004, REQ-MENU-VAR-005, REQ-MENU-VAR-006, REQ-MENU-PRC-001, REQ-MENU-FUL-001, REQ-MENU-FUL-002, REQ-MENU-LIF-001"
+      trace: "REQ-MENU-VAR-001, REQ-MENU-VAR-004, REQ-MENU-VAR-005, REQ-MENU-VAR-006, REQ-MENU-PRC-001, REQ-MENU-FUL-001, REQ-MENU-FUL-002, REQ-MENU-LIF-001, INV-MENU-007, INV-MENU-008, INV-MENU-009"
     - id: defaultVariantState
       name: Default Variant Migration State
       type: DefaultVariantStateProjection
@@ -406,6 +421,20 @@ view:
               trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002"
           trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002"
       trace: "REQ-MENU-MOD-001, REQ-MENU-LIF-002"
+    - id: inputValidationStatus
+      name: Input Validation Status
+      type: InputValidationStatusProjection
+      description: "Real-time evaluation of all input fields against SRS format, precision, range, and text-length constraints before persistence under INV-MENU-008, INV-MENU-009, and INV-MENU-012."
+      fields:
+        - name: isValid
+          type: Boolean
+          description: "True if all input fields comply with SRS formatting, precision, range, and length limits; false if any field is invalid."
+          trace: "INV-MENU-008, INV-MENU-009, INV-MENU-012"
+        - name: validationErrors
+          type: "List<String>"
+          description: "List of descriptive validation errors surfaced before persistence (e.g. 'El nombre debe tener entre 1 y 120 caracteres tras recortar espacios', 'La descripción no debe exceder 1000 caracteres', 'El precio de variante debe expresarse en DECIMAL(12,2) dentro de 0.00..9999999999.99 sin redondeo implícito')."
+          trace: "INV-MENU-008, INV-MENU-009, INV-MENU-012"
+      trace: "INV-MENU-008, INV-MENU-009, INV-MENU-012"
     - id: structuralValidationStatus
       name: Structural Validation Status
       type: StructuralValidationStatusProjection
@@ -459,14 +488,14 @@ view:
       type: input
       operatesOn: menuItemIdentity.name
       triggersAction: updateItemIdentityField
-      description: "Semantic text input for the commercial name of the MenuItem."
-      trace: "REQ-MENU-ITM-001"
+      description: "Semantic text input for the commercial name of the MenuItem (1..120 Unicode characters after trimming leading/trailing whitespace)."
+      trace: "REQ-MENU-ITM-001, INV-MENU-012"
     - id: descriptionInput
       type: input
       operatesOn: menuItemIdentity.description
       triggersAction: updateItemIdentityField
-      description: "Semantic text input for the commercial description of the MenuItem."
-      trace: "REQ-MENU-ITM-001"
+      description: "Semantic text input for the commercial description of the MenuItem (0..1000 Unicode characters)."
+      trace: "REQ-MENU-ITM-001, INV-MENU-012"
     - id: imageRefInput
       type: input
       operatesOn: menuItemIdentity.imageRef
@@ -509,40 +538,40 @@ view:
       type: action
       operatesOn: variantDimensions
       triggersAction: createVariantDimension
-      description: "Semantic action to define a new named VariantDimension on a leaf MenuItem (e.g. 'Tamaño')."
-      trace: "REQ-MENU-VAR-002"
+      description: "Semantic action to define a new named VariantDimension on a leaf MenuItem (name 1..120 Unicode characters after trim, e.g. 'Tamaño')."
+      trace: "REQ-MENU-VAR-002, INV-MENU-012"
     - id: addDimensionValueAction
       type: action
       operatesOn: variantDimensions.values
       triggersAction: createVariantValue
-      description: "Semantic action to add a named VariantValue to a specific dimension (e.g. 'Chica', 'Grande')."
-      trace: "REQ-MENU-VAR-003"
+      description: "Semantic action to add a named VariantValue to a specific dimension (name 1..120 Unicode characters after trim, e.g. 'Chica', 'Grande')."
+      trace: "REQ-MENU-VAR-003, INV-MENU-012"
     - id: createVariantAction
       type: action
       operatesOn: leafVariants
       triggersAction: createLeafVariant
-      description: "Semantic action to define a new sellable MenuItemVariant with a unique combination of dimension values and absolute unitPrice."
-      trace: "REQ-MENU-VAR-004, REQ-MENU-PRC-001"
+      description: "Semantic action to define a new sellable MenuItemVariant with a unique combination of dimension values and authoritative absolute unitPrice in DECIMAL(12,2) within 0.00..9999999999.99 without implicit rounding, qualified by menu ISO 4217 currencyCode."
+      trace: "REQ-MENU-VAR-004, REQ-MENU-PRC-001, INV-MENU-007, INV-MENU-008, INV-MENU-009"
     - id: updateVariantPriceInput
       type: input
       operatesOn: leafVariants.unitPrice
       triggersAction: setVariantUnitPrice
-      description: "Semantic numeric input for authoritative absolute selling unit price of a variant (unitPrice >= 0). Never derived from item base price."
-      trace: "REQ-MENU-PRC-001"
+      description: "Semantic numeric input for authoritative absolute selling unit price of a variant (exact DECIMAL(12,2) within 0.00..9999999999.99 with no implicit rounding), qualified by menu-level read-only ISO 4217 currencyCode. Never derived from item base price."
+      trace: "REQ-MENU-PRC-001, INV-MENU-007, INV-MENU-008, INV-MENU-009"
     - id: updateStockedSupplyControl
-      type: input
+      type: control
       operatesOn:
         - leafVariants.inventoryItemId
         - leafVariants.stockedQuantity
       triggersAction: configureStockedSupply
-      description: "Semantic input controls for foreign opaque inventoryItemId (SKU) and withdrawal quantity (> 0) for STOCKED items; does not invent inventory lookup or search."
-      trace: "REQ-MENU-FUL-001"
+      description: "Design-neutral reference and quantity control for STOCKED supply linkage; binds required opaque foreign inventoryItemId and physical withdrawal quantity (stockedQuantity > 0) without assuming administrators necessarily type raw identifiers (human interaction choice tracked as unresolved in issues tracker; does not invent inventory search or lookup protocols)."
+      trace: "REQ-MENU-FUL-001, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
     - id: associateRecipeRevisionInput
-      type: input
+      type: control
       operatesOn: leafVariants.recipeRevisionId
       triggersAction: associateRecipeRevision
-      description: "Semantic input control to specify or link an immutable recipe revision token ('<number>_<ISO8601>') for a PREPARED variant."
-      trace: "REQ-MENU-FUL-002"
+      description: "Design-neutral reference control to bind required immutable recipeRevisionId ('<number>_<ISO8601>') for a PREPARED variant without assuming administrators necessarily type raw tokens (human interaction choice tracked as unresolved in issues tracker)."
+      trace: "REQ-MENU-FUL-002, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
     - id: adoptRecipeRevisionAction
       type: action
       operatesOn: leafVariants.recipeRevisionId
@@ -584,19 +613,21 @@ view:
       operatesOn:
         - menuItemIdentity
         - leafVariants
+        - inputValidationStatus
         - incompleteCapacityWarnings
       triggersAction: saveMenuItemInactive
-      description: "Semantic action to save MenuItem commercial definition in INACTIVE status, permitting incomplete definitions with structured warnings."
-      trace: "REQ-MENU-ITM-001, REQ-MENU-LIF-002, REQ-MENU-LIF-003, REQ-MENU-VER-001"
+      description: "Semantic action to save MenuItem commercial definition in INACTIVE status, enforcing input format bounds (precision, range, text-length) while permitting incomplete definitions with structured warnings."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-LIF-002, REQ-MENU-LIF-003, REQ-MENU-VER-001, INV-MENU-008, INV-MENU-009, INV-MENU-012"
     - id: saveAndActivateAction
       type: primary_action
       operatesOn:
         - menuItemIdentity
         - leafVariants
+        - inputValidationStatus
         - structuralValidationStatus
       triggersAction: saveAndActivateMenuItem
-      description: "Primary semantic action to validate complete structural capacity and persist the MenuItem in ACTIVE status."
-      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003, REQ-MENU-COM-006, REQ-MENU-VER-001"
+      description: "Primary semantic action to validate input format bounds (precision, range, text-length) and complete structural capacity, persisting the MenuItem in ACTIVE status."
+      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003, REQ-MENU-COM-006, REQ-MENU-VER-001, INV-MENU-008, INV-MENU-009, INV-MENU-012"
     - id: cancelEditAction
       type: action
       operatesOn: null
@@ -605,7 +636,7 @@ view:
       trace: "REQ-MENU-ITM-001"
   actions:
     - id: updateItemIdentityField
-      description: "Update a commercial identity field (name, description, imageRef, menuId, itemCategoryId, comboCategoryId, commercialClassification) in the editor working buffer."
+      description: "Update a commercial identity field (name, description, imageRef, menuId, itemCategoryId, comboCategoryId, commercialClassification) in the editor working buffer, enforcing text-length bounds."
       parameters:
         - name: fieldName
           type: String
@@ -613,8 +644,11 @@ view:
         - name: fieldValue
           type: "String | UUID | null"
           description: "New value assigned to the field."
-      effect: "Updates working copy of menuItemIdentity."
-      trace: "REQ-MENU-ITM-001"
+      preconditions:
+        - "If fieldName is 'name': fieldValue after trim must have 1..120 Unicode characters (INV-MENU-012)."
+        - "If fieldName is 'description': fieldValue must have 0..1000 Unicode characters (INV-MENU-012)."
+      effect: "Updates working copy of menuItemIdentity; updates inputValidationStatus if bounds are violated."
+      trace: "REQ-MENU-ITM-001, INV-MENU-012"
     - id: setItemType
       description: "Set the item type discriminator during initial item creation ('PREPARED', 'STOCKED', or 'COMBO')."
       parameters:
@@ -638,12 +672,12 @@ view:
       parameters:
         - name: name
           type: String
-          description: "Commercial name of the dimension."
+          description: "Commercial name of the dimension (1..120 Unicode characters after trim)."
       preconditions:
         - "Item type must be PREPARED or STOCKED."
-        - "Dimension name must be non-empty and unique within the MenuItem."
+        - "Dimension name after trim must be 1..120 Unicode characters (INV-MENU-012) and unique within the MenuItem."
       effect: "Appends a new VariantDimension to variantDimensions."
-      trace: "REQ-MENU-VAR-002"
+      trace: "REQ-MENU-VAR-002, INV-MENU-012"
     - id: createVariantValue
       description: "Add a named VariantValue to a specific VariantDimension."
       parameters:
@@ -652,11 +686,11 @@ view:
           description: "Identifier of the target dimension."
         - name: name
           type: String
-          description: "Commercial name of the value."
+          description: "Commercial name of the value (1..120 Unicode characters after trim)."
       preconditions:
-        - "Value name must be non-empty and unique within the specified dimension."
+        - "Value name after trim must be 1..120 Unicode characters (INV-MENU-012) and unique within the specified dimension."
       effect: "Appends new VariantValue to the dimension's values collection."
-      trace: "REQ-MENU-VAR-003"
+      trace: "REQ-MENU-VAR-003, INV-MENU-012"
     - id: createLeafVariant
       description: "Register a new sellable MenuItemVariant with a unique combination of dimension values and absolute unitPrice."
       parameters:
@@ -665,14 +699,14 @@ view:
           description: "List of VariantValue identifiers (at most one per dimension belonging to the item)."
         - name: unitPrice
           type: Decimal
-          description: "Authoritative absolute unit selling price (unitPrice >= 0)."
+          description: "Authoritative absolute unit selling price in exact DECIMAL(12,2) in range 0.00..9999999999.99 with no implicit rounding, qualified by menu ISO 4217 currencyCode."
       preconditions:
         - "Item type must be PREPARED or STOCKED."
         - "At most one value per dimension belonging to the item."
         - "Combination of values must not duplicate an existing variant within the item."
-        - "unitPrice >= 0."
+        - "unitPrice must be exact DECIMAL(12,2) with at most 2 decimal places (no implicit rounding) and within range [0.00, 9999999999.99] (INV-MENU-008, INV-MENU-009)."
       effect: "Registers new MenuItemVariant with status ACTIVE (or INACTIVE if item is INACTIVE)."
-      trace: "REQ-MENU-VAR-004, REQ-MENU-PRC-001"
+      trace: "REQ-MENU-VAR-004, REQ-MENU-PRC-001, INV-MENU-007, INV-MENU-008, INV-MENU-009"
     - id: setVariantUnitPrice
       description: "Set the authoritative absolute selling unit price for a specific MenuItemVariant."
       parameters:
@@ -681,20 +715,20 @@ view:
           description: "Identifier of the target variant."
         - name: unitPrice
           type: Decimal
-          description: "Absolute unit price (unitPrice >= 0)."
+          description: "Absolute unit price in exact DECIMAL(12,2) in range 0.00..9999999999.99 with no implicit rounding, qualified by menu ISO 4217 currencyCode."
       preconditions:
-        - "unitPrice >= 0."
-      effect: "Updates variant.unitPrice; does not alter item base price (discontinued)."
-      trace: "REQ-MENU-PRC-001"
+        - "unitPrice must be exact DECIMAL(12,2) with at most 2 decimal places (no implicit rounding) and within range [0.00, 9999999999.99] (INV-MENU-008, INV-MENU-009)."
+      effect: "Updates variant.unitPrice; does not alter item base price (discontinued). Rejects inputs violating precision or range before persistence."
+      trace: "REQ-MENU-PRC-001, INV-MENU-007, INV-MENU-008, INV-MENU-009"
     - id: configureStockedSupply
-      description: "Specify foreign opaque inventoryItemId (SKU) and physical withdrawal quantity for a STOCKED variant."
+      description: "Bind required foreign opaque inventoryItemId (SKU) and physical withdrawal quantity for a STOCKED variant via a design-neutral reference control (acquisition interaction unresolved in issues tracker; does not invent inventory search or lookup protocols)."
       parameters:
         - name: variantId
           type: UUID
           description: "Identifier of the target STOCKED variant."
         - name: inventoryItemId
           type: String
-          description: "Foreign opaque inventory identifier / SKU."
+          description: "Foreign opaque inventory identifier / SKU (preserves required external reference; acquisition modality unresolved)."
         - name: stockedQuantity
           type: Decimal
           description: "Positive warehouse withdrawal quantity (> 0)."
@@ -703,21 +737,21 @@ view:
         - "stockedQuantity > 0."
         - "inventoryItemId must be non-empty."
       effect: "Updates variant inventory supply linkage and marks supply complete."
-      trace: "REQ-MENU-FUL-001, REQ-MENU-VAR-006"
+      trace: "REQ-MENU-FUL-001, REQ-MENU-VAR-006, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
     - id: associateRecipeRevision
-      description: "Associate an immutable recipe revision token to a PREPARED variant."
+      description: "Associate required immutable recipe revision token to a PREPARED variant via a design-neutral reference control (acquisition interaction unresolved in issues tracker)."
       parameters:
         - name: variantId
           type: UUID
           description: "Identifier of the target PREPARED variant."
         - name: recipeRevisionId
           type: String
-          description: "Immutable recipe revision token formatted as '<number>_<ISO8601>'."
+          description: "Immutable recipe revision token formatted as '<number>_<ISO8601>' (preserves required external reference; acquisition modality unresolved)."
       preconditions:
         - "Item type must be PREPARED."
         - "recipeRevisionId must reference a valid immutable recipe revision."
       effect: "Updates variant.recipeRevisionId and marks supply complete."
-      trace: "REQ-MENU-FUL-002, REQ-MENU-VAR-006"
+      trace: "REQ-MENU-FUL-002, REQ-MENU-VAR-006, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
     - id: adoptNewRecipeRevision
       description: "Explicitly adopt a newly created recipe revision for a PREPARED variant, updating recipeRevisionId and producing a new MenuItem revision upon save."
       parameters:
@@ -739,14 +773,14 @@ view:
       parameters:
         - name: explicitVariants
           type: "List<ExplicitVariantMigrationPayload>"
-          description: "List of new explicit variants with dimensional combinations, prices, and supply linkage."
+          description: "List of new explicit variants with dimensional combinations, prices in menu currency, and supply linkage."
       preconditions:
         - "Item has a single technical DEFAULT variant (isDefaultVariant == true) and dimensions with values exist."
-        - "All new variants have unique value combinations, absolute unitPrice >= 0, and valid supply linkage."
+        - "All new variants have unique value combinations, absolute unitPrice as exact DECIMAL(12,2) in range 0.00..9999999999.99 with no implicit rounding (INV-MENU-008, INV-MENU-009), and valid supply linkage."
       effect: >
         Atomically archives the DEFAULT variant (status = ARCHIVED), activates the new explicit variants,
         and generates exactly one new immutable commercial revision (<number>_<ISO8601>).
-      trace: "REQ-MENU-VAR-005, REQ-MENU-VER-001"
+      trace: "REQ-MENU-VAR-005, REQ-MENU-PRC-001, REQ-MENU-VER-001, INV-MENU-007, INV-MENU-008, INV-MENU-009"
     - id: archiveLeafVariant
       description: "Permanently and irreversibly archive a leaf variant (status = ARCHIVED)."
       parameters:
@@ -784,21 +818,27 @@ view:
       effect: "Emits navigateToComboConfigurationSignal with menuItemId."
       trace: "REQ-MENU-COM-001, docs/ui-spec-arch.md"
     - id: saveMenuItemInactive
-      description: "Save the MenuItem commercial definition in INACTIVE administrative status, permitting incomplete definitions and returning structured warnings."
+      description: "Save the MenuItem commercial definition in INACTIVE administrative status, enforcing input format bounds (precision, range, text-length) while permitting incomplete definitions and returning structured warnings."
       parameters: []
       preconditions:
-        - "Commercial name, menuId, and type must be valid."
+        - "inputValidationStatus.isValid must be true (no invalid precision, range, or text-length violations)."
+        - "Commercial name must be 1..120 Unicode characters after trim; description must be 0..1000 characters (INV-MENU-012)."
+        - "All variant unit prices must be exact DECIMAL(12,2) within 0.00..9999999999.99 with no implicit rounding (INV-MENU-008, INV-MENU-009)."
+        - "Commercial menuId and type must be valid."
         - "No duplicate variant combinations."
       effect: >
         Persists MenuItem with status = INACTIVE. Generates a new immutable commercial revision (<number>_<ISO8601>).
         Populates incompleteCapacityWarnings with identity, type, minSelections, and calculated capacity for each
         ModifierGroup or ComboSlot with capacity deficit under REQ-MENU-LIF-002 and REQ-MENU-LIF-003.
         Emits savedMenuItemId and newRevisionToken.
-      trace: "REQ-MENU-ITM-001, REQ-MENU-LIF-002, REQ-MENU-LIF-003, REQ-MENU-VER-001"
+      trace: "REQ-MENU-ITM-001, REQ-MENU-LIF-002, REQ-MENU-LIF-003, REQ-MENU-VER-001, INV-MENU-008, INV-MENU-009, INV-MENU-012"
     - id: saveAndActivateMenuItem
-      description: "Validate complete structural capacity and persist the MenuItem in ACTIVE status."
+      description: "Validate input format bounds and complete structural capacity, persisting the MenuItem in ACTIVE status."
       parameters: []
       preconditions:
+        - "inputValidationStatus.isValid must be true (no invalid precision, range, or text-length violations)."
+        - "Commercial name must be 1..120 Unicode characters after trim; description must be 0..1000 characters (INV-MENU-012)."
+        - "All variant unit prices must be exact DECIMAL(12,2) within 0.00..9999999999.99 with no implicit rounding (INV-MENU-008, INV-MENU-009)."
         - "structuralValidationStatus.isEligibleForActive must be true."
         - "MenuItem must have at least one structurally eligible sellable unit (REQ-MENU-PRC-003)."
         - "For leaf items: all active variants must have complete supply linkage (REQ-MENU-VAR-006, REQ-MENU-FUL-001, REQ-MENU-FUL-002), and all mandatory modifier groups must have calculated capacity >= minSelections (REQ-MENU-MOD-001)."
@@ -806,7 +846,7 @@ view:
       effect: >
         Persists MenuItem with status = ACTIVE. Generates a new immutable commercial revision (<number>_<ISO8601>).
         Emits savedMenuItemId and newRevisionToken, and emits returnToCatalogSignal.
-      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003, REQ-MENU-COM-006, REQ-MENU-VER-001"
+      trace: "REQ-MENU-ITM-001, REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003, REQ-MENU-COM-006, REQ-MENU-VER-001, INV-MENU-008, INV-MENU-009, INV-MENU-012"
     - id: cancelEdit
       description: "Discard unsaved changes and return to catalog administration."
       parameters: []
@@ -822,7 +862,7 @@ view:
       condition: "menuItemIdentity.type == 'PREPARED'."
       trace: "REQ-MENU-ITM-001, REQ-MENU-VAR-001, REQ-MENU-FUL-002, REQ-MENU-FUL-003"
     - id: editingStockedLeafItem
-      description: "Editing a STOCKED leaf item. Variant dimensions, foreign inventoryItemId (SKU) and withdrawal quantity inputs, modifier navigation, and variant archival are active."
+      description: "Editing a STOCKED leaf item. Variant dimensions, foreign inventoryItemId reference and withdrawal quantity controls, modifier navigation, and variant archival are active."
       condition: "menuItemIdentity.type == 'STOCKED'."
       trace: "REQ-MENU-ITM-001, REQ-MENU-VAR-001, REQ-MENU-FUL-001"
     - id: editingComboItem
@@ -849,6 +889,18 @@ view:
       description: "One or more PREPARED variants reference a recipe revision older than the latest available recipe revision, exposing explicit recipe revision adoption."
       condition: "menuItemIdentity.type == 'PREPARED' and any variant has isRecipeRevisionAdopted == false."
       trace: "REQ-MENU-FUL-002, REQ-MENU-FUL-004, REQ-MENU-REV-001"
+    - id: invalidInputValidationErrors
+      description: "One or more editor input fields violate domain bounds before persistence (such as name length not within 1..120 Unicode characters after trim, description > 1000 characters, variant unitPrice with invalid precision having > 2 decimal places or outside range 0.00..9999999999.99), surfacing validation error messages in inputValidationStatus and blocking both INACTIVE and ACTIVE persistence actions."
+      condition: "inputValidationStatus.isValid == false."
+      trace: "INV-MENU-008, INV-MENU-009, INV-MENU-012"
+    - id: invalidTextLengthInput
+      description: "One or more text fields violate length constraints before persistence: MenuItem name, dimension name, or dimension value name is not within 1..120 Unicode characters after trim, or description exceeds 1000 Unicode characters. Surfaces validation errors and blocks persistence."
+      condition: "inputValidationStatus.isValid == false and any text field length is invalid."
+      trace: "INV-MENU-012"
+    - id: invalidMonetaryPrecisionOrRange
+      description: "One or more variant unit prices violate monetary precision or numerical range constraints before persistence: decimal scale exceeds 2 digits (implicit rounding strictly rejected) or unitPrice is outside the range [0.00, 9999999999.99]. Surfaces validation errors and blocks persistence."
+      condition: "inputValidationStatus.isValid == false and any unitPrice has scale > 2 or is out of range 0.00..9999999999.99."
+      trace: "INV-MENU-008, INV-MENU-009"
   constraints:
     - id: C-MIE-001
       description: >
@@ -864,14 +916,17 @@ view:
       trace: "REQ-MENU-ITM-001, REQ-MENU-VAR-001, REQ-MENU-MOD-001, REQ-MENU-COM-001"
     - id: C-MIE-003
       description: >
-        Every leaf MenuItemVariant has its own authoritative absolute unit selling price (unitPrice >= 0).
-        The item-level basePrice attribute is discontinued and never used. Prices are set per variant.
-      trace: "REQ-MENU-PRC-001"
+        Every leaf MenuItemVariant has its own authoritative absolute unit selling price (unitPrice in DECIMAL(12,2)
+        within 0.00..9999999999.99 with no implicit rounding, unitPrice >= 0.00), qualified by the menu-level read-only
+        ISO 4217 currencyCode (INV-MENU-007, INV-MENU-008, INV-MENU-009). The item-level basePrice attribute is
+        discontinued and never used. Prices are set per variant.
+      trace: "REQ-MENU-PRC-001, INV-MENU-007, INV-MENU-008, INV-MENU-009"
     - id: C-MIE-004
       description: >
         Each MenuItemVariant in a multi-presentation leaf item selects at most one VariantValue per dimension defined
         on the item. Duplicate combinations of dimension values within the same MenuItem are strictly prohibited.
-      trace: "REQ-MENU-VAR-002, REQ-MENU-VAR-003, REQ-MENU-VAR-004"
+        Dimension and value names must have a length of 1..120 Unicode characters after trim (INV-MENU-012).
+      trace: "REQ-MENU-VAR-002, REQ-MENU-VAR-003, REQ-MENU-VAR-004, INV-MENU-012"
     - id: C-MIE-005
       description: >
         A leaf item without commercial dimensions possesses a single technical DEFAULT variant to ensure variantId is
@@ -881,10 +936,13 @@ view:
     - id: C-MIE-006
       description: >
         For STOCKED items, each variant specifies an opaque foreign inventoryItemId (SKU) and withdrawal quantity (> 0).
-        For PREPARED items, each variant links an immutable recipeRevisionId. Editing a recipe in RecipeEditorView creates
-        a new recipe revision but does NOT alter existing variant references; adoption of the new recipe revision is an
-        explicit administrative action in this editor that produces a new commercial MenuItem revision upon save.
-      trace: "REQ-MENU-FUL-001, REQ-MENU-FUL-002, REQ-MENU-FUL-004, REQ-MENU-VER-001"
+        For PREPARED items, each variant links an immutable recipeRevisionId. These references remain semantically required
+        external identifiers whose UI acquisition interaction (direct entry, selection list, or picker modal) is
+        unresolved in issues-tracker.md; the editor specifies design-neutral reference controls without assuming administrators
+        necessarily type raw strings. Editing a recipe in RecipeEditorView creates a new recipe revision but does NOT alter
+        existing variant references; adoption of the new recipe revision is an explicit administrative action in this
+        editor that produces a new commercial MenuItem revision upon save.
+      trace: "REQ-MENU-FUL-001, REQ-MENU-FUL-002, REQ-MENU-FUL-004, REQ-MENU-VER-001, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
     - id: C-MIE-007
       description: >
         Archiving a variant (status = ARCHIVED) is permanent and irreversible. The archived variant is excluded from new sales.
@@ -894,14 +952,17 @@ view:
       trace: "REQ-MENU-LIF-001, REQ-MENU-REV-001, REQ-MENU-REV-002"
     - id: C-MIE-008
       description: >
-        Saving in INACTIVE status permits incomplete definitions (capacity deficits in ModifierGroups or ComboSlots),
+        Both INACTIVE and ACTIVE persistence operations strictly enforce input format bounds before saving: MenuItem and
+        dimension/value names must be 1..120 Unicode characters after trim, description 0..1000 characters (INV-MENU-012),
+        and variant unit prices exact DECIMAL(12,2) within 0.00..9999999999.99 with no implicit rounding (INV-MENU-008, INV-MENU-009).
+        Saving in INACTIVE status permits incomplete structural definitions (capacity deficits in ModifierGroups or ComboSlots),
         emitting structured warnings with affected entity id, entity type, minSelections, and calculated capacity.
         Transitioning or saving to ACTIVE status strictly requires complete structural capacity: all mandatory modifier
         groups must meet minSelections, all active variants must have complete supply linkage, the item must possess
         at least one structurally eligible sellable unit, and for COMBO items, every configuration must contain at least
         one slot (rejecting vacuous zero-slot configurations) and every counted component variant must satisfy the complete
         REQ-MENU-VAR-006 structural predicate without using momentary availability.
-      trace: "REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003, REQ-MENU-COM-006, REQ-MENU-LIF-002, REQ-MENU-LIF-003"
+      trace: "REQ-MENU-ITM-002, REQ-MENU-VAR-006, REQ-MENU-PRC-003, REQ-MENU-COM-006, REQ-MENU-LIF-002, REQ-MENU-LIF-003, INV-MENU-008, INV-MENU-009, INV-MENU-012"
     - id: C-MIE-009
       description: >
         Every accepted commercial save (modifying identity, status, variants, prices, supply linkage, or adopting a
@@ -911,7 +972,22 @@ view:
     - id: C-MIE-010
       description: >
         Conforming strictly to source-supported responsibilities, the editor does not invent or provide: image file uploading
-        (imageRef is an opaque reference string), Inventory item search or catalog lookup (inventoryItemId is an opaque
-        SKU reference), category CRUD (categories are selected from existing references), autosave or draft recovery, or
-        destructive deletion of items or variants.
-      trace: "REQ-MENU-ITM-001, docs/ui-spec-arch.md"
+        (imageRef is an opaque reference string), Inventory lookup protocols or recipe search mechanics (inventoryItemId and
+        recipeRevisionId are preserved as required references via design-neutral controls with acquisition interaction
+        unresolved in issues tracker), authentication or role management, category CRUD (categories are selected from
+        existing references), autosave or draft recovery, or destructive deletion of items or variants.
+      trace: "REQ-MENU-ITM-001, docs/ui-spec-arch.md, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition"
+    - id: C-MIE-011
+      description: >
+        All monetary amounts within the editor operate under the single fixed ISO 4217 currency code of the owning menu
+        catalog (menuId). Multi-currency menus and runtime currency conversions are strictly prohibited (INV-MENU-007).
+        All unit prices are expressed in exact DECIMAL(12,2) with exactly two decimal places; inputs with more than two
+        decimal places are strictly rejected without rounding (INV-MENU-008). Absolute unit prices are constrained to
+        [0.00, 9999999999.99] (INV-MENU-009).
+      trace: "INV-MENU-007, INV-MENU-008, INV-MENU-009"
+    - id: C-MIE-012
+      description: >
+        All text inputs enforce strict Unicode character length constraints before persistence: MenuItem name,
+        VariantDimension names, and VariantValue names are constrained to 1..120 Unicode characters after trimming
+        leading and trailing whitespace. MenuItem commercial description is constrained to 0..1000 Unicode characters (INV-MENU-012).
+      trace: "INV-MENU-012"

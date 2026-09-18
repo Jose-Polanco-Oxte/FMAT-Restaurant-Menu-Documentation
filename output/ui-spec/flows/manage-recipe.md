@@ -11,6 +11,7 @@ requirements:
   - REQ-MENU-FUL-003
   - REQ-MENU-FUL-004
   - INV-MENU-004
+  - INV-MENU-012
 ---
 
 # Flow: Manage Recipe and Revision Lifecycle
@@ -23,7 +24,7 @@ flowchart TD
 
         %% Initial Recipe Creation Path
         StateNewRecipe["State: initialRecipeCreation<br/>Initialize blank recipe working buffer (isNewRecipe = true).<br/>revisionNumber = 1, currentRevision = null.<br/>[data: recipeIdentity]<br/>[REQ-MENU-FUL-003]"]
-        InputNewName["Enter descriptive recipe name<br/>[control: nameInput, action: updateRecipeNameField]<br/>[REQ-MENU-FUL-003]"]
+        InputNewName["Enter descriptive recipe name (1..120 Unicode chars after trim)<br/>[control: nameInput, action: updateRecipeNameField]<br/>[REQ-MENU-FUL-003, INV-MENU-012]"]
 
         %% Existing Recipe Path
         LoadExistingRecipe["State: activeRevisionEditing<br/>Load existing Recipe aggregate (isNewRecipe = false).<br/>Display active revision and revision history.<br/>[data: recipeIdentity, revisionHistory]<br/>[REQ-MENU-FUL-004, INV-MENU-004]"]
@@ -35,19 +36,19 @@ flowchart TD
         BranchHistoricalRevision["Branch editable working buffer from historical revision<br/>(Clones components and name, isHistoricalReadOnly = false)<br/>[control: branchRevisionFromHistoricalAction,<br/>action: branchNewRevisionFromHistorical]<br/>[REQ-MENU-FUL-004, INV-MENU-004]"]
 
         %% Active Editing Sub-branch
-        EditActiveRecipeName["Edit descriptive recipe name<br/>[control: nameInput, action: updateRecipeNameField]<br/>[REQ-MENU-FUL-003, REQ-MENU-FUL-004]"]
+        EditActiveRecipeName["Edit descriptive recipe name (1..120 Unicode chars after trim)<br/>[control: nameInput, action: updateRecipeNameField]<br/>[REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-012]"]
 
         %% Component Management (Definition & Editing)
         ManageComponents["Manage Recipe Components<br/>Add or remove ingredient entries in working buffer<br/>[controls: addComponentAction, removeComponentAction,<br/>actions: addRecipeComponentEntry, removeRecipeComponentEntry]<br/>[REQ-MENU-FUL-003]"]
 
-        ConfigureOpaqueInventoryId["Specify opaque inventoryItemId (SKU)<br/>Direct text input; strictly opaque identifier.<br/>Menu maintains NO inventory search, lookup, or stock verification.<br/>[control: componentInventoryItemIdInput,<br/>action: updateComponentInventoryItemId]<br/>[REQ-MENU-FUL-003, C-REC-004]"]
+        ConfigureOpaqueInventoryId["Acquire required opaque inventoryItemId (SKU)<br/>via design-neutral reference control (concrete interaction modality unresolved in issues tracker: direct typing, selection list, or search/picker dialog).<br/>Preserves required external reference; specifies NO inventory API, search, lookup, or stock verification.<br/>[control: componentInventoryItemIdInput,<br/>action: updateComponentInventoryItemId]<br/>[REQ-MENU-FUL-003, REQ-MENU-FUL-004, C-REC-004, docs/issues-tracker.md#human-interaction-choice-for-inventory-item-and-recipe-revision-reference-acquisition]"]
 
         ConfigureQuantityAndUnit["Specify positive quantity and measurement unit<br/>(quantity > 0, unit e.g. 'g', 'ml', 'piezas')<br/>[controls: componentQuantityInput, componentUnitInput,<br/>actions: updateComponentQuantity, updateComponentUnit]<br/>[REQ-MENU-FUL-003]"]
 
         %% Validation
-        EvaluateRecipeValidation{"Evaluate recipeValidationStatus.isValid:<br/>1. Recipe name non-empty<br/>2. Component count >= 1<br/>3. Every component has non-empty inventoryItemId<br/>4. Every component quantity > 0 and non-empty unit<br/>5. isHistoricalReadOnly == false<br/>[REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004]"}
+        EvaluateRecipeValidation{"Evaluate recipeValidationStatus.isValid:<br/>1. Recipe name 1..120 Unicode chars after trim [INV-MENU-012]<br/>2. Component count >= 1<br/>3. Every component has non-empty inventoryItemId<br/>4. Every component quantity > 0 and non-empty unit<br/>5. isHistoricalReadOnly == false<br/>[REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004, INV-MENU-012]"}
 
-        RecipeValidationFailed["State: recipeValidationFailed (isValid = false)<br/>Display blocking validation errors.<br/>Save action blocked until constraints satisfied.<br/>[data: recipeValidationStatus.validationErrors]<br/>[REQ-MENU-FUL-003, INV-MENU-004]"]
+        RecipeValidationFailed["State: recipeValidationFailed / invalidRecipeNameLength (isValid = false)<br/>Display blocking validation errors (name bounds 1..120 chars after trim, missing/invalid components).<br/>Save action blocked until constraints satisfied.<br/>[data: recipeValidationStatus.validationErrors]<br/>[REQ-MENU-FUL-003, INV-MENU-004, INV-MENU-012]"]
 
         RecipeValidationPassed["Validation Passed (isValid = true)<br/>Recipe ready for immutable commitment<br/>[data: recipeValidationStatus]"]
 
@@ -56,7 +57,7 @@ flowchart TD
 
         CancelRecipeEdit["Cancel edit: discard working buffer changes.<br/>No revision generated; earlier state untouched.<br/>[control: cancelEditAction, action: cancelRecipeEdit]<br/>(Emits returnToOriginSignal)"]
 
-        CommitRecipeRevision["Commit recipe revision<br/>[control: saveRecipeRevisionAction, action: commitRecipeRevision]<br/>[REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004]"]
+        CommitRecipeRevision["Commit recipe revision<br/>[control: saveRecipeRevisionAction, action: commitRecipeRevision]<br/>[REQ-MENU-FUL-003, REQ-MENU-FUL-004, INV-MENU-004, INV-MENU-012]"]
 
         CheckIsNewRecipe{"Is new recipe aggregate?<br/>(isNewRecipe == true)<br/>[REQ-MENU-FUL-003]"}
 

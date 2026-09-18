@@ -22,7 +22,7 @@ $RequiredFiles = @(
     "scripts/docflow.ps1"
 )
 
-Write-Host "Validating Docflow V5.2.3..."
+Write-Host "Validating Docflow V5.3 watchdog..."
 
 # 1) Parse the PowerShell script using PowerShell's own parser.
 $Tokens = $null
@@ -301,5 +301,75 @@ if ($HarnessRaw -notmatch "conflicting operations for the same path") {
 
 Write-Host "  [PASS] Duplicate affected_files normalization check"
 
+
+# 10) Watchdog/process-ownership regression checks.
+$HarnessRaw = Get-Content `
+    -LiteralPath $ScriptPath `
+    -Raw `
+    -Encoding utf8
+
+foreach ($RequiredPattern in @(
+    'function Stop-ChildProcessTree',
+    '$Process.Kill($true)',
+    'HardTimeoutSeconds',
+    'function Test-TransientProcessFailure',
+    'function Invoke-WithProcessRetry',
+    'AnalystTimeoutMinutes',
+    'AuditorTimeoutMinutes',
+    'EditorProcessTimeoutMinutes'
+)) {
+    if (-not $HarnessRaw.Contains($RequiredPattern)) {
+        throw "Missing V5.3 watchdog primitive: $RequiredPattern"
+    }
+}
+
+Write-Host "  [PASS] Watchdog static regression checks"
+
+# 11) Real PowerShell child-process termination smoke test. This verifies the
+# runtime supports Kill(true), which V5.3 relies on for Ctrl+C/timeout cleanup.
+$PwshExecutable = Join-Path $PSHOME "pwsh.exe"
+
+if (-not (Test-Path -LiteralPath $PwshExecutable -PathType Leaf)) {
+    $PwshExecutable = (Get-Process -Id $PID).Path
+}
+
+$Psi = [System.Diagnostics.ProcessStartInfo]::new()
+$Psi.FileName = $PwshExecutable
+$Psi.UseShellExecute = $false
+$Psi.CreateNoWindow = $true
+[void]$Psi.ArgumentList.Add("-NoLogo")
+[void]$Psi.ArgumentList.Add("-NoProfile")
+[void]$Psi.ArgumentList.Add("-Command")
+[void]$Psi.ArgumentList.Add("Start-Sleep -Seconds 30")
+
+$SmokeProcess = [System.Diagnostics.Process]::new()
+$SmokeProcess.StartInfo = $Psi
+
+try {
+    if (-not $SmokeProcess.Start()) {
+        throw "Could not start watchdog smoke-test process."
+    }
+
+    Start-Sleep -Milliseconds 300
+    $SmokeProcess.Kill($true)
+
+    if (-not $SmokeProcess.WaitForExit(5000)) {
+        throw "Kill(true) did not terminate watchdog smoke-test process."
+    }
+}
+finally {
+    try {
+        if (-not $SmokeProcess.HasExited) {
+            $SmokeProcess.Kill($true)
+        }
+    }
+    catch {
+    }
+
+    $SmokeProcess.Dispose()
+}
+
+Write-Host "  [PASS] Process-tree kill smoke test"
+
 Write-Host ""
-Write-Host "Docflow V5.2.3 validation PASS."
+Write-Host "Docflow V5.3 watchdog validation PASS."

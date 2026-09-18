@@ -96,24 +96,24 @@ flowchart TD
 
     %% ----------------- PUBLIC POS / KDS TRANSITIONS -----------------
     PosEntry -->|consult catalog| CatalogBrowseView
-    PosEntry -->|direct item invocation (menuItemId)| SellableItemConfigurationView
-    CatalogBrowseView -->|inspectItem (selectedMenuItemId)| SellableItemConfigurationView
-    SellableItemConfigurationView -->|confirmSelection (ConfiguredSelectionHandoff)| OrderHandoff
+    PosEntry -->|"direct item invocation (menuItemId)"| SellableItemConfigurationView
+    CatalogBrowseView -->|"inspectItem (selectedMenuItemId)"| SellableItemConfigurationView
+    SellableItemConfigurationView -->|"confirmSelection (ConfiguredSelectionHandoff)"| OrderHandoff
 
     %% ----------------- ADMINISTRATIVE TRANSITIONS -----------------
     AdminEntry -->|access catalog management| MenuCatalogAdministrationView
-    AdminEntry -->|direct recipe authoring (recipeId)| RecipeEditorView
+    AdminEntry -->|"direct recipe authoring (recipeId)"| RecipeEditorView
 
     %% Catalog Monitoring <--> Item Editor
     MenuCatalogAdministrationView -->|createMenuItem / inspectMenuItem| MenuItemEditorView
-    MenuItemEditorView -->|cancelEdit / saveMenuItem (returnToCatalogSignal)| MenuCatalogAdministrationView
+    MenuItemEditorView -->|"cancelEdit / saveMenuItem (returnToCatalogSignal)"| MenuCatalogAdministrationView
 
     %% Catalog Monitoring <--> Combo Review
     MenuCatalogAdministrationView -->|inspectCombosRequiringReview| ComboReviewView
-    ComboReviewView -->|returnToOrigin (returnToOriginSignal)| MenuCatalogAdministrationView
+    ComboReviewView -->|"returnToOrigin (returnToOriginSignal)"| MenuCatalogAdministrationView
 
     %% Combo Review --> Item Editor (Commercial Edit separation)
-    ComboReviewView -->|navigateToComboItem (selectedMenuItemId)| MenuItemEditorView
+    ComboReviewView -->|"navigateToComboItem (selectedMenuItemId)"| MenuItemEditorView
 
     %% Item Editor <--> Recipe Editor
     MenuItemEditorView -->|navigateToRecipeEditor| RecipeEditorView
@@ -121,11 +121,11 @@ flowchart TD
 
     %% Item Editor <--> Modifier Configuration
     MenuItemEditorView -->|navigateToModifierConfiguration| ModifierConfigurationView
-    ModifierConfigurationView -->|returnToItemEditor (returnToItemEditorSignal)| MenuItemEditorView
+    ModifierConfigurationView -->|"returnToItemEditor (returnToItemEditorSignal)"| MenuItemEditorView
 
     %% Item Editor <--> Combo Configuration
     MenuItemEditorView -->|navigateToComboConfiguration| ComboConfigurationView
-    ComboConfigurationView -->|returnToItemEditor (returnToItemEditorSignal)| MenuItemEditorView
+    ComboConfigurationView -->|"returnToItemEditor (returnToItemEditorSignal)"| MenuItemEditorView
 ```
 
 ---

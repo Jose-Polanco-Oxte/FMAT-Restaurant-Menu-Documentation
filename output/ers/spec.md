@@ -2,7 +2,7 @@
 
 **Documento:** Especificación Técnica, Funcional y de Arquitectura de Dominio Consolidada  
 **Servicio:** Menu (Sistema de Comandas para Restaurantes)  
-**Versión:** 1.3.5 (Especificación Consolidada Vigente)
+**Versión:** 1.3.7 (Especificación Consolidada Vigente)
 **Estado:** Vigente / Aprobado  
 **Fecha:** 2026-09-20
 **Fuente Normativa:** `docs/md/Auditoria-4.md`
@@ -35,9 +35,9 @@
       - [REQ-MENU-VAR-003 — Elegibilidad Estructural de Variante Hoja](#req-menu-var-003--elegibilidad-estructural-de-variante-hoja)
     - [4.3 Precios Autoritativos y Proyección de Catálogo](#43-precios-autoritativos-y-proyección-de-catálogo)
       - [REQ-MENU-PRC-001 — Precio Absoluto Autoritativo de la Variante](#req-menu-prc-001--precio-absoluto-autoritativo-de-la-variante)
-      - [REQ-MENU-PRC-002 — Proyección de Precio de Catálogo con Una Unidad Elegible](#req-menu-prc-002--proyección-de-precio-de-catálogo-con-una-unidad-elegible)
-      - [REQ-MENU-PRC-002B — Proyección de Precio de Catálogo con Múltiples Unidades de Igual Precio](#req-menu-prc-002b--proyección-de-precio-de-catálogo-con-múltiples-unidades-de-igual-precio)
-      - [REQ-MENU-PRC-002C — Proyección de Catálogo «Desde $X» con Precios Distintos](#req-menu-prc-002c--proyección-de-catálogo-desde-x-con-precios-distintos)
+      - [REQ-MENU-PRC-002 — Proyección de Precio de Catálogo para Producto Hoja con Una Variante Elegible](#req-menu-prc-002--proyección-de-precio-de-catálogo-para-producto-hoja-con-una-variante-elegible)
+      - [REQ-MENU-PRC-002B — Proyección de Precio de Catálogo para Producto Hoja con Múltiples Variantes de Igual Precio](#req-menu-prc-002b--proyección-de-precio-de-catálogo-para-producto-hoja-con-múltiples-variantes-de-igual-precio)
+      - [REQ-MENU-PRC-002C — Proyección de Catálogo «Desde $X» para Producto Hoja con Precios Distintos](#req-menu-prc-002c--proyección-de-catálogo-desde-x-para-producto-hoja-con-precios-distintos)
       - [REQ-MENU-PRC-002D — Conservación del Precio Comercial ante Indisponibilidad Operacional](#req-menu-prc-002d--conservación-del-precio-comercial-ante-indisponibilidad-operacional)
     - [4.4 Modificadores Comerciales y Especialización](#44-modificadores-comerciales-y-especialización)
       - [REQ-MENU-MOD-001 — Ownership y Cardinalidad de Grupos y Opciones en Productos Hoja](#req-menu-mod-001--ownership-y-cardinalidad-de-grupos-y-opciones-en-productos-hoja)
@@ -48,7 +48,7 @@
       - [REQ-MENU-MOD-002 — Especialización Comercial de Modificador por Variante](#req-menu-mod-002--especialización-comercial-de-modificador-por-variante)
     - [4.5 Combos, Configuraciones, Slots y Opciones](#45-combos-configuraciones-slots-y-opciones)
       - [REQ-MENU-COM-001 — Configuración de Combo (ComboConfiguration)](#req-menu-com-001--configuración-de-combo-comboconfiguration)
-      - [REQ-MENU-COM-002 — Definición y Límites de Selección de ComboSlot](#req-menu-com-002--definición-y-límites-de-selección-de-comboslot)
+      - [REQ-MENU-COM-002 — Definición de ComboSlot y Selección Mínima Respaldada](#req-menu-com-002--definición-de-comboslot-y-selección-mínima-respaldada)
       - [REQ-MENU-COM-002B — Referencia Directa de ComboOption a Variante Hoja](#req-menu-com-002b--referencia-directa-de-combooption-a-variante-hoja)
       - [REQ-MENU-COM-002C — Cantidad Entera Positiva en Unidades Completas y Rechazo de Fracciones en ComboOption](#req-menu-com-002c--cantidad-entera-positiva-en-unidades-completas-y-rechazo-de-fracciones-en-combooption)
       - [REQ-MENU-COM-002D — Ajuste Relativo de Precio (priceDelta) en ComboOption](#req-menu-com-002d--ajuste-relativo-de-precio-pricedelta-en-combooption)
@@ -61,7 +61,9 @@
       - [REQ-MENU-COM-006 — Atomicidad por Destino y Éxito Parcial en Copia de Combos](#req-menu-com-006--atomicidad-por-destino-y-éxito-parcial-en-copia-de-combos)
       - [REQ-MENU-COM-007 — Elegibilidad Estructural de Configuración de Combo](#req-menu-com-007--elegibilidad-estructural-de-configuración-de-combo)
     - [4.6 Categorías y Clasificación Comercial](#46-categorías-y-clasificación-comercial)
-      - [REQ-MENU-CAT-001 — Categorías Comerciales y Clasificación de Productos Hoja](#req-menu-cat-001--categorías-comerciales-y-clasificación-de-productos-hoja)
+      - [REQ-MENU-CAT-001 — Clasificación Comercial de Productos Hoja](#req-menu-cat-001--clasificación-comercial-de-productos-hoja)
+      - [REQ-MENU-CAT-001B — Categorías Comerciales Compartidas de Productos Hoja (ItemCategory)](#req-menu-cat-001b--categorías-comerciales-compartidas-de-productos-hoja-itemcategory)
+      - [REQ-MENU-CAT-001C — Catálogo Separado de Categorías de Combos (ComboCategory) y No Herencia](#req-menu-cat-001c--catálogo-separado-de-categorías-de-combos-combocategory-y-no-herencia)
     - [4.7 Archivado y Ciclo de Vida](#47-archivado-y-ciclo-de-vida)
       - [REQ-MENU-LIF-001 — Operación de Archivado Permitido de Variante](#req-menu-lif-001--operación-de-archivado-permitido-de-variante)
       - [REQ-MENU-LIF-001B — Inelegibilidad Estructural de Variante Archivada](#req-menu-lif-001b--inelegibilidad-estructural-de-variante-archivada)
@@ -151,12 +153,14 @@
     - [OPEN-REV-001 — Ubicación Persistente, Esquema Contractual y Operación de Reconocimiento de Revisiones](#open-rev-001--ubicación-persistente-esquema-contractual-y-operación-de-reconocimiento-de-revisiones)
     - [OPEN-NFR-001 — Requisitos Cuantitativos de Calidad, Rendimiento y Dimensionamiento](#open-nfr-001--requisitos-cuantitativos-de-calidad-rendimiento-y-dimensionamiento)
     - [OPEN-AVL-001 — Mecanismo, Estructura y Persistencia Concreta de Proyecciones de Disponibilidad y Readiness](#open-avl-001--mecanismo-estructura-y-persistencia-concreta-de-proyecciones-de-disponibilidad-y-readiness)
+    - [OPEN-AVL-002 — Regla de Cálculo y Semántica Precisa de Capacidad Disponible (availableCapacity) en ComboSlot](#open-avl-002--regla-de-cálculo-y-semántica-precisa-de-capacidad-disponible-availablecapacity-en-comboslot)
     - [OPEN-CAT-001 — Comportamiento y Proyección de Catálogo ante Ausencia de Unidades Elegibles](#open-cat-001--comportamiento-y-proyección-de-catálogo-ante-ausencia-de-unidades-elegibles)
     - [OPEN-LIF-001 — Transiciones, Restauración o Comportamiento Posterior a ARCHIVED](#open-lif-001--transiciones-restauración-o-comportamiento-posterior-a-archived)
+    - [OPEN-PRC-001 — Proyección de Precio de Catálogo para Combos](#open-prc-001--proyección-de-precio-de-catálogo-para-combos)
   - [14. Matriz de Trazabilidad](#14-matriz-de-trazabilidad)
-    - [14.1 Trazabilidad de Requisitos Funcionales (61 Requisitos)](#141-trazabilidad-de-requisitos-funcionales-61-requisitos)
+    - [14.1 Trazabilidad de Requisitos Funcionales (63 Requisitos)](#141-trazabilidad-de-requisitos-funcionales-63-requisitos)
     - [14.2 Trazabilidad de Reglas de Negocio e Invariantes (24 BR-MENU y 5 INV-MENU)](#142-trazabilidad-de-reglas-de-negocio-e-invariantes-24-br-menu-y-5-inv-menu)
-    - [14.3 Trazabilidad de Cuestiones Abiertas (7 Cuestiones)](#143-trazabilidad-de-cuestiones-abiertas-7-cuestiones)
+    - [14.3 Trazabilidad de Cuestiones Abiertas (9 Cuestiones)](#143-trazabilidad-de-cuestiones-abiertas-9-cuestiones)
 
 ---
 
@@ -166,7 +170,7 @@
 
 El presente documento constituye la especificación técnica, funcional, estructural y de arquitectura consolidada y vigente para el servicio **Menu**, componente central de oferta comercial dentro del sistema de comandas y gestión de restaurantes. Su objetivo es establecerse como un **modelo vigente, autosuficiente y directamente verificable**, sin narrativas históricas de cambios ni transcripciones de etapas transitorias previas.
 
-La versión **1.3.5** consolida formalmente el modelo normativo del servicio Menu bajo la autoridad exclusiva de `docs/md/Auditoria-4.md`. El modelo vigente define integralmente:
+La versión **1.3.7** consolida formalmente el modelo normativo del servicio Menu bajo la autoridad exclusiva de `docs/md/Auditoria-4.md`. El modelo vigente define integralmente:
 1. La taxonomía comercial de `MenuItem` (`PREPARED`, `STOCKED` y `COMBO`), presentaciones vendibles hoja (`MenuItemVariant`) y configuraciones de combo (`ComboConfiguration`) con precios unitarios absolutos autoritativos.
 2. La personalización comercial de productos hoja mediante grupos y opciones de modificadores con configuración general y especialización por variante.
 3. La clasificación comercial independiente mediante categorías para items hoja y categorías para combos.
@@ -190,7 +194,7 @@ La consolidación y vigencia de esta especificación se fundamenta con exclusivi
   - Definición y administración del catálogo comercial: `MenuItem` caracterizado por su tipo comercial (`type`: `PREPARED`, `STOCKED` o `COMBO`), nombre comercial y estado administrativo respaldado.
   - Modelado de presentaciones vendibles hoja (`MenuItemVariant`) para productos `PREPARED` y `STOCKED`, incluyendo la variante técnica predeterminada `DEFAULT`.
   - Dimensiones y valores de diferenciación comercial vendible (`VariantDimension`, `VariantValue`).
-  - Custodia de precios unitarios absolutos autoritativos en variantes (`MenuItemVariant.unitPrice`) y configuraciones de combo (`ComboConfiguration.unitPrice`), junto con la proyección de catálogo (`$X` o `Desde $X`).
+  - Custodia de precios unitarios absolutos autoritativos en variantes (`MenuItemVariant.unitPrice`) y configuraciones de combo (`ComboConfiguration.unitPrice`), junto con la proyección de catálogo de productos hoja (`$X` o `Desde $X`).
   - Personalización comercial de productos hoja: grupos (`ModifierGroup`) y opciones (`ModifierOption`) con ajuste relativo de precio (`priceDelta`) y cantidad máxima (`maxQuantity`), configuración general (`generalConfig`) y especialización opcional por variante (`VariantModifierConfig`).
   - Posibilidad opcional de materializar la proyección comercial de modificadores resueltos (`ResolvedVariantModifier`) circunscrita a los datos comerciales efectivos indicados en la sección 12 de la fuente.
   - Composición de combos vendibles mediante configuraciones (`ComboConfiguration`), espacios de selección (`ComboSlot`) y opciones (`ComboOption`) referenciando directamente variantes hoja vendibles con cantidades enteras en unidades completas.
@@ -199,7 +203,7 @@ La consolidación y vigencia de esta especificación se fundamenta con exclusivi
   - Evaluación y reporte de elegibilidad estructural independiente de condiciones físicas u operativas momentáneas.
   - Archivado administrativo de variantes y reevaluación no obstructiva de dependencias en combos, preservando el estado administrativo de la entidad combo.
   - Recepción, materialización y proyección local no autoritativa de readiness operacional (`PreparationStatus`) provisto por Orders + Kitchen.
-  - Consumo y materialización local no autoritativa de proyecciones desacopladas de disponibilidad operacional granular (`VariantAvailability`, `ModifierAvailability`), propagación a opciones de combo, evaluación de cobertura de slots y disponibilidad resultante de configuraciones.
+  - Consumo y materialización local no autoritativa de proyecciones desacopladas de disponibilidad operacional granular (`VariantAvailability`, `ModifierAvailability`) calculadas por Orders + Kitchen, propagación a opciones de combo, evaluación de cobertura de slots y disponibilidad resultante de configuraciones.
   - Publicación conceptual de identidades y cambios comerciales estructurales hacia Orders + Kitchen y exposición de catálogo hacia terminales de venta (SALA/POS).
   - Detección de revisiones comerciales (originadas en Menu) y consumo de revisiones culinarias (originadas en Orders + Kitchen), con seguimiento formal de revisiones observadas y reconocidas (`observedRevision` vs `acknowledgedRevision`).
 
@@ -292,11 +296,12 @@ MenuItem (Definición Comercial de Catálogo)
    - Una misma oferta comercial no debe representarse simultáneamente como variante y como `MenuItem` independiente.
 5. **Pricing de Productos Hoja y Proyección de Catálogo:**
    - El precio unitario autoritativo de un producto hoja pertenece a `MenuItemVariant.unitPrice` y es absoluto.
-   - El atributo `MenuItem.basePrice` carece de validez normativa y no se utiliza como fuente autoritativa.
-   - El precio proyectado en catálogo para un item hoja es una vista derivada de sus variantes elegibles:
+   - El atributo `MenuItem.basePrice` carece de validez normativa y no se utilizará como fuente autoritativa.
+   - Las reglas de proyección de precio en catálogo aplican con exclusividad a productos hoja y no se generalizan a composiciones o configuraciones de combo:
      - Una sola variante elegible o varias con idéntico precio: proyecta `$X`.
      - Varias variantes elegibles con precios distintos: proyecta `Desde $X` (donde `$X` es el menor precio).
      - Sin variantes elegibles: el comportamiento y proyección de catálogo ante ausencia de unidades elegibles se mantiene como cuestión abierta (`OPEN-CAT-001`).
+   - La proyección de precio en catálogo para combos no está definida en la fuente normativa y se registra formalmente como cuestión abierta (`OPEN-PRC-001`).
    - La indisponibilidad operacional momentánea no altera ni elimina el precio comercial de una variante.
 
 ### 3.4 Ortogonalidad de Dimensiones del Dominio
@@ -328,14 +333,14 @@ El dominio establece una distinción tajante entre cinco dimensiones estrictamen
 - **`VariantModifierConfig`:** Especialización comercial opcional de una `ModifierOption` para una `MenuItemVariant` específica. Sobrescribe `priceDelta`, `maxQuantity` o `enabled`. No contiene efectos culinarios en Menu.
 - **`ResolvedVariantModifier`:** Proyección comercial opcional y no normativa que Menu puede materializar conteniendo únicamente los valores comerciales efectivos (`variantId`, `modifierOptionId`, `enabled`, `priceDelta`, `maxQuantity`), sin efectos culinarios ni disponibilidad operacional.
 - **`ComboConfiguration`:** Configuración vendible coordinada de un combo con precio unitario absoluto propio (`unitPrice`) y un conjunto de slots. Puede utilizar una configuración técnica `DEFAULT` si no presenta alternativas visibles al cliente.
-- **`ComboSlot`:** Espacio de selección comercial dentro de una configuración de combo, con límites de selección (`minSelections`, `maxSelections`).
+- **`ComboSlot`:** Espacio de selección comercial dentro de una configuración de combo con selección mínima requerida (`minSelections`).
 - **`ComboOption`:** Opción elegible dentro de un slot que referencia directamente a una `MenuItemVariant` hoja, con cantidad física suministrada entera en unidades completas ($\text{quantity} \ge 1$) y delta de precio (`priceDelta`).
 - **`Opción Seleccionable de Combo`:** Condición operacional sobre una `ComboOption` que exige copulativamente que su variante hoja referenciada sea estructuralmente elegible y operacionalmente disponible.
-- **`Capacidad Disponible de ComboSlot`:** Conteo de opciones seleccionables dentro de un slot. Cada opción seleccionable aporta a lo sumo una selección a la capacidad, independientemente de su cantidad física.
+- **`Capacidad Disponible de ComboSlot`:** Evaluación de la cobertura de opciones seleccionables dentro de un slot para satisfacer `minSelections`. La fórmula o semántica de cálculo precisa de `availableCapacity` no está fijada en la fuente normativa y se mantiene como cuestión abierta (`OPEN-AVL-002`).
 - **`PreparationStatus`:** Indicador de readiness operacional provisto por Orders + Kitchen para una variante (`READY` o `INCOMPLETE`).
-- **`VariantAvailability`:** Proyección operacional de disponibilidad para una variante hoja calculada por Orders + Kitchen a partir de requerimientos de preparación y stock, recibida y materializada por Menu.
-- **`ModifierAvailability`:** Proyección operacional de disponibilidad para una opción de modificador en una variante, recibida y materializada por Menu.
-- **`ComboConfigurationAvailability`:** Proyección operacional de disponibilidad para una configuración de combo calculada por Menu a partir de la cobertura de sus slots obligatorios ($\text{capacidad disponible} \ge \text{minSelections}$).
+- **`VariantAvailability`:** Proyección operacional de disponibilidad para una variante hoja calculada por Orders + Kitchen a partir de requerimientos de preparación y existencias de stock, recibida y materializada por Menu.
+- **`ModifierAvailability`:** Proyección operacional de disponibilidad para una opción de modificador en una variante calculada por Orders + Kitchen, recibida y materializada por Menu.
+- **`ComboConfigurationAvailability`:** Proyección operacional de disponibilidad para una configuración de combo calculada por Menu a partir de la cobertura de sus slots obligatorios ($\text{availableCapacity} \ge \text{minSelections}$).
 - **`Espejo Local de Disponibilidad`:** Proyección o réplica local no autoritativa de disponibilidad operacional que Menu puede mantener como posibilidad para responder rápidamente al POS y consultas de catálogo, sin constituir una obligación ni una fuente autoritativa de estado físico.
 - **`Revisión Administrativa`:** Mecanismo de detección y supervisión de cambios donde se registra la versión observada frente a la reconocida (`observedRevision` vs `acknowledgedRevision`), manifestando la condición `REVIEW_REQUIRED` mientras exista desfase.
 - **`Disponibilidad Agregada de MenuItem`:** Señal proyectada de conveniencia para catálogo que indica si al menos una unidad vendible hija elegible se encuentra operacionalmente disponible. No constituye un estado autoritativo persistente.
@@ -344,7 +349,7 @@ El dominio establece una distinción tajante entre cinco dimensiones estrictamen
 
 ## 4. Requisitos Funcionales Consolidados
 
-Esta sección consolida formalmente los 61 requisitos normativos del servicio Menu bajo la autoridad exclusiva de `docs/md/Auditoria-4.md`.
+Esta sección consolida formalmente los 63 requisitos normativos del servicio Menu bajo la autoridad exclusiva de `docs/md/Auditoria-4.md`.
 
 ### 4.1 Definición y Catálogo de MenuItems
 
@@ -419,30 +424,30 @@ Esta sección consolida formalmente los 61 requisitos normativos del servicio Me
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 5).
 - **Verificación:** Prueba: Registrar variantes con precios unitarios independientes (ej. Individual $140, Pareja $210, Familiar $290) y verificar que ningún cálculo o derivación comercial depende de un precio base a nivel de item.
 
-#### REQ-MENU-PRC-002 — Proyección de Precio de Catálogo con Una Unidad Elegible
+#### REQ-MENU-PRC-002 — Proyección de Precio de Catálogo para Producto Hoja con Una Variante Elegible
 
-- **Obligación:** El servicio Menu deberá proyectar en catálogo el precio `$X` para un `MenuItem` cuando este disponga de exactamente una unidad vendible estructuralmente elegible (variante elegible en productos hoja o configuración elegible en combos) cuyo precio unitario autoritativo sea `$X`.
+- **Obligación:** El servicio Menu deberá proyectar en catálogo el precio `$X` para un `MenuItem` hoja (`PREPARED` o `STOCKED`) cuando este disponga de exactamente una presentación vendible `MenuItemVariant` estructuralmente elegible cuyo precio unitario autoritativo sea `$X`. Esta regla de proyección aplica exclusivamente a productos hoja y no se generaliza a configuraciones de combo.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 5).
-- **Verificación:** Prueba: Consultar la proyección de catálogo de un item con una única unidad elegible de precio `$X` y verificar que la vista comercial proyecta exactamente `$X`.
+- **Verificación:** Prueba: Consultar la proyección de catálogo de un item hoja con una única variante elegible de precio `$X` y verificar que la vista comercial proyecta exactamente `$X`.
 
-#### REQ-MENU-PRC-002B — Proyección de Precio de Catálogo con Múltiples Unidades de Igual Precio
+#### REQ-MENU-PRC-002B — Proyección de Precio de Catálogo para Producto Hoja con Múltiples Variantes de Igual Precio
 
-- **Obligación:** El servicio Menu deberá proyectar en catálogo el precio común `$X` para un `MenuItem` cuando este disponga de múltiples unidades vendibles estructuralmente elegibles y todas ellas compartan el mismo precio unitario autoritativo `$X`.
+- **Obligación:** El servicio Menu deberá proyectar en catálogo el precio común `$X` para un `MenuItem` hoja (`PREPARED` o `STOCKED`) cuando este disponga de múltiples variantes vendibles `MenuItemVariant` estructuralmente elegibles y todas ellas compartan el mismo precio unitario autoritativo `$X`. Esta proyección no se generaliza a configuraciones de combo.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 5).
-- **Verificación:** Prueba: Consultar la proyección de catálogo para un item con varias unidades elegibles del mismo precio (ej. dos variantes a $140) y comprobar que la vista comercial muestra `$X`.
+- **Verificación:** Prueba: Consultar la proyección de catálogo para un item hoja con varias variantes elegibles del mismo precio (ej. dos variantes a $140) y comprobar que la vista comercial muestra `$X`.
 
-#### REQ-MENU-PRC-002C — Proyección de Catálogo «Desde $X» con Precios Distintos
+#### REQ-MENU-PRC-002C — Proyección de Catálogo «Desde $X» para Producto Hoja con Precios Distintos
 
-- **Obligación:** El servicio Menu deberá proyectar en catálogo el formato «Desde $X» para un `MenuItem` cuando este cuente con múltiples unidades vendibles estructuralmente elegibles con precios unitarios autoritativos diferentes, donde `$X` corresponde al menor precio unitario absoluto entre dichas unidades.
+- **Obligación:** El servicio Menu deberá proyectar en catálogo el formato «Desde $X» para un `MenuItem` hoja (`PREPARED` o `STOCKED`) cuando este cuente con múltiples variantes vendibles `MenuItemVariant` estructuralmente elegibles con precios unitarios autoritativos diferentes, donde `$X` corresponde al menor precio unitario absoluto entre dichas variantes. Esta proyección no se generaliza a configuraciones de combo.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 5).
-- **Verificación:** Prueba: Consultar la proyección de catálogo para un producto con unidades elegibles de diferentes precios (ej. Individual $140, Pareja $210, Familiar $290) y verificar que proyecta «Desde $140».
+- **Verificación:** Prueba: Consultar la proyección de catálogo para un producto hoja con variantes elegibles de diferentes precios (ej. Individual $140, Pareja $210, Familiar $290) y verificar que proyecta «Desde $140».
 
 #### REQ-MENU-PRC-002D — Conservación del Precio Comercial ante Indisponibilidad Operacional
 
-- **Obligación:** El servicio Menu deberá conservar inalterado el precio de venta unitario autoritativo de una unidad vendible ante reportes de indisponibilidad operacional momentánea, sin eliminar su valor comercial ni condicionar su precio a la existencia de existencias físicas.
+- **Obligación:** El servicio Menu deberá conservar inalterado el precio de venta unitario autoritativo de una presentación vendible de producto hoja (`MenuItemVariant.unitPrice`) ante reportes de indisponibilidad operacional momentánea, sin eliminar su valor comercial ni condicionar su precio a la existencia de existencias físicas.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 5).
 - **Verificación:** Prueba: Simular la indisponibilidad operacional de una variante y comprobar que su precio unitario autoritativo se preserva y continúa consultable en el servicio.
@@ -467,7 +472,7 @@ Esta sección consolida formalmente los 61 requisitos normativos del servicio Me
 
 #### REQ-MENU-MOD-001C — Configuración Comercial General de Opciones de Modificador
 
-- **Obligación:** El servicio Menu deberá permitir registrar para cada `ModifierOption` su nombre comercial, ajuste relativo de precio (`priceDelta`) y cantidad física máxima elegible (`maxQuantity`) dentro de su configuración general (`generalConfig`).
+- **Obligación:** El servicio Menu deberá permitir registrar para cada `ModifierOption` su nombre comercial, ajuste relativo de precio (`priceDelta`) y cantidad máxima elegible (`maxQuantity`) dentro de su configuración general (`generalConfig`).
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 9).
 - **Verificación:** Demostración: Registrar una opción de modificador con nombre comercial, delta de precio (ej. +$25) y cantidad máxima permitida (ej. 2) en su configuración general, constatando su persistencia en el catálogo.
@@ -499,17 +504,17 @@ Esta sección consolida formalmente los 61 requisitos normativos del servicio Me
 
 #### REQ-MENU-COM-001 — Configuración de Combo (ComboConfiguration)
 
-- **Obligación:** El servicio Menu deberá permitir definir una o más configuraciones comerciales `ComboConfiguration` para un `MenuItem` de tipo `COMBO`. Cada configuración poseerá nombre descriptivo, precio unitario absoluto autoritativo base (`unitPrice`) y uno o más espacios de selección (`ComboSlot`). Si un combo no presenta alternativas comerciales visibles al cliente, podrá utilizar internamente una configuración técnica `DEFAULT`.
+- **Obligación:** El servicio Menu deberá permitir definir configuraciones comerciales `ComboConfiguration` para un `MenuItem` de tipo `COMBO`. Cada configuración poseerá un precio unitario absoluto autoritativo base (`unitPrice`) y composición mediante espacios de selección (`ComboSlot`). Si un combo no presenta alternativas comerciales visibles al cliente, podrá utilizar internamente una configuración técnica `DEFAULT`.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Secciones 13.1, 15).
 - **Verificación:** Demostración: Registrar un combo con una configuración comercial y precio unitario absoluto base; verificar su estructura de slots y la ausencia de variantes hoja en el combo.
 
-#### REQ-MENU-COM-002 — Definición y Límites de Selección de ComboSlot
+#### REQ-MENU-COM-002 — Definición de ComboSlot y Selección Mínima Respaldada
 
-- **Obligación:** El servicio Menu deberá permitir estructurar dentro de una configuración de combo espacios de selección (`ComboSlot`) con nombre descriptivo y límites de selección mínima (`minSelections`) y máxima (`maxSelections`).
+- **Obligación:** El servicio Menu deberá permitir estructurar dentro de una configuración de combo espacios de selección comercial (`ComboSlot`) caracterizados por el requerimiento de selección mínima (`minSelections`).
 - **Tipo:** Funcional.
-- **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 13.2).
-- **Verificación:** Demostración: Registrar un `ComboSlot` (ej. "Principal", minSelections = 1, maxSelections = 1) dentro de una configuración de combo y comprobar que sus límites de selección se configuran y persisten correctamente.
+- **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Secciones 13.2, 26).
+- **Verificación:** Demostración: Registrar un `ComboSlot` con selección mínima respaldada (`minSelections = 1`) dentro de una configuración de combo y comprobar que se configura y persiste correctamente.
 
 #### REQ-MENU-COM-002B — Referencia Directa de ComboOption a Variante Hoja
 
@@ -556,10 +561,10 @@ Esta sección consolida formalmente los 61 requisitos normativos del servicio Me
 
 #### REQ-MENU-COM-003C — Cobro Independiente de Modificadores Repetidos en Componentes
 
-- **Obligación:** Cuando un mismo modificador comercial se seleccione en componentes distintos dentro de un combo, el servicio Menu deberá tarificar cada instancia y cantidad física de forma estrictamente independiente, sin deduplicación ni bonificación implícita.
+- **Obligación:** Cuando un mismo modificador comercial se seleccione en componentes distintos dentro de un combo, el servicio Menu deberá tarificar cada instancia o multiplicidad de selección comercial de forma estrictamente independiente, sin atribuir cantidad ni efecto físico a los modificadores y sin deduplicación ni bonificación implícita.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 15).
-- **Verificación:** Prueba: Configurar un combo con dos componentes que incluyan el mismo modificador de pago; comprobar que se liquida de manera acumulada e independiente por cada selección física realizada.
+- **Verificación:** Prueba: Configurar un combo con dos componentes que incluyan el mismo modificador de pago; comprobar que se liquida de manera acumulada e independiente por cada selección comercial realizada.
 
 #### REQ-MENU-COM-004 — Clonación Completa de Configuración de Combo
 
@@ -593,12 +598,26 @@ Esta sección consolida formalmente los 61 requisitos normativos del servicio Me
 
 ### 4.6 Categorías y Clasificación Comercial
 
-#### REQ-MENU-CAT-001 — Categorías Comerciales y Clasificación de Productos Hoja
+#### REQ-MENU-CAT-001 — Clasificación Comercial de Productos Hoja
 
-- **Obligación:** El servicio Menu deberá permitir clasificar comercialmente los productos hoja (`PREPARED` y `STOCKED`) mediante valores comerciales como `PLATILLO`, `BEBIDA`, `POSTRE` o `COMPLEMENTO`. Los productos de tipo `COMBO` no recibirán clasificación comercial de hoja. Los productos hoja podrán asignarse a categorías comerciales del catálogo compartido `ItemCategory`. Los combos se organizarán mediante un catálogo separado `ComboCategory` y no heredarán las categorías de sus componentes.
+- **Obligación:** El servicio Menu deberá permitir clasificar comercialmente los productos hoja (`PREPARED` y `STOCKED`) mediante valores comerciales como `PLATILLO`, `BEBIDA`, `POSTRE` o `COMPLEMENTO`. Los productos de tipo `COMBO` no recibirán clasificación comercial de hoja, dado que su propio tipo expresa ya dicha naturaleza.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 17).
-- **Verificación:** Demostración: Asignar categorías hoja a productos hoja y categorías combo a combos; verificar que `COMBO` no recibe clasificación comercial de hoja y que no hereda categorías de sus componentes.
+- **Verificación:** Demostración: Asignar clasificaciones comerciales a productos hoja y verificar que los productos de tipo `COMBO` no reciben clasificación comercial de hoja.
+
+#### REQ-MENU-CAT-001B — Categorías Comerciales Compartidas de Productos Hoja (ItemCategory)
+
+- **Obligación:** El servicio Menu deberá organizar los productos hoja (`PREPARED` y `STOCKED`) mediante un catálogo compartido de categorías comerciales (`ItemCategory`), permitiendo que ambos tipos de productos hoja compartan las mismas categorías del catálogo.
+- **Tipo:** Funcional.
+- **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 17).
+- **Verificación:** Demostración: Asignar categorías del catálogo compartido `ItemCategory` a productos preparados y productos de stock, comprobando su vinculación al catálogo común de hoja.
+
+#### REQ-MENU-CAT-001C — Catálogo Separado de Categorías de Combos (ComboCategory) y No Herencia
+
+- **Obligación:** El servicio Menu deberá organizar los productos de tipo `COMBO` mediante un catálogo de categorías comerciales separado (`ComboCategory`), asegurando que ningún combo herede las categorías comerciales de sus componentes hoja.
+- **Tipo:** Funcional.
+- **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 17).
+- **Verificación:** Demostración: Asignar categorías de `ComboCategory` a combos y verificar que no heredan categorías comerciales de las variantes referenciadas en sus opciones.
 
 ---
 
@@ -698,17 +717,17 @@ Esta sección consolida formalmente los 61 requisitos normativos del servicio Me
 
 #### REQ-MENU-AVL-002 — Disponibilidad de Modificadores Opcionales y No Bloqueo de Variante
 
-- **Obligación:** El servicio Menu deberá asegurar que la indisponibilidad operacional de una opción de modificador perteneciente a un grupo opcional (`minSelections = 0`) no bloquee operacionalmente a la `MenuItemVariant` asociada (`VariantAvailability.available` permanece `true`).
+- **Obligación:** Reconociendo que Orders + Kitchen calcula la disponibilidad operacional de variantes y modificadores bajo la regla normativa de que la indisponibilidad de una opción de modificador perteneciente a un grupo opcional (`minSelections = 0`) no bloquea por sí sola a la variante, el servicio Menu no considerará dicha indisponibilidad opcional como causa suficiente de bloqueo operacional, conservando la disponibilidad final comunicada por Orders + Kitchen para la variante cuando existan otras causas de indisponibilidad.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 25).
-- **Verificación:** Prueba: Simular la indisponibilidad de una opción de modificador opcional; constatar que la opción se marca como no disponible pero la variante continúa operacionalmente disponible.
+- **Verificación:** Prueba: Simular la indisponibilidad de una opción de modificador opcional provista por Orders + Kitchen; comprobar que no altera negativamente la disponibilidad de la variante cuando esta no tiene otras causas de bloqueo, y verificar que si concurre otra causa de indisponibilidad comunicada externamente para la variante, Menu materializa la condición final informada por Orders + Kitchen sin forzarla a disponible.
 
 #### REQ-MENU-AVL-003 — Bloqueo de Variante por Grupos de Modificadores Obligatorios
 
-- **Obligación:** El servicio Menu deberá determinar que una `MenuItemVariant` queda operacionalmente bloqueada (`VariantAvailability.available = false`) cuando alguno de sus grupos de modificadores obligatorios (`minSelections > 0`) ya no pueda satisfacer `minSelections` con sus opciones disponibles.
+- **Obligación:** Reconociendo que Orders + Kitchen es el propietario del cálculo de la disponibilidad operacional y determina el bloqueo operacional de una `MenuItemVariant` (`available = false`) cuando alguno de sus grupos de modificadores obligatorios (`minSelections > 0`) ya no puede satisfacer `minSelections` con sus opciones disponibles, el servicio Menu deberá consumir y materializar dicha señal de bloqueo operacional emitida por Orders + Kitchen, sin calcular internamente la disponibilidad física ni apropiarse de dicho cálculo.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 25).
-- **Verificación:** Prueba: Simular la indisponibilidad de opciones de un grupo obligatorio hasta que las opciones disponibles sean menores que `minSelections`; verificar que la variante transita inmediatamente a operacionalmente indisponible.
+- **Verificación:** Prueba: Constatar que ante el reporte emitido por Orders + Kitchen informando el bloqueo de una variante por insatisfacción de un grupo obligatorio, Menu materializa localmente la condición indisponible de la variante (`available = false`).
 
 #### REQ-MENU-AVL-004 — Propagación de Disponibilidad Operacional a Opciones de Combo
 
@@ -719,17 +738,17 @@ Esta sección consolida formalmente los 61 requisitos normativos del servicio Me
 
 #### REQ-MENU-AVL-005 — Evaluación de Capacidad Disponible de ComboSlot
 
-- **Obligación:** El servicio Menu deberá evaluar la capacidad disponible de cada `ComboSlot` contabilizando sus opciones cuya variante referenciada sea estructuralmente elegible y operacionalmente disponible, aportando a lo sumo una unidad de selección por opción disponible con independencia de su cantidad física (`quantity`).
+- **Obligación:** El servicio Menu deberá determinar que un `ComboSlot` puede satisfacerse si y solo si su capacidad disponible es mayor o igual a la selección mínima requerida ($\text{availableCapacity} \ge \text{minSelections}$), considerando seleccionables a las opciones cuya variante referenciada sea estructuralmente elegible y operacionalmente disponible. El cálculo o fórmula matemática específica para determinar el valor numérico de `availableCapacity` queda explícitamente fuera del requisito verificable y se mantiene como cuestión abierta (`OPEN-AVL-002`).
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 26).
-- **Verificación:** Prueba: Evaluar un slot con opciones de distintas cantidades físicas ($1, 2$); verificar que cada opción disponible incrementa en 1 la capacidad del slot independientemente de su cantidad física de entrega.
+- **Verificación:** Prueba: Proporcionar valores parametrizados de `minSelections` y una `availableCapacity` dada; verificar que el slot se evalúa como satisfecho cuando $\text{availableCapacity} \ge \text{minSelections}$ y como no satisfecho en caso contrario, sin evaluar el cálculo interno de dicha capacidad.
 
 #### REQ-MENU-AVL-006 — Disponibilidad Resultante de Configuración de Combo
 
-- **Obligación:** El servicio Menu deberá derivar que una `ComboConfiguration` está operacionalmente disponible si y solo si todos sus `ComboSlot` obligatorios (`minSelections > 0`) cuentan con capacidad disponible suficiente para satisfacer sus restricciones ($\text{capacidad disponible} \ge \text{minSelections}$), asegurando que una opción indisponible no bloquea la configuración mientras se cumpla dicha cobertura.
+- **Obligación:** El servicio Menu deberá derivar que una `ComboConfiguration` está operacionalmente disponible si y solo si todos sus `ComboSlot` obligatorios (`minSelections > 0`) cuentan con capacidad disponible suficiente para satisfacer sus restricciones ($\text{availableCapacity} \ge \text{minSelections}$), con una capacidad obtenida conforme a la resolución de `OPEN-AVL-002`, asegurando que una opción indisponible no bloquea por sí misma la configuración mientras se conserve dicha cobertura mínima.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 26).
-- **Verificación:** Prueba: En un combo con slot obligatorio de dos opciones disponibles, simular la indisponibilidad de una opción comprobando que la configuración permanece disponible; simular la indisponibilidad de la restante y verificar que la configuración transita a no disponible.
+- **Verificación:** Prueba: Evaluar una configuración de combo configurando valores parametrizados de `minSelections` y una capacidad disponible obtenida conforme a la futura resolución de `OPEN-AVL-002`; verificar que la configuración se deriva como disponible mientras todos los slots obligatorios satisfacen $\text{availableCapacity} \ge \text{minSelections}$, y transita a indisponible en cuanto alguno de ellos resulte insatisfecho ($\text{availableCapacity} < \text{minSelections}$).
 
 #### REQ-MENU-AVL-007 — Derivación de Disponibilidad Agregada de MenuItem para Catálogo
 
@@ -739,7 +758,9 @@ Esta sección consolida formalmente los 61 requisitos normativos del servicio Me
   Esta señal se utilizará exclusivamente para presentación en catálogo, sin constituir un estado comercial autoritativo ni bloquear unidades hijas individualmente.
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 26).
-- **Verificación:** Prueba: Consultar un producto hoja con dos variantes agotadas y una disponible; verificar que el catálogo proyecta el item como disponible y permite ordenar la variante disponible.
+- **Verificación:** Prueba:
+  1. Caso de producto hoja: Consultar un producto hoja con dos variantes agotadas y una disponible; verificar que el catálogo proyecta el item como disponible y permite ordenar la variante disponible.
+  2. Caso de combo: Consultar un `MenuItem` de tipo `COMBO` con múltiples configuraciones donde una o más configuraciones elegibles se encuentren disponibles y las restantes no; verificar que el catálogo proyecta el combo como disponible a partir de sus configuraciones, y que cuando todas sus configuraciones elegibles se encuentren indisponibles, el catálogo proyecta el combo como no disponible.
 
 ---
 
@@ -747,31 +768,31 @@ Esta sección consolida formalmente los 61 requisitos normativos del servicio Me
 
 #### REQ-MENU-INT-001 — Publicación Conceptual de Estructura Comercial hacia Orders + Kitchen
 
-- **Obligación:** El servicio Menu deberá exponer o publicar conceptualmente sus identidades comerciales y cambios estructurales relevantes mediante los eventos conceptuales `VariantCreated`, `VariantChanged`, `ModifierChanged` y `VariantArchived` (sin contemplar archivado de modificadores), permitiendo a Orders + Kitchen asociar definiciones culinarias y de preparación sin compartir repositorios de datos.
+- **Obligación:** El servicio Menu deberá exponer o publicar conceptualmente sus identidades comerciales y cambios estructurales relevantes hacia Orders + Kitchen (ilustrados conceptualmente en la fuente mediante cambios de variantes y modificadores, sin contemplar archivado de modificadores, bajo denominaciones orientativas como `VariantCreated`, `VariantChanged`, `ModifierChanged` y `VariantArchived`), permitiendo a cocina asociar definiciones de preparación sin compartir repositorios de datos. Los nombres definitivos de eventos, el mecanismo de transporte y los esquemas de contrato se mantienen formalmente abiertos (`OPEN-INT-001`).
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Secciones 28, 38).
-- **Verificación:** Demostración: Registrar cambios en variantes o modificadores y verificar la emisión de los eventos conceptuales correspondientes (`VariantCreated`, `VariantChanged`, `ModifierChanged` o `VariantArchived`) hacia Orders + Kitchen.
+- **Verificación:** Demostración: Registrar cambios en variantes o modificadores y verificar la emisión conceptual de las señales comerciales correspondientes hacia Orders + Kitchen sin fijar nombres contractuales definitivos.
 
 #### REQ-MENU-INT-003 — Consumo Conceptual de Señales de Readiness de Preparación
 
-- **Obligación:** El servicio Menu deberá consumir conceptualmente las señales de readiness de preparación (`PreparationStatusChanged`: `variantId`, `status = READY | INCOMPLETE`) publicadas por Orders + Kitchen para variantes de productos hoja preparados.
+- **Obligación:** El servicio Menu deberá consumir conceptualmente las señales de readiness de preparación provistas por Orders + Kitchen para variantes de productos hoja preparados (ilustradas conceptualmente en la fuente bajo el nombre orientativo `PreparationStatusChanged`: `variantId`, `status = READY | INCOMPLETE`), manteniéndose abiertos sus nombres consolidados, transporte y esquemas contractuales (`OPEN-INT-002`).
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 23).
-- **Verificación:** Demostración: Simular la recepción de avisos de readiness con estados `READY` e `INCOMPLETE` y constatar la actualización de la proyección correspondiente en Menu.
+- **Verificación:** Demostración: Simular la recepción de señales de readiness con estados `READY` e `INCOMPLETE` y constatar la actualización de la proyección correspondiente en Menu.
 
 #### REQ-MENU-INT-003B — Consumo Conceptual de Disponibilidad Operacional de Variante
 
-- **Obligación:** El servicio Menu deberá consumir conceptualmente las señales de disponibilidad operacional de variante (`VariantAvailabilityChanged`: `variantId`, `available`) emitidas por Orders + Kitchen a partir de la evaluación de preparación e inventario.
+- **Obligación:** El servicio Menu deberá consumir conceptualmente las señales de disponibilidad operacional de variante emitidas por Orders + Kitchen a partir de la evaluación de preparación e inventario (ilustradas conceptualmente en la fuente bajo el nombre orientativo `VariantAvailabilityChanged`: `variantId`, `available`), manteniéndose abiertos sus nombres consolidados, transporte y esquemas contractuales (`OPEN-INT-002`).
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 25).
-- **Verificación:** Demostración: Simular la recepción de señales de disponibilidad para variantes y comprobar que Menu materializa localmente la disponibilidad operacional recibida.
+- **Verificación:** Demostración: Simular la recepción de señales de disponibilidad para variantes calculadas por Orders + Kitchen y comprobar que Menu materializa localmente la disponibilidad operacional recibida.
 
 #### REQ-MENU-INT-003C — Consumo Conceptual de Disponibilidad Operacional de Modificadores por Variante
 
-- **Obligación:** El servicio Menu deberá consumir conceptualmente las señales de disponibilidad operacional de modificadores por variante (`ModifierAvailabilityChanged`: `variantId`, `modifierOptionId`, `available`, `availableMaxQuantity`) emitidas por Orders + Kitchen.
+- **Obligación:** El servicio Menu deberá consumir conceptualmente las señales de disponibilidad operacional de modificadores por variante emitidas por Orders + Kitchen (ilustradas conceptualmente en la fuente bajo el nombre orientativo `ModifierAvailabilityChanged`: `variantId`, `modifierOptionId`, `available`, `availableMaxQuantity`), manteniéndose abiertos sus nombres consolidados, transporte y esquemas contractuales (`OPEN-INT-002`).
 - **Tipo:** Funcional.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 25).
-- **Verificación:** Demostración: Simular la recepción de avisos de disponibilidad de modificadores y constatar su registro en las proyecciones de Menu.
+- **Verificación:** Demostración: Simular la recepción de señales de disponibilidad de modificadores calculadas por Orders + Kitchen y constatar su registro en las proyecciones de Menu.
 
 #### REQ-MENU-INT-003D — Consumo Conceptual de Avisos de Cambios Culinarios
 
@@ -851,37 +872,37 @@ El servicio Menu se rige por los siguientes principios cualitativos derivados de
 - **BR-MENU-003 (Dimensiones y Valores de Variante):** Cada `MenuItemVariant` representa una combinación válida de valores de las dimensiones definidas en su item.
 - **BR-MENU-004 (Exclusividad Comercial Item vs Variante):** Una misma presentación comercial no debe representarse simultáneamente como un `MenuItem` independiente y como una variante dentro de otro item.
 - **BR-MENU-005 (Autoridad Absoluta de Precio Unitario):** El precio de venta unitario de una variante (`MenuItemVariant.unitPrice`) es absoluto y autoritativo. Se elimina cualquier derivación normativa a partir de un precio base a nivel de item.
-- **BR-MENU-006 (Proyección de Precio de Catálogo):** El precio visible en catálogo proyecta `$X` si hay una unidad elegible o varias con idéntico precio; proyecta `Desde $X` si hay varias con precios distintos. El comportamiento y proyección ante ausencia de unidades elegibles se mantiene como cuestión abierta (`OPEN-CAT-001`). La disponibilidad operacional momentánea no elimina el precio comercial.
+- **BR-MENU-006 (Proyección de Precio de Catálogo para Productos Hoja):** El precio visible en catálogo para un producto hoja proyecta `$X` si hay una variante elegible o varias con idéntico precio; proyecta `Desde $X` si hay varias con precios distintos. Esta regla de proyección aplica exclusivamente a productos hoja y no se generaliza a configuraciones de combo. El comportamiento y proyección ante ausencia de unidades elegibles se mantiene como cuestión abierta (`OPEN-CAT-001`). La proyección de precio de combos en catálogo se mantiene como cuestión abierta (`OPEN-PRC-001`). La indisponibilidad operacional momentánea no elimina el precio comercial.
 - **BR-MENU-007 (Modificadores Comerciales en Item Hoja):** Los grupos y opciones de modificadores pertenecen exclusivamente a los productos hoja y no se asocian a combos. Definen reglas comerciales sin directivas físicas sobre ingredientes ni efectos culinarios en Menu.
 - **BR-MENU-008 (Especialización Comercial de Modificadores):** Si existe `VariantModifierConfig` para una tupla `(variantId, modifierOptionId)`, rige dicha configuración específica; en su defecto, rige `ModifierOption.generalConfig`. No duplica modificadores entre variantes.
-- **BR-MENU-010 (Composición Comercial de Combo y Enteros Positivos):** Un combo se compone exclusivamente de configuraciones comerciales, slots y opciones. Cada opción apunta directamente a una `MenuItemVariant` hoja con cantidad entera positiva en unidades completas ($\text{quantity} \ge 1$) y delta de precio (`priceDelta`). Se prohíben factores fraccionarios en combos; cualquier porción diferenciada requerida debe modelarse previamente como una variante hoja concreta independiente.
-- **BR-MENU-011 (Fórmula de Tarificación Comercial de Combo):** El precio del combo se calcula mediante:
+- **BR-MENU-009 (Composición Comercial de Combo y Enteros Positivos):** Un combo se compone exclusivamente de configuraciones comerciales, slots y opciones. Cada opción apunta directamente a una `MenuItemVariant` hoja con cantidad entera positiva en unidades completas ($\text{quantity} \ge 1$) y delta de precio (`priceDelta`). Se prohíben factores fraccionarios en combos; cualquier porción diferenciada requerida debe modelarse previamente como una variante hoja concreta independiente.
+- **BR-MENU-010 (Fórmula de Tarificación Comercial de Combo):** El precio del combo se calcula mediante:
   $$\text{Precio Final} = \text{ComboConfiguration.unitPrice} + \sum \text{ComboOption.priceDelta} + \sum \text{modificadores seleccionados en componentes}$$
   No se suman los precios regulares `MenuItemVariant.unitPrice` de las variantes seleccionadas.
-- **BR-MENU-012 (Independencia de Modificadores Repetidos en Combo):** Modificadores repetidos en componentes distintos de un combo se cobran de forma independiente por cada instancia y cantidad, sin deduplicación ni bonificación implícita.
-- **BR-MENU-013 (Copia de Configuraciones de Combo con Mapeo Explícito de Slots):** La clonación completa genera nuevas identidades para slots y opciones. La copia hacia una configuración existente exige el mapeo explícito `sourceSlotId -> targetSlotId`. Se prohíbe el emparejamiento automático por nombre, posición o semántica inferida.
-- **BR-MENU-014 (Atomicidad por Destino y Éxito Parcial en Lotes):** Cada configuración destino constituye una unidad atómica indivisible. En operaciones en lote se admite éxito parcial entre destinos diferentes, sin tolerar configuraciones parcialmente modificadas.
-- **BR-MENU-015 (Separación de Clasificaciones y Categorías Comerciales):** Las clasificaciones comerciales (`PLATILLO`, `BEBIDA`, `POSTRE`, `COMPLEMENTO`) aplican exclusivamente a productos hoja (`PREPARED` y `STOCKED`). Prepared y Stocked comparten `ItemCategory`. Los combos utilizan `ComboCategory` y no heredan categorías de sus componentes.
-- **BR-MENU-016 (Archivado No Obstructivo de Variante):** Archivar una variante continúa estando permitido; la variante y sus opciones en combos dejan de ser elegibles; las configuraciones dependientes se reevalúan marcando revisión administrativa si incumplen algún slot, sin alterar automáticamente el estado administrativo del combo. Las transiciones, restauración o comportamiento posterior a `ARCHIVED` permanecen como cuestión abierta (`OPEN-LIF-001`).
-- **BR-MENU-017 (Elegibilidad Estructural Independiente de Disponibilidad y Stock):** La elegibilidad estructural responde a la validez comercial de las reglas y no depende de las existencias físicas ni de la disponibilidad operacional momentánea.
-- **BR-MENU-018 (Readiness de Preparación Desacoplado de Elegibilidad):** La señal `PreparationStatus` (`READY` o `INCOMPLETE`) emitida por Kitchen indica completitud operativa de preparación y es independiente de la elegibilidad estructural de la variante.
-- **BR-MENU-019 (Disponibilidad Granular y Bloqueo Condicional de Modificadores):** La indisponibilidad de un modificador opcional no bloquea a la variante. Un grupo de modificadores obligatorio insatisfecho bloquea operacionalmente a la variante.
-- **BR-MENU-020 (Propagación de Disponibilidad en Slots y Combo):** Una opción de combo es seleccionable si su variante referenciada es estructuralmente elegible y está operacionalmente disponible. El slot evalúa su capacidad disponible contabilizando sus opciones seleccionables. La configuración de combo queda indisponible si algún slot obligatorio no cubre su selección mínima.
-- **BR-MENU-021 (Disponibilidad Agregada de MenuItem en Catálogo):** Un item hoja o combo se proyecta disponible en catálogo si cuenta con al menos una unidad vendible hija elegible y disponible operacionalmente. Es una proyección de conveniencia sin valor autoritativo.
-- **BR-MENU-022 (Detección y Separación de Revisiones Comerciales y Culinarias):** La revisión comercial se origina en Menu y tiene como target principal a `ComboConfiguration`. La revisión culinaria se origina en Kitchen, tiene como target inicial a `MenuItemVariant` y se propaga a `ComboConfiguration` dependientes.
-- **BR-MENU-023 (Seguimiento y Reconocimiento de Revisiones):** Se expresa la condición `REVIEW_REQUIRED` cuando `observedRevision > acknowledgedRevision`. La confirmación actualiza `acknowledgedRevision = observedRevision`. Nuevos cambios concurrentes mantienen pendiente la revisión.
-- **BR-MENU-024 (Conservación Comercial al Confirmar Revisión):** El reconocimiento administrativo atiende la revisión sin modificar precios, slots ni selecciones comerciales.
-- **BR-MENU-025 (Inalterabilidad Comercial ante Fluctuaciones Operacionales):** Los cambios operacionales de disponibilidad física no constituyen modificaciones comerciales ni generan revisión administrativa (`AvailabilityChanged != REVIEW_REQUIRED`).
+- **BR-MENU-011 (Independencia de Modificadores Repetidos en Combo):** Modificadores repetidos en componentes distintos de un combo se cobran de forma independiente por cada instancia o multiplicidad de selección comercial, sin atribuir cantidad ni efecto físico a los modificadores y sin deduplicación ni bonificación implícita.
+- **BR-MENU-012 (Copia de Configuraciones de Combo con Mapeo Explícito de Slots):** La clonación completa genera nuevas identidades para slots y opciones. La copia hacia una configuración existente exige el mapeo explícito `sourceSlotId -> targetSlotId`. Se prohíbe el emparejamiento automático por nombre, posición o semántica inferida.
+- **BR-MENU-013 (Atomicidad por Destino y Éxito Parcial en Lotes):** Cada configuración destino constituye una unidad atómica indivisible. En operaciones en lote se admite éxito parcial entre destinos diferentes, sin tolerar configuraciones parcialmente modificadas.
+- **BR-MENU-014 (Separación de Clasificaciones y Categorías Comerciales):** Las clasificaciones comerciales (`PLATILLO`, `BEBIDA`, `POSTRE`, `COMPLEMENTO`) aplican exclusivamente a productos hoja (`PREPARED` y `STOCKED`). Prepared y Stocked comparten `ItemCategory`. Los combos utilizan `ComboCategory` y no heredan categorías de sus componentes.
+- **BR-MENU-015 (Archivado No Obstructivo de Variante):** Archivar una variante continúa estando permitido; la variante y sus opciones en combos dejan de ser elegibles; las configuraciones dependientes se reevalúan marcando revisión administrativa si incumplen algún slot, sin alterar automáticamente el estado administrativo del combo. Las transiciones, restauración o comportamiento posterior a `ARCHIVED` permanecen como cuestión abierta (`OPEN-LIF-001`).
+- **BR-MENU-016 (Elegibilidad Estructural Independiente de Disponibilidad y Stock):** La elegibilidad estructural responde a la validez comercial de las reglas y no depende de las existencias físicas ni de la disponibilidad operacional momentánea.
+- **BR-MENU-017 (Readiness de Preparación Desacoplado de Elegibilidad):** La señal `PreparationStatus` (`READY` o `INCOMPLETE`) emitida por Kitchen indica completitud operativa de preparación y es independiente de la elegibilidad estructural de la variante.
+- **BR-MENU-018 (Disponibilidad Granular y Ownership Operacional Externo):** Orders + Kitchen calcula la disponibilidad operacional de variantes y modificadores. La indisponibilidad de un modificador opcional no bloquea por sí sola a la variante. Un grupo de modificadores obligatorio insatisfecho bloquea operacionalmente a la variante. Menu consume y materializa la disponibilidad final comunicada sin forzarla a disponible ni apropiarse del cálculo físico.
+- **BR-MENU-019 (Propagación de Disponibilidad en Slots y Combo):** Menu deriva la disponibilidad operacional de opciones, slots y configuraciones de combo. Una opción de combo es seleccionable si su variante referenciada es estructuralmente elegible y está operacionalmente disponible. El slot evalúa si su capacidad disponible cubre la selección mínima ($\text{availableCapacity} \ge \text{minSelections}$), manteniéndose la fórmula de cálculo de dicha capacidad como cuestión abierta (`OPEN-AVL-002`). La configuración de combo queda indisponible si algún slot obligatorio no cubre su selección mínima.
+- **BR-MENU-020 (Disponibilidad Agregada de MenuItem en Catálogo):** Un item hoja o combo se proyecta disponible en catálogo si cuenta con al menos una unidad vendible hija elegible y disponible operacionalmente. Es una proyección de conveniencia sin valor autoritativo.
+- **BR-MENU-021 (Detección y Separación de Revisiones Comerciales y Culinarias):** La revisión comercial se origina en Menu y tiene como target principal a `ComboConfiguration`. La revisión culinaria se origina en Kitchen, tiene como target inicial a `MenuItemVariant` y se propaga a `ComboConfiguration` dependientes.
+- **BR-MENU-022 (Seguimiento y Reconocimiento de Revisiones):** Se expresa la condición `REVIEW_REQUIRED` cuando `observedRevision > acknowledgedRevision`. La confirmación actualiza `acknowledgedRevision = observedRevision`. Nuevos cambios concurrentes mantienen pendiente la revisión.
+- **BR-MENU-023 (Conservación Comercial al Confirmar Revisión):** El reconocimiento administrativo atiende la revisión sin modificar precios, slots ni selecciones comerciales.
+- **BR-MENU-024 (Inalterabilidad Comercial ante Fluctuaciones Operacionales):** Los cambios operacionales de disponibilidad física no constituyen modificaciones comerciales ni generan revisión administrativa (`AvailabilityChanged != REVIEW_REQUIRED`).
 
 ### 6.2 Invariantes de Integridad del Dominio (INV-MENU)
 
 - **INV-MENU-001 (Variante Vendible Obligatoria en Productos Hoja):**
   $$\forall \, i \in (\text{PREPARED} \cup \text{STOCKED}), \quad \text{count}(i.\text{variants}) \ge 1$$
 - **INV-MENU-002 (VariantId No Nulo en Toda Línea u Orden):** En toda referencia u orden comercial vendible, el identificador `variantId` es estrictamente obligatorio y no nulo.
-- **INV-MENU-004 (Cantidad Entera Positiva en Opciones de Combo):**
+- **INV-MENU-003 (Cantidad Entera Positiva en Opciones de Combo):**
   $$\forall \, o \in \text{ComboOption}, \quad o.\text{quantity} \ge 1 \quad (\text{entero en unidades completas})$$
-- **INV-MENU-005 (Aislamiento Absoluto de Persistencia):** El modelo conceptual de Menu mantendrá una separación confirmada de almacenamiento, tablas, asociaciones ORM y fuentes autoritativas, sin acoplamientos físicos con esquemas de Inventory u Orders + Kitchen.
-- **INV-MENU-006 (Exclusión de Dominio Culinario y Físico en Menu):** Menu no almacena ni administra recetas, componentes de receta, gramajes, efectos físicos sobre insumos, artículos de inventario, stock físico, reservas ni consumos.
+- **INV-MENU-004 (Aislamiento Absoluto de Persistencia):** El modelo conceptual de Menu mantendrá una separación confirmada de almacenamiento, tablas, asociaciones ORM y fuentes autoritativas, sin acoplamientos físicos con esquemas de Inventory u Orders + Kitchen.
+- **INV-MENU-005 (Exclusión de Dominio Culinario y Físico en Menu):** Menu no almacena ni administra recetas, componentes de receta, gramajes, efectos físicos sobre insumos, artículos de inventario, stock físico, reservas ni consumos.
 
 ---
 
@@ -950,8 +971,8 @@ El dominio de Menu organiza sus conceptos en dos agrupaciones comerciales no nor
 
 *Exclusivas de `COMBO`.*
 
-- `ComboConfiguration`: `id` (Identificador), `menuItemId` (Referencia a `MenuItem` COMBO), `name` (Nombre descriptivo), `unitPrice` (Precio unitario absoluto). Sujeto al seguimiento de revisiones administrativas (`OPEN-REV-001`).
-- `ComboSlot`: `id` (Identificador), `comboConfigurationId` (Referencia a `ComboConfiguration`), `name` (Nombre descriptivo), `minSelections` (Entero de selección mínima), `maxSelections` (Entero de selección máxima).
+- `ComboConfiguration`: `id` (Identificador), `menuItemId` (Referencia a `MenuItem` COMBO), `unitPrice` (Precio unitario absoluto). Sujeto al seguimiento de revisiones administrativas (`OPEN-REV-001`).
+- `ComboSlot`: `id` (Identificador), `comboConfigurationId` (Referencia a `ComboConfiguration`), `minSelections` (Entero de selección mínima).
 - `ComboOption`: `id` (Identificador), `comboSlotId` (Referencia a `ComboSlot`), `itemVariantId` (Referencia directa a `MenuItemVariant` hoja), `quantity` (Cantidad entera positiva en unidades completas), `priceDelta` (Ajuste relativo de precio).
 
 ### 7.3 Proyecciones de Consulta (Read Models)
@@ -963,7 +984,7 @@ Modelos de lectura desacoplados utilizados para optimizar la consulta de catálo
 - `ModifierAvailability`: `variantId`, `modifierOptionId`, `available`, `availableMaxQuantity` opcional.
 - `PreparationStatusProjection`: `variantId`, `status` (`READY` o `INCOMPLETE` provisto externamente por Orders + Kitchen).
 - `ComboConfigurationAvailability`: `configurationId`, `available` (derivado por Menu evaluando si los slots obligatorios cubren su selección mínima).
-- `CatalogItemProjection`: `menuItemId`, `displayPrice` (proyección de precio cuando existen unidades elegibles: `$X` con una unidad o varias de igual precio, o `Desde $X` con precios distintos; ante la ausencia total de unidades elegibles, el comportamiento y proyección se remite a `OPEN-CAT-001`), `isAvailable` (existencia de unidades hijas elegibles disponibles), colecciones de variantes, modificadores y configuraciones.
+- `CatalogItemProjection`: `menuItemId`, `displayPrice` (proyección de precio exclusiva para productos hoja cuando existen variantes elegibles: `$X` con una variante o varias de igual precio, o `Desde $X` con precios distintos; ante la ausencia total de unidades elegibles en productos hoja, el comportamiento y proyección se remite a `OPEN-CAT-001`; la proyección de precio de catálogo para combos se mantiene formalmente abierta bajo `OPEN-PRC-001`), `isAvailable` (existencia de unidades hijas elegibles disponibles), colecciones de variantes, modificadores y configuraciones.
 
 ### 7.4 Diagramas Estructurales y de Comportamiento
 
@@ -1035,16 +1056,13 @@ classDiagram
     class ComboConfiguration {
         +id
         +menuItemId
-        +name
         +unitPrice
     }
 
     class ComboSlot {
         +id
         +comboConfigurationId
-        +name
         +minSelections
-        +maxSelections
     }
 
     class ComboOption {
@@ -1069,7 +1087,7 @@ classDiagram
     VariantModifierConfig "0..*" --> "1" ModifierOption : referencia (modifierOptionId)
 
     ComboMenuItemConcept "1" *-- "0..*" ComboConfiguration : define
-    ComboConfiguration "1" *-- "1..*" ComboSlot : estructura
+    ComboConfiguration "1" *-- "0..*" ComboSlot : estructura
     ComboSlot "1" *-- "0..*" ComboOption : admite
     ComboOption "0..*" --> "1" MenuItemVariant : referencia directa a hoja vendible
 ```
@@ -1170,8 +1188,8 @@ flowchart LR
 
 1. **Lectura de Catálogo y Administración:** Consultas de terminales SALA/POS y herramientas administrativas para explorar el catálogo y ejecutar operaciones de gestión comercial.
 2. **Integración Asíncrona Orientada a Eventos:**
-   - **Menu hacia Orders + Kitchen:** Menu comunica conceptualmente los cambios comerciales estructurales relevantes mediante los eventos conceptuales `VariantCreated`, `VariantChanged`, `ModifierChanged` y `VariantArchived` (sin contemplar archivado de modificadores), permitiendo a Orders + Kitchen asociar preparación sin compartir repositorios de datos.
-   - **Orders + Kitchen hacia Menu:** Orders + Kitchen emite señales conceptuales de readiness (`PreparationStatus`), disponibilidad operacional granular y avisos culinarios con correlación mínima (`variantId`, `preparationRevision`, `changeKind`, `modifierOptionId`).
+   - **Menu hacia Orders + Kitchen:** Menu comunica conceptualmente los cambios comerciales estructurales relevantes (ilustrados como cambios de variantes y modificadores bajo nombres conceptuales orientativos como `VariantCreated`, `VariantChanged`, `ModifierChanged` y `VariantArchived`, sin contemplar archivado de modificadores), cuyos nombres definitivos, transporte y esquemas permanecen abiertos (`OPEN-INT-001`), permitiendo a Orders + Kitchen asociar preparación sin compartir repositorios de datos.
+   - **Orders + Kitchen hacia Menu:** Orders + Kitchen emite señales conceptuales de readiness (orientativamente `PreparationStatusChanged`), disponibilidad operacional granular (orientativamente `VariantAvailabilityChanged`, `ModifierAvailabilityChanged`) y avisos culinarios con correlación mínima (`variantId`, `preparationRevision`, `changeKind`, `modifierOptionId`), cuyos contratos consolidados permanecen abiertos (`OPEN-INT-002`).
 3. **Snapshots en Orders:** Al registrar una venta, Orders captura y fija de forma inmutable la identidad comercial y precios de los productos vendidos. Modificaciones posteriores en Menu no afectan órdenes históricas.
 
 ### 8.3 Aislamiento de Persistencia y Reglas de Integración
@@ -1239,16 +1257,13 @@ La agrupación conceptual de datos de Menu describe la organización conceptual 
 *Exclusiva de `COMBO`.*
 - `id`: Identificador conceptual escalar opaco.
 - `menuItemId`: Referencia conceptual a `MenuItem` COMBO.
-- `name`: Nombre descriptivo.
 - `unitPrice`: Monto numérico absoluto autoritativo.
 - *Nota sobre seguimiento de revisión:* El mecanismo de seguimiento de revisiones observadas y reconocidas se gestiona bajo `OPEN-REV-001`.
 
 #### Estructura Conceptual: ComboSlot
 - `id`: Identificador conceptual escalar opaco.
 - `comboConfigurationId`: Referencia conceptual a `ComboConfiguration`.
-- `name`: Nombre descriptivo no identitario.
 - `minSelections`: Límite entero de selección mínima.
-- `maxSelections`: Límite entero de selección máxima.
 
 #### Estructura Conceptual: ComboOption
 - `id`: Identificador conceptual escalar opaco.
@@ -1314,17 +1329,17 @@ La colaboración entre Menu, Orders + Kitchen e Inventory se rige por:
 ### 11.2 Cambios Comerciales Comunicados por Menu
 
 1. **Publicación Conceptual de Estructura Comercial hacia Orders + Kitchen:**
-   - Menu expone o publica conceptualmente los cambios comerciales estructurales relevantes mediante los eventos conceptuales `VariantCreated`, `VariantChanged`, `ModifierChanged` y `VariantArchived` (creación, modificación y archivado de variantes, y modificación de modificadores, sin contemplar archivado de modificadores) para que Orders + Kitchen conozca las identidades comerciales vigentes sobre las que asociar definiciones culinarias y de preparación sin compartir base de datos.
-   - Los nombres definitivos de eventos, el mecanismo de transporte y los esquemas payload específicos quedan formalmente diferidos bajo `OPEN-INT-001`.
+   - Menu expone o publica conceptualmente los cambios comerciales estructurales relevantes (ilustrados con propósitos orientativos mediante nombres como `VariantCreated`, `VariantChanged`, `ModifierChanged` y `VariantArchived`, relativos a creación, modificación y archivado de variantes, y modificación de modificadores, sin contemplar archivado de modificadores) para que Orders + Kitchen conozca las identidades comerciales vigentes sobre las que asociar definiciones culinarias y de preparación sin compartir base de datos.
+   - Dichos nombres no constituyen contratos cerrados: los nombres definitivos de eventos, el mecanismo de transporte y los esquemas payload específicos quedan formalmente abiertos bajo `OPEN-INT-001`.
 
 ### 11.3 Eventos y Señales Recibidas por Menu
 
 1. **Readiness de Preparación:**
-   - Señal que asocia `variantId` con el estado `PreparationStatus` (`READY` o `INCOMPLETE`), permitiendo a Menu materializar qué variantes cuentan con definición culinaria operativa.
+   - Señal conceptual (ilustrada orientativamente como `PreparationStatusChanged`) que asocia `variantId` con el estado `PreparationStatus` (`READY` o `INCOMPLETE`), permitiendo a Menu materializar qué variantes cuentan con definición culinaria operativa. Sus contratos definitivos permanecen abiertos (`OPEN-INT-002`).
 2. **Disponibilidad Operacional Granular:**
-   - Señales que asocian `variantId` y `modifierOptionId` con su estado momentáneo disponible o no disponible, provistas por Orders + Kitchen tras evaluar requerimientos culinarios y existencias de Inventory.
+   - Señales conceptuales (ilustradas orientativamente como `VariantAvailabilityChanged` y `ModifierAvailabilityChanged`) que asocian `variantId` y `modifierOptionId` con su estado momentáneo disponible o no disponible, calculadas y provistas por Orders + Kitchen tras evaluar requerimientos culinarios y existencias de Inventory. Sus contratos definitivos permanecen abiertos (`OPEN-INT-002`).
 3. **Avisos Culinarios:**
-   - Avisos que informan modificaciones en recetas o efectos de ingredientes, con correlación mínima: `variantId`, `preparationRevision`, tipo de cambio (`changeKind`) y, cuando corresponda, `modifierOptionId`.
+   - Avisos que informan modificaciones en recetas o efectos de ingredientes (ilustrados orientativamente como `RecipeChanged` o `IngredientEffectChanged`), con correlación mínima: `variantId`, `preparationRevision`, tipo de cambio (`changeKind`) y, cuando corresponda, `modifierOptionId`. Sus contratos definitivos permanecen abiertos (`OPEN-INT-002`).
 4. **Frontera de Idempotencia Normativa:**
    - Conforme a `docs/md/Auditoria-4.md` (Sección 27), la idempotencia documentada se circunscribe a las operaciones de reserva, liberación y consumo (`reserve`, `release`, `consume`) entre Orders + Kitchen e Inventory para evitar reservas o consumos físicos duplicados ante reintentos de mensajes.
 
@@ -1360,13 +1375,13 @@ Las siguientes cuestiones técnicas se registran formalmente como abiertas y deb
 
 ### OPEN-INT-001 — Nombres, Contratos y Esquemas de Eventos Menu → Orders + Kitchen
 
-- **Descripción:** `Auditoria-4.md` (Sección 28) identifica la necesidad de que Menu exponga o publique cambios comerciales estructurales (variantes creadas, modificadas, archivadas, modificadores), pero declara expresamente que los nombres exactos de eventos, el mecanismo de transporte y los esquemas payload definitivos quedan diferidos para su consolidación técnica posterior.
+- **Descripción:** `Auditoria-4.md` (Sección 28) identifica la necesidad de que Menu exponga o publique cambios comerciales estructurales (utilizando denominaciones orientativas e ilustrativas como `VariantCreated`, `VariantChanged`, `ModifierChanged` y `VariantArchived`), pero declara expresamente que los nombres exactos de eventos, el mecanismo de transporte y los esquemas payload definitivos quedan diferidos como no resueltos para su consolidación técnica posterior.
 - **Estado:** Abierta.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 28).
 
 ### OPEN-INT-002 — Nombres, Contratos y Esquemas de Eventos Orders + Kitchen → Menu
 
-- **Descripción:** `Auditoria-4.md` (Secciones 23, 25, 29) establece tres familias conceptuales de señales procedentes de Orders + Kitchen (readiness, disponibilidad granular y avisos culinarios con correlación mínima), señalando que los nombres consolidados, mecanismos de transporte y sobre de mensajería deben ser convenidos conjuntamente entre ambos servicios.
+- **Descripción:** `Auditoria-4.md` (Secciones 23, 25, 29) establece tres familias conceptuales de señales procedentes de Orders + Kitchen (utilizando denominaciones orientativas e ilustrativas como `PreparationStatusChanged`, `VariantAvailabilityChanged`, `ModifierAvailabilityChanged`, `RecipeChanged` e `IngredientEffectChanged`), señalando que los nombres consolidados, mecanismos de transporte y sobre de mensajería deben ser convenidos conjuntamente entre ambos servicios y permanecen como contratos abiertos.
 - **Estado:** Abierta.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Secciones 23, 25, 29).
 
@@ -1388,6 +1403,12 @@ Las siguientes cuestiones técnicas se registran formalmente como abiertas y deb
 - **Estado:** Abierta.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Secciones 24, 38).
 
+### OPEN-AVL-002 — Regla de Cálculo y Semántica Precisa de Capacidad Disponible (availableCapacity) en ComboSlot
+
+- **Descripción:** `Auditoria-4.md` (Sección 26) establece que un `ComboSlot` puede satisfacerse mientras su capacidad disponible sea mayor o igual a la selección mínima requerida (`availableCapacity >= minSelections`), considerando seleccionables a las opciones cuya variante referenciada sea estructuralmente elegible y operacionalmente disponible. No obstante, la fuente normativa no define la fórmula matemática ni la semántica precisa para computar `availableCapacity` (por ejemplo, si cada opción aporta una unidad a la capacidad independientemente de su `quantity`, o si se calcula según multiplicidades, combinatorias o límites de existencias operacionales). Dicha fórmula y regla de cómputo se registran formalmente como cuestión abierta para su precisión técnica.
+- **Estado:** Abierta.
+- **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 26).
+
 ### OPEN-CAT-001 — Comportamiento y Proyección de Catálogo ante Ausencia de Unidades Elegibles
 
 - **Descripción:** `Auditoria-4.md` (Sección 5) prescribe la proyección de precio en catálogo cuando existe una unidad elegible (`$X`), varias con mismo precio (`$X`) y varias con precios distintos (`Desde $X`), pero no define la regla de proyección ni el comportamiento observable del `MenuItem` en el catálogo cuando este carece totalmente de unidades vendibles estructuralmente elegibles. Dicho comportamiento se declara formalmente como cuestión abierta para su resolución técnica sin presuponer exclusión automática.
@@ -1400,11 +1421,17 @@ Las siguientes cuestiones técnicas se registran formalmente como abiertas y deb
 - **Estado:** Abierta.
 - **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Sección 36).
 
+### OPEN-PRC-001 — Proyección de Precio de Catálogo para Combos
+
+- **Descripción:** `Auditoria-4.md` (Sección 15) establece la fórmula de cálculo del precio final de una configuración de combo a partir de su precio base y los deltas de opciones y modificadores, pero no define el formato, algoritmo ni regla de proyección de precio visible en el catálogo comercial (`displayPrice`) para items de tipo `COMBO` (por ejemplo, ante múltiples configuraciones vendibles o deltas variables). Dicha proyección se registra formalmente como cuestión abierta sin presuponer formato ni algoritmo.
+- **Estado:** Abierta.
+- **Fuente Autorizada:** `docs/md/Auditoria-4.md` (Secciones 5, 15).
+
 ---
 
 ## 14. Matriz de Trazabilidad
 
-### 14.1 Trazabilidad de Requisitos Funcionales (61 Requisitos)
+### 14.1 Trazabilidad de Requisitos Funcionales (63 Requisitos)
 
 | Identificador | Título Normativo | Estado | Fuente de Consolidación (`Auditoria-4.md`) | Justificación y Relación con la Fuente |
 | :--- | :--- | :---: | :--- | :--- |
@@ -1415,32 +1442,34 @@ Las siguientes cuestiones técnicas se registran formalmente como abiertas y deb
 | **REQ-MENU-VAR-002** | Definición de Dimensiones y Valores de Variante | Vigente | Sección 4 | Permite definir `VariantDimension` y `VariantValue` con nombre en items hoja. |
 | **REQ-MENU-VAR-002B** | Combinación Válida de Valores de Dimensiones | Vigente | Sección 4 | Cada variante representa una combinación válida de valores de las dimensiones definidas. |
 | **REQ-MENU-VAR-002C** | Exclusividad Comercial entre Item y Variante | Vigente | Sección 4 | Prohíbe que la misma oferta comercial se modele a la vez como item y como variante. |
-| **REQ-MENU-VAR-003** | Elegibilidad Estructural de Variante Hoja | Vigente | Secciones 2, 6, 8, 21, 22, 36 | Establece que ARCHIVED implica inelegibilidad estructural; independiente de recetas, existencias de stock y disponibilidad operacional. |
+| **REQ-MENU-VAR-003** | Elegibilidad Estructural de Variante Hoja | Vigente | Secciones 2, 6, 8, 21, 22, 36 | Independencia estricta de recetas culinarias, existencias de inventario y disponibilidad operacional. |
 | **REQ-MENU-PRC-001** | Precio Absoluto Autoritativo de la Variante | Vigente | Sección 5 | `MenuItemVariant.unitPrice` absoluto autoritativo; descarte total de `basePrice`. |
-| **REQ-MENU-PRC-002** | Proyección de Precio de Catálogo con Una Unidad Elegible | Vigente | Sección 5 | Proyección de `$X` cuando existe una única unidad vendible estructuralmente elegible con precio `$X`. |
-| **REQ-MENU-PRC-002B** | Proyección de Precio de Catálogo con Múltiples Unidades de Igual Precio | Vigente | Sección 5 | Proyección de `$X` cuando existen múltiples unidades elegibles que comparten idéntico precio unitario `$X`. |
-| **REQ-MENU-PRC-002C** | Proyección de Catálogo «Desde $X» con Precios Distintos | Vigente | Sección 5 | Proyección en formato «Desde $X» con el menor precio absoluto ante unidades elegibles con precios distintos. |
-| **REQ-MENU-PRC-002D** | Conservación del Precio Comercial ante Indisponibilidad Operacional | Vigente | Sección 5 | Preservación del precio unitario comercial autoritativo ante reportes de indisponibilidad operacional. |
+| **REQ-MENU-PRC-002** | Proyección de Precio de Catálogo para Producto Hoja con Una Variante Elegible | Vigente | Sección 5 | Proyección de `$X` para producto hoja cuando existe una única variante vendible estructuralmente elegible con precio `$X`. |
+| **REQ-MENU-PRC-002B** | Proyección de Precio de Catálogo para Producto Hoja con Múltiples Variantes de Igual Precio | Vigente | Sección 5 | Proyección de `$X` para producto hoja cuando múltiples variantes elegibles comparten idéntico precio unitario `$X`. |
+| **REQ-MENU-PRC-002C** | Proyección de Catálogo «Desde $X» para Producto Hoja con Precios Distintos | Vigente | Sección 5 | Proyección «Desde $X» con el menor precio absoluto ante variantes elegibles de producto hoja con precios distintos. |
+| **REQ-MENU-PRC-002D** | Conservación del Precio Comercial ante Indisponibilidad Operacional | Vigente | Sección 5 | Preservación del precio unitario comercial autoritativo de la variante ante reportes de indisponibilidad operacional. |
 | **REQ-MENU-MOD-001** | Ownership y Cardinalidad de Grupos y Opciones en Productos Hoja | Vigente | Sección 9 | Definición de grupos `ModifierGroup [0..N]` y opciones `ModifierOption [1..N]` en items hoja. |
 | **REQ-MENU-MOD-001B** | Límites de Selección en Grupos de Modificadores | Vigente | Sección 9 | Especificación y validación de límites enteros `minSelections` y `maxSelections` en cada grupo. |
-| **REQ-MENU-MOD-001C** | Configuración Comercial General de Opciones de Modificador | Vigente | Sección 9 | Registro de nombre comercial, `priceDelta` y cantidad máxima `maxQuantity` en `generalConfig`. |
+| **REQ-MENU-MOD-001C** | Configuración Comercial General de Opciones de Modificador | Vigente | Sección 9 | Registro de nombre comercial, `priceDelta` y cantidad máxima comercial `maxQuantity` en `generalConfig`. |
 | **REQ-MENU-MOD-001D** | Restricción de Ausencia de Modificadores Globales en Combos | Vigente | Sección 14 | Ausencia de modificadores comerciales en COMBO; rechazo de asociaciones a nivel de combo. |
 | **REQ-MENU-MOD-001E** | Exclusión de Efectos Físicos y Culinarios en Modificadores de Menu | Vigente | Secciones 9, 11 | Exclusión de directivas físicas sobre ingredientes y efectos culinarios del modelo de modificadores de Menu. |
 | **REQ-MENU-MOD-002** | Especialización Comercial de Modificador por Variante | Vigente | Secciones 10, 11 | `VariantModifierConfig` sobrescribe comercialmente (`priceDelta`, `maxQuantity`, `enabled`) sin duplicar modificadores ni efectos físicos. |
 | **REQ-MENU-COM-001** | Configuración de Combo (ComboConfiguration) | Vigente | Secciones 13.1, 15 | `ComboConfiguration` con precio unitario absoluto base y slots estructurados; DEFAULT técnico si aplica. |
-| **REQ-MENU-COM-002** | Definición y Límites de Selección de ComboSlot | Vigente | Sección 13.2 | Estructuración de espacios de selección `ComboSlot` con nombre descriptivo y límites `minSelections`/`maxSelections`. |
+| **REQ-MENU-COM-002** | Definición de ComboSlot y Selección Mínima Respaldada | Vigente | Secciones 13.2, 26 | Estructuración de espacios de selección `ComboSlot` con selección mínima `minSelections` respaldada. |
 | **REQ-MENU-COM-002B** | Referencia Directa de ComboOption a Variante Hoja | Vigente | Sección 13.2 | Vinculación directa de `ComboOption` a `MenuItemVariant.id` sin entidades intermedias ni conocimiento físico. |
 | **REQ-MENU-COM-002C** | Cantidad Entera Positiva en Unidades Completas y Rechazo de Fracciones en ComboOption | Vigente | Sección 16 | Exigencia de `quantity >= 1` entero en unidades completas y rechazo categórico de valores fraccionarios. |
 | **REQ-MENU-COM-002D** | Ajuste Relativo de Precio (priceDelta) en ComboOption | Vigente | Secciones 13.2, 15 | Asignación de `priceDelta` para sumar al precio base del combo cuando la opción sea elegida. |
 | **REQ-MENU-COM-002E** | Modelado Previo de Porciones Diferenciadas como Variantes Hoja Concretas | Vigente | Sección 16 | Obligación de modelar porciones diferenciadas como variantes hoja previas para ser referenciadas en combos. |
 | **REQ-MENU-COM-003** | Tarificación Comercial del Combo | Vigente | Sección 15 | Tarificación sumando precio base de configuración y deltas de opciones y modificadores en componentes. |
 | **REQ-MENU-COM-003B** | Exclusión de Precios Regulares de Variantes en Combos | Vigente | Sección 15 | Prohíbe sumar precios regulares `MenuItemVariant.unitPrice` en el cálculo de venta del combo. |
-| **REQ-MENU-COM-003C** | Cobro Independiente de Modificadores Repetidos en Componentes | Vigente | Sección 15 | Modificadores repetidos en componentes distintos se liquidan independientemente por cada instancia y cantidad. |
+| **REQ-MENU-COM-003C** | Cobro Independiente de Modificadores Repetidos en Componentes | Vigente | Sección 15 | Modificadores repetidos en componentes distintos se liquidan independientemente por cada instancia o multiplicidad de selección comercial, sin efectos físicos. |
 | **REQ-MENU-COM-004** | Clonación Completa de Configuración de Combo | Vigente | Sección 37 | Clonación hacia combo destino genera nuevas identidades para `ComboSlot` y `ComboOption`. |
 | **REQ-MENU-COM-005** | Copia hacia Configuración Existente con Mapeo Explícito de Slots | Vigente | Sección 37 | Copia a configuración existente exige `sourceSlotId -> targetSlotId`; prohíbe matching automático. |
 | **REQ-MENU-COM-006** | Atomicidad por Destino y Éxito Parcial en Copia de Combos | Vigente | Sección 37 | Cada configuración destino es atómica; en lote admite éxito parcial entre destinos sin alteraciones parciales. |
 | **REQ-MENU-COM-007** | Elegibilidad Estructural de Configuración de Combo | Vigente | Secciones 21, 22, 36 | Configuración resulta no elegible si un slot obligatorio no cubre minSelections con opciones elegibles; independiente de disponibilidad y stock. |
-| **REQ-MENU-CAT-001** | Categorías Comerciales y Clasificación de Productos Hoja | Vigente | Sección 17 | `ItemCategory` para hojas; `ComboCategory` para combos; clasificaciones comerciales exclusivas para hojas. |
+| **REQ-MENU-CAT-001** | Clasificación Comercial de Productos Hoja | Vigente | Sección 17 | Clasificaciones comerciales (`PLATILLO`, `BEBIDA`, `POSTRE`, `COMPLEMENTO`) exclusivas para productos hoja; no aplicables a COMBO. |
+| **REQ-MENU-CAT-001B** | Categorías Comerciales Compartidas de Productos Hoja (ItemCategory) | Vigente | Sección 17 | Organización de productos hoja `PREPARED` y `STOCKED` en catálogo común `ItemCategory`. |
+| **REQ-MENU-CAT-001C** | Catálogo Separado de Categorías de Combos (ComboCategory) y No Herencia | Vigente | Sección 17 | Combos organizados en `ComboCategory` independiente; prohibición de heredar categorías de componentes. |
 | **REQ-MENU-LIF-001** | Operación de Archivado Permitido de Variante | Vigente | Sección 36 | Permite archivar variantes transitando a `ARCHIVED` sin bloqueo por dependencias en combos. |
 | **REQ-MENU-LIF-001B** | Inelegibilidad Estructural de Variante Archivada | Vigente | Sección 36 | La variante archivada deja de ser estructuralmente elegible (`eligible = false`). |
 | **REQ-MENU-LIF-001C** | Inelegibilidad Estructural de Opciones de Combo Vinculadas a Variante Archivada | Vigente | Sección 36 | Opciones de combo que referencian la variante archivada dejan de ser elegibles. |
@@ -1449,21 +1478,21 @@ Las siguientes cuestiones técnicas se registran formalmente como abiertas y deb
 | **REQ-MENU-LIF-001F** | Conservación Explícita del Estado Administrativo de MenuItem Combo | Vigente | Sección 36 | El estado administrativo `MenuItem.status` del combo permanece inalterado bajo control del administrador. |
 | **REQ-MENU-RDY-001** | Proyección de Readiness de Preparación de Variante | Vigente | Sección 23 | Consumo y materialización de `PreparationStatus` (`READY` / `INCOMPLETE`) de Orders + Kitchen; separado de elegibilidad. |
 | **REQ-MENU-AVL-001** | Desacoplamiento y Exclusión del Cálculo Físico de Disponibilidad en Menu | Vigente | Secciones 1, 20, 24, 40 | Ownership externo del cálculo físico en Orders + Kitchen e Inventory; exclusión de algoritmos de stock en Menu. |
-| **REQ-MENU-AVL-001B** | Recepción y Materialización de Disponibilidad Operacional de Variante (VariantAvailability) | Vigente | Secciones 24, 25 | Consumo y materialización local de señales `VariantAvailability` provistas por Orders + Kitchen. |
-| **REQ-MENU-AVL-001C** | Recepción y Materialización de Disponibilidad Operacional de Modificadores (ModifierAvailability) | Vigente | Secciones 24, 25 | Consumo y materialización local de señales `ModifierAvailability` provistas por Orders + Kitchen. |
+| **REQ-MENU-AVL-001B** | Recepción y Materialización de Disponibilidad Operacional de Variante | Vigente | Secciones 24, 25 | Consumo y materialización local de señales `VariantAvailability` provistas por Orders + Kitchen. |
+| **REQ-MENU-AVL-001C** | Recepción y Materialización de Disponibilidad Operacional de Modificadores | Vigente | Secciones 24, 25 | Consumo y materialización local de señales `ModifierAvailability` provistas por Orders + Kitchen. |
 | **REQ-MENU-AVL-001D** | Carácter Opcional y No Autoritativo del Espejo Local de Disponibilidad | Vigente | Secciones 24, 38 | Posibilidad opcional de espejo local no autoritativo para baja latencia en SALA/POS sin compromisos físicos. |
 | **REQ-MENU-AVL-001E** | Preservación de Estado Administrativo, Elegibilidad y Precios ante Disponibilidad Operacional | Vigente | Secciones 5, 21, 22, 24, 35 | No mutación de `status`, `eligible` ni precios comerciales ante fluctuaciones de disponibilidad operacional. |
-| **REQ-MENU-AVL-002** | Disponibilidad de Modificadores Opcionales y No Bloqueo de Variante | Vigente | Sección 25 | La indisponibilidad de modificador opcional no bloquea operacionalmente a la variante. |
-| **REQ-MENU-AVL-003** | Bloqueo de Variante por Grupos de Modificadores Obligatorios | Vigente | Sección 25 | Grupo obligatorio que no satisface `minSelections` bloquea operacionalmente a la variante (`available = false`). |
+| **REQ-MENU-AVL-002** | Disponibilidad de Modificadores Opcionales y No Bloqueo de Variante | Vigente | Sección 25 | Consumo de la regla donde el modificador opcional no es causa suficiente de bloqueo de la variante; conservación del estado final externo. |
+| **REQ-MENU-AVL-003** | Bloqueo de Variante por Grupos de Modificadores Obligatorios | Vigente | Sección 25 | Consumo y materialización de señal de Kitchen donde grupo obligatorio insatisfecho bloquea operacionalmente a la variante (`available = false`). |
 | **REQ-MENU-AVL-004** | Propagación de Disponibilidad Operacional a Opciones de Combo | Vigente | Sección 26 | Propaga disponibilidad operacional de variante hoja directamente a `ComboOption`. |
-| **REQ-MENU-AVL-005** | Evaluación de Capacidad Disponible de ComboSlot | Vigente | Sección 26 | Conteo de opciones disponibles elegibles; aporta a lo sumo 1 por opción; opción agotada no bloquea si cubre mínimo. |
-| **REQ-MENU-AVL-006** | Disponibilidad Resultante de Configuración de Combo | Vigente | Sección 26 | Configuración disponible si y solo si todos sus slots obligatorios cubren su selección mínima. |
+| **REQ-MENU-AVL-005** | Evaluación de Capacidad Disponible de ComboSlot | Vigente | Sección 26 | Criterio confirmado availableCapacity >= minSelections para satisfacción de slot; fórmula de cálculo diferida a `OPEN-AVL-002`. |
+| **REQ-MENU-AVL-006** | Disponibilidad Resultante de Configuración de Combo | Vigente | Sección 26 | Configuración disponible si y solo si todos sus slots obligatorios cubren minSelections según `OPEN-AVL-002`; parametrizada sin ejemplos fijos. |
 | **REQ-MENU-AVL-007** | Derivación de Disponibilidad Agregada de MenuItem para Catálogo | Vigente | Sección 26 | Proyección existencial de conveniencia en catálogo si al menos una unidad vendible hija elegible está disponible. |
-| **REQ-MENU-INT-001** | Publicación Conceptual de Estructura Comercial hacia Orders + Kitchen | Vigente | Secciones 28, 38 | Publicación conceptual de cambios comerciales estructurales (`VariantCreated`, `VariantChanged`, `ModifierChanged`, `VariantArchived`) sin compartir almacenamiento. |
-| **REQ-MENU-INT-003** | Consumo Conceptual de Señales de Readiness de Preparación | Vigente | Sección 23 | Consumo de `PreparationStatusChanged` (`variantId`, `status = READY | INCOMPLETE`) desde Orders + Kitchen. |
-| **REQ-MENU-INT-003B** | Consumo Conceptual de Disponibilidad Operacional de Variante | Vigente | Sección 25 | Consumo de `VariantAvailabilityChanged` (`variantId`, `available`) para actualizar disponibilidad local. |
-| **REQ-MENU-INT-003C** | Consumo Conceptual de Disponibilidad Operacional de Modificadores por Variante | Vigente | Sección 25 | Consumo de `ModifierAvailabilityChanged` (`variantId`, `modifierOptionId`, `available`, `availableMaxQuantity`). |
-| **REQ-MENU-INT-003D** | Consumo Conceptual de Avisos de Cambios Culinarios | Vigente | Sección 29 | Recepción de avisos culinarios con correlación (`variantId`, `preparationRevision`, `changeKind`, `modifierOptionId`). |
+| **REQ-MENU-INT-001** | Publicación Conceptual de Estructura Comercial hacia Orders + Kitchen | Vigente | Secciones 28, 38 | Publicación conceptual de cambios comerciales estructurales con nombres ilustrativos; contratos y transporte abiertos (`OPEN-INT-001`). |
+| **REQ-MENU-INT-003** | Consumo Conceptual de Señales de Readiness de Preparación | Vigente | Sección 23 | Consumo de señal ilustrada como `PreparationStatusChanged` desde Orders + Kitchen; contratos abiertos (`OPEN-INT-002`). |
+| **REQ-MENU-INT-003B** | Consumo Conceptual de Disponibilidad Operacional de Variante | Vigente | Sección 25 | Consumo de señal ilustrada como `VariantAvailabilityChanged` calculada por Orders + Kitchen; contratos abiertos (`OPEN-INT-002`). |
+| **REQ-MENU-INT-003C** | Consumo Conceptual de Disponibilidad Operacional de Modificadores por Variante | Vigente | Sección 25 | Consumo de señal ilustrada como `ModifierAvailabilityChanged` calculada por Orders + Kitchen; contratos abiertos (`OPEN-INT-002`). |
+| **REQ-MENU-INT-003D** | Consumo Conceptual de Avisos de Cambios Culinarios | Vigente | Sección 29 | Recepción de avisos culinarios con correlación mínima; contratos abiertos (`OPEN-INT-002`). |
 | **REQ-MENU-REV-001** | Detección y Registro de Revisión Comercial | Vigente | Secciones 31, 34, 35 | Originada en Menu por cambios en `MenuItemVariant.unitPrice` o `ModifierOption.priceDelta`, con target principal en combos; stock no genera revisión. |
 | **REQ-MENU-REV-002** | Recepción y Registro de Revisión Culinaria con Propagación | Vigente | Secciones 30, 32, 34 | Originada en Kitchen, target inicial en variante y propagación a combos; no bloquea disponibilidad. |
 | **REQ-MENU-REV-003** | Condición de Revisión Requerida por Desfase de Revisiones | Vigente | Sección 33 | Condición formal `REVIEW_REQUIRED` manifestada cuando `observedRevision > acknowledgedRevision`. |
@@ -1481,44 +1510,46 @@ Las siguientes cuestiones técnicas se registran formalmente como abiertas y deb
 | **BR-MENU-003** | Dimensiones y Valores de Variante | Sección 4 | Cada variante representa una combinación válida de valores de dimensiones definidas. |
 | **BR-MENU-004** | Exclusividad Item vs Variante | Sección 4 | Prohíbe doble representación de una misma oferta comercial. |
 | **BR-MENU-005** | Precio unitario absoluto autoritativo | Sección 5 | Precio en `MenuItemVariant.unitPrice`; descarte total de `basePrice`. |
-| **BR-MENU-006** | Proyección de precio de catálogo | Secciones 5, 22 | Formato `$X` o `Desde $X` según elegibles; catálogo sin elegibles abierto (`OPEN-CAT-001`). |
+| **BR-MENU-006** | Proyección de precio de catálogo para productos hoja | Secciones 5, 22 | Formato `$X` o `Desde $X` exclusivo para productos hoja; catálogo sin elegibles abierto (`OPEN-CAT-001`); proyección para combos abierta (`OPEN-PRC-001`). |
 | **BR-MENU-007** | Modificadores comerciales en hoja | Secciones 9, 11, 14 | Pertenecen a items hoja; ausentes de combos; sin efectos sobre ingredientes. |
 | **BR-MENU-008** | Especialización comercial de modificadores | Secciones 10, 11 | Prevalencia de `VariantModifierConfig` sobre `generalConfig`. |
-| **BR-MENU-010** | Composición de combo y enteros positivos | Secciones 13, 16 | Slots y opciones directas con $\text{quantity} \ge 1$ entero; porciones diferenciadas como hojas. |
-| **BR-MENU-011** | Fórmula de tarificación de combo | Secciones 14, 15 | Precio base más deltas de opciones y modificadores en componentes; no suma precios de variantes. |
-| **BR-MENU-012** | Modificadores repetidos independientes | Secciones 14, 15 | Tarificación independiente por instancia y cantidad sin deduplicación ni bonificación. |
-| **BR-MENU-013** | Copia de combos y mapeo de slots | Sección 37 | Clonación regenera identidades; copia a existente exige mapeo explícito; prohíbe matching heurístico. |
-| **BR-MENU-014** | Atomicidad por destino y éxito parcial | Sección 37 | Destinos atómicos individuales; admite éxito parcial entre destinos diferentes en lote. |
-| **BR-MENU-015** | Separación de clasificaciones y categorías | Sección 17 | `ItemCategory` para hojas; `ComboCategory` para combos; clasificaciones solo en hojas. |
-| **BR-MENU-016** | Archivado no obstructivo de variantes | Sección 36 | Archivado permitido; opciones inelegibles; reevaluación sin mutar `MenuItem.status`; post-archivado abierto (`OPEN-LIF-001`). |
-| **BR-MENU-017** | Elegibilidad estructural independiente | Secciones 21, 22 | Independiente de disponibilidad física y de existencias de stock. |
-| **BR-MENU-018** | Readiness de preparación | Sección 23 | Señal operacional externa separada de la elegibilidad estructural. |
-| **BR-MENU-019** | Disponibilidad granular y bloqueo condicional | Sección 25 | Modificador opcional agotado no bloquea; grupo obligatorio insatisfecho sí bloquea. |
-| **BR-MENU-020** | Propagación de disponibilidad a combos | Sección 26 | Evaluación de opciones seleccionables y cobertura de selección mínima en slots obligatorios. |
-| **BR-MENU-021** | Disponibilidad agregada existencial | Sección 26 | Catálogo proyecta disponible si existe al menos una unidad vendible hija disponible. |
-| **BR-MENU-022** | Detección de revisiones comerciales y culinarias | Secciones 30, 31, 34 | Culinaria inicial en variante con propagación a combo; comercial principal en combo. |
-| **BR-MENU-023** | Seguimiento observado vs reconocido | Secciones 30, 33, 34 | Condición `REVIEW_REQUIRED` cuando `observedRevision > acknowledgedRevision`. |
-| **BR-MENU-024** | Conservación comercial al confirmar | Secciones 32, 33 | El reconocimiento no altera precios, slots ni selecciones comerciales. |
-| **BR-MENU-025** | Inalterabilidad ante cambios operacionales | Sección 35 | Fluctuaciones de stock o disponibilidad no generan revisión administrativa. |
+| **BR-MENU-009** | Composición de combo y enteros positivos | Secciones 13, 16 | Slots y opciones directas con $\text{quantity} \ge 1$ entero; porciones diferenciadas como hojas. |
+| **BR-MENU-010** | Fórmula de tarificación de combo | Secciones 14, 15 | Precio base más deltas de opciones y modificadores en componentes; no suma precios de variantes. |
+| **BR-MENU-011** | Modificadores repetidos independientes | Secciones 14, 15 | Tarificación independiente por instancia o multiplicidad de selección comercial sin deduplicación ni efectos físicos. |
+| **BR-MENU-012** | Copia de combos y mapeo de slots | Sección 37 | Clonación regenera identidades; copia a existente exige mapeo explícito; prohíbe matching heurístico. |
+| **BR-MENU-013** | Atomicidad por destino y éxito parcial | Sección 37 | Destinos atómicos individuales; admite éxito parcial entre destinos diferentes en lote. |
+| **BR-MENU-014** | Separación de clasificaciones y categorías | Sección 17 | `ItemCategory` para hojas; `ComboCategory` para combos; clasificaciones solo en hojas. |
+| **BR-MENU-015** | Archivado no obstructivo de variantes | Sección 36 | Archivado permitido; opciones inelegibles; reevaluación sin mutar `MenuItem.status`; post-archivado abierto (`OPEN-LIF-001`). |
+| **BR-MENU-016** | Elegibilidad estructural independiente | Secciones 21, 22 | Independiente de disponibilidad física y de existencias de stock. |
+| **BR-MENU-017** | Readiness de preparación | Sección 23 | Señal operacional externa separada de la elegibilidad estructural. |
+| **BR-MENU-018** | Disponibilidad granular y ownership operacional externo | Sección 25 | Orders + Kitchen calcula disponibilidad de variantes y modificadores; modificador opcional no bloquea por sí solo; grupo obligatorio bloquea operacionalmente. |
+| **BR-MENU-019** | Propagación de disponibilidad a combos | Sección 26 | Menu deriva disponibilidad de opciones, slots y combo; cobertura mínima; fórmula de `availableCapacity` abierta (`OPEN-AVL-002`). |
+| **BR-MENU-020** | Disponibilidad agregada existencial | Sección 26 | Catálogo proyecta disponible si existe al menos una unidad vendible hija disponible. |
+| **BR-MENU-021** | Detección de revisiones comerciales y culinarias | Secciones 30, 31, 34 | Culinaria inicial en variante con propagación a combo; comercial principal en combo. |
+| **BR-MENU-022** | Seguimiento observado vs reconocido | Secciones 30, 33, 34 | Condición `REVIEW_REQUIRED` cuando `observedRevision > acknowledgedRevision`. |
+| **BR-MENU-023** | Conservación comercial al confirmar | Secciones 32, 33 | El reconocimiento no altera precios, slots ni selecciones comerciales. |
+| **BR-MENU-024** | Inalterabilidad ante cambios operacionales | Sección 35 | Fluctuaciones de stock o disponibilidad no generan revisión administrativa. |
 | **INV-MENU-001** | Variante vendible obligatoria | Sección 3 | Todo producto hoja tiene al menos una variante ($\text{count} \ge 1$). |
 | **INV-MENU-002** | VariantId no nulo | Sección 3 | En toda línea comercial u orden vendible, `variantId != null`. |
-| **INV-MENU-004** | Cantidad entera positiva en opciones de combo | Secciones 13.2, 16 | $\text{quantity} \ge 1$ entero en unidades completas en cada `ComboOption`. |
-| **INV-MENU-005** | Aislamiento absoluto de persistencia | Secciones 1, 38 | Separación de almacenamiento, tablas, asociaciones ORM y fuentes autoritativas. |
-| **INV-MENU-006** | Exclusión culinaria y física en Menu | Secciones 2, 6, 8, 11, 20 | Menu no custodia recetas, ingredientes, gramajes, existencias, reservas ni consumos. |
+| **INV-MENU-003** | Cantidad entera positiva en opciones de combo | Secciones 13.2, 16 | $\text{quantity} \ge 1$ entero en unidades completas en cada `ComboOption`. |
+| **INV-MENU-004** | Aislamiento absoluto de persistencia | Secciones 1, 38 | Separación de almacenamiento, tablas, asociaciones ORM y fuentes autoritativas. |
+| **INV-MENU-005** | Exclusión culinaria y física en Menu | Secciones 2, 6, 8, 11, 20 | Menu no custodia recetas, ingredientes, gramajes, existencias, reservas ni consumos. |
 
 ---
 
-### 14.3 Trazabilidad de Cuestiones Abiertas (7 Cuestiones)
+### 14.3 Trazabilidad de Cuestiones Abiertas (9 Cuestiones)
 
 | Identificador | Título de la Cuestión Abierta | Estado | Fuente de Consolidación (`Auditoria-4.md`) | Disposiciones y Justificación |
 | :--- | :--- | :---: | :--- | :--- |
-| **OPEN-INT-001** | Contratos de Eventos Menu → Orders + Kitchen | Abierta | Sección 28 | Identificación de cambios comerciales estructurales; nombres, transporte y esquemas definitivos diferidos. |
-| **OPEN-INT-002** | Contratos de Eventos Orders + Kitchen → Menu | Abierta | Secciones 23, 25, 29 | Señales de readiness, disponibilidad granular y avisos culinarios; sobre de mensajería y transporte diferidos. |
+| **OPEN-INT-001** | Contratos de Eventos Menu → Orders + Kitchen | Abierta | Sección 28 | Identificación de cambios comerciales estructurales con nombres ilustrativos; nombres, transporte y esquemas definitivos diferidos. |
+| **OPEN-INT-002** | Contratos de Eventos Orders + Kitchen → Menu | Abierta | Secciones 23, 25, 29 | Señales de readiness, disponibilidad granular y avisos culinarios con nombres ilustrativos; sobre de mensajería y transporte diferidos. |
 | **OPEN-REV-001** | Persistencia y Contratos de Reconocimiento de Revisiones | Abierta | Secciones 30, 33, 34 | Seguimiento `observedRevision` vs `acknowledgedRevision` en `MenuItemVariant` y `ComboConfiguration`; ubicación persistente y contratos de API diferidos. |
 | **OPEN-NFR-001** | Requisitos Cuantitativos de Calidad y Rendimiento | Abierta | Ausencia de métricas cuantitativas en la fuente | Parámetros numéricos de latencia, concurrencia y ráfaga diferidos a ingeniería operacional. |
 | **OPEN-AVL-001** | Persistencia y Estructura de Proyecciones de Disponibilidad | Abierta | Secciones 24, 38 | Espejo local no autoritativo en Menu para baja latencia en SALA/POS; tecnología y persistencia concreta diferidas. |
+| **OPEN-AVL-002** | Fórmula de Cálculo de Capacidad Disponible en ComboSlot | Abierta | Sección 26 | Cómputo de `availableCapacity >= minSelections`; fórmula matemática y semántica precisa diferidas. |
 | **OPEN-CAT-001** | Proyección de Catálogo ante Ausencia de Unidades Elegibles | Abierta | Sección 5 | Comportamiento y proyección de catálogo ante items sin unidades vendibles elegibles diferidos a definición técnica. |
 | **OPEN-LIF-001** | Comportamiento Posterior y Transiciones de ARCHIVED | Abierta | Sección 36 | Posibles transiciones, restauración o ciclo de vida posterior al estado `ARCHIVED` diferidos sin presuponer terminalidad. |
+| **OPEN-PRC-001** | Proyección de Precio de Catálogo para Combos | Abierta | Secciones 5, 15 | Regla y formato de proyección de displayPrice en catálogo para items COMBO diferidos sin presuponer formato ni algoritmo. |
 
 ---
 

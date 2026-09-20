@@ -22,7 +22,7 @@ $RequiredFiles = @(
     "scripts/docflow.ps1"
 )
 
-Write-Host "Validating Docflow V5.4 activity watchdog..."
+Write-Host "Validating Docflow V5.4.1 activity watchdog..."
 
 # 1) Parse the PowerShell script using PowerShell's own parser.
 $Tokens = $null
@@ -338,6 +338,30 @@ if ($HarnessRaw.Contains('HardTimeoutSeconds')) {
 
 Write-Host "  [PASS] Activity-aware watchdog static checks"
 
+# Regression: the telemetry/watchdog runner must avoid PowerShell's composite
+# -f formatter. V5.4 hit a runtime FormatException inside this path.
+$WatchdogStart = $HarnessRaw.IndexOf("function Get-ProcessNetworkSnapshot")
+$WatchdogEnd = $HarnessRaw.IndexOf("function Throw-ProcessFailure")
+
+if (
+    $WatchdogStart -lt 0 -or
+    $WatchdogEnd -le $WatchdogStart
+) {
+    throw "Could not isolate watchdog telemetry block."
+}
+
+$WatchdogText = $HarnessRaw.Substring(
+    $WatchdogStart,
+    $WatchdogEnd - $WatchdogStart
+)
+
+if ($WatchdogText -match '\s-f\s') {
+    throw "Regression: composite -f formatter found inside watchdog telemetry block."
+}
+
+Write-Host "  [PASS] Watchdog formatting regression check"
+
+
 # Validate the requested resume semantics algebraically:
 # completed 8/8 means state.round == 9; granting 10 additional rounds must
 # produce 9/18, not 9/10.
@@ -353,7 +377,7 @@ if ($NewMaximum -ne 18) {
 Write-Host "  [PASS] Additional resume-round semantics"
 
 # 11) Real PowerShell child-process termination smoke test. This verifies the
-# runtime supports Kill(true), which V5.4 activity watchdog relies on for Ctrl+C/timeout cleanup.
+# runtime supports Kill(true), which V5.4.1 activity watchdog relies on for Ctrl+C/timeout cleanup.
 $PwshExecutable = Join-Path $PSHOME "pwsh.exe"
 
 if (-not (Test-Path -LiteralPath $PwshExecutable -PathType Leaf)) {
@@ -399,4 +423,4 @@ finally {
 Write-Host "  [PASS] Process-tree kill smoke test"
 
 Write-Host ""
-Write-Host "Docflow V5.4 activity watchdog validation PASS."
+Write-Host "Docflow V5.4.1 activity watchdog validation PASS."

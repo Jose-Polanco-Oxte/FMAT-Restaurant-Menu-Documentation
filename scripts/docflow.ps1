@@ -610,11 +610,7 @@ function Get-ProcessNetworkSnapshot {
             $Connections |
             Sort-Object State, RemoteAddress, RemotePort, LocalPort |
             ForEach-Object {
-                "{0}|{1}|{2}|{3}" -f
-                $_.State,
-                $_.RemoteAddress,
-                $_.RemotePort,
-                $_.LocalPort
+                "$($_.State)|$($_.RemoteAddress)|$($_.RemotePort)|$($_.LocalPort)"
             }
         )
 
@@ -677,7 +673,9 @@ function Find-CodexRolloutFile {
     foreach ($Date in @($Dates)) {
         $DayDirectory = Join-Path `
             $SessionRoot `
-            ("{0:yyyy}\{0:MM}\{0:dd}" -f $Date)
+            (Join-Path `
+                (Join-Path $Date.ToString("yyyy") $Date.ToString("MM")) `
+                $Date.ToString("dd"))
 
         if (-not (Test-Path -LiteralPath $DayDirectory -PathType Container)) {
             continue
@@ -750,10 +748,7 @@ function Get-FileActivitySnapshot {
             try {
                 $Item = Get-Item -LiteralPath $Path -ErrorAction Stop
                 [void]$Parts.Add(
-                    "{0}|{1}|{2}" -f
-                    $Path,
-                    $Item.Length,
-                    $Item.LastWriteTimeUtc.Ticks
+                    "$Path|$($Item.Length)|$($Item.LastWriteTimeUtc.Ticks)"
                 )
             }
             catch {
@@ -777,15 +772,15 @@ function Format-ByteDelta {
     $Value = [math]::Max(0, $Bytes)
 
     if ($Value -ge 1GB) {
-        return "{0:0.00}GB" -f ($Value / 1GB)
+        return (($Value / 1GB).ToString("0.00") + "GB")
     }
 
     if ($Value -ge 1MB) {
-        return "{0:0.00}MB" -f ($Value / 1MB)
+        return (($Value / 1MB).ToString("0.00") + "MB")
     }
 
     if ($Value -ge 1KB) {
-        return "{0:0.0}KB" -f ($Value / 1KB)
+        return (($Value / 1KB).ToString("0.0") + "KB")
     }
 
     return "$Value" + "B"
@@ -958,7 +953,7 @@ function Invoke-CapturedProcess {
                         # CPU proves liveness, but not useful model progress.
                         # A stuck CLI can still burn CPU, so this is weak.
                         [void]$WeakProgress.Add(
-                            "CPU +{0:0.00}s" -f $CpuDelta
+                            ("CPU +" + $CpuDelta.ToString("0.00") + "s")
                         )
                     }
                     else {
@@ -988,7 +983,7 @@ function Invoke-CapturedProcess {
 
                     if ($MemoryDeltaMb -ge $MemoryProgressMB) {
                         [void]$WeakProgress.Add(
-                            "memory Δ{0:0.0}MB" -f $MemoryDeltaMb
+                            ("memory Δ" + $MemoryDeltaMb.ToString("0.0") + "MB")
                         )
                     }
                     else {
@@ -1050,10 +1045,7 @@ function Invoke-CapturedProcess {
                     $AvailableEvidenceCount++
 
                     $LastNetworkSummary = (
-                        "est {0}/cw {1}/total {2}" -f
-                        $CurrentNetwork.Established,
-                        $CurrentNetwork.CloseWait,
-                        $CurrentNetwork.Total
+                        "est $($CurrentNetwork.Established)/cw $($CurrentNetwork.CloseWait)/total $($CurrentNetwork.Total)"
                     )
 
                     if (
@@ -1185,9 +1177,7 @@ function Invoke-CapturedProcess {
                 if ($HasProgress) {
                     if ($null -ne $SuspicionStartedAtSeconds) {
                         Write-Host (
-                            "    watchdog suspicion cleared for {0}: {1}" -f
-                            $Activity,
-                            (($LastProgressLabels | Select-Object -First 4) -join ", ")
+                            "    watchdog suspicion cleared for $Activity`: $(($LastProgressLabels | Select-Object -First 4) -join ', ')"
                         )
                     }
 
@@ -1201,14 +1191,7 @@ function Invoke-CapturedProcess {
                         $SuspicionStartedAtSeconds = $ElapsedSeconds
 
                         Write-Host (
-                            "    watchdog suspicion armed for {0}: evidence {1}/{2} [{3}]; confirmation window {4}" -f
-                            $Activity,
-                            $LastEvidenceCount,
-                            $WatchdogEvidenceThreshold,
-                            (($LastEvidenceLabels | Select-Object -First 6) -join ", "),
-                            (Format-Duration -Elapsed (
-                                [TimeSpan]::FromSeconds($StallTimeoutSeconds)
-                            ))
+                            "    watchdog suspicion armed for $Activity`: evidence $LastEvidenceCount/$WatchdogEvidenceThreshold [$(($LastEvidenceLabels | Select-Object -First 6) -join ', ')]; confirmation window $(Format-Duration -Elapsed ([TimeSpan]::FromSeconds($StallTimeoutSeconds)))"
                         )
                     }
                     else {
@@ -1229,8 +1212,7 @@ function Invoke-CapturedProcess {
                     # timer is no longer valid and must be discarded.
                     if ($null -ne $SuspicionStartedAtSeconds) {
                         Write-Host (
-                            "    watchdog suspicion cleared for {0}: evidence dropped below threshold" -f
-                            $Activity
+                            "    watchdog suspicion cleared for $Activity`: evidence dropped below threshold"
                         )
                     }
 
@@ -1250,24 +1232,21 @@ function Invoke-CapturedProcess {
                 $Parts = [System.Collections.Generic.List[string]]::new()
 
                 [void]$Parts.Add(
-                    "    still running... {0}" -f
-                    (Format-Duration -Elapsed $Stopwatch.Elapsed)
+                    "    still running... $(Format-Duration -Elapsed $Stopwatch.Elapsed)"
                 )
 
                 [void]$Parts.Add("PID $ProcessId")
                 [void]$Parts.Add(
-                    "CPU +{0:0.00}s" -f $LastCpuDelta
+                    ("CPU +" + $LastCpuDelta.ToString("0.00") + "s")
                 )
                 [void]$Parts.Add(
-                    "I/O +{0}" -f
-                    (Format-ByteDelta -Bytes $LastIoDelta)
+                    "I/O +$(Format-ByteDelta -Bytes $LastIoDelta)"
                 )
                 [void]$Parts.Add($LastNetworkSummary)
 
                 if (-not [string]::IsNullOrWhiteSpace([string]$RolloutPath)) {
                     [void]$Parts.Add(
-                        "rollout +{0}" -f
-                        (Format-ByteDelta -Bytes $LastRolloutDelta)
+                        "rollout +$(Format-ByteDelta -Bytes $LastRolloutDelta)"
                     )
                 }
 
@@ -1283,27 +1262,16 @@ function Invoke-CapturedProcess {
                     )
 
                     [void]$Parts.Add(
-                        "SUSPECT {0}/{1}" -f
-                        (Format-Duration -Elapsed (
-                            [TimeSpan]::FromSeconds($SuspectElapsed)
-                        )),
-                        (Format-Duration -Elapsed (
-                            [TimeSpan]::FromSeconds($StallTimeoutSeconds)
-                        ))
+                        "SUSPECT $(Format-Duration -Elapsed ([TimeSpan]::FromSeconds($SuspectElapsed)))/$(Format-Duration -Elapsed ([TimeSpan]::FromSeconds($StallTimeoutSeconds)))"
                     )
 
                     [void]$Parts.Add(
-                        "confirm in {0}" -f
-                        (Format-Duration -Elapsed (
-                            [TimeSpan]::FromSeconds($Remaining)
-                        ))
+                        "confirm in $(Format-Duration -Elapsed ([TimeSpan]::FromSeconds($Remaining)))"
                     )
                 }
                 else {
                     [void]$Parts.Add(
-                        "evidence {0}/{1}" -f
-                        $LastEvidenceCount,
-                        $WatchdogEvidenceThreshold
+                        "evidence $LastEvidenceCount/$WatchdogEvidenceThreshold"
                     )
                 }
 
@@ -1314,10 +1282,7 @@ function Invoke-CapturedProcess {
                     )
 
                     [void]$Parts.Add(
-                        "hard ceiling in {0}" -f
-                        (Format-Duration -Elapsed (
-                            [TimeSpan]::FromSeconds($HardRemaining)
-                        ))
+                        "hard ceiling in $(Format-Duration -Elapsed ([TimeSpan]::FromSeconds($HardRemaining)))"
                     )
                 }
 
@@ -1340,11 +1305,7 @@ function Invoke-CapturedProcess {
             }
 
             Write-Host (
-                "    {0} watchdog triggered ({1}) after {2}; killing PID {3} process tree..." -f
-                $Activity,
-                $ReasonText,
-                (Format-Duration -Elapsed $Stopwatch.Elapsed),
-                $ProcessId
+                "    $Activity watchdog triggered ($ReasonText) after $(Format-Duration -Elapsed $Stopwatch.Elapsed); killing PID $ProcessId process tree..."
             )
 
             Stop-ChildProcessTree `
@@ -1472,10 +1433,7 @@ function Invoke-WithProcessRetry {
     for ($Attempt = 1; $Attempt -le $RetryLimit; $Attempt++) {
         if ($Attempt -gt 1) {
             Write-Host (
-                "    {0} process retry {1}/{2}..." -f
-                $StageName,
-                $Attempt,
-                $RetryLimit
+                "    $StageName process retry $Attempt/$RetryLimit..."
             )
         }
 
@@ -1519,9 +1477,7 @@ function Invoke-WithProcessRetry {
         }
 
         Write-Host (
-            "    transient {0} failure detected: {1}" -f
-            $StageName,
-            $Reason
+            "    transient $StageName failure detected: $Reason"
         )
 
         if ($null -ne $BeforeRetry) {
@@ -1530,8 +1486,7 @@ function Invoke-WithProcessRetry {
 
         if ($RetryDelaySeconds -gt 0) {
             Write-Host (
-                "    retrying in {0}s..." -f
-                $RetryDelaySeconds
+                "    retrying in $RetryDelaySeconds`s..."
             )
             Start-Sleep -Seconds $RetryDelaySeconds
         }
@@ -3637,7 +3592,7 @@ if ($ResumeFrom -ne "Auto") {
 
 Write-Host ""
 Write-Host "============================================================"
-Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.4 ACTIVITY WATCHDOG"
+Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.4.1 ACTIVITY WATCHDOG"
 Write-Host "============================================================"
 Write-Host ("Run:           {0}" -f $State.run_id)
 Write-Host ("Round:         {0}/{1}" -f $State.round, $State.max_rounds)

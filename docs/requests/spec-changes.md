@@ -14,7 +14,16 @@ Nota: unicamente se deben inspeccionar y tocar los documentos mencionados en est
 
 Analizar las siguientes fuentes respetando su orden cronológico:
 
-1. [Auditoria 4](/docs/md/Auditoria-4.md)
+1. [Problema-Inicial.md](/docs/md/Problema-Inicial.md)
+2. [Consultoria-1.md](/docs/md/Consultoria-1.md)
+3. [Consultoria-2.md](/docs/md/Consultoria-2.md)
+4. [Auditoria-1.md](/docs/md/Auditoria-1.md)
+5. [Auditoria-2.md](/docs/md/Auditoria-2.md)
+6. [Modelo-Pre-Final.md](/docs/md/Modelo-Pre-Final.md)
+7. [Decisiones-cierre-invariantes.md](/docs/md/Decisiones-cierre-invariantes.md)
+8. [Req-F-Aproved.md](/docs/md/Req-F-Aproved.md)
+9. [Auditoria-3.md](/docs/md/Auditoria-3.md)
+10. [Auditoria-4.md](/docs/md/Auditoria-4.md)
 
 ---
 
@@ -34,6 +43,52 @@ Reconstruir el modelo vigente identificando:
 Una decisión posterior reemplaza a una anterior cuando exista una contradicción explícita o cuando la decisión posterior refine de forma incompatible el modelo anterior.
 
 No conservar simultáneamente alternativas incompatibles.
+
+---
+
+## Prioridad de las fuentes
+
+### Req-F-Aproved.md
+
+[Req-F-Aproved.md](/docs/md/Req-F-Aproved.md) contiene requisitos previamente aprobados y deberá utilizarse como base de los requisitos funcionales finales.
+
+Sus requisitos deberán conservarse salvo cuando una decisión posterior:
+
+- los contradiga;
+- los refine;
+- los vuelva obsoletos;
+- cambie el modelo del que dependían.
+
+En esos casos:
+
+1. identificar la contradicción;
+2. determinar la decisión vigente;
+3. actualizar el requisito afectado;
+4. mantener trazabilidad de la modificación.
+
+### Auditoria-3.md
+
+[Auditoria-3.md](/docs/md/Auditoria-3.md) representa el diseño más estable y consolidado del sistema, y deberá utilizarse como base para el modelo final:
+
+- decisiones de dominio;
+- invariantes;
+- relaciones entre conceptos;
+- terminología;
+- simplificaciones;
+- decisiones descartadas;
+- aclaraciones de comportamiento.
+
+### Auditoria-4.md
+
+[Auditoria-4.md](/docs/md/Auditoria-4.md) contiene decisiones de diseño y arquitectura que deberán incorporarse al modelo final.
+
+- cambios de ownership de datos;
+- cambios de responsabilidad de servicios;
+- cambios de interfaces;
+- cambios de eventos;
+- Cambios de flujos de información;
+
+No asumir que todo lo contenido en documentos anteriores continúa vigente.
 
 ---
 

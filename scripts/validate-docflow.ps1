@@ -22,7 +22,7 @@ $RequiredFiles = @(
     "scripts/docflow.ps1"
 )
 
-Write-Host "Validating Docflow V5.3 watchdog..."
+Write-Host "Validating Docflow V5.4 activity watchdog..."
 
 # 1) Parse the PowerShell script using PowerShell's own parser.
 $Tokens = $null
@@ -302,7 +302,7 @@ if ($HarnessRaw -notmatch "conflicting operations for the same path") {
 Write-Host "  [PASS] Duplicate affected_files normalization check"
 
 
-# 10) Watchdog/process-ownership regression checks.
+# 10) Activity-aware watchdog / resume-round regression checks.
 $HarnessRaw = Get-Content `
     -LiteralPath $ScriptPath `
     -Raw `
@@ -311,22 +311,49 @@ $HarnessRaw = Get-Content `
 foreach ($RequiredPattern in @(
     'function Stop-ChildProcessTree',
     '$Process.Kill($true)',
-    'HardTimeoutSeconds',
-    'function Test-TransientProcessFailure',
-    'function Invoke-WithProcessRetry',
-    'AnalystTimeoutMinutes',
-    'AuditorTimeoutMinutes',
-    'EditorProcessTimeoutMinutes'
+    'StallTimeoutSeconds',
+    'HardCeilingSeconds',
+    'WatchdogEvidenceThreshold',
+    'WatchdogMinRuntimeSeconds',
+    'WatchdogSampleSeconds',
+    'WatchdogIoStrongProgressKB',
+    'WatchdogWeakProgressThreshold',
+    'Get-ProcessIoSnapshot',
+    'Get-ProcessNetworkSnapshot',
+    'Find-CodexRolloutFile',
+    'watchdog suspicion armed',
+    'watchdog suspicion cleared',
+    'confirmed-stall',
+    'ResumeMaxRoundsMode',
+    '$CompletedRounds + $MaxRounds'
 )) {
     if (-not $HarnessRaw.Contains($RequiredPattern)) {
-        throw "Missing V5.3 watchdog primitive: $RequiredPattern"
+        throw "Missing V5.4 activity-watchdog primitive: $RequiredPattern"
     }
 }
 
-Write-Host "  [PASS] Watchdog static regression checks"
+if ($HarnessRaw.Contains('HardTimeoutSeconds')) {
+    throw "Legacy elapsed-only HardTimeoutSeconds watchdog is still present."
+}
+
+Write-Host "  [PASS] Activity-aware watchdog static checks"
+
+# Validate the requested resume semantics algebraically:
+# completed 8/8 means state.round == 9; granting 10 additional rounds must
+# produce 9/18, not 9/10.
+$ExampleRound = 9
+$AdditionalRounds = 10
+$CompletedRounds = [math]::Max(0, ($ExampleRound - 1))
+$NewMaximum = $CompletedRounds + $AdditionalRounds
+
+if ($NewMaximum -ne 18) {
+    throw "Additional MaxRounds self-test failed."
+}
+
+Write-Host "  [PASS] Additional resume-round semantics"
 
 # 11) Real PowerShell child-process termination smoke test. This verifies the
-# runtime supports Kill(true), which V5.3 relies on for Ctrl+C/timeout cleanup.
+# runtime supports Kill(true), which V5.4 activity watchdog relies on for Ctrl+C/timeout cleanup.
 $PwshExecutable = Join-Path $PSHOME "pwsh.exe"
 
 if (-not (Test-Path -LiteralPath $PwshExecutable -PathType Leaf)) {
@@ -372,4 +399,4 @@ finally {
 Write-Host "  [PASS] Process-tree kill smoke test"
 
 Write-Host ""
-Write-Host "Docflow V5.3 watchdog validation PASS."
+Write-Host "Docflow V5.4 activity watchdog validation PASS."

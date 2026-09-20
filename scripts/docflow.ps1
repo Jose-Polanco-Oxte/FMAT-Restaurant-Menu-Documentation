@@ -10,15 +10,25 @@ param(
     [ValidateSet("Auto", "Analyst", "Editor", "Auditor")]
     [string]$ResumeFrom = "Auto",
 
-    [ValidateRange(1, 10)]
+    [ValidateRange(1, 50)]
     [int]$MaxRounds = 5,
+
+    # On a NEW run MaxRounds is the total round limit.
+    #
+    # On -Resume / -ResumeRunId, an explicitly supplied -MaxRounds is
+    # ADDITIONAL by default. Example:
+    #   completed 8/8 + -Resume -MaxRounds 10 => next round is 9/18.
+    #
+    # Use Absolute only when intentionally replacing the total ceiling.
+    [ValidateSet("Additional", "Absolute")]
+    [string]$ResumeMaxRoundsMode = "Additional",
 
     # Automatic retries for each individual Editor target when the model
     # completed normally but violated the editing contract.
     [ValidateRange(1, 5)]
     [int]$EditorRetryLimit = 3,
 
-    # Retries for transient CLI/process failures (network, stream, timeout).
+    # Retries for transient CLI/process failures (network, stream, watchdog).
     # These retries are separate from EditorRetryLimit.
     [ValidateRange(1, 5)]
     [int]$ProcessRetryLimit = 3,
@@ -26,15 +36,68 @@ param(
     [ValidateRange(0, 300)]
     [int]$ProcessRetryDelaySeconds = 15,
 
-    # Hard watchdogs. A value of 0 disables that stage timeout.
+    # Activity-aware watchdog.
+    #
+    # A stage is NOT killed merely because it has run for this many minutes.
+    # The stall timer starts only after multiple independent telemetry metrics
+    # simultaneously indicate inactivity. Any credible progress signal clears
+    # and resets the suspicion timer.
+    #
+    # Aliases preserve compatibility with V5.3 CLI invocations.
+    [Alias("AnalystTimeoutMinutes")]
     [ValidateRange(0, 240)]
-    [int]$AnalystTimeoutMinutes = 25,
+    [int]$AnalystStallTimeoutMinutes = 8,
 
+    [Alias("AuditorTimeoutMinutes")]
     [ValidateRange(0, 240)]
-    [int]$AuditorTimeoutMinutes = 20,
+    [int]$AuditorStallTimeoutMinutes = 8,
 
+    [Alias("EditorProcessTimeoutMinutes")]
     [ValidateRange(0, 240)]
-    [int]$EditorProcessTimeoutMinutes = 20,
+    [int]$EditorStallTimeoutMinutes = 6,
+
+    # Optional absolute emergency ceilings. 0 disables them.
+    # They are intentionally disabled by default so legitimate long-running
+    # work is governed by activity, not elapsed wall-clock time.
+    [ValidateRange(0, 720)]
+    [int]$AnalystHardCeilingMinutes = 0,
+
+    [ValidateRange(0, 720)]
+    [int]$AuditorHardCeilingMinutes = 0,
+
+    [ValidateRange(0, 720)]
+    [int]$EditorHardCeilingMinutes = 0,
+
+    # A watchdog cannot arm before this runtime.
+    [ValidateRange(0, 60)]
+    [int]$WatchdogMinRuntimeMinutes = 3,
+
+    # Number of independent inactivity metrics required before suspicion arms.
+    [ValidateRange(2, 8)]
+    [int]$WatchdogEvidenceThreshold = 4,
+
+    # Telemetry sampling interval. Heartbeat output may be less frequent.
+    [ValidateRange(5, 300)]
+    [int]$WatchdogSampleSeconds = 30,
+
+    # CPU consumed between telemetry samples that counts as real progress.
+    [ValidateRange(0.01, 60.0)]
+    [double]$WatchdogCpuProgressSeconds = 0.25,
+
+    # Process I/O must be meaningful before it is considered a strong signal.
+    # Small keepalives/polling traffic should not keep a dead session alive.
+    [ValidateRange(1, 1048576)]
+    [int]$WatchdogIoStrongProgressKB = 16,
+
+    # CPU, small I/O, memory and network movement are weak signals. Require
+    # several of them at once before they can cancel a suspicion timer.
+    [ValidateRange(2, 5)]
+    [int]$WatchdogWeakProgressThreshold = 3,
+
+    # Memory movement is deliberately a weak signal because GC/allocation can
+    # fluctuate even while a process is stuck.
+    [ValidateRange(0.1, 1024.0)]
+    [double]$WatchdogMemoryProgressMB = 2.0,
 
     [ValidateRange(10, 600)]
     [int]$HeartbeatSeconds = 60,
@@ -53,7 +116,7 @@ param(
 
     [string]$BaselineRef = "HEAD",
 
-    # A V5.3 run still uses the V5.2-compatible state contract and starts from the committed baseline.
+    # A V5.4 run still uses the V5.2-compatible state contract and starts from the committed baseline.
     # This switch only suppresses the safety refusal when main contains
     # non-workflow uncommitted documentation/application changes.
     [switch]$AllowDirtyBaseline,
@@ -471,6 +534,263 @@ function Get-AsyncTextResult {
     }
 }
 
+function Get-ProcessIoSnapshot {
+    param([Parameter(Mandatory = $true)][int]$ProcessId)
+
+    if (-not (Get-Command "Get-CimInstance" -ErrorAction SilentlyContinue)) {
+        return [pscustomobject]@{
+            Available = $false
+            TotalBytes = [int64]0
+        }
+    }
+
+    try {
+        $CimProcess = Get-CimInstance `
+            -ClassName Win32_Process `
+            -Filter "ProcessId = $ProcessId" `
+            -ErrorAction Stop
+
+        if ($null -eq $CimProcess) {
+            return [pscustomobject]@{
+                Available = $false
+                TotalBytes = [int64]0
+            }
+        }
+
+        $Total = [int64]0
+        $Found = $false
+
+        foreach ($Name in @(
+            "ReadTransferCount",
+            "WriteTransferCount",
+            "OtherTransferCount"
+        )) {
+            $Property = $CimProcess.PSObject.Properties[$Name]
+
+            if ($null -ne $Property -and $null -ne $Property.Value) {
+                $Total += [int64]$Property.Value
+                $Found = $true
+            }
+        }
+
+        return [pscustomobject]@{
+            Available = $Found
+            TotalBytes = $Total
+        }
+    }
+    catch {
+        return [pscustomobject]@{
+            Available = $false
+            TotalBytes = [int64]0
+        }
+    }
+}
+
+function Get-ProcessNetworkSnapshot {
+    param([Parameter(Mandatory = $true)][int]$ProcessId)
+
+    if (-not (Get-Command "Get-NetTCPConnection" -ErrorAction SilentlyContinue)) {
+        return [pscustomobject]@{
+            Available = $false
+            Signature = ""
+            Established = 0
+            CloseWait = 0
+            Total = 0
+        }
+    }
+
+    try {
+        $Connections = @(
+            Get-NetTCPConnection `
+                -OwningProcess $ProcessId `
+                -ErrorAction SilentlyContinue
+        )
+
+        $SignatureParts = @(
+            $Connections |
+            Sort-Object State, RemoteAddress, RemotePort, LocalPort |
+            ForEach-Object {
+                "{0}|{1}|{2}|{3}" -f
+                $_.State,
+                $_.RemoteAddress,
+                $_.RemotePort,
+                $_.LocalPort
+            }
+        )
+
+        return [pscustomobject]@{
+            Available = $true
+            Signature = ($SignatureParts -join ";")
+            Established = @(
+                $Connections |
+                Where-Object { [string]$_.State -eq "Established" }
+            ).Count
+            CloseWait = @(
+                $Connections |
+                Where-Object { [string]$_.State -eq "CloseWait" }
+            ).Count
+            Total = @($Connections).Count
+        }
+    }
+    catch {
+        return [pscustomobject]@{
+            Available = $false
+            Signature = ""
+            Established = 0
+            CloseWait = 0
+            Total = 0
+        }
+    }
+}
+
+function Find-CodexRolloutFile {
+    param(
+        [Parameter(Mandatory = $true)][string]$ExecutablePath,
+        [Parameter(Mandatory = $true)][string]$WorkingDirectory,
+        [Parameter(Mandatory = $true)][datetime]$StartedAt
+    )
+
+    $Leaf = [System.IO.Path]::GetFileNameWithoutExtension($ExecutablePath)
+
+    if (
+        -not $Leaf.Equals(
+            "codex",
+            [System.StringComparison]::OrdinalIgnoreCase
+        )
+    ) {
+        return $null
+    }
+
+    $SessionRoot = Join-Path $HOME ".codex\sessions"
+
+    if (-not (Test-Path -LiteralPath $SessionRoot -PathType Container)) {
+        return $null
+    }
+
+    $Dates = @(
+        $StartedAt.Date,
+        (Get-Date).Date
+    ) | Sort-Object -Unique
+
+    $Candidates = [System.Collections.Generic.List[System.IO.FileInfo]]::new()
+
+    foreach ($Date in @($Dates)) {
+        $DayDirectory = Join-Path `
+            $SessionRoot `
+            ("{0:yyyy}\{0:MM}\{0:dd}" -f $Date)
+
+        if (-not (Test-Path -LiteralPath $DayDirectory -PathType Container)) {
+            continue
+        }
+
+        foreach ($File in @(
+            Get-ChildItem `
+                -LiteralPath $DayDirectory `
+                -Filter "rollout-*.jsonl" `
+                -File `
+                -ErrorAction SilentlyContinue |
+            Where-Object {
+                $_.LastWriteTime -ge $StartedAt.AddMinutes(-2)
+            } |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 40
+        )) {
+            [void]$Candidates.Add($File)
+        }
+    }
+
+    foreach ($Candidate in @(
+        $Candidates |
+        Sort-Object LastWriteTime -Descending
+    )) {
+        try {
+            $Patterns = @(
+                $WorkingDirectory,
+                ($WorkingDirectory -replace '\\', '\\\\'),
+                ($WorkingDirectory -replace '\\', '/')
+            ) | Sort-Object -Unique
+
+            if (
+                Select-String `
+                    -LiteralPath $Candidate.FullName `
+                    -Pattern $Patterns `
+                    -SimpleMatch `
+                    -Quiet `
+                    -ErrorAction SilentlyContinue
+            ) {
+                return $Candidate.FullName
+            }
+        }
+        catch {
+            # A rollout may be concurrently written or temporarily locked.
+        }
+    }
+
+    return $null
+}
+
+function Get-FileActivitySnapshot {
+    param([string[]]$Paths)
+
+    if (@($Paths).Count -eq 0) {
+        return [pscustomobject]@{
+            Available = $false
+            Signature = ""
+        }
+    }
+
+    $Parts = [System.Collections.Generic.List[string]]::new()
+
+    foreach ($Path in @($Paths)) {
+        if ([string]::IsNullOrWhiteSpace($Path)) {
+            continue
+        }
+
+        if (Test-Path -LiteralPath $Path -PathType Leaf) {
+            try {
+                $Item = Get-Item -LiteralPath $Path -ErrorAction Stop
+                [void]$Parts.Add(
+                    "{0}|{1}|{2}" -f
+                    $Path,
+                    $Item.Length,
+                    $Item.LastWriteTimeUtc.Ticks
+                )
+            }
+            catch {
+                [void]$Parts.Add("$Path|unreadable")
+            }
+        }
+        else {
+            [void]$Parts.Add("$Path|missing")
+        }
+    }
+
+    return [pscustomobject]@{
+        Available = @($Parts).Count -gt 0
+        Signature = ($Parts -join ";")
+    }
+}
+
+function Format-ByteDelta {
+    param([int64]$Bytes)
+
+    $Value = [math]::Max(0, $Bytes)
+
+    if ($Value -ge 1GB) {
+        return "{0:0.00}GB" -f ($Value / 1GB)
+    }
+
+    if ($Value -ge 1MB) {
+        return "{0:0.00}MB" -f ($Value / 1MB)
+    }
+
+    if ($Value -ge 1KB) {
+        return "{0:0.0}KB" -f ($Value / 1KB)
+    }
+
+    return "$Value" + "B"
+}
+
 function Invoke-CapturedProcess {
     param(
         [Parameter(Mandatory = $true)][string]$FileName,
@@ -478,7 +798,22 @@ function Invoke-CapturedProcess {
         [Parameter(Mandatory = $true)][string]$WorkingDirectory,
         [Parameter(Mandatory = $true)][string]$Activity,
         [ValidateRange(10, 600)][int]$HeartbeatSeconds = 60,
-        [ValidateRange(0, 86400)][int]$HardTimeoutSeconds = 0
+
+        # Once enough inactivity evidence exists, this confirmation window
+        # starts. Any credible progress signal cancels and resets it.
+        [ValidateRange(0, 86400)][int]$StallTimeoutSeconds = 0,
+
+        # Optional absolute emergency ceiling. Disabled when 0.
+        [ValidateRange(0, 172800)][int]$HardCeilingSeconds = 0,
+
+        [ValidateRange(0, 86400)][int]$WatchdogMinRuntimeSeconds = 180,
+        [ValidateRange(2, 8)][int]$WatchdogEvidenceThreshold = 4,
+        [ValidateRange(5, 300)][int]$WatchdogSampleSeconds = 30,
+        [ValidateRange(0.01, 60.0)][double]$CpuProgressSeconds = 0.25,
+        [ValidateRange(1, 1073741824)][int64]$IoStrongProgressBytes = 16384,
+        [ValidateRange(2, 5)][int]$WeakProgressThreshold = 3,
+        [ValidateRange(0.1, 1024.0)][double]$MemoryProgressMB = 2.0,
+        [string[]]$ProgressPaths
     )
 
     $StartInfo = [System.Diagnostics.ProcessStartInfo]::new()
@@ -499,8 +834,10 @@ function Invoke-CapturedProcess {
     $Process.StartInfo = $StartInfo
 
     $Stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    $StartedAt = Get-Date
     $Started = $false
     $TimedOut = $false
+    $TimeoutKind = $null
     $Killed = $false
     $ProcessId = $null
     $StdoutTask = $null
@@ -508,7 +845,41 @@ function Invoke-CapturedProcess {
     $Stdout = ""
     $Stderr = ""
     $ExitCode = -1
+
     $LastCpuSeconds = 0.0
+    $LastMemoryBytes = [int64]0
+
+    $LastIo = [pscustomobject]@{
+        Available = $false
+        TotalBytes = [int64]0
+    }
+
+    $LastNetwork = [pscustomobject]@{
+        Available = $false
+        Signature = ""
+        Established = 0
+        CloseWait = 0
+        Total = 0
+    }
+
+    $RolloutPath = $null
+    $LastRolloutLength = [int64]0
+    $LastRolloutWriteTicks = [int64]0
+
+    $LastFileSnapshot = Get-FileActivitySnapshot -Paths $ProgressPaths
+
+    $SuspicionStartedAtSeconds = $null
+    $LastEvidenceCount = 0
+    $LastEvidenceRequired = $WatchdogEvidenceThreshold
+    $LastEvidenceLabels = @()
+    $LastProgressLabels = @()
+    $LastCpuDelta = 0.0
+    $LastMemoryDeltaMb = 0.0
+    $LastIoDelta = [int64]0
+    $LastRolloutDelta = [int64]0
+    $LastNetworkSummary = "n/a"
+    $LastSampleAtSeconds = 0.0
+    $LastHeartbeatAtSeconds = 0.0
 
     try {
         if (-not $Process.Start()) {
@@ -519,103 +890,470 @@ function Invoke-CapturedProcess {
         $ProcessId = $Process.Id
 
         try {
+            $Process.Refresh()
             $LastCpuSeconds = $Process.TotalProcessorTime.TotalSeconds
+            $LastMemoryBytes = [int64]$Process.WorkingSet64
         }
         catch {
             $LastCpuSeconds = 0.0
+            $LastMemoryBytes = [int64]0
         }
+
+        $LastIo = Get-ProcessIoSnapshot -ProcessId $ProcessId
+        $LastNetwork = Get-ProcessNetworkSnapshot -ProcessId $ProcessId
 
         $StdoutTask = $Process.StandardOutput.ReadToEndAsync()
         $StderrTask = $Process.StandardError.ReadToEndAsync()
 
         while ($true) {
-            $WaitSeconds = $HeartbeatSeconds
-
-            if ($HardTimeoutSeconds -gt 0) {
-                $RemainingSeconds = $HardTimeoutSeconds - $Stopwatch.Elapsed.TotalSeconds
-
-                if ($RemainingSeconds -le 0) {
-                    $TimedOut = $true
-                    break
-                }
-
-                $WaitSeconds = [math]::Min(
-                    [double]$HeartbeatSeconds,
-                    [double]$RemainingSeconds
-                )
-            }
-
-            $WaitMilliseconds = [math]::Max(
-                100,
-                [int][math]::Ceiling($WaitSeconds * 1000)
-            )
-
-            if ($Process.WaitForExit($WaitMilliseconds)) {
+            # Poll frequently enough that Ctrl+C/finally and hard ceilings do
+            # not wait for a long heartbeat interval.
+            if ($Process.WaitForExit(1000)) {
                 break
             }
 
-            $CpuDelta = $null
-            $CpuTotal = $null
-            $MemoryMb = $null
+            $ElapsedSeconds = $Stopwatch.Elapsed.TotalSeconds
 
-            try {
-                $Process.Refresh()
-                $CpuTotal = $Process.TotalProcessorTime.TotalSeconds
-                $CpuDelta = $CpuTotal - $LastCpuSeconds
-                $LastCpuSeconds = $CpuTotal
-                $MemoryMb = $Process.WorkingSet64 / 1MB
-            }
-            catch {
-                # Process telemetry is diagnostic only.
+            if (
+                $HardCeilingSeconds -gt 0 -and
+                $ElapsedSeconds -ge $HardCeilingSeconds
+            ) {
+                $TimedOut = $true
+                $TimeoutKind = "hard-ceiling"
+                break
             }
 
-            $Parts = [System.Collections.Generic.List[string]]::new()
-            [void]$Parts.Add(
-                "    still running... {0}" -f
-                (Format-Duration -Elapsed $Stopwatch.Elapsed)
+            $ShouldSample = (
+                ($ElapsedSeconds - $LastSampleAtSeconds) -ge
+                $WatchdogSampleSeconds
             )
-            [void]$Parts.Add("PID $ProcessId")
 
-            if ($null -ne $CpuDelta) {
+            if ($ShouldSample) {
+                $LastSampleAtSeconds = $ElapsedSeconds
+
+                $StrongProgress = [System.Collections.Generic.List[string]]::new()
+                $WeakProgress = [System.Collections.Generic.List[string]]::new()
+                $Evidence = [System.Collections.Generic.List[string]]::new()
+                $AvailableEvidenceCount = 0
+
+                # --------------------------------------------------------
+                # CPU
+                # --------------------------------------------------------
+                $CpuAvailable = $false
+
+                try {
+                    $Process.Refresh()
+                    $CpuTotal = $Process.TotalProcessorTime.TotalSeconds
+                    $CpuDelta = [math]::Max(
+                        0.0,
+                        ($CpuTotal - $LastCpuSeconds)
+                    )
+
+                    $LastCpuSeconds = $CpuTotal
+                    $LastCpuDelta = $CpuDelta
+                    $CpuAvailable = $true
+                    $AvailableEvidenceCount++
+
+                    if ($CpuDelta -ge $CpuProgressSeconds) {
+                        # CPU proves liveness, but not useful model progress.
+                        # A stuck CLI can still burn CPU, so this is weak.
+                        [void]$WeakProgress.Add(
+                            "CPU +{0:0.00}s" -f $CpuDelta
+                        )
+                    }
+                    else {
+                        [void]$Evidence.Add("CPU idle")
+                    }
+                }
+                catch {
+                    $LastCpuDelta = 0.0
+                }
+
+                # --------------------------------------------------------
+                # Memory movement (weak progress only)
+                # --------------------------------------------------------
+                $MemoryAvailable = $false
+
+                try {
+                    $Process.Refresh()
+                    $MemoryNow = [int64]$Process.WorkingSet64
+                    $MemoryDeltaMb = [math]::Abs(
+                        ($MemoryNow - $LastMemoryBytes) / 1MB
+                    )
+
+                    $LastMemoryBytes = $MemoryNow
+                    $LastMemoryDeltaMb = $MemoryDeltaMb
+                    $MemoryAvailable = $true
+                    $AvailableEvidenceCount++
+
+                    if ($MemoryDeltaMb -ge $MemoryProgressMB) {
+                        [void]$WeakProgress.Add(
+                            "memory Δ{0:0.0}MB" -f $MemoryDeltaMb
+                        )
+                    }
+                    else {
+                        [void]$Evidence.Add("memory stable")
+                    }
+                }
+                catch {
+                    $LastMemoryDeltaMb = 0.0
+                }
+
+                # --------------------------------------------------------
+                # Process I/O counters
+                # --------------------------------------------------------
+                $CurrentIo = Get-ProcessIoSnapshot -ProcessId $ProcessId
+
+                if ([bool]$CurrentIo.Available) {
+                    $AvailableEvidenceCount++
+
+                    if ([bool]$LastIo.Available) {
+                        $IoDelta = [math]::Max(
+                            [int64]0,
+                            ([int64]$CurrentIo.TotalBytes -
+                             [int64]$LastIo.TotalBytes)
+                        )
+
+                        $LastIoDelta = $IoDelta
+
+                        if ($IoDelta -ge $IoStrongProgressBytes) {
+                            [void]$StrongProgress.Add(
+                                "I/O +" + (Format-ByteDelta -Bytes $IoDelta)
+                            )
+                        }
+                        elseif ($IoDelta -gt 0) {
+                            [void]$WeakProgress.Add(
+                                "small I/O +" +
+                                (Format-ByteDelta -Bytes $IoDelta)
+                            )
+                        }
+                        else {
+                            [void]$Evidence.Add("I/O idle")
+                        }
+                    }
+                    else {
+                        # First available sample is a baseline, not progress.
+                        [void]$Evidence.Add("I/O baseline")
+                        $LastIoDelta = [int64]0
+                    }
+                }
+
+                $LastIo = $CurrentIo
+
+                # --------------------------------------------------------
+                # TCP connection topology
+                # --------------------------------------------------------
+                $CurrentNetwork = Get-ProcessNetworkSnapshot `
+                    -ProcessId $ProcessId
+
+                if ([bool]$CurrentNetwork.Available) {
+                    $AvailableEvidenceCount++
+
+                    $LastNetworkSummary = (
+                        "est {0}/cw {1}/total {2}" -f
+                        $CurrentNetwork.Established,
+                        $CurrentNetwork.CloseWait,
+                        $CurrentNetwork.Total
+                    )
+
+                    if (
+                        [bool]$LastNetwork.Available -and
+                        [string]$CurrentNetwork.Signature -ne
+                        [string]$LastNetwork.Signature
+                    ) {
+                        [void]$WeakProgress.Add("network changed")
+                    }
+                    else {
+                        [void]$Evidence.Add("network stable")
+                    }
+                }
+                else {
+                    $LastNetworkSummary = "n/a"
+                }
+
+                $LastNetwork = $CurrentNetwork
+
+                # --------------------------------------------------------
+                # Codex rollout JSONL (strong progress)
+                # --------------------------------------------------------
+                if ([string]::IsNullOrWhiteSpace([string]$RolloutPath)) {
+                    $RolloutPath = Find-CodexRolloutFile `
+                        -ExecutablePath $FileName `
+                        -WorkingDirectory $WorkingDirectory `
+                        -StartedAt $StartedAt
+
+                    if (
+                        -not [string]::IsNullOrWhiteSpace([string]$RolloutPath) -and
+                        (Test-Path -LiteralPath $RolloutPath -PathType Leaf)
+                    ) {
+                        try {
+                            $RolloutItem = Get-Item `
+                                -LiteralPath $RolloutPath `
+                                -ErrorAction Stop
+
+                            $LastRolloutLength = [int64]$RolloutItem.Length
+                            $LastRolloutWriteTicks = [int64]$RolloutItem.LastWriteTimeUtc.Ticks
+                        }
+                        catch {
+                            $RolloutPath = $null
+                        }
+                    }
+                }
+                elseif (Test-Path -LiteralPath $RolloutPath -PathType Leaf) {
+                    $AvailableEvidenceCount++
+
+                    try {
+                        $RolloutItem = Get-Item `
+                            -LiteralPath $RolloutPath `
+                            -ErrorAction Stop
+
+                        $RolloutLength = [int64]$RolloutItem.Length
+                        $RolloutTicks = [int64]$RolloutItem.LastWriteTimeUtc.Ticks
+
+                        $RolloutDelta = [math]::Max(
+                            [int64]0,
+                            ($RolloutLength - $LastRolloutLength)
+                        )
+
+                        $LastRolloutDelta = $RolloutDelta
+
+                        if (
+                            $RolloutDelta -gt 0 -or
+                            $RolloutTicks -ne $LastRolloutWriteTicks
+                        ) {
+                            [void]$StrongProgress.Add(
+                                "rollout +" +
+                                (Format-ByteDelta -Bytes $RolloutDelta)
+                            )
+                        }
+                        else {
+                            [void]$Evidence.Add("rollout idle")
+                        }
+
+                        $LastRolloutLength = $RolloutLength
+                        $LastRolloutWriteTicks = $RolloutTicks
+                    }
+                    catch {
+                        # Rollout telemetry is optional.
+                    }
+                }
+
+                # --------------------------------------------------------
+                # Stage output / target files
+                # --------------------------------------------------------
+                $CurrentFileSnapshot = Get-FileActivitySnapshot `
+                    -Paths $ProgressPaths
+
+                if ([bool]$CurrentFileSnapshot.Available) {
+                    $AvailableEvidenceCount++
+
+                    if (
+                        [bool]$LastFileSnapshot.Available -and
+                        [string]$CurrentFileSnapshot.Signature -ne
+                        [string]$LastFileSnapshot.Signature
+                    ) {
+                        [void]$StrongProgress.Add("monitored file changed")
+                    }
+                    else {
+                        [void]$Evidence.Add("monitored file stable")
+                    }
+                }
+
+                $LastFileSnapshot = $CurrentFileSnapshot
+
+                # Strong signals reset suspicion individually. Weak signals
+                # need corroboration to avoid memory/network noise masking a
+                # real stall.
+                $HasProgress = (
+                    @($StrongProgress).Count -gt 0 -or
+                    @($WeakProgress).Count -ge $WeakProgressThreshold
+                )
+
+                $LastProgressLabels = @(
+                    @($StrongProgress) + @($WeakProgress)
+                )
+                $LastEvidenceLabels = @($Evidence)
+                $LastEvidenceCount = @($Evidence).Count
+                $LastEvidenceRequired = $WatchdogEvidenceThreshold
+
+                $CanArm = (
+                    $StallTimeoutSeconds -gt 0 -and
+                    $ElapsedSeconds -ge $WatchdogMinRuntimeSeconds -and
+                    $AvailableEvidenceCount -ge $WatchdogEvidenceThreshold
+                )
+
+                if ($HasProgress) {
+                    if ($null -ne $SuspicionStartedAtSeconds) {
+                        Write-Host (
+                            "    watchdog suspicion cleared for {0}: {1}" -f
+                            $Activity,
+                            (($LastProgressLabels | Select-Object -First 4) -join ", ")
+                        )
+                    }
+
+                    $SuspicionStartedAtSeconds = $null
+                }
+                elseif (
+                    $CanArm -and
+                    $LastEvidenceCount -ge $WatchdogEvidenceThreshold
+                ) {
+                    if ($null -eq $SuspicionStartedAtSeconds) {
+                        $SuspicionStartedAtSeconds = $ElapsedSeconds
+
+                        Write-Host (
+                            "    watchdog suspicion armed for {0}: evidence {1}/{2} [{3}]; confirmation window {4}" -f
+                            $Activity,
+                            $LastEvidenceCount,
+                            $WatchdogEvidenceThreshold,
+                            (($LastEvidenceLabels | Select-Object -First 6) -join ", "),
+                            (Format-Duration -Elapsed (
+                                [TimeSpan]::FromSeconds($StallTimeoutSeconds)
+                            ))
+                        )
+                    }
+                    else {
+                        $SuspectElapsed = (
+                            $ElapsedSeconds -
+                            [double]$SuspicionStartedAtSeconds
+                        )
+
+                        if ($SuspectElapsed -ge $StallTimeoutSeconds) {
+                            $TimedOut = $true
+                            $TimeoutKind = "confirmed-stall"
+                            break
+                        }
+                    }
+                }
+                else {
+                    # Evidence stopped being sufficient. A previously armed
+                    # timer is no longer valid and must be discarded.
+                    if ($null -ne $SuspicionStartedAtSeconds) {
+                        Write-Host (
+                            "    watchdog suspicion cleared for {0}: evidence dropped below threshold" -f
+                            $Activity
+                        )
+                    }
+
+                    $SuspicionStartedAtSeconds = $null
+                }
+            }
+
+            # ------------------------------------------------------------
+            # Human-readable heartbeat
+            # ------------------------------------------------------------
+            if (
+                ($ElapsedSeconds - $LastHeartbeatAtSeconds) -ge
+                $HeartbeatSeconds
+            ) {
+                $LastHeartbeatAtSeconds = $ElapsedSeconds
+
+                $Parts = [System.Collections.Generic.List[string]]::new()
+
                 [void]$Parts.Add(
-                    "CPU +{0:0.00}s" -f [math]::Max(0.0, $CpuDelta)
+                    "    still running... {0}" -f
+                    (Format-Duration -Elapsed $Stopwatch.Elapsed)
                 )
-            }
 
-            if ($null -ne $MemoryMb) {
-                [void]$Parts.Add("mem {0:0.0}MB" -f $MemoryMb)
-            }
-
-            if ($HardTimeoutSeconds -gt 0) {
-                $Remaining = [math]::Max(
-                    0,
-                    $HardTimeoutSeconds - $Stopwatch.Elapsed.TotalSeconds
+                [void]$Parts.Add("PID $ProcessId")
+                [void]$Parts.Add(
+                    "CPU +{0:0.00}s" -f $LastCpuDelta
                 )
                 [void]$Parts.Add(
-                    "timeout in {0}" -f
-                    (Format-Duration -Elapsed ([TimeSpan]::FromSeconds($Remaining)))
+                    "I/O +{0}" -f
+                    (Format-ByteDelta -Bytes $LastIoDelta)
                 )
-            }
+                [void]$Parts.Add($LastNetworkSummary)
 
-            Write-Host ($Parts -join " | ")
+                if (-not [string]::IsNullOrWhiteSpace([string]$RolloutPath)) {
+                    [void]$Parts.Add(
+                        "rollout +{0}" -f
+                        (Format-ByteDelta -Bytes $LastRolloutDelta)
+                    )
+                }
+
+                if ($null -ne $SuspicionStartedAtSeconds) {
+                    $SuspectElapsed = (
+                        $ElapsedSeconds -
+                        [double]$SuspicionStartedAtSeconds
+                    )
+
+                    $Remaining = [math]::Max(
+                        0,
+                        ($StallTimeoutSeconds - $SuspectElapsed)
+                    )
+
+                    [void]$Parts.Add(
+                        "SUSPECT {0}/{1}" -f
+                        (Format-Duration -Elapsed (
+                            [TimeSpan]::FromSeconds($SuspectElapsed)
+                        )),
+                        (Format-Duration -Elapsed (
+                            [TimeSpan]::FromSeconds($StallTimeoutSeconds)
+                        ))
+                    )
+
+                    [void]$Parts.Add(
+                        "confirm in {0}" -f
+                        (Format-Duration -Elapsed (
+                            [TimeSpan]::FromSeconds($Remaining)
+                        ))
+                    )
+                }
+                else {
+                    [void]$Parts.Add(
+                        "evidence {0}/{1}" -f
+                        $LastEvidenceCount,
+                        $WatchdogEvidenceThreshold
+                    )
+                }
+
+                if ($HardCeilingSeconds -gt 0) {
+                    $HardRemaining = [math]::Max(
+                        0,
+                        ($HardCeilingSeconds - $ElapsedSeconds)
+                    )
+
+                    [void]$Parts.Add(
+                        "hard ceiling in {0}" -f
+                        (Format-Duration -Elapsed (
+                            [TimeSpan]::FromSeconds($HardRemaining)
+                        ))
+                    )
+                }
+
+                Write-Host ($Parts -join " | ")
+            }
         }
 
         if ($TimedOut) {
+            $ReasonText = if ($TimeoutKind -eq "confirmed-stall") {
+                (
+                    "confirmed stall after multi-metric inactivity evidence " +
+                    "persisted for " +
+                    (Format-Duration -Elapsed (
+                        [TimeSpan]::FromSeconds($StallTimeoutSeconds)
+                    ))
+                )
+            }
+            else {
+                "absolute hard ceiling"
+            }
+
             Write-Host (
-                "    {0} hard timeout reached after {1}; killing PID {2} process tree..." -f
+                "    {0} watchdog triggered ({1}) after {2}; killing PID {3} process tree..." -f
                 $Activity,
+                $ReasonText,
                 (Format-Duration -Elapsed $Stopwatch.Elapsed),
                 $ProcessId
             )
 
             Stop-ChildProcessTree `
                 -Process $Process `
-                -Reason "hard timeout"
+                -Reason $TimeoutKind
 
             $Killed = $true
         }
         else {
-            # Flush async process streams after normal termination.
             try {
                 $Process.WaitForExit()
             }
@@ -642,8 +1380,7 @@ function Invoke-CapturedProcess {
         }
     }
     finally {
-        # Crucial Ctrl+C guarantee: if PowerShell aborts WaitForExit or any
-        # other statement, do not leave codex.exe / agy.exe orphaned.
+        # Ctrl+C guarantee: never leave codex.exe / agy.exe orphaned.
         if ($Started) {
             try {
                 if (-not $Process.HasExited) {
@@ -670,8 +1407,12 @@ function Invoke-CapturedProcess {
         Activity = $Activity
         ProcessId = $ProcessId
         TimedOut = $TimedOut
+        TimeoutKind = $TimeoutKind
         Killed = $Killed
-        HardTimeoutSeconds = $HardTimeoutSeconds
+        StallTimeoutSeconds = $StallTimeoutSeconds
+        HardCeilingSeconds = $HardCeilingSeconds
+        EvidenceCount = $LastEvidenceCount
+        EvidenceLabels = @($LastEvidenceLabels)
     }
 }
 
@@ -820,7 +1561,17 @@ function Throw-ProcessFailure {
     }
 
     $TimeoutText = if ([bool]$Result.TimedOut) {
-        " (hard timeout)"
+        $Kind = if (
+            $null -ne $Result.PSObject.Properties["TimeoutKind"] -and
+            -not [string]::IsNullOrWhiteSpace([string]$Result.TimeoutKind)
+        ) {
+            [string]$Result.TimeoutKind
+        }
+        else {
+            "watchdog"
+        }
+
+        " ($Kind)"
     }
     else {
         ""
@@ -2417,12 +3168,22 @@ Return only the IntegrationPlan required by the output schema.
         -WorkingDirectory $Worktree `
         -Activity "Analyst" `
         -HeartbeatSeconds $HeartbeatSeconds `
-        -HardTimeoutSeconds ($AnalystTimeoutMinutes * 60)
+        -StallTimeoutSeconds ($AnalystStallTimeoutMinutes * 60) `
+        -HardCeilingSeconds ($AnalystHardCeilingMinutes * 60) `
+        -WatchdogMinRuntimeSeconds ($WatchdogMinRuntimeMinutes * 60) `
+        -WatchdogEvidenceThreshold $WatchdogEvidenceThreshold `
+        -WatchdogSampleSeconds $WatchdogSampleSeconds `
+        -CpuProgressSeconds $WatchdogCpuProgressSeconds `
+        -IoStrongProgressBytes ($WatchdogIoStrongProgressKB * 1KB) `
+        -WeakProgressThreshold $WatchdogWeakProgressThreshold `
+        -MemoryProgressMB $WatchdogMemoryProgressMB `
+        -ProgressPaths @($PlanPath)
 }
 
 function Invoke-EditorTarget {
     param(
-        [Parameter(Mandatory = $true)][string]$Worktree
+        [Parameter(Mandatory = $true)][string]$Worktree,
+        [Parameter(Mandatory = $true)][string]$TargetPath
     )
 
     $Prompt = @"
@@ -2453,13 +3214,26 @@ DONE
         "--print-timeout", "15m"
     )
 
+    $TargetAbsolute = Convert-ToAbsoluteRepoPath `
+        -RepoRoot $Worktree `
+        -RelativePath $TargetPath
+
     return Invoke-CapturedProcess `
         -FileName (Get-CommandPath "agy") `
         -Arguments $Arguments `
         -WorkingDirectory $Worktree `
         -Activity "Editor" `
         -HeartbeatSeconds $HeartbeatSeconds `
-        -HardTimeoutSeconds ($EditorProcessTimeoutMinutes * 60)
+        -StallTimeoutSeconds ($EditorStallTimeoutMinutes * 60) `
+        -HardCeilingSeconds ($EditorHardCeilingMinutes * 60) `
+        -WatchdogMinRuntimeSeconds ($WatchdogMinRuntimeMinutes * 60) `
+        -WatchdogEvidenceThreshold $WatchdogEvidenceThreshold `
+        -WatchdogSampleSeconds $WatchdogSampleSeconds `
+        -CpuProgressSeconds $WatchdogCpuProgressSeconds `
+        -IoStrongProgressBytes ($WatchdogIoStrongProgressKB * 1KB) `
+        -WeakProgressThreshold $WatchdogWeakProgressThreshold `
+        -MemoryProgressMB $WatchdogMemoryProgressMB `
+        -ProgressPaths @($TargetAbsolute)
 }
 
 function Invoke-Auditor {
@@ -2513,7 +3287,16 @@ Return only the AuditReport required by the output schema.
         -WorkingDirectory $Worktree `
         -Activity "Auditor" `
         -HeartbeatSeconds $HeartbeatSeconds `
-        -HardTimeoutSeconds ($AuditorTimeoutMinutes * 60)
+        -StallTimeoutSeconds ($AuditorStallTimeoutMinutes * 60) `
+        -HardCeilingSeconds ($AuditorHardCeilingMinutes * 60) `
+        -WatchdogMinRuntimeSeconds ($WatchdogMinRuntimeMinutes * 60) `
+        -WatchdogEvidenceThreshold $WatchdogEvidenceThreshold `
+        -WatchdogSampleSeconds $WatchdogSampleSeconds `
+        -CpuProgressSeconds $WatchdogCpuProgressSeconds `
+        -IoStrongProgressBytes ($WatchdogIoStrongProgressKB * 1KB) `
+        -WeakProgressThreshold $WatchdogWeakProgressThreshold `
+        -MemoryProgressMB $WatchdogMemoryProgressMB `
+        -ProgressPaths @($AuditPath)
 }
 
 # ============================================================
@@ -2690,7 +3473,29 @@ if ($null -eq $State) {
 }
 
 if ($PSBoundParameters.ContainsKey("MaxRounds")) {
-    $State.max_rounds = $MaxRounds
+    $IsResumeInvocation = (
+        $Resume -or
+        -not [string]::IsNullOrWhiteSpace($ResumeRunId)
+    )
+
+    if (
+        $IsResumeInvocation -and
+        $ResumeMaxRoundsMode -eq "Additional"
+    ) {
+        # State.round is the next/current round number. Therefore round - 1 is
+        # the number of rounds already consumed. The explicit MaxRounds value
+        # becomes the number of rounds still being granted.
+        $CompletedRounds = [math]::Max(
+            0,
+            ([int]$State.round - 1)
+        )
+
+        $State.max_rounds = $CompletedRounds + $MaxRounds
+    }
+    else {
+        # New run or explicit legacy/absolute resume behavior.
+        $State.max_rounds = $MaxRounds
+    }
 
     if (
         [string]$State.status -eq "MAX_ROUNDS_REACHED" -and
@@ -2832,7 +3637,7 @@ if ($ResumeFrom -ne "Auto") {
 
 Write-Host ""
 Write-Host "============================================================"
-Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.3 WATCHDOG"
+Write-Host " DOCUMENTATION WORKFLOW - HARDENED V5.4 ACTIVITY WATCHDOG"
 Write-Host "============================================================"
 Write-Host ("Run:           {0}" -f $State.run_id)
 Write-Host ("Round:         {0}/{1}" -f $State.round, $State.max_rounds)
@@ -2842,11 +3647,28 @@ Write-Host ("Candidate:     {0}" -f $Worktree)
 Write-Host ("Editor retries:{0}" -f $State.editor_retry_limit)
 Write-Host ("Process retries:{0} | retry delay: {1}s" -f $ProcessRetryLimit, $ProcessRetryDelaySeconds)
 Write-Host (
-    "Watchdogs:     Analyst {0}m | Editor {1}m | Auditor {2}m | heartbeat {3}s" -f
-    $AnalystTimeoutMinutes,
-    $EditorProcessTimeoutMinutes,
-    $AuditorTimeoutMinutes,
-    $HeartbeatSeconds
+    "Stall confirm: Analyst {0}m | Editor {1}m | Auditor {2}m" -f
+    $AnalystStallTimeoutMinutes,
+    $EditorStallTimeoutMinutes,
+    $AuditorStallTimeoutMinutes
+)
+Write-Host (
+    "Watchdog:      min runtime {0}m | inactivity evidence {1} | weak-progress quorum {2}" -f
+    $WatchdogMinRuntimeMinutes,
+    $WatchdogEvidenceThreshold,
+    $WatchdogWeakProgressThreshold
+)
+Write-Host (
+    "Telemetry:     sample {0}s | heartbeat {1}s | strong I/O >= {2}KB" -f
+    $WatchdogSampleSeconds,
+    $HeartbeatSeconds,
+    $WatchdogIoStrongProgressKB
+)
+Write-Host (
+    "Hard ceilings: Analyst {0}m | Editor {1}m | Auditor {2}m (0=off)" -f
+    $AnalystHardCeilingMinutes,
+    $EditorHardCeilingMinutes,
+    $AuditorHardCeilingMinutes
 )
 
 if (@($Scopes).Count -gt 0) {
@@ -3032,7 +3854,7 @@ try {
                         )
                         blockers = @()
                         notes = @(
-                            "Execution report synthesized by the V5.3 watchdog orchestrator.",
+                            "Execution report synthesized by the V5.4 watchdog orchestrator.",
                             "Each CREATE/MODIFY target was executed in an isolated one-file Editor invocation.",
                             "Unauthorized Editor writes were rolled back automatically before acceptance.",
                             "DELETE operations were performed by the orchestrator.",
@@ -3110,7 +3932,9 @@ try {
                     -RetryLimit $ProcessRetryLimit `
                     -RetryDelaySeconds $ProcessRetryDelaySeconds `
                     -Operation {
-                        Invoke-EditorTarget -Worktree $Worktree
+                        Invoke-EditorTarget `
+                            -Worktree $Worktree `
+                            -TargetPath $TargetPath
                     } `
                     -BeforeRetry {
                         param($FailedResult, $ProcessAttempt)
@@ -3639,7 +4463,7 @@ try {
                     Write-Host "Maximum audit rounds reached."
                     Write-Host (
                         "Resume with a larger limit, e.g. " +
-                        ".\scripts\docflow.ps1 -Resume -MaxRounds 7"
+                        ".\scripts\docflow.ps1 -Resume -MaxRounds 3  # grants 3 additional rounds"
                     )
 
                     exit 2
